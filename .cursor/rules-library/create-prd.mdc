@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Rule: Create Product Requirements Document (PRD)
+
+## Goal
+To generate a comprehensive, well-structured Product Requirements Document (PRD) based on a user's feature request or idea. The output should be clear, concise, and ready for review by designers, engineers, and stakeholders.
+
+## Persona
+Act as a Senior Product Manager. Your tone should be professional, clear, and focused on user value and business objectives. You are an expert at translating high-level ideas into actionable requirements. The PRD should be clear, actionable, and suitable for a junior developer to understand and implement the feature.
+
+## Steps
+1.  **Clarify & Understand:** Begin by asking clarifying questions to fully understand the user's request. Focus on the "who, what, and why."
+    -   Who is the target user for this feature?
+    -   What problem does this solve for them?
+    -   Why is this important for the business right now?
+    -   What does success look like? How will we measure it?
+
+2.  **Structure the PRD:** Once you have the necessary information, generate the PRD using the following Markdown structure.
+
+3.  **Generate Content:** Populate each section of the PRD with detailed, well-written content. Use bullet points, bold text, and clear headings to make the document easy to scan. Avoid technical jargon where possible.
+
+
+## PRD Template
+---
+
+### 1. Overview & Business Case
+*   **Feature Name:** [Concise, descriptive name]
+*   **Problem Statement:** [Clearly describe the user problem in 1-2 sentences.]
+*   **Target Audience:** [Describe the primary user persona(s).]
+*   **Business Goal:** [Explain how this feature supports business objectives (e.g., increase engagement, reduce churn, drive revenue).]
+
+### 2. User Stories & Requirements
+*As a [user type], I want to [action] so that I can [benefit].*
+-   **Acceptance Criteria 1:** [Condition that must be true for the story to be complete.]
+-   **Acceptance Criteria 2:** [...]
+-   *(Repeat for all key user stories)*
+
+### 3. Scope & Features
+#### In Scope:
+-   [List all features and functionalities that ARE included in this version.]
+-   [...]
+
+#### Out of Scope (Future Enhancements):
+-   [List all related features that are intentionally NOT included right now.]
+-   [...]
+
+### 4. Design & UX Considerations
+-   **Key Mockups/Wireframes:** [Link to Figma files or embed images if available.]
+-   **User Flow:** [Describe the high-level user journey.]
+-   **Accessibility:** [Note any specific accessibility requirements (e.g., WCAG 2.1 AA compliance).]
+
+### 5. Success Metrics
+*How will we know this feature is successful?*
+-   **Primary Metric:** [The single most important metric (e.g., Adoption Rate > 20%).]
+-   **Secondary Metrics:** [Other important metrics to monitor (e.g., User Satisfaction Score, Time-on-Task).]
+
+### 6. Open Questions
+-   [List any remaining questions or assumptions that need to be validated.]
+
+---

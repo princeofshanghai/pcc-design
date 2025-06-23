@@ -1,0 +1,392 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# LinkedIn Business Context for Product Catalog Console
+
+---
+
+*For a summary of the most important Product and SKU attributes for Epic 1, see Appendix: Epic 1 Attribute Focus at the end of this document.*
+
+## 1. Core Entities & Relationships
+
+### 1.1 Product, SKU, Price, and Price Point Hierarchy
+At LinkedIn, the product catalog is structured in a four-level hierarchy to manage complexity, experimentation, and versioning with precision.
+
+**1. Product (The Brand)**
+- **Definition:** The highest-level conceptual offering that users and PMs recognize. It acts as the primary container for all the ways it can be sold.
+- **Example:** "Sales Navigator Core", "LinkedIn Learning for Teams"
+
+**2. SKU (The Sellable Configuration)**
+- **Definition:** A specific, sellable permutation of a Product. A single Product is composed of many SKUs. Each SKU is defined by a unique combination of commercial attributes.
+- **Defining Attributes:** `Region`, `Channel`, `Billing Cycle`, `Product Type`, etc.
+- **Example:** One SKU for Sales Navigator Core could be `Annual billing, for the NAMER region, sold via the Desktop channel`. A different SKU would represent the `Monthly` version for the same configuration.
+
+**3. Price (The Versioned Offering)**
+- **Definition:** A versioned pricing configuration tied to a *specific SKU*. This is where time-based and experimental logic lives. A single SKU can have multiple `Price` objects active at once (e.g., a standard price and an experimental price).
+- **Key Features:**
+  - **LIX Experiments:** A `Price` can be tied to a LIX key and treatment group.
+  - **Effective Dates:** A `Price` has `Start Date` and `End Date` to control when it's active.
+  - **Drafts & Workflows:** A `Price` can exist as a `Draft` before it goes live.
+- **Example:** The `Annual, NAMER, Desktop` SKU could have a `Price` for the standard live offering, and another `Price` for a Q4 discount experiment.
+
+**4. Price Point (The Currency Amount)**
+- **Definition:** The most granular level, representing the actual monetary amount in a specific currency. It is attached to a `Price` object.
+- **Attributes:** `Currency` (USD, EUR, JPY) and `Amount`.
+- **Example:** A `Price` object would contain multiple `Price Points`, such as `USD 959.88`, `CAD 1271.88`, etc.
+
+**Visual Hierarchy:**
+```
+Product
+└── SKU (e.g., Annual, NAMER, Desktop)
+    ├── Price (e.g., Standard Live Version)
+    │   ├── Price Point (USD 959.88)
+    │   └── Price Point (CAD 1271.88)
+    └── Price (e.g., Q4 LIX Experiment)
+        ├── Price Point (USD 863.89)
+        └── Price Point (CAD 1144.69)
+```
+
+This model separates the **"what"** (the SKU) from the **"how and when"** (the Price), allowing for granular control and scalability.
+
+---
+
+## 2. Catalog Organization
+
+### 2.1 Line of Business (LOB)
+- **Definition:**
+  LOB stands for "Line of Business" and is the primary way LinkedIn organizes its product catalog for internal tools and reporting.
+- **LOB Options:**
+  - **LTS:** LinkedIn Talent Solutions
+  - **LMS:** LinkedIn Marketing Solutions
+  - **LSS:** LinkedIn Sales Solutions
+  - **Premium:** LinkedIn Premium Subscriptions (for individuals and small businesses)
+- **Usage:**
+  - Every product is assigned to exactly one LOB.
+  - LOB is a key filter and navigation element in the product catalog UI.
+  - LOB is displayed prominently in product lists and detail pages.
+  - LOB is used for reporting, access control, and business segmentation.
+
+### 2.2 Product Category
+- **Definition:**  
+  A Product Category is a logical grouping of products within a Line of Business (LOB). Categories help organize the catalog, improve navigation, and make it easier for users to filter and discover related offerings.
+- **Usage:**  
+  - Every Product is assigned to exactly one Category, in addition to its LOB.
+  - Categories are used as a secondary filter and navigation element in the product catalog UI.
+  - Categories are displayed in product lists and detail pages to provide additional context.
+  - Categories help with reporting, segmentation, and user discovery.
+- **Category Groupings by LOB:**
+  - **LTS (LinkedIn Talent Solutions):**
+    - Career Pages
+    - GeoFenced
+    - Glint
+    - Jobs
+    - Learning
+    - LiHA
+    - Lynda
+    - RLite
+    - SMB Solution
+  - **Premium:**
+    - Company Page
+    - Generic Products
+    - Multiseat
+    - Small Business
+  - **LSS (LinkedIn Sales Solutions):**
+    - Sales Navigator
+    - Sales Insights
+    - Pipeline Builder
+    - Account Targeting
+  - **LMS (LinkedIn Marketing Solutions):**
+    - Sponsored Content
+    - Lead Gen
+    - Audience Network
+    - Campaign Manager
+
+---
+
+## 3. Commercial Dimensions
+
+### 3.1 Geographic Regions
+LinkedIn operates across five primary geographic regions:
+| Abbreviation | Region Name                     | Included Areas                                                |
+| ------------ | ------------------------------- | ------------------------------------------------------------- |
+| **NAMER**    | North America                   | U.S., Canada                                                  |
+| **EMEA**     | Europe, Middle East, and Africa | Europe, Middle East, Africa                                   |
+| **APAC**     | Asia-Pacific                    | East Asia, South Asia, Southeast Asia, Australia, New Zealand |
+| **LATAM**    | Latin America                   | Central and South America, Mexico                             |
+| **OTHER**    | Other or Global                 | Rarely used, catch-all for unclassified or global accounts    |
+
+### 3.2 Sales Channels
+- **Desktop**: Online sales through LinkedIn's website
+- **Field**: Sales through LinkedIn's sales representatives
+- **Mobile**: Online sales through iOS App Store and Google Play Billing (GPB)
+  - Mobile is separate from desktop due to Apple and Google's platform rules and fees
+  - iOS and Google Play have different billing requirements and fee structures
+
+### 3.3 Billing Cycles
+- **Monthly**: Recurring monthly billing
+- **Quarterly**: Recurring quarterly billing
+- **Annual**: Recurring annual billing (often with discounts)
+
+### 3.4 Product Types
+- **Subscription**: Recurring billing products (majority of LinkedIn's products)
+- **One-time**: Single purchase products
+- **Usage-based**: Products billed based on consumption/usage
+
+### 3.5 Key Business Rules
+- A product cannot be multiple types (no mixed subscription + usage models)
+- Pricing varies by Channel × Market × Billing Cycle combinations
+- Mobile channel pricing often differs from desktop due to platform fees
+- Field sales may have different pricing structures than online channels
+- Most products are subscription-based
+
+---
+
+## 4. Pricing Logic
+
+### 4.1 USD-First Pricing
+- Pricing managers at LinkedIn set prices in terms of USD first.
+- USD is the primary and most prominently displayed price for all products.
+- Other currencies (EUR, JPY, etc.) are typically calculated from the USD price using standard FX rates.
+- After FX conversion, prices may be further adjusted for business strategy or to use "charm pricing" (e.g., $49.99 instead of $50).
+- In the UI, always display the USD price first, with other currencies as secondary details.
+- FX rates are a starting point, but local market adjustments are common.
+
+---
+
+## 5. Status & Lifecycle
+
+### 5.1 Status System for Products, Prices, and Price Points
+- Each Product, Price, and Price Point has a status:
+  - **Active**: Currently live and being offered/used
+  - **Legacy**: No longer offered to new customers, but still used by some existing customers
+  - **Retired**: Completely shut off and no longer in use
+
+**Status Cascade Logic:**
+- If any Price Point is Active, its parent Price is considered Active
+- If any Price is Active, its parent Product is considered Active
+- If all Price Points under a Price are not Active, the Price becomes Legacy or Retired (depending on customer usage)
+- If all Prices under a Product are not Active, the Product becomes Legacy or Retired
+
+**Example:**
+- Product: "Sales Navigator Core"
+  - Price: Annual, Field, EMEA
+    - Price Point: €499.99/year (**Active**)
+    - Price Point: €449.99/year (**Legacy**)
+  - Price: Monthly, Desktop, NAMER
+    - Price Point: $79.99/month (**Retired**)
+
+- The "chain" logic means that a single live Price Point keeps its parent Price and Product marked as Active
+- Users can filter or view status at any level (Product, Price, Price Point)
+
+### 5.2 Publishing Workflow (Lifecycle Status)
+- Edits to the Product Catalog do not go directly to production to ensure safety and stability.
+- All changes go through a publishing workflow, tracked by a separate "publishing status" (also called lifecycle status).
+- Users only see a simple "Publish" action, but behind the scenes, the change moves through several stages:
+  - **Draft:** User is editing, not yet published.
+  - **Pending to EI:** User has published; change is waiting for Engineering to pick up.
+  - **EI:** Change is in LinkedIn's internal staging (Enterprise Infrastructure) for testing.
+  - **Pending to Prod:** Passed EI, waiting to go live.
+  - **Prod:** Fully live in production.
+- This process ensures that no business user can directly alter what customers see—everything is validated and deployed by Engineering.
+- In the MVP, this workflow is not required, but it is important for future releases.
+
+**Separation from Business Status:**
+- **Business Status** (Active, Legacy, Retired): Indicates if something is live/offered from a business perspective.
+- **Publishing Status** (Draft, Pending to EI, EI, Pending to Prod, Prod): Indicates where a change is in the deployment pipeline.
+- In the future, both statuses should be tracked and displayed for Products, Prices, and Price Points.
+
+---
+
+## 6. MVP & Future Clarifications
+
+- For **Epic 1** (View and Search Product Catalog): The publishing workflow is not needed, as users are only viewing production data and not making edits.
+- For **Epic 2** (Design New Price Experiment) and future editing flows: The publishing workflow is required, as users will be proposing, editing, and publishing changes. Both business status and publishing status must be tracked and displayed.
+
+---
+
+## 7. Currency Logic
+
+### 7.1 Global Currency Support
+- LinkedIn supports 55 currencies for global pricing and localization.
+
+### 7.2 Currency Groupings
+- **By Tier (Desktop/Mobile):**
+  - **Core Currencies:** High-priority, actively managed (e.g., USD, EUR, CAD, AUD, CHF, DKK, NOK, SEK, GBP, HKD, SGD, BRL, NZD, JPY, INR, ZAR, AED, PLN, SAR, MXN, EGP, TRY, CNY)
+  - **Longtail Currencies:** The remaining 32 supported currencies (e.g., ARS, BDT, CLP, IDR, TWD, VND, etc.)
+- **By Channel:**
+  - **Desktop/Mobile:** Uses all 55 currencies, grouped by Core/Longtail.
+  - **Field Sales:** Only 10 currencies are supported (USD, CAD, GBP, EUR, AUD, SGD, INR, HKD, CNY, JPY). All others are unsupported for Field.
+
+### 7.3 FX and USD Baseline
+- USD is always required and is the baseline for all pricing.
+- Other currencies are auto-generated from USD using FX rates, but business users can override these for strategy or local market needs.
+- Some currencies (e.g., JPY) have special formatting rules (e.g., no decimals).
+
+### UI/UX and Business Logic Implications
+- UI should allow filtering, searching, and editing by currency, region, and priority (Core vs. Longtail).
+- Core currencies are more visible/prominent in the UI; longtail currencies may be hidden or collapsed by default.
+- Field sales pricing is only shown for the 10 supported currencies.
+- All products must have a USD price; other currencies are optional but recommended for global reach.
+- Enforce USD as required for every product/price.
+- Allow business users to override FX-based prices.
+- Apply formatting rules for specific currencies (e.g., JPY).
+
+### Currency Formatting
+- Do not use currency symbols (like $, €, or ¥); always use currency codes (e.g., USD, EUR, JPY).
+  - Example: USD 49.99, EUR 79.00, JPY 5000
+- Most currencies use 2 decimal places (e.g., USD 49.99, EUR 79.00).
+- Some currencies (JPY, KRW, CLP, VND, etc.) use no decimals—always show whole numbers (e.g., JPY 5000, KRW 11900).
+- No localization of commas or separators—keep formatting simple and consistent across all currencies.
+- The goal is to make prices easy to scan and compare, prioritizing clarity and consistency over local consumer formatting.
+
+---
+
+## 8. Pricing Activation & Experimentation
+
+### Effective Dates (Timing Control)
+- Every Price can have:
+  - **Start Date:** When the price becomes valid (if blank, active immediately upon publishing)
+  - **End Date:** When the price stops being used (if blank, stays active until replaced/retired)
+- Purpose: Schedule or stagger price rollouts, align with campaigns, contracts, or regulations—without engineering intervention.
+
+### Price Points (Per-Currency Logic)
+- Each Price includes multiple Price Points (one per currency).
+- By default, Price Points inherit effective dates from their parent Price.
+- Price Points can override Start/End Dates if needed (e.g., adding a new currency later).
+- Purpose: Allows gradual expansion of currency coverage without creating new Price configs.
+
+### LIX (LinkedIn Experiments)
+- **Lix Key:** Experiment name/ID (e.g., "price_test_q4_2025")
+- **Lix Treatment:** Test group (e.g., "control", "variantA")
+- If a Price has a LIX key/treatment, only users bucketed into that treatment see it.
+- Purpose: Test pricing strategies, discounts, conversion, or localization without global rollout.
+
+### How LIX and Effective Dates Work Together
+- **Effective Date:** Controls when a price (or experiment) is valid.
+- **LIX:** Controls who sees the price (experiment group).
+- Combined Logic:
+  - Price with no LIX: Available to everyone once effective.
+  - Price with LIX: Only visible to the treatment group, and only after the Start Date (if set).
+
+### Business Impact
+- Enables safe, scheduled, and targeted pricing changes.
+- Supports experimentation and gradual rollouts.
+- Reduces engineering dependency for business-driven pricing changes.
+
+---
+
+## Digital Goods, Entitlements, and Consumables
+
+### Digital Good
+- A Digital Good is any feature, capability, or benefit that a user receives as part of their subscription or purchase.
+- Digital Goods define the value of a SKU—what the end user actually gets.
+
+### Types of Digital Goods
+- **Entitlement:** A yes/no (boolean) permission to access a feature. Example: Access to Applicant Insights (true/false).
+- **Consumable:** A countable or spendable benefit. Example: 30 InMail credits per month.
+
+### Where Digital Goods Live
+- Digital Goods are attached to the SKU level (not Product level).
+- Different SKUs of the same Product can include different Digital Goods (e.g., different features or credit amounts).
+
+### Example (JSON)
+```json
+{
+  "id": "sku_001",
+  "productId": "prod_001",
+  "name": "LinkedIn Premium NAMER Annual",
+  "digitalGoods": [
+    {
+      "type": "entitlement",
+      "name": "Applicant Insights",
+      "description": "Access to Applicant Insights feature",
+      "value": true
+    },
+    {
+      "type": "consumable",
+      "name": "InMail Credits",
+      "description": "Number of InMail credits per month",
+      "value": 30
+    }
+  ]
+}
+```
+
+### UI Guidance
+- When viewing a SKU, show a section called "Included Features" or "Digital Goods" listing all entitlements and consumables.
+- This helps users understand exactly what they get with each SKU.
+
+---
+
+## Tax-Inclusive vs. Tax-Exclusive Pricing
+
+### Desktop (LinkedIn.com)
+- **Tax-Exclusive Pricing**
+- Business users enter the base price (before tax), e.g., $99.00.
+- At checkout, the system automatically calculates and adds the correct tax based on the user's region.
+- The customer sees the base price plus a separate tax line at checkout.
+
+### Mobile (iOS / Google Play)
+- **Tax-Inclusive Pricing**
+- Business users enter the final, tax-included price (e.g., $100.00) as required by app stores.
+- The system back-calculates the pre-tax base price using the region's tax rate, so the displayed price matches what the business entered.
+- The customer sees only the final, tax-included price (no extra tax line).
+
+### UI & Export Guidance
+- All pricing logic, UI inputs, and exports must reflect this difference.
+- Prioritize ease of use: for mobile, let business users focus on the customer-facing (tax-included) price.
+- The system should clearly indicate whether a price is tax-inclusive or tax-exclusive in all relevant screens and exports.
+
+---
+
+## Price Export (Business Need)
+
+Pricing managers need to export prices for a product or SKU as a spreadsheet (CSV/Excel) or PDF. This enables easy sharing, offline analysis, and reporting—without engineering support. The export should include all key price details (SKU attributes, price points, tax mode, etc.) and be accessible from both the Product and SKU views.
+
+For MVP/Epic 1, this can be a simple, static, or mock export (no backend integration required).
+
+---
+
+## Appendix: Epic 1 Attribute Focus
+
+The following attributes are most important for viewing and searching the product catalog in Epic 1. These should be visible in the UI and included in mock data for each Product and SKU.
+
+| Attribute         | Level    | Description / Example                        |
+|-------------------|----------|----------------------------------------------|
+| Product Name      | Product  | The display name of the product (e.g., "Sales Navigator Core") |
+| Product ID        | Product  | Unique identifier for the product (e.g., 5095295) |
+| Line of Business (LOB) | Product  | Business line grouping (LTS, LMS, LSS, Premium) |
+| Category          | Product  | Logical grouping within LOB (e.g., "Career Pages") |
+| Product Status    | Product  | Active, Legacy, Retired                      |
+| Product Type      | Product  | Subscription, Consumable, etc.               |
+| Product Description | Product | Short summary of the product (if available)  |
+| SKU ID            | SKU      | Unique identifier for the SKU/configuration  |
+| Sales Channel     | SKU      | Desktop, Field, Mobile                       |
+| Billing Cycle     | SKU      | Monthly, Quarterly, Annual                   |
+| Region            | SKU      | NAMER, EMEA, APAC, LATAM, OTHER              |
+| Digital Goods     | SKU      | Features, entitlements, consumables (e.g., InMail credits, Applicant Insights) |
+| Price / Price Points | SKU   | Price in each currency (e.g., $99.00 USD, €89.00 EUR) |
+| Tax Class         | SKU      | Tax logic for the SKU (e.g., SUBDIGBNDL)     |
+| SKU Status        | SKU      | Active, Legacy, Retired                      |
+| Billing Frequency | SKU      | How often the SKU is billed (e.g., 1 Month, 12 Months) |
+
+These attributes are the foundation for Epic 1's UI and user stories. All other attributes are out of scope for Epic 1 unless specifically needed for display or filtering.
+
+---
+
+## Glossary
+
+- **Product:** The highest-level conceptual offering (e.g., "Sales Navigator Core").
+- **SKU:** A specific, sellable configuration of a Product, defined by region, channel, billing cycle, etc.
+- **Price:** A versioned pricing configuration for a SKU, supporting experiments and effective dates.
+- **Price Point:** The actual monetary amount in a specific currency for a Price.
+- **LOB (Line of Business):** A business grouping for products (LTS, LMS, LSS, Premium).
+- **Product Category:** Logical grouping within a LOB (e.g., "Career Pages").
+- **Digital Goods:** Features, entitlements, or consumables a user receives with a SKU.
+- **Entitlement:** A yes/no (boolean) permission to access a feature (e.g., Applicant Insights).
+- **Consumable:** A countable or spendable benefit (e.g., InMail credits).
+- **Tax Mode:** Whether a price is tax-inclusive (mobile) or tax-exclusive (desktop).
+- **Publishing Status:** The workflow state of a product, price, or price point (Draft, Pending, EI, Prod).
+- **Business Status:** Whether a product, price, or price point is Active, Legacy, or Retired.

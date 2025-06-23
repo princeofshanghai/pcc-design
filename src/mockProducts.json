@@ -1,0 +1,1663 @@
+[
+  {
+    "id": "prod_001",
+    "name": "salesNavigatorCore",
+    "displayName": "Sales Navigator Core",
+    "description": "Advanced sales prospecting and lead management tool.",
+    "lineOfBusiness": "LSS",
+    "category": "Sales Navigator",
+    "status": "Active",
+    "type": "Subscription",
+    "skus": [
+      {
+        "skuId": "sku_001",
+        "status": "Active",
+        "salesChannel": "Desktop",
+        "billingCycle": "Annual",
+        "region": "NAMER",
+        "billingFrequency": "12 Months",
+        "taxClass": "SUBDIGBNDL",
+        "digitalGoods": [
+          {
+            "type": "entitlement",
+            "name": "Applicant Insights",
+            "description": "Access to Applicant Insights feature",
+            "value": true
+          },
+          {
+            "type": "consumable",
+            "name": "InMail Credits",
+            "description": "Number of InMail credits per month",
+            "value": 30
+          }
+        ],
+        "prices": [
+          {
+            "priceId": "price_001",
+            "label": "Live Price",
+            "status": "Active",
+            "taxMode": "exclusive",
+            "pricePoints": [
+              { "currency": "USD", "amount": 959.88 },
+              { "currency": "CAD", "amount": 1271.88 }
+            ]
+          }
+        ]
+      },
+      {
+        "skuId": "sku_002",
+        "status": "Active",
+        "salesChannel": "Mobile",
+        "billingCycle": "Monthly",
+        "region": "EMEA",
+        "billingFrequency": "1 Month",
+        "taxClass": "SUBDIGBNDL",
+        "digitalGoods": [
+          {
+            "type": "entitlement",
+            "name": "Applicant Insights",
+            "description": "Access to Applicant Insights feature",
+            "value": true
+          },
+          {
+            "type": "consumable",
+            "name": "InMail Credits",
+            "description": "Number of InMail credits per month",
+            "value": 15
+          }
+        ],
+        "prices": [
+          {
+            "priceId": "price_002",
+            "label": "Live Price",
+            "status": "Active",
+            "taxMode": "inclusive",
+            "pricePoints": [
+              { "currency": "EUR", "amount": 89.99 },
+              { "currency": "GBP", "amount": 79.99 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "prod_002",
+    "name": "linkedinLearningTeams",
+    "displayName": "LinkedIn Learning for Teams",
+    "description": "Online learning platform for business teams.",
+    "lineOfBusiness": "LTS",
+    "category": "Learning",
+    "status": "Active",
+    "type": "Subscription",
+    "skus": [
+      {
+        "skuId": "sku_003",
+        "status": "Active",
+        "salesChannel": "Field",
+        "billingCycle": "Annual",
+        "region": "APAC",
+        "billingFrequency": "12 Months",
+        "taxClass": "SUBDIGBNDL",
+        "digitalGoods": [
+          {
+            "type": "entitlement",
+            "name": "Course Access",
+            "description": "Unlimited access to all LinkedIn Learning courses",
+            "value": true
+          },
+          {
+            "type": "consumable",
+            "name": "Certificates",
+            "description": "Number of course completion certificates per year",
+            "value": 100
+          }
+        ],
+        "prices": [
+          {
+            "priceId": "price_003",
+            "label": "Live Price",
+            "status": "Active",
+            "taxMode": "exclusive",
+            "pricePoints": [
+              { "currency": "USD", "amount": 4999.00 },
+              { "currency": "AUD", "amount": 6999.00 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "20008",
+    "name": "careerPageActivationPremiumPkg",
+    "displayName": "Career Page Activation Premium Pkg",
+    "family": "CAREERPAGEACTIVATIONPKG",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20009",
+    "name": "careerPageProvisionServiceWrapper",
+    "displayName": "Career Page Provision Service Wrapper",
+    "family": "CAREERPAGEPROVISIONPKG",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20010",
+    "name": "careerPageGold",
+    "displayName": "Career Page Gold",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20011",
+    "name": "careerPageSilver",
+    "displayName": "Career Page Silver",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20012",
+    "name": "careerPagePlatinum",
+    "displayName": "Career Page Platinum",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20013",
+    "name": "careerPageScheduleGrant",
+    "displayName": "Career Page Schedule Grant",
+    "family": "CAREERPAGEGRANTSCHEDULE",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "115001",
+    "name": "careerPageSilverPlus",
+    "displayName": "Career Page Silver Plus",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "115002",
+    "name": "careerPageGoldPlus",
+    "displayName": "Career Page Gold Plus",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130001",
+    "name": "careerPageImpressions",
+    "displayName": "Career Page Impressions",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130002",
+    "name": "careerPageVariants",
+    "displayName": "Career Page Variants",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130003",
+    "name": "careerPageAnalyticsStandard",
+    "displayName": "Career Page Analytics Standard",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130004",
+    "name": "careerPageAnalyticsEnhanced",
+    "displayName": "Career Page Analytics Enhanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130005",
+    "name": "careerPageVariantsUnlimited",
+    "displayName": "Career Page Variants Unlimited",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130006",
+    "name": "careerPageSmbStarter",
+    "displayName": "Career Page SMB Starter",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130007",
+    "name": "careerPageSmbBasic",
+    "displayName": "Career Page SMB Basic",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130008",
+    "name": "careerPageSmbAdvanced",
+    "displayName": "Career Page SMB Advanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130009",
+    "name": "careerPageSmbPremium",
+    "displayName": "Career Page SMB Premium",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130010",
+    "name": "careerPageSmbInternational",
+    "displayName": "Career Page SMB International",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130011",
+    "name": "careerPageEnterpriseBasic",
+    "displayName": "Career Page Enterprise Basic",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130012",
+    "name": "careerPageEnterpriseAdvanced",
+    "displayName": "Career Page Enterprise Advanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130013",
+    "name": "careerPageEnterprisePremium",
+    "displayName": "Career Page Enterprise Premium",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130014",
+    "name": "careerPageEnterpriseInternational",
+    "displayName": "Career Page Enterprise International",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130015",
+    "name": "careerPageLargeEnterpriseBasic",
+    "displayName": "Career Page Large Enterprise Basic",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130016",
+    "name": "careerPageLargeEnterpriseAdvanced",
+    "displayName": "Career Page Large Enterprise Advanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130017",
+    "name": "careerPageLargeEnterprisePremium",
+    "displayName": "Career Page Large Enterprise Premium",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130018",
+    "name": "careerPageLargeEnterpriseInternational",
+    "displayName": "Career Page Large Enterprise International",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130019",
+    "name": "careerPageMultiNationalStarter",
+    "displayName": "Career Page Multi National Starter",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130020",
+    "name": "careerPageMultiNationalBasic",
+    "displayName": "Career Page Multi National Basic",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130021",
+    "name": "careerPageMultiNationalAdvanced",
+    "displayName": "Career Page Multi National Advanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130022",
+    "name": "careerPageMultiNationalPremium",
+    "displayName": "Career Page Multi National Premium",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130023",
+    "name": "careerPageStaffingStarter",
+    "displayName": "Career Page Staffing Starter",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130024",
+    "name": "careerPageStaffingBasic",
+    "displayName": "Career Page Staffing Basic",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130025",
+    "name": "careerPageStaffingAdvanced",
+    "displayName": "Career Page Staffing Advanced",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130026",
+    "name": "careerPageStaffingPremium",
+    "displayName": "Career Page Staffing Premium",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130027",
+    "name": "careerPageStaffingUnlimited",
+    "displayName": "Career Page Staffing Unlimited",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130028",
+    "name": "careerPageEmergingMarketSmb",
+    "displayName": "Career Page Emerging Market SMB",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130029",
+    "name": "careerPageEmergingMarketEnterprise",
+    "displayName": "Career Page Emerging Market Enterprise",
+    "family": "CCP",
+    "lineOfBusiness": "LTS",
+    "category": "Career Pages",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066202",
+    "name": "GeoFencedRecruiter",
+    "displayName": "Geo Fenced Recruiter",
+    "family": "RECRUITERPKG",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066212",
+    "name": "GeoFencedJobs",
+    "displayName": "Geo Fenced Jobs",
+    "family": "CAPJOBSLOT",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066602",
+    "name": "GeoFencedRecruiterIndia",
+    "displayName": "Geo Fenced Recruiter India",
+    "family": "RECRUITERPKG",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066612",
+    "name": "GeoFencedJobsIndia",
+    "displayName": "Geo Fenced Jobs India",
+    "family": "CAPJOBSLOT",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066622",
+    "name": "GeoFencedRecruiterBrazil",
+    "displayName": "Geo Fenced Recruiter Brazil",
+    "family": "RECRUITERPKG",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5066632",
+    "name": "GeoRecruiterSMBBrazil",
+    "displayName": "Geo Recruiter SMB Brazil",
+    "family": "RECRUITERPKG",
+    "lineOfBusiness": "LTS",
+    "category": "GeoFenced",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069165",
+    "name": "GlintPSLed",
+    "displayName": "Glint PS Led",
+    "family": "GlintPS",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069175",
+    "name": "GlintPSPlatinumAdmin",
+    "displayName": "Glint PS Platinum Admin",
+    "family": "GlintPS",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069185",
+    "name": "GlintPSThoughtPartnership",
+    "displayName": "Glint PS Thought Partnership",
+    "family": "GlintPS",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069195",
+    "name": "GlintPSCustom",
+    "displayName": "Glint PS Custom",
+    "family": "GlintPSCustom",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069201",
+    "name": "GlintEngage",
+    "displayName": "Glint Engage",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069211",
+    "name": "GlintEngage1Survey",
+    "displayName": "Glint Engage 1 Survey",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069221",
+    "name": "GlintFeedbackandConvos",
+    "displayName": "Glint Feedback and Convos",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069231",
+    "name": "GlintLifecycle",
+    "displayName": "Glint Lifecycle",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069241",
+    "name": "Glint360s",
+    "displayName": "Glint 360s",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069251",
+    "name": "GlintEngageandLifecycle",
+    "displayName": "Glint Engage and Lifecycle",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5069261",
+    "name": "GlintPeopleSuccess",
+    "displayName": "Glint People Success",
+    "family": "GlintSoftware",
+    "lineOfBusiness": "LTS",
+    "category": "Glint",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1001",
+    "name": "inMail1",
+    "displayName": "In Mail 1",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1002",
+    "name": "inMail3",
+    "displayName": "In Mail 3",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1003",
+    "name": "inMail5",
+    "displayName": "In Mail 5",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1004",
+    "name": "inMail10",
+    "displayName": "In Mail 10",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1005",
+    "name": "inMail5OneMonth",
+    "displayName": "In Mail 5 One Month",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1006",
+    "name": "inMailUse",
+    "displayName": "In Mail Use",
+    "family": "INMUSE",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "20020",
+    "name": "capInMail10",
+    "displayName": "Cap In Mail 10",
+    "family": "CAPINMAIL",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "5192852",
+    "name": "RecruiterInMail10",
+    "displayName": "Recruiter In Mail 10",
+    "family": "INM",
+    "lineOfBusiness": "Other",
+    "category": "InMail",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "117013",
+    "name": "jobPack1T1_1000",
+    "displayName": "Job Pack 1 T1 1000",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130030",
+    "name": "jobsPostpayPkg",
+    "displayName": "Jobs Postpay Pkg",
+    "family": "JOBSPKG",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130031",
+    "name": "jobsRChargeServiceWrapper",
+    "displayName": "Jobs R Charge Service Wrapper",
+    "family": "JOBSRCHARGEPKG",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130032",
+    "name": "jobsRCharge",
+    "displayName": "Jobs R Charge",
+    "family": "JOBSRCHARGE",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "130033",
+    "name": "jobsPostpayActivation",
+    "displayName": "Jobs Postpay Activation",
+    "family": "JOBSPKG",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1100",
+    "name": "jobTalentMatchBundle",
+    "displayName": "Job Talent Match Bundle",
+    "family": "JTMB",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1101",
+    "name": "jobTalentMatch",
+    "displayName": "Job Talent Match",
+    "family": "JTM",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1102",
+    "name": "jobListing",
+    "displayName": "Job Listing",
+    "family": "J",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1103",
+    "name": "jobPack1T1",
+    "displayName": "Job Pack 1 T1",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1104",
+    "name": "jobPack5T1",
+    "displayName": "Job Pack 5 T1",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1105",
+    "name": "jobPack10T1",
+    "displayName": "Job Pack 10 T1",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1106",
+    "name": "jobPack1T2",
+    "displayName": "Job Pack 1 T2",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1107",
+    "name": "jobPack5T2",
+    "displayName": "Job Pack 5 T2",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1108",
+    "name": "jobPack10T2",
+    "displayName": "Job Pack 10 T2",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1109",
+    "name": "jobPack1T3",
+    "displayName": "Job Pack 1 T3",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1110",
+    "name": "jobPack5T3",
+    "displayName": "Job Pack 5 T3",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1111",
+    "name": "jobPack10T3",
+    "displayName": "Job Pack 10 T3",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1112",
+    "name": "jobPack1T4",
+    "displayName": "Job Pack 1 T4",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1113",
+    "name": "jobPack5T4",
+    "displayName": "Job Pack 5 T4",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1114",
+    "name": "jobPack10T4",
+    "displayName": "Job Pack 10 T4",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1115",
+    "name": "jobPack1T5",
+    "displayName": "Job Pack 1 T5",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1116",
+    "name": "jobPack5T5",
+    "displayName": "Job Pack 5 T5",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1117",
+    "name": "jobPack10T5",
+    "displayName": "Job Pack 10 T5",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1118",
+    "name": "jobPack1T6",
+    "displayName": "Job Pack 1 T6",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1119",
+    "name": "jobPack5T6",
+    "displayName": "Job Pack 5 T6",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1120",
+    "name": "jobPack10T6",
+    "displayName": "Job Pack 10 T6",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1121",
+    "name": "jobPack1T7",
+    "displayName": "Job Pack 1 T7",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1122",
+    "name": "jobPack5T7",
+    "displayName": "Job Pack 5 T7",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1123",
+    "name": "jobPack10T7",
+    "displayName": "Job Pack 10 T7",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1124",
+    "name": "jobPack1T8",
+    "displayName": "Job Pack 1 T8",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1125",
+    "name": "jobPack5T8",
+    "displayName": "Job Pack 5 T8",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1126",
+    "name": "jobPack10T8",
+    "displayName": "Job Pack 10 T8",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1127",
+    "name": "jobPack1T9",
+    "displayName": "Job Pack 1 T9",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1128",
+    "name": "jobPack5T9",
+    "displayName": "Job Pack 5 T9",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1129",
+    "name": "jobPack10T9",
+    "displayName": "Job Pack 10 T9",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1130",
+    "name": "jobPack1T10",
+    "displayName": "Job Pack 1 T10",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1131",
+    "name": "jobPack5T10",
+    "displayName": "Job Pack 5 T10",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1132",
+    "name": "jobPack10T10",
+    "displayName": "Job Pack 10 T10",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1133",
+    "name": "jobPack1T11",
+    "displayName": "Job Pack 1 T11",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1134",
+    "name": "jobPack5T11",
+    "displayName": "Job Pack 5 T11",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1135",
+    "name": "jobPack10T11",
+    "displayName": "Job Pack 10 T11",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1136",
+    "name": "jobPack1T12",
+    "displayName": "Job Pack 1 T12",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1137",
+    "name": "jobPack5T12",
+    "displayName": "Job Pack 5 T12",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1138",
+    "name": "jobPack10T12",
+    "displayName": "Job Pack 10 T12",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1139",
+    "name": "jobPack1T13",
+    "displayName": "Job Pack 1 T13",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1140",
+    "name": "jobPack5T13",
+    "displayName": "Job Pack 5 T13",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1141",
+    "name": "jobPack10T13",
+    "displayName": "Job Pack 10 T13",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1142",
+    "name": "jobPack1T14",
+    "displayName": "Job Pack 1 T14",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1143",
+    "name": "jobPack5T14",
+    "displayName": "Job Pack 5 T14",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1144",
+    "name": "jobPack10T14",
+    "displayName": "Job Pack 10 T14",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1145",
+    "name": "jobPack1T15",
+    "displayName": "Job Pack 1 T15",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1146",
+    "name": "jobPack5T15",
+    "displayName": "Job Pack 5 T15",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1147",
+    "name": "jobPack10T15",
+    "displayName": "Job Pack 10 T15",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1148",
+    "name": "jobPack1T16",
+    "displayName": "Job Pack 1 T16",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1149",
+    "name": "jobPack5T16",
+    "displayName": "Job Pack 5 T16",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1150",
+    "name": "jobPack10T16",
+    "displayName": "Job Pack 10 T16",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1151",
+    "name": "jobPack1T17",
+    "displayName": "Job Pack 1 T17",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1152",
+    "name": "jobPack5T17",
+    "displayName": "Job Pack 5 T17",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1153",
+    "name": "jobPack10T17",
+    "displayName": "Job Pack 10 T17",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1154",
+    "name": "jobPack1T18",
+    "displayName": "Job Pack 1 T18",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1155",
+    "name": "jobPack5T18",
+    "displayName": "Job Pack 5 T18",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1156",
+    "name": "jobPack10T18",
+    "displayName": "Job Pack 10 T18",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1157",
+    "name": "jobPack1T19",
+    "displayName": "Job Pack 1 T19",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1158",
+    "name": "jobPack5T19",
+    "displayName": "Job Pack 5 T19",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1159",
+    "name": "jobPack10T19",
+    "displayName": "Job Pack 10 T19",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1160",
+    "name": "jobPack1T20",
+    "displayName": "Job Pack 1 T20",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1161",
+    "name": "jobPack5T20",
+    "displayName": "Job Pack 5 T20",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1162",
+    "name": "jobPack10T20",
+    "displayName": "Job Pack 10 T20",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1163",
+    "name": "jobPack1T21",
+    "displayName": "Job Pack 1 T21",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1164",
+    "name": "jobPack5T21",
+    "displayName": "Job Pack 5 T21",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1165",
+    "name": "jobPack10T21",
+    "displayName": "Job Pack 10 T21",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1166",
+    "name": "jobPack1T22",
+    "displayName": "Job Pack 1 T22",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1167",
+    "name": "jobPack5T22",
+    "displayName": "Job Pack 5 T22",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1168",
+    "name": "jobPack10T22",
+    "displayName": "Job Pack 10 T22",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1169",
+    "name": "jobPack1T23",
+    "displayName": "Job Pack 1 T23",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1170",
+    "name": "jobPack5T23",
+    "displayName": "Job Pack 5 T23",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1171",
+    "name": "jobPack10T23",
+    "displayName": "Job Pack 10 T23",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1172",
+    "name": "jobPack1T24",
+    "displayName": "Job Pack 1 T24",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1173",
+    "name": "jobPack5T24",
+    "displayName": "Job Pack 5 T24",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1174",
+    "name": "jobPack10T24",
+    "displayName": "Job Pack 10 T24",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1175",
+    "name": "jobPack1T25",
+    "displayName": "Job Pack 1 T25",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1176",
+    "name": "jobPack5T25",
+    "displayName": "Job Pack 5 T25",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1177",
+    "name": "jobPack10T25",
+    "displayName": "Job Pack 10 T25",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1178",
+    "name": "jobPack1T26",
+    "displayName": "Job Pack 1 T26",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1179",
+    "name": "jobPack5T26",
+    "displayName": "Job Pack 5 T26",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1180",
+    "name": "jobPack10T26",
+    "displayName": "Job Pack 10 T26",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1181",
+    "name": "jobPack1T27",
+    "displayName": "Job Pack 1 T27",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1182",
+    "name": "jobPack5T27",
+    "displayName": "Job Pack 5 T27",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1183",
+    "name": "jobPack10T27",
+    "displayName": "Job Pack 10 T27",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1184",
+    "name": "jobPack1T28",
+    "displayName": "Job Pack 1 T28",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1185",
+    "name": "jobPack5T28",
+    "displayName": "Job Pack 5 T28",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1186",
+    "name": "jobPack10T28",
+    "displayName": "Job Pack 10 T28",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1187",
+    "name": "jobPack1T29",
+    "displayName": "Job Pack 1 T29",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1188",
+    "name": "jobPack5T29",
+    "displayName": "Job Pack 5 T29",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1189",
+    "name": "jobPack10T29",
+    "displayName": "Job Pack 10 T29",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1190",
+    "name": "jobPack1T30",
+    "displayName": "Job Pack 1 T30",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1191",
+    "name": "jobPack5T30",
+    "displayName": "Job Pack 5 T30",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {
+    "id": "1192",
+    "name": "jobPack10T30",
+    "displayName": "Job Pack 10 T30",
+    "family": "VC",
+    "lineOfBusiness": "LTS",
+    "category": "Jobs",
+    "publishingStatus": "prod"
+  },
+  {"id":"1193","name":"jobPack1T31","displayName":"Job Pack 1 T31","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1194","name":"jobPack5T31","displayName":"Job Pack 5 T31","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1195","name":"jobPack10T31","displayName":"Job Pack 10 T31","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1196","name":"jobPack1T32","displayName":"Job Pack 1 T32","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1197","name":"jobPack5T32","displayName":"Job Pack 5 T32","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1198","name":"jobPack10T32","displayName":"Job Pack 10 T32","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1199","name":"jobPack1T33","displayName":"Job Pack 1 T33","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1200","name":"jobPack5T33","displayName":"Job Pack 5 T33","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1201","name":"jobPack10T33","displayName":"Job Pack 10 T33","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1202","name":"jobPack1T34","displayName":"Job Pack 1 T34","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1203","name":"jobPack5T34","displayName":"Job Pack 5 T34","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1204","name":"jobPack10T34","displayName":"Job Pack 10 T34","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1205","name":"jobPack1T35","displayName":"Job Pack 1 T35","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1206","name":"jobPack5T35","displayName":"Job Pack 5 T35","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1207","name":"jobPack10T35","displayName":"Job Pack 10 T35","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1208","name":"jobPack1T36","displayName":"Job Pack 1 T36","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1209","name":"jobPack5T36","displayName":"Job Pack 5 T36","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1210","name":"jobPack10T36","displayName":"Job Pack 10 T36","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1211","name":"jobPack1T37","displayName":"Job Pack 1 T37","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1212","name":"jobPack5T37","displayName":"Job Pack 5 T37","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1213","name":"jobPack10T37","displayName":"Job Pack 10 T37","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1214","name":"jobPack1T38","displayName":"Job Pack 1 T38","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1215","name":"jobPack5T38","displayName":"Job Pack 5 T38","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1216","name":"jobPack10T38","displayName":"Job Pack 10 T38","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1217","name":"jobPack1T39","displayName":"Job Pack 1 T39","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1218","name":"jobPack5T39","displayName":"Job Pack 5 T39","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1219","name":"jobPack10T39","displayName":"Job Pack 10 T39","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1220","name":"jobPack1T40","displayName":"Job Pack 1 T40","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1221","name":"jobPack5T40","displayName":"Job Pack 5 T40","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1222","name":"jobPack10T40","displayName":"Job Pack 10 T40","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1223","name":"jobPack1T41","displayName":"Job Pack 1 T41","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1224","name":"jobPack5T41","displayName":"Job Pack 5 T41","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1225","name":"jobPack10T41","displayName":"Job Pack 10 T41","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1226","name":"jobPack1T42","displayName":"Job Pack 1 T42","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1227","name":"jobPack5T42","displayName":"Job Pack 5 T42","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1228","name":"jobPack10T42","displayName":"Job Pack 10 T42","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1229","name":"jobPack1T43","displayName":"Job Pack 1 T43","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1230","name":"jobPack5T43","displayName":"Job Pack 5 T43","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1231","name":"jobPack10T43","displayName":"Job Pack 10 T43","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1232","name":"jobPack1T44","displayName":"Job Pack 1 T44","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1233","name":"jobPack5T44","displayName":"Job Pack 5 T44","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1234","name":"jobPack10T44","displayName":"Job Pack 10 T44","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1235","name":"jobPack1T45","displayName":"Job Pack 1 T45","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1236","name":"jobPack5T45","displayName":"Job Pack 5 T45","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1237","name":"jobPack10T45","displayName":"Job Pack 10 T45","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1238","name":"jobPack1T46","displayName":"Job Pack 1 T46","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1239","name":"jobPack5T46","displayName":"Job Pack 5 T46","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1240","name":"jobPack10T46","displayName":"Job Pack 10 T46","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1241","name":"jobPack1T47","displayName":"Job Pack 1 T47","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1242","name":"jobPack5T47","displayName":"Job Pack 5 T47","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1243","name":"jobPack10T47","displayName":"Job Pack 10 T47","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1244","name":"jobPack1T48","displayName":"Job Pack 1 T48","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1245","name":"jobPack5T48","displayName":"Job Pack 5 T48","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1246","name":"jobPack10T48","displayName":"Job Pack 10 T48","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1247","name":"jobPack1T49","displayName":"Job Pack 1 T49","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1248","name":"jobPack5T49","displayName":"Job Pack 5 T49","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1249","name":"jobPack10T49","displayName":"Job Pack 10 T49","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1250","name":"jobPack1T50","displayName":"Job Pack 1 T50","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1251","name":"jobPack5T50","displayName":"Job Pack 5 T50","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1252","name":"jobPack10T50","displayName":"Job Pack 10 T50","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1253","name":"jobPack1T51","displayName":"Job Pack 1 T51","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1254","name":"jobPack5T51","displayName":"Job Pack 5 T51","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1255","name":"jobPack10T51","displayName":"Job Pack 10 T51","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1256","name":"jobPack1T52","displayName":"Job Pack 1 T52","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1257","name":"jobPack5T52","displayName":"Job Pack 5 T52","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1258","name":"jobPack10T52","displayName":"Job Pack 10 T52","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1259","name":"jobPack1T53","displayName":"Job Pack 1 T53","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1260","name":"jobPack5T53","displayName":"Job Pack 5 T53","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {"id":"1261","name":"jobPack10T53","displayName":"Job Pack 10 T53","family":"VC","lineOfBusiness":"LTS","category":"Jobs","publishingStatus":"prod"},
+  {
+    "id": "sku_demo_001",
+    "productId": "prod_001",
+    "name": "LinkedIn Premium NAMER Annual",
+    "family": "PREMIUM",
+    "lineOfBusiness": "LTS",
+    "category": "Premium Subscriptions",
+    "publishingStatus": "prod",
+    "digitalGoods": [
+      {
+        "type": "entitlement",
+        "name": "Applicant Insights",
+        "description": "Access to Applicant Insights feature",
+        "value": true
+      },
+      {
+        "type": "consumable",
+        "name": "InMail Credits",
+        "description": "Number of InMail credits per month",
+        "value": 30
+      }
+    ]
+  }
+] 

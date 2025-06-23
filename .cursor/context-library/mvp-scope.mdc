@@ -1,0 +1,42 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# PCC MVP Scope
+
+## Goal of the MVP
+
+The MVP will validate that we can provide a centralized, easy-to-navigate view of LinkedIn's product catalog and allow business stakeholders to independently design basic pricing experiments — reducing reliance on engineering and accelerating go-to-market speed.
+
+---
+
+## Primary User Journeys (Epics)
+
+### 1. View and Search the Product Catalog
+
+Users can browse, search, and filter LinkedIn's product catalog to find specific products, SKUs, prices, and market availability. The goal is to give PMs, pricing managers, and business partners a clear view of what LinkedIn offers — without having to ask engineers or dig through spreadsheets.
+
+### 2. Design a New Pricing Experiment
+
+Users can create a new pricing variant for an existing product by defining currency-specific price points, selecting applicable regions or channels, and assigning it to an experiment group. The goal is to make it easy for business users to propose and test pricing changes without engineering involvement.
+
+---
+
+## What's Explicitly Out of Scope
+
+- Creating new products or SKUs from scratch  
+- Bundling, offer creation, or discount logic  
+- Editing existing product metadata  
+- Backend integrations, authentication, or approval workflows  
+- Viewing analytics or experiment results  
+
+This MVP is focused solely on viewing product data and drafting new pricing experiments.
+
+---
+
+## Success Metrics
+
+- At least 80% of PMs and pricing managers are able to use PCC to look up product information without engineering support
+- At least 3 pricing experiments are created by non-technical users within the first month
+- Stakeholders report that the system is intuitive, faster, and reduces GTM bottlenecks

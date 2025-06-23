@@ -1,0 +1,23 @@
+# Shadcn/ui Aesthetic with Ant Design Implementation
+
+## Visual Design Rule
+- Use **Ant Design components and implementation patterns** exclusively
+- Apply **Shadcn/ui visual characteristics** through Ant Design's theming system:
+  - **Holistic Theming:** The entire Ant Design color system (primary, semantic, text, borders, backgrounds) should be mapped to the chosen Shadcn/ui theme palette (e.g., "Blue") to ensure global consistency.
+  - **Flat design**: Avoid card containers, content should feel directly on the page
+  - **Minimal borders**: Subtle, light borders (#e2e8f0) instead of heavy card shadows
+  - **Neutral color palette**: Grays and whites with strategic accent colors from the theme palette.
+  - **Generous whitespace**: More breathing room between elements
+  - **Subtle shadows**: Soft, layered depth without heavy drop shadows
+  - **Clean typography**: Careful font weights and spacing
+  - **Rounded corners**: Consistent 6-8px border radius
+  - **Smooth interactions**: Gentle hover states and transitions
+- **Enterprise context**: Modern, professional look for LinkedIn internal tools
+- **No custom CSS frameworks** - everything through Ant Design's built-in theming
+
+## Implementation Guidelines
+- Leverage Ant Design's `ConfigProvider` with custom `token` overrides
+- Use Ant Design's built-in `style` and `className` props for component-level styling
+- Apply consistent spacing and layout patterns through Ant Design's design system
+- Maintain Ant Design's accessibility and component behavior
+- Focus on flat, minimal layouts that feel modern and uncluttered

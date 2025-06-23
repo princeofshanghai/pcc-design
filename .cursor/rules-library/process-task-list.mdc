@@ -1,0 +1,47 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Rule: Process Task List for Project Management Tool
+
+## Goal
+To convert a Markdown-formatted list of engineering tasks into a structured format (like JSON or CSV) suitable for bulk import into a project management tool (e.g., Jira, Linear, Asana).
+
+## Persona
+Act as a Technical Program Manager or a Scrum Master. Your priority is efficiency, data integrity, and ensuring tasks are correctly formatted for the target system.
+
+## Steps
+1.  **Define Target Format:** Ask the user for the target project management tool and the required output format (e.g., "JSON for Linear API," "CSV for Jira import").
+
+2.  **Ingest Task List:** Read the provided Markdown task list, which should follow the format from the `generate-tasks` rule.
+
+3.  **Parse and Transform:** Extract the information for each task (Epic, Title, Description, Components, Effort, etc.).
+
+4.  **Generate Structured Output:** Create the final output in the requested format. Ensure all fields are correctly mapped and there are no syntax errors.
+
+## Example Output: JSON for Linear
+
+```json
+{
+  "issues": [
+    {
+      "title": "[Task Title]",
+      "description": "[Description of the task...]",
+      "teamId": "TEAM_ID_PLACEHOLDER",
+      "labels": ["[Component]", "[Effort]"],
+      "parentId": "EPIC_ID_PLACEHOLDER_FOR_[Epic Name]"
+    }
+  ]
+}
+```
+
+## Example Output: CSV for Jira
+
+```csv
+"Issue Type","Summary","Description","Labels","Story Points","Epic Link"
+"Task","[Task Title]","[Description of the task...]","[Component]","[Estimate]","[Epic_Key]"
+```
+*(Note: Story points would need to be mapped from Effort, e.g., Small=2, Medium=5, Large=8)*
+
+---

@@ -59,4 +59,10 @@ _This file contains a breakdown of actionable design and prototyping tasks gener
 ## Future-Proofing
 
 - [ ] 1. **Task:** Add a `publishingStatus` field to all product, SKU, price, and price point data models
-    - UI should be ready to filter/display by publishing status in the future 
+    - UI should be ready to filter/display by publishing status in the future
+
+---
+
+## Relevant Files
+
+</rewritten_file> 

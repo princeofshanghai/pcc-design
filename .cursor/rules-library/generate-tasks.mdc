@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Rule: Generate Engineering Tasks from a PRD
 
-**Important:** Whenever you use this file to generate a task list, save the output as a Markdown file in the `docs/tasks/` subfolder. Use a clear, consistent naming format such as `Epic-Name-tasks.md` (for example: `PCC-Epic-1-View-and-Search-tasks.md`).
+**Important:** Whenever you use this file to generate a task list, save the output as a Markdown file in the `docs/tasks/` subfolder. Use a clear, consistent naming format such as `Epic-Name-tasks.md` (for example: `Tasks-Epic-1-View-and-Search.md`).
 
 ## Goal
 To take a completed Product Requirements Document (PRD) and break it down into a list of clear, actionable engineering tasks. The tasks should be granular enough for an engineer to pick up and work on.

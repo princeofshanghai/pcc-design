@@ -3,7 +3,9 @@ description:
 globs: 
 alwaysApply: false
 ---
-# Rule: Create Product Requirements Document (PRD)
+# Rule: Create a Product Requirements Document (PRD)
+
+**Important:** Whenever you use this file to create a new PRD, save the completed PRD in the `docs/prds/` subfolder. Use a clear, consistent naming format such as `PRD-Epic-Name.md` (for example: `PRD-Epic-1-View-and-Search.md`).
 
 ## Goal
 To generate a comprehensive, well-structured Product Requirements Document (PRD) based on a user's feature request or idea. The output should be clear, concise, and ready for review by designers, engineers, and stakeholders.

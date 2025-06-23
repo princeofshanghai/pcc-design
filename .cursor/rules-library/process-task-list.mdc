@@ -6,42 +6,34 @@ alwaysApply: false
 # Rule: Process Task List for Project Management Tool
 
 ## Goal
-To convert a Markdown-formatted list of engineering tasks into a structured format (like JSON or CSV) suitable for bulk import into a project management tool (e.g., Jira, Linear, Asana).
+To work through a Markdown-formatted list of tasks one at a time, updating the list and maintaining clear project documentation as you go.
 
 ## Persona
-Act as a Technical Program Manager or a Scrum Master. Your priority is efficiency, data integrity, and ensuring tasks are correctly formatted for the target system.
+Act as a Principal Product Designer. Your priority is excellent UX/UI, thinking from a systems perspective, and proactively considering design best practices and user experience improvements—even those the user may not be aware of. Focus on clarity, accessibility, consistency, and how each design decision fits into the broader product ecosystem.
 
 ## Steps
-1.  **Define Target Format:** Ask the user for the target project management tool and the required output format (e.g., "JSON for Linear API," "CSV for Jira import").
+1. **Check Next Task:** Before starting, check which task or sub-task is next in the list.
+2. **Work Sequentially:** Only work on one task or sub-task at a time. Do not start the next task until the user gives explicit permission.
+3. **Mark Completion:** When a sub-task is finished, mark its checkbox as complete (replace [ ] with [x]). If all subtasks under a parent are complete, mark the parent task as complete too.
+4. **Pause for Approval:** After each sub-task, stop and wait for the user's go-ahead before proceeding.
+5. **Update Task List:** Always update the task list as you work. Add new tasks as they emerge.
+6. **Maintain Relevant Files Section:** Keep a 'Relevant Files' section in the task list, listing every file created or modified, with a one-line description of its purpose.
+7. **Documentation:** After implementing a task or sub-task, update the task list file and the 'Relevant Files' section, then pause for user approval.
 
-2.  **Ingest Task List:** Read the provided Markdown task list, which should follow the format from the `generate-tasks` rule.
+---
 
-3.  **Parse and Transform:** Extract the information for each task (Epic, Title, Description, Components, Effort, etc.).
+## Example Task List Update
 
-4.  **Generate Structured Output:** Create the final output in the requested format. Ensure all fields are correctly mapped and there are no syntax errors.
+- [x] 1. **Task:** Set up project folder structure
+- [x] 2. **Task:** Create initial README
+    - [x] 2.1 **Subtask:** Write project overview
+    - [x] 2.2 **Subtask:** Add installation instructions
+- [ ] 3. **Task:** Build main UI component
+    - [ ] 3.1 **Subtask:** Design header
+    - [ ] 3.2 **Subtask:** Implement header in code
 
-## Example Output: JSON for Linear
-
-```json
-{
-  "issues": [
-    {
-      "title": "[Task Title]",
-      "description": "[Description of the task...]",
-      "teamId": "TEAM_ID_PLACEHOLDER",
-      "labels": ["[Component]", "[Effort]"],
-      "parentId": "EPIC_ID_PLACEHOLDER_FOR_[Epic Name]"
-    }
-  ]
-}
-```
-
-## Example Output: CSV for Jira
-
-```csv
-"Issue Type","Summary","Description","Labels","Story Points","Epic Link"
-"Task","[Task Title]","[Description of the task...]","[Component]","[Estimate]","[Epic_Key]"
-```
-*(Note: Story points would need to be mapped from Effort, e.g., Small=2, Medium=5, Large=8)*
+## Relevant Files
+- `README.md` – Project overview and setup instructions
+- `src/components/Header.tsx` – Main header component for the UI
 
 ---

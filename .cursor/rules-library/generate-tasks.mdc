@@ -5,6 +5,8 @@ alwaysApply: false
 ---
 # Rule: Generate Engineering Tasks from a PRD
 
+**Important:** Whenever you use this file to generate a task list, save the output as a Markdown file in the `docs/tasks/` subfolder. Use a clear, consistent naming format such as `Epic-Name-tasks.md` (for example: `PCC-Epic-1-View-and-Search-tasks.md`).
+
 ## Goal
 To take a completed Product Requirements Document (PRD) and break it down into a list of clear, actionable engineering tasks. The tasks should be granular enough for an engineer to pick up and work on.
 
@@ -20,6 +22,10 @@ Act as a Lead Engineer or Engineering Manager. Your focus is on technical feasib
 
 4.  **Categorize and Order:** Group tasks by feature or component (e.g., "Authentication," "Dashboard UI," "API Endpoints"). Apply a logical order, noting any dependencies between tasks.
 
+5.  **Number Tasks and Subtasks:** Number each main task sequentially within its epic/feature (1, 2, 3, ...). For any subtasks, use a decimal format (e.g., 2.1, 2.2, ...) under their parent task. This makes it easy to reference both tasks and subtasks by number.
+
+6.  **Add Checkboxes:** Add a markdown checkbox (`- [ ]`) at the start of each task and subtask so users can mark them as done.
+
 ## Task Format
 Use the following Markdown format for each task.
 
@@ -27,15 +33,27 @@ Use the following Markdown format for each task.
 
 ### Epic: [User Story from PRD]
 
--   **Task:** [Task Title]
-    -   **Description:** [A brief explanation of the technical work to be done.]
-    -   **Component(s):** [e.g., `Frontend`, `API`, `Database`]
-    -   **Effort:** [e.g., `Small`, `Medium`, `Large`]
-    -   **Dependencies:** [e.g., `Task #5`, `API endpoint finalization`]
-    -   **Acceptance Criteria:**
-        -   [Technical condition 1]
-        -   [Technical condition 2]
+- [ ] 1. **Task:** [Task Title]
+    - **Description:** [A brief explanation of the technical work to be done.]
+    - **Component(s):** [e.g., `Frontend`, `API`, `Database`]
+    - **Effort:** [e.g., `Small`, `Medium`, `Large`]
+    - **Dependencies:** [e.g., `Task 2`, `API endpoint finalization`]
+    - **Acceptance Criteria:**
+        - [Technical condition 1]
+        - [Technical condition 2]
+    - **Subtasks:**
+        - [ ] 1.1 **Subtask:** [Subtask Title]
+        - [ ] 1.2 **Subtask:** [Subtask Title]
 
-*(Repeat for all tasks related to the epic)*
+- [ ] 2. **Task:** [Task Title]
+    - **Description:** [A brief explanation of the technical work to be done.]
+    - **Component(s):** [e.g., `Frontend`, `API`, `Database`]
+    - **Effort:** [e.g., `Small`, `Medium`, `Large`]
+    - **Dependencies:** [e.g., `Task #5`, `API endpoint finalization`]
+    - **Acceptance Criteria:**
+        - [Technical condition 1]
+        - [Technical condition 2]
+
+*(Repeat for all tasks and subtasks related to the epic)*
 
 ---

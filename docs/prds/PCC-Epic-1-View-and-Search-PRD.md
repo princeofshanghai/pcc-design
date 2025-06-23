@@ -50,13 +50,13 @@
 _As a Pricing Manager, I want to export the prices for a product or SKU as a spreadsheet or PDF, so I can share and analyze pricing information easily._
 
 **Acceptance Criteria:**
-- There is an “Export” button on the Product Detail and SKU views.
-- Clicking “Export” downloads a spreadsheet (CSV/Excel) or PDF with all visible price data for the selected product or SKU.
+- There is an "Export" button on the Product Detail and SKU views.
+- Clicking "Export" downloads a spreadsheet (CSV/Excel) or PDF with all visible price data for the selected product or SKU.
 - The export includes: Product/SKU attributes, price versions, price points, tax mode, and digital goods.
 - For Epic 1, this can be a static or mock export (no backend integration required).
 
 **Design & UX Considerations:**
-- An “Export” button should be present and clearly labeled on both Product and SKU views.
+- An "Export" button should be present and clearly labeled on both Product and SKU views.
 - The exported file should be easy to read and include all relevant columns for business use.
 
 ### 3. Scope & Features

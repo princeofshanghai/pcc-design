@@ -16,7 +16,7 @@ At LinkedIn, the product catalog is structured in a four-level hierarchy to mana
 
 **1. Product (The Brand)**
 - **Definition:** The highest-level conceptual offering that users and PMs recognize. It acts as the primary container for all the ways it can be sold.
-- **Example:** "Sales Navigator Core", "LinkedIn Learning for Teams"
+- **Example:** "Sales Navigator Core", "Premium Career"
 
 **2. SKU (The Sellable Configuration)**
 - **Definition:** A specific, sellable permutation of a Product. A single Product is composed of many SKUs. Each SKU is defined by a unique combination of commercial attributes.
@@ -95,13 +95,23 @@ This model separates the **"what"** (the SKU) from the **"how and when"** (the P
   - **LSS (LinkedIn Sales Solutions):**
     - Sales Navigator
     - Sales Insights
-    - Pipeline Builder
-    - Account Targeting
   - **LMS (LinkedIn Marketing Solutions):**
     - Sponsored Content
     - Lead Gen
     - Audience Network
     - Campaign Manager
+
+### 2.3 Product ID
+- **Definition:**  
+  Product ID is a unique identifier assigned to each product in the catalog. It is used to reference, search, and distinguish products across all LinkedIn systems and tools.
+- **Usage:**  
+  - Every product has exactly one Product ID, which never changes, even if the product name or other attributes are updated.
+  - Product ID is a key field for searching and referencing products in the catalog UI and internal tools.
+  - Users can search for products by Product ID to quickly locate specific offerings.
+  - Product ID is displayed in product lists and detail pages for clarity and traceability.
+- **Example:**  
+  - Product: "Sales Navigator Core"  
+    Product ID: 5095295
 
 ---
 

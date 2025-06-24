@@ -25,7 +25,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <Layout style={{ minHeight: '100vh', background: blueTheme.token.colorBgLayout }}>
+    <Layout style={{ /* minHeight: '100vh', */ background: blueTheme.token.colorBgLayout }}>
       <Sider
         theme="light"
         collapsible
@@ -36,11 +36,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
           background: blueTheme.token.colorBgContainer, 
           borderRight: `1px solid ${blueTheme.token.colorBorder}`, 
           borderTop: `1px solid ${blueTheme.token.colorBorder}`,
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
           zIndex: 1000,
-          overflow: 'auto'
+          overflowY: 'auto',
+          overflowX: 'hidden'
         }}
       >
         <div style={{
@@ -71,9 +69,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
           defaultSelectedKeys={[selectedKey]}
           style={{
             fontSize: blueTheme.token.fontSizeSM,
-            height: 'calc(100vh - 64px)',
+            // height: '100%',
             borderRight: 0,
-            background: blueTheme.token.colorBgContainer
+            background: blueTheme.token.colorBgContainer,
+            overflow: 'visible'
           }}
         >
           <Menu.Item key="catalog" icon={<AppstoreOutlined />}>

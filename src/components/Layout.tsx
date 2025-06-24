@@ -62,13 +62,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
           }}>
             <img src={LinkedInLogo} alt="LinkedIn Logo" style={{ width: 24, height: 24, display: 'block' }} />
             {!collapsed && (
-              <span style={{
-                color: blueTheme.token.colorText,
-                fontWeight: 700,
-                fontSize: 20,
-                letterSpacing: 1,
-                marginLeft: 4
-              }}>PCC</span>
+              <span className="sider-brand-text">PCC</span>
             )}
           </div>
         </div>

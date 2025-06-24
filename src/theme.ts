@@ -18,17 +18,19 @@ const blueTheme = {
     colorTextSecondary: '#64748b', // slate-500
     colorTextTertiary: '#94a3b8', // slate-400
     // Typography (Geist/Vercel scale)
-    fontWeightStrong: 600, // Geist uses semibold for headings
-    fontSizeHeading1: 32, // Geist Heading 32
-    fontSizeHeading2: 24, // Geist Heading 24
-    fontSizeHeading3: 20, // Geist Heading 20
-    fontSizeHeading4: 16, // Geist Heading 16
-    fontSize: 16, // Geist Copy 16 (body)
-    fontSizeSM: 14, // Geist Copy 14, Label 14
-    fontSizeXS: 12, // Geist Label 12
-    lineHeight: 1.6, // Modern readable body
-    lineHeightHeading: 1.2, // Compact headings
-    fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+    fontFamily: 'Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+    fontSize: 14, // Dub body text
+    fontSizeSM: 13, // Dub sidebar/menu
+    fontSizeXS: 12, // Metadata/labels
+    fontSizeHeading1: 20, // Dub H1 (page/section title)
+    fontSizeHeading2: 18, // Dub H2 (subsection)
+    fontSizeHeading3: 16, // Dub H3 (small header)
+    fontSizeHeading4: 15, // Dub H4 (tiny header)
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightStrong: 600,
+    lineHeight: 1.4, // Body
+    lineHeightHeading: 1.2, // Headings
     // Sider trigger color matching
     lightTriggerBg: '#ffffff',
     lightTriggerColor: '#64748b',

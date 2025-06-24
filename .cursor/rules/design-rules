@@ -1,23 +1,26 @@
-# Shadcn/ui Aesthetic with Ant Design Implementation
+# Shadcn/ui + Geist/Vercel Aesthetic with Ant Design Implementation
 
-## Visual Design Rule
-- Use **Ant Design components and implementation patterns** exclusively
-- Apply **Shadcn/ui visual characteristics** through Ant Design's theming system:
-  - **Holistic Theming:** The entire Ant Design color system (primary, semantic, text, borders, backgrounds) should be mapped to the chosen Shadcn/ui theme palette (e.g., "Blue") to ensure global consistency.
-  - **Flat design**: Avoid card containers, content should feel directly on the page
-  - **Minimal borders**: Subtle, light borders (#e2e8f0) instead of heavy card shadows
-  - **Neutral color palette**: Grays and whites with strategic accent colors from the theme palette.
-  - **Generous whitespace**: More breathing room between elements
-  - **Subtle shadows**: Soft, layered depth without heavy drop shadows
-  - **Clean typography**: Careful font weights and spacing
-  - **Rounded corners**: Consistent 6-8px border radius
-  - **Smooth interactions**: Gentle hover states and transitions
-- **Enterprise context**: Modern, professional look for LinkedIn internal tools
-- **No custom CSS frameworks** - everything through Ant Design's built-in theming
+## Visual Design Rules
+- Use **Ant Design components and implementation patterns** exclusively.
+- Apply **Shadcn/ui and Geist/Vercel visual characteristics** through Ant Design's global theming system:
+  - **Holistic Theming:** All Ant Design color and typography tokens (primary, semantic, text, borders, backgrounds, font sizes, weights, line heights) are mapped to a custom theme in `src/theme.ts` for global consistency.
+  - **Typography:** Font sizes, weights, and line heights follow the Geist/Vercel scale for a modern, compact, and elegant look. Font family is Inter, with system sans-serif fallback.
+  - **Flat design:** Avoid card containers; content should feel directly on the page.
+  - **Minimal borders:** Subtle, light borders (#e2e8f0) instead of heavy card shadows.
+  - **Neutral color palette:** Grays and whites with strategic accent colors from the theme palette.
+  - **Generous whitespace:** More breathing room between elements.
+  - **Subtle shadows:** Soft, layered depth without heavy drop shadows.
+  - **Rounded corners:** Consistent 6-8px border radius.
+  - **Smooth interactions:** Gentle hover states and transitions.
+  - **Compact menus:** Sidebar and menu font sizes use the compact Geist/Vercel scale (14px).
+- **Enterprise context:** Modern, professional look for LinkedIn internal tools.
+- **No custom CSS frameworks**—everything through Ant Design's built-in theming and tokens.
 
 ## Implementation Guidelines
-- Leverage Ant Design's `ConfigProvider` with custom `token` overrides
-- Use Ant Design's built-in `style` and `className` props for component-level styling
-- Apply consistent spacing and layout patterns through Ant Design's design system
-- Maintain Ant Design's accessibility and component behavior
-- Focus on flat, minimal layouts that feel modern and uncluttered
+- Define and maintain the global theme in `src/theme.ts`.
+- Wrap the entire app in Ant Design's `ConfigProvider` with the custom theme in `App.tsx`.
+- Use Ant Design's built-in `style` and `className` props for component-level styling, but rely on tokens for global consistency.
+- Apply consistent spacing and layout patterns through Ant Design's design system.
+- Maintain Ant Design's accessibility and component behavior.
+- Focus on flat, minimal layouts that feel modern and uncluttered.
+- All new pages and components automatically inherit the global theme and tokens.

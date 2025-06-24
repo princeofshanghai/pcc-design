@@ -69,3 +69,9 @@ body {
 * {
   transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
+
+.ant-layout-sider-trigger {
+  border-right: 1px solid #e2e8f0; /* Match the Sider border color */
+  box-sizing: border-box;
+  border-top: 1px solid #e2e8f0; /* Visual separation from Sider */
+}

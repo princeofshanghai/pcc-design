@@ -32,7 +32,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
         collapsed={collapsed}
         onCollapse={setCollapsed}
         width={250}
-        style={{ background: blueTheme.token.colorBgContainer, borderRight: `1px solid ${blueTheme.token.colorBorder}`, borderTop: `1px solid ${blueTheme.token.colorBorder}` }}
+        style={{ 
+          background: blueTheme.token.colorBgContainer, 
+          borderRight: `1px solid ${blueTheme.token.colorBorder}`, 
+          borderTop: `1px solid ${blueTheme.token.colorBorder}`,
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          zIndex: 1000,
+          overflow: 'auto'
+        }}
       >
         <div style={{
           height: 64,
@@ -51,7 +60,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
             justifyContent: collapsed ? 'center' : 'flex-start',
             transition: 'gap 0.2s'
           }}>
-            <img src={LinkedInLogo} alt="LinkedIn Logo" style={{ width: 32, height: 32, display: 'block' }} />
+            <img src={LinkedInLogo} alt="LinkedIn Logo" style={{ width: 24, height: 24, display: 'block' }} />
             {!collapsed && (
               <span style={{
                 color: blueTheme.token.colorText,
@@ -86,7 +95,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: `1px solid ${blueTheme.token.colorBorder}`,
-          height: 64
+          height: 64,
+          position: 'sticky',
+          top: 0,
+          zIndex: 999,
+          width: '100%'
         }}>
           <div /> {/* Empty div for spacing/alignment */}
           <Space size="large">
@@ -97,7 +110,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, selectedKey = 'dashboar
             <Avatar icon={<UserOutlined />} size={blueTheme.token.avatarSize} />
           </Space>
         </Header>
-        <Content style={{ margin: '24px', background: 'transparent' }}>
+        <Content className="responsive-content">
           {children}
         </Content>
       </Layout>

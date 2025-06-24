@@ -33,6 +33,25 @@ const blueTheme = {
     lightTriggerBg: '#ffffff',
     lightTriggerColor: '#64748b',
     avatarSize: 28,
+    // Responsive Spacing System (8px grid, mobile-first)
+    // Content margins scale with screen size
+    contentMarginXS: 16, // Mobile (320px+)
+    contentMarginSM: 24, // Tablet (768px+)
+    contentMarginMD: 32, // Desktop (1024px+)
+    contentMarginLG: 40, // Large desktop (1440px+)
+    contentMarginXL: 48, // Extra large (1920px+)
+    // Section spacing
+    sectionSpacingXS: 24, // Mobile
+    sectionSpacingSM: 32, // Tablet
+    sectionSpacingMD: 40, // Desktop
+    sectionSpacingLG: 48, // Large desktop
+    sectionSpacingXL: 56, // Extra large
+    // Component spacing
+    componentSpacingXS: 16, // Mobile
+    componentSpacingSM: 20, // Tablet
+    componentSpacingMD: 24, // Desktop
+    componentSpacingLG: 32, // Large desktop
+    componentSpacingXL: 40, // Extra large
   },
 };
 

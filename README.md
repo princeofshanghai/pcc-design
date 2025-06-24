@@ -66,3 +66,62 @@ The UI is built for speed, clarity, and future-proofing, with a focus on realist
 ---
 
 *This project is for prototyping and design handoff. Not production-ready.*
+
+# PCC Design System
+
+## 🎨 **Design Rules**
+
+### **Typography (Geist/Vercel Scale)**
+- **H1**: 32px (Page titles)
+- **H2**: 24px (Section headers)
+- **H3**: 20px (Subsection headers)
+- **H4**: 16px (Small headers)
+- **Body**: 16px (Default text)
+- **Small**: 14px (Secondary text)
+- **Label**: 12px (Metadata, labels)
+- **Font**: Inter (system fallbacks)
+
+### **Responsive Spacing System**
+- **Mobile (320px+)**: 16px margins
+- **Tablet (768px+)**: 24px margins
+- **Desktop (1024px+)**: 32px margins
+- **Large (1440px+)**: 40px margins
+- **XL (1920px+)**: 48px margins
+- **Use `<PageContainer>` for all pages**
+
+### **Colors (Slate Palette)**
+- **Primary**: #0f172a (slate-900)
+- **Secondary**: #64748b (slate-500)
+- **Tertiary**: #94a3b8 (slate-400)
+- **Border**: #e2e8f0 (slate-200)
+- **Background**: #ffffff
+- **Hover**: #f8fafc (slate-50)
+
+### **Table Styling (Vercel Compact)**
+- **Size**: `small` (Ant Design)
+- **Primary text**: 14px, medium weight
+- **Secondary text**: 12px, regular weight
+- **Headers**: 12px, semibold, uppercase
+- **Row height**: ~40px (compact)
+- **Hover**: Subtle #f8fafc background
+
+### **Layout Principles**
+- **Mobile-first responsive design**
+- **8px grid system** for consistent spacing
+- **Progressive enhancement** (more space on larger screens)
+- **Clean, minimal interfaces** (Vercel/Linear style)
+- **LinkedIn branding** in sidebar (logo + "PCC")
+
+### **Component Guidelines**
+- **Always use Ant Design's built-in props** (size, render, etc.)
+- **Leverage theme tokens** for consistency
+- **Maintain accessibility** (don't override Ant Design's features)
+- **Use responsive CSS classes** for scaling
+- **Keep components reusable** and composable
+
+### **File Structure**
+- **Theme**: `src/theme.ts` (design tokens)
+- **Layout**: `src/components/Layout.tsx` (responsive wrapper)
+- **Pages**: `src/pages/` (wrap in PageContainer)
+- **Styles**: `src/App.css` (responsive utilities)
+- **Data**: `src/mockProducts.json` (542 LinkedIn products)

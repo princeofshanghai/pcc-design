@@ -75,3 +75,200 @@ body {
   box-sizing: border-box;
   border-top: 1px solid #e2e8f0; /* Visual separation from Sider */
 }
+
+/* Vercel-style table enhancements */
+.vercel-table-row:hover {
+  background-color: #f8fafc !important;
+  transition: background-color 0.15s ease;
+}
+
+/* Compact header styling */
+.ant-table-thead > tr > th {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  letter-spacing: 0.05em !important;
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 8px 12px !important;
+}
+
+/* Compact cell styling */
+.ant-table-tbody > tr > td {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Remove default table borders for cleaner look */
+.ant-table {
+  border: none !important;
+}
+
+.ant-table-container {
+  border: none !important;
+}
+
+/* Ensure consistent spacing */
+.ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Responsive Content Spacing System */
+/* Mobile-first approach with progressive enhancement */
+
+.responsive-content {
+  background: transparent !important;
+  /* Mobile (320px+) - 16px margins */
+  margin: 16px !important;
+}
+
+/* Tablet (768px+) - 24px margins */
+@media (min-width: 768px) {
+  .responsive-content {
+    margin: 24px !important;
+  }
+}
+
+/* Desktop (1024px+) - 32px margins */
+@media (min-width: 1024px) {
+  .responsive-content {
+    margin: 32px !important;
+  }
+}
+
+/* Large Desktop (1440px+) - 40px margins */
+@media (min-width: 1440px) {
+  .responsive-content {
+    margin: 40px !important;
+  }
+}
+
+/* Extra Large (1920px+) - 48px margins */
+@media (min-width: 1920px) {
+  .responsive-content {
+    margin: 48px !important;
+  }
+}
+
+/* Page Container Spacing */
+.page-container {
+  /* Mobile (320px+) - 24px section spacing */
+  margin-bottom: 24px;
+}
+
+/* Tablet (768px+) - 32px section spacing */
+@media (min-width: 768px) {
+  .page-container {
+    margin-bottom: 32px;
+  }
+}
+
+/* Desktop (1024px+) - 40px section spacing */
+@media (min-width: 1024px) {
+  .page-container {
+    margin-bottom: 40px;
+  }
+}
+
+/* Large Desktop (1440px+) - 48px section spacing */
+@media (min-width: 1440px) {
+  .page-container {
+    margin-bottom: 48px;
+  }
+}
+
+/* Extra Large (1920px+) - 56px section spacing */
+@media (min-width: 1920px) {
+  .page-container {
+    margin-bottom: 56px;
+  }
+}
+
+/* Header styling */
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Sider styling */
+.sider {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sider-brand {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  margin-bottom: 8px;
+}
+
+.sider-brand-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-start;
+  transition: gap 0.2s;
+  padding: 0 16px;
+}
+
+.sider-brand-content.collapsed {
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+
+.sider-brand-text {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin-left: 4px;
+}
+
+/* Menu styling */
+.sider-menu {
+  font-size: 14px;
+  height: calc(100vh - 64px);
+  border-right: 0;
+  background: #ffffff;
+}
+
+/* Sticky Layout Enhancements */
+.ant-layout-sider {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  z-index: 1000 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.ant-layout-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 999 !important;
+  backdrop-filter: blur(16px) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+/* Ensure content scrolls properly */
+.ant-layout-content {
+  min-height: calc(100vh - 64px) !important;
+  overflow-x: hidden !important;
+}
+
+/* Smooth scrolling for the entire app */
+html, body {
+  scroll-behavior: smooth;
+}

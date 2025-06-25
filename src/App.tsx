@@ -12,7 +12,6 @@ function App() {
         <Routes>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
-            {/* Add more routes here as you create more pages */}
           </Route>
         </Routes>
       </Router>

@@ -19,17 +19,18 @@ At LinkedIn, the product catalog is structured in a four-level hierarchy to mana
 - **Example:** "Sales Navigator Core", "Premium Career"
 
 **2. SKU (The Sellable Configuration)**
-- **Definition:** A specific, sellable permutation of a Product. A single Product is composed of many SKUs. Each SKU is defined by a unique combination of commercial attributes.
-- **Defining Attributes:** `Region`, `Channel`, `Billing Cycle`, `Product Type`, etc.
-- **Example:** One SKU for Sales Navigator Core could be `Annual billing, for the NAMER region, sold via the Desktop channel`. A different SKU would represent the `Monthly` version for the same configuration.
+- **Definition:** A specific, sellable permutation of a Product. A single Product is composed of many SKUs. Each SKU is defined by a unique combination of commercial attributes. **A SKU is the unit of experimentation.**
+- **Key Features:**
+  - **Immutable Attributes:** Once a SKU is created, its defining commercial attributes (`Region`, `Channel`, `Billing Cycle`, etc.) cannot be changed.
+  - **LIX Experiments:** To test a change—such as a different price, a new billing cycle, or updated description—a **new SKU is created.** A LIX experiment is then used to control which SKU (the original or the new variant) is presented to a user. This makes experiments safe and easy to track.
+- **Example:** One SKU for Sales Navigator Core is `Annual billing, for the NAMER region, sold via the Desktop channel`. To run a pricing experiment, we would create a *new* SKU that is identical except for its price, and use a LIX to show one or the other.
 
 **3. Price (The Versioned Offering)**
-- **Definition:** A versioned pricing configuration tied to a *specific SKU*. This is where time-based and experimental logic lives. A single SKU can have multiple `Price` objects active at once (e.g., a standard price and an experimental price).
+- **Definition:** A container for price points tied to a *specific SKU*. It defines when a certain set of prices is valid.
 - **Key Features:**
-  - **LIX Experiments:** A `Price` can be tied to a LIX key and treatment group.
-  - **Effective Dates:** A `Price` has `Start Date` and `End Date` to control when it's active.
+  - **Effective Dates:** A `Price` has a `Start Date` and `End Date` to control when it's active. This allows for scheduled price changes (e.g., for a Q4 promotion).
   - **Drafts & Workflows:** A `Price` can exist as a `Draft` before it goes live.
-- **Example:** The `Annual, NAMER, Desktop` SKU could have a `Price` for the standard live offering, and another `Price` for a Q4 discount experiment.
+- **Example:** The `Annual, NAMER, Desktop` SKU could have a single `Price` object containing all its currency price points, active from the start of the year. A promotional price for Q4 would be managed by creating a new SKU with its own Price object with Q4 effective dates.
 
 **4. Price Point (The Currency Amount)**
 - **Definition:** The most granular level, representing the actual monetary amount in a specific currency. It is attached to a `Price` object.
@@ -39,16 +40,13 @@ At LinkedIn, the product catalog is structured in a four-level hierarchy to mana
 **Visual Hierarchy:**
 ```
 Product
-└── SKU (e.g., Annual, NAMER, Desktop)
-    ├── Price (e.g., Standard Live Version)
-    │   ├── Price Point (USD 959.88)
-    │   └── Price Point (CAD 1271.88)
-    └── Price (e.g., Q4 LIX Experiment)
-        ├── Price Point (USD 863.89)
-        └── Price Point (CAD 1144.69)
+└── SKU (e.g., Standard Version: Annual, NAMER, Desktop)
+    └── Price (Standard Price, effective all year)
+        ├── Price Point (USD 959.88)
+        └── Price Point (CAD 1271.88)
 ```
 
-This model separates the **"what"** (the SKU) from the **"how and when"** (the Price), allowing for granular control and scalability.
+This model separates the **"what"** (the immutable SKU) from the **"how much and when"** (the Price), with experimentation handled by creating new SKUs. This provides maximum safety, control, and scalability.
 
 ---
 
@@ -390,7 +388,7 @@ These attributes are the foundation for Epic 1's UI and user stories. All other 
 
 - **Product:** The highest-level conceptual offering (e.g., "Sales Navigator Core").
 - **SKU:** A specific, sellable configuration of a Product, defined by region, channel, billing cycle, etc.
-- **Price:** A versioned pricing configuration for a SKU, supporting experiments and effective dates.
+- **Price:** A container for price points tied to a specific SKU. It defines when a certain set of prices is valid.
 - **Price Point:** The actual monetary amount in a specific currency for a Price.
 - **LOB (Line of Business):** A business grouping for products (LTS, LMS, LSS, Premium).
 - **Product Category:** Logical grouping within a LOB (e.g., "Career Pages").

@@ -19,16 +19,16 @@ Users can browse, search, and filter LinkedIn's product catalog to find specific
 
 ### 2. Design a New Pricing Experiment
 
-Users can create a new pricing variant for an existing product by defining currency-specific price points, selecting applicable regions or channels, and assigning it to an experiment group. The goal is to make it easy for business users to propose and test pricing changes without engineering involvement.
+Users can propose a new pricing experiment for an existing SKU. This action will create a new "experimental" SKU by cloning the original, allowing the user to define a new set of price points for it. The goal is to make it easy for business users to draft and test pricing changes without needing to understand the underlying SKU creation process or involve engineering.
 
 ---
 
 ## What's Explicitly Out of Scope
 
-- Creating new products or SKUs from scratch  
+- Creating new products or complex SKUs from a blank slate. (The MVP only supports creating experimental SKUs by cloning an existing one via the guided pricing experiment workflow.)
 - Bundling, offer creation, or discount logic  
-- Editing existing product metadata  
-- Backend integrations, authentication, or approval workflows  
+- Editing existing product metadata (other than price, as part of an experiment)
+- Backend integrations, authentication, or approval workflows (all experiments will be `Draft` only)
 - Viewing analytics or experiment results  
 
 This MVP is focused solely on viewing product data and drafting new pricing experiments.

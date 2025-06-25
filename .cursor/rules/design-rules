@@ -1,12 +1,7 @@
-# Aesthetic with Ant Design
+/ # Aesthetic with Ant Design
 
-## Visual Design Rules
-- Use **Ant Design components and implementation patterns** exclusively unless there is no existing solution. Be explicit when you need to make a custom one.
-- **Holistic Theming:** All Ant Design color and typography tokens (primary, semantic, text, borders, backgrounds, font sizes, weights, line heights) are mapped to a custom theme in `src/theme.ts` for global consistency.
-- **Typography:** Font sizes, weights, and line heights follow the Geist/Vercel scale for a modern, compact, and elegant look. Font family is Inter, with system sans-serif fallback.
-- **Flat design:** Avoid card containers; content should feel directly on the page.
-- **Minimal borders:** Subtle, light borders (#e2e8f0) instead of heavy card shadows.
-- **Neutral color palette:** Grays and whites with strategic accent colors from the theme palette.
+<!-- ## Visual Design Rules
+- Use **Ant Design components and implementation patterns** exclusively unless there is no existing solution. Be explicit when you need to make a custom one.ategic accent colors from the theme palette.
 - **Generous whitespace:** More breathing room between elements.
 - **Subtle shadows:** Soft, layered depth without heavy drop shadows.
 - **Rounded corners:** Consistent 6-8px border radius.
@@ -20,4 +15,4 @@
 - Apply consistent spacing and layout patterns through Ant Design's design system.
 - Maintain Ant Design's accessibility and component behavior.
 - Focus on flat, minimal layouts that feel modern and uncluttered.
-- All new pages and components automatically inherit the global theme and tokens.
+- All new pages and components automatically inherit the global theme and tokens. //

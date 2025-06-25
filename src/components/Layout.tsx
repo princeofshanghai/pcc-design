@@ -153,10 +153,11 @@ const AppLayout = () => {
           <Avatar icon={<UserOutlined />} />
         </Header>
         <Content style={{ 
-          padding: 32, 
-          minHeight: 0, 
-          marginTop: 64,
-          paddingTop: 96 
+          margin: '24px 16px',
+          padding: 24, 
+          minHeight: 280, 
+          background: '#fff',
+          marginTop: 88, // Add space for the fixed header
         }}>
           <Outlet />
         </Content>

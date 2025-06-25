@@ -3,6 +3,7 @@ import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet, type Location } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
+import { zIndex } from '../theme';
 
 const { Sider, Header, Content } = Layout;
 
@@ -97,18 +98,20 @@ const AppLayout = () => {
           }}
           className={collapsed ? 'collapsed-menu' : ''}
         />
-        <style jsx>{`
-          .collapsed-menu .ant-menu-item {
-            text-align: center !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          .collapsed-menu .ant-menu-item .ant-menu-title-content {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-          }
-        `}</style>
+        <style>
+          {`
+            .collapsed-menu .ant-menu-item {
+              text-align: center !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .collapsed-menu .ant-menu-item .ant-menu-title-content {
+              display: flex !important;
+              justify-content: center !important;
+              align-items: center !important;
+            }
+          `}
+        </style>
       </Sider>
       <Layout style={{ marginLeft: collapsed ? 80 : 220 }}>
         <Header 
@@ -126,7 +129,7 @@ const AppLayout = () => {
             top: 0,
             right: 0,
             left: collapsed ? 80 : 220,
-            zIndex: 1001,
+            zIndex: zIndex.header,
             transition: 'all 0.3s ease'
           }}
         >

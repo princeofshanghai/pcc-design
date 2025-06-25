@@ -1,5 +1,5 @@
 import { Modal, Form, Input, Select, DatePicker, Button } from 'antd';
-import { useState } from 'react';
+import { zIndex } from './theme';
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -17,6 +17,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({ open, onClose
       open={open}
       onCancel={onClose}
       footer={null}
+      zIndex={zIndex.modal}
     >
       <Form form={form} layout="vertical">
         <Form.Item label="Project Name" name="name" rules={[{ required: true, message: 'Please enter a project name' }]}> 

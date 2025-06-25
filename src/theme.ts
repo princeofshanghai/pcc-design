@@ -1,5 +1,3 @@
-import { type ThemeConfig } from 'antd';
-
 export const zIndex = {
   header: 1001,
   modal: 1050,

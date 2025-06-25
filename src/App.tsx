@@ -1,17 +1,12 @@
 import React from 'react';
-import AppLayout from './components/Layout';
-import CatalogPage from './pages/CatalogPage';
-import './App.css';
-import { ConfigProvider } from 'antd';
-import blueTheme from './theme';
+import { Button } from 'antd';
+import 'antd/dist/reset.css';
 
 function App() {
   return (
-    <ConfigProvider theme={blueTheme}>
-      <AppLayout selectedKey="catalog">
-        <CatalogPage />
-      </AppLayout>
-    </ConfigProvider>
+    <div style={{ padding: 24 }}>
+      <Button type="primary">Ant Design Button</Button>
+    </div>
   );
 }
 

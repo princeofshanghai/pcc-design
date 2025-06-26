@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Technical Stack and Guardrails
+
+This project is built using the following technologies:
+
+- **Framework:** React
+- **Language:** TypeScript
+- **UI Library:** Ant Design (antd)
+
+All UI components and styling should conform to the Ant Design system and its best practices. Do not introduce other UI libraries like Material-UI or Chakra UI.

@@ -73,9 +73,6 @@ const Home: React.FC = () => {
         itemLayout="vertical"
         dataSource={filteredProducts}
         renderItem={(product: Product) => <ProductListItem product={product} />}
-        pagination={{
-          pageSize: 5,
-        }}
       />
     </Space>
   );

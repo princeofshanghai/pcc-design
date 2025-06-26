@@ -34,22 +34,22 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
     - [x] 2.1.2: It should accept a `status` prop which can be 'Active', 'Legacy', or 'Retired'.
     - [x] 2.1.3: It should use Ant Design's `Tag` component and map the status to a specific `color` prop (e.g., `green` for Active, `default` for Legacy, `red` for Retired).
 
-- [ ] **2.2: `ProductListItem.tsx` Component**
+- [x] **2.2: `ProductListItem.tsx` Component**
     - [x] 2.2.1: Create a new component `ProductListItem.tsx`.
-    - [ ] 2.2.2: It should accept a single `product` object of type `Product` as a prop.
-    - [ ] 2.2.3: It should use Ant Design's `Card` or `List.Item` component to display the `Product Name`, `Product ID`, `LOB`, and `Category` in a clean, organized format.
-    - [ ] 2.2.4: It should use the `StatusTag` component to display the product's status.
-    - [ ] 2.2.5: Create a `CopyableId.tsx` component that shows an ID and a button to copy it to the clipboard, then integrate it into the `ProductListItem`.
+    - [x] 2.2.2: It should accept a single `product` object of type `Product` as a prop.
+    - [x] 2.2.3: It should use Ant Design's `Card` or `List.Item` component to display the `Product Name`, `Product ID`, `LOB`, and `Category` in a clean, organized format.
+    - [x] 2.2.4: It should use the `StatusTag` component to display the product's status.
+    - [x] 2.2.5: Create a `CopyableId.tsx` component that shows an ID and a button to copy it to the clipboard, then integrate it into the `ProductListItem`.
 
-- [ ] **2.3: `SkuListItem.tsx` Component**
-    - [ ] 2.3.1: Create a new component `SkuListItem.tsx`.
-    - [ ] 2.3.2: It should accept a single `sku` object of type `Sku` as a prop.
-    - [ ] 2.3.3: It should display key SKU attributes like `Region`, `Sales Channel`, and `Billing Cycle` using Ant Design `Tag` components.
-    - [ ] 2.3.4: It should also use the `StatusTag` to display the SKU's status.
+- [x] **2.3: `SkuListItem.tsx` Component**
+    - [x] 2.3.1: Create a new component `SkuListItem.tsx`.
+    - [x] 2.3.2: It should accept a single `sku` object of type `Sku` as a prop.
+    - [x] 2.3.3: It should display key SKU attributes like `Region`, `Sales Channel`, and `Billing Cycle` using Ant Design `Tag` components.
+    - [x] 2.3.4: It should also use the `StatusTag` to display the SKU's status.
 
-- [ ] **2.4: Search and Filter Components**
-    - [ ] 2.4.1: Create a `SearchBar.tsx` component that renders Ant Design's `Input.Search` component.
-    - [ ] 2.4.2: Create a generic `FilterDropdown.tsx` component that takes a label (e.g., "LOB") and a list of options as props and renders Ant Design's `Select` component.
+- [x] **2.4: Search and Filter Components**
+    - [x] 2.4.1: Create a `SearchBar.tsx` component that renders Ant Design's `Input.Search` component.
+    - [x] 2.4.2: Create a generic `FilterDropdown.tsx` component that takes a label (e.g., "LOB") and a list of options as props and renders Ant Design's `Select` component.
 
 ---
 
@@ -57,6 +57,6 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
 
 **Goal:** Compose the pages using the components we just built and our mock data.
 
-- [ ] **3.1: Build the `HomePage.tsx` (Product Catalog)**
-    - [ ] 3.1.1: In `src/pages/Home.tsx`, import the mock product list from `mock-data.ts`.
-    - [ ] 3.1.2: Use Ant Design's `Space` and `Row`/`Col` components to lay out the `SearchBar` and `
+- [x] **3.1: Build the `HomePage.tsx` (Product Catalog)**
+    - [x] 3.1.1: In `src/pages/Home.tsx`, import the mock product list from `mock-data.ts`.
+    - [x] 3.1.2: Use Ant Design's `Space` and `Row`/`Col` components to lay out the `SearchBar` and `

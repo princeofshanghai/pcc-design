@@ -1,21 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { Typography, List, Row, Col, Space } from 'antd';
+import { Row, Col, Space } from 'antd';
 import ProductListItem from '../components/ProductListItem';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropdown';
-
-const { Title } = Typography;
+import PageHeader from '../components/PageHeader';
 
 // Helper to convert TypeScript union types into string arrays for dropdowns
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
+const CATEGORY_OPTIONS: string[] = [...new Set(mockProducts.map(p => p.category))];
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [lobFilter, setLobFilter] = useState<LOB | null>(null);
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const filteredProducts = useMemo(() => {
     let products = mockProducts;
@@ -37,13 +38,22 @@ const Home: React.FC = () => {
       products = products.filter(p => p.status === statusFilter);
     }
 
+    if (categoryFilter) {
+      products = products.filter(p => p.category === categoryFilter);
+    }
+
     return products;
-  }, [searchQuery, lobFilter, statusFilter]);
+  }, [searchQuery, lobFilter, statusFilter, categoryFilter]);
+
+  const productCount = filteredProducts.length;
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
-      <Title level={2}>Product Catalog</Title>
-      
+      <PageHeader
+        title="Product Catalog"
+        subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
+      />
+
       <Row gutter={[16, 16]} align="bottom">
         <Col flex="auto">
           <SearchBar
@@ -56,7 +66,7 @@ const Home: React.FC = () => {
             label="LOB"
             placeholder="Filter by LOB"
             options={LOB_OPTIONS}
-            onChange={(value) => setLobFilter(value as LOB)}
+            onChange={(value) => setLobFilter((value as LOB) ?? null)}
           />
         </Col>
         <Col>
@@ -64,16 +74,28 @@ const Home: React.FC = () => {
             label="Status"
             placeholder="Filter by Status"
             options={STATUS_OPTIONS}
-            onChange={(value) => setStatusFilter(value as Status)}
+            onChange={(value) => setStatusFilter((value as Status) ?? null)}
+          />
+        </Col>
+        <Col>
+          <FilterDropdown
+            label="Category"
+            placeholder="Filter by Category"
+            options={CATEGORY_OPTIONS}
+            onChange={(value) => setCategoryFilter(value ?? null)}
           />
         </Col>
       </Row>
 
-      <List
-        itemLayout="vertical"
-        dataSource={filteredProducts}
-        renderItem={(product: Product) => <ProductListItem product={product} />}
-      />
+      <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+        {filteredProducts.map((product: Product, index: number) => (
+          <ProductListItem
+            key={product.id}
+            product={product}
+            isLast={index === filteredProducts.length - 1}
+          />
+        ))}
+      </div>
     </Space>
   );
 };

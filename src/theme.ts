@@ -8,10 +8,12 @@ export const zIndex = {
 const themeConfig: ThemeConfig = {
   token: {
     fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
+    fontFamilyCode: "'Geist Mono', Menlo, Monaco, 'Courier New', monospace",
     fontSizeHeading1: 28,
     fontSizeHeading2: 20,
     fontSizeHeading3: 16,
-    fontWeightStrong: 500,
+    fontSizeHeading4: 14,
+    fontWeightStrong: 600,
   },
   components: {
     Modal: {

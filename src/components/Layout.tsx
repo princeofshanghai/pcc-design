@@ -135,7 +135,6 @@ const AppLayout = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Button
-              type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               style={{
@@ -153,13 +152,14 @@ const AppLayout = () => {
           <Avatar icon={<UserOutlined />} />
         </Header>
         <Content style={{ 
-          margin: '24px 16px',
-          padding: 24, 
+          margin: '88px 24px 24px 24px', // Top margin to account for fixed header
+          padding: 0, 
           minHeight: 280, 
-          background: '#fff',
-          marginTop: 88, // Add space for the fixed header
+          background: 'transparent',
         }}>
-          <Outlet />
+          <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

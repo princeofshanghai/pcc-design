@@ -59,4 +59,7 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
 
 - [x] **3.1: Build the `HomePage.tsx` (Product Catalog)**
     - [x] 3.1.1: In `src/pages/Home.tsx`, import the mock product list from `mock-data.ts`.
-    - [x] 3.1.2: Use Ant Design's `Space` and `Row`/`Col` components to lay out the `SearchBar` and `
+    - [x] 3.1.2: Use Ant Design's `Space` and `Row`/`Col` components to lay out the `SearchBar` and `FilterDropdown` components above the product list.
+    - [x] 3.1.3: Implement state management (`useState`) to store the current search query and filter selections.
+    - [x] 3.1.4: Use the state to filter the product list and display only the matching results.
+    - [x] 3.1.5: Add pagination to the `List` component to handle large sets of data.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, message } from 'antd';
+import { Button, message, theme } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 
 interface CopyableIdProps {
@@ -7,6 +7,8 @@ interface CopyableIdProps {
 }
 
 const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
+  const { token } = theme.useToken();
+
   const handleCopy = () => {
     navigator.clipboard.writeText(id).then(
       () => {
@@ -28,9 +30,10 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
       style={{
         color: '#666',
         borderColor: '#e0e0e0',
+        fontFamily: token.fontFamilyCode,
       }}
     >
-      ID: {id}
+      {id}
     </Button>
   );
 };

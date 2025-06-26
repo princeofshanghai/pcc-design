@@ -1,0 +1,37 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Playbook: How to Execute Prototyping Tasks
+
+This document outlines our collaborative workflow for working through a task list to build a prototype. The process is designed to be iterative, designer-driven, and highly predictable.
+
+## The "Execute, Review, Refine" Cycle
+
+We will approach each task using the following interactive cycle. The goal is to ensure the designer has full creative control and can iterate on every detail before moving forward.
+
+### 1. You Drive the Process
+You will initiate the work by telling me which task number from our list to begin.
+> **Example:** "Let's start task 2.1, creating the StatusTag component."
+
+### 2. I Confirm, Explain, and Execute
+I will first confirm the task to ensure we are aligned. Then, I will briefly explain my plan before executing the task using my tools.
+> **My Response:** "Okay, task 2.1. I will now create the `StatusTag.tsx` file and use Ant Design's `Tag` component to display the status."
+
+### 3. I Present for Your Review
+This is the most critical step. After making any visual change, I will pause and explicitly hand control back to you for feedback. I will not proceed to the next task without your approval.
+> **My Response:** "The `StatusTag` component has been created. It currently shows a green tag for 'Active'. How does this look? Are there any refinements you'd like to make?"
+
+### 4. The Refinement Loop (As Needed)
+This is where we iterate until the result is perfect.
+- **You Provide Feedback:** Give specific instructions for changes (e.g., "Let's try a different color," or "Make the text bold").
+- **I Execute the Refinement:** I will make only the requested change.
+- **Return to Step 3:** I will present the updated result for your review. We stay in this loop until you are satisfied.
+
+### 5. You Approve & I Finalize
+Once you are happy with the result and give your approval, I will complete the task.
+- **You Approve:** "That's perfect. Let's move on."
+- **I Finalize:**
+    1.  I will edit the task list file (e.g., `docs/tasks/epic-1-tasks.md`) to mark the corresponding checkbox as complete by changing `[ ]` to `[x]`.
+    2.  I will then confirm completion and prompt for the next step: "Great. Task 2.1 is now complete. We're ready for 2.2. Shall we proceed?"

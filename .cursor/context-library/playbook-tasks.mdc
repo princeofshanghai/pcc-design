@@ -58,8 +58,7 @@ Every task list should be broken down into these four sequential phases.
 All tasks must be formatted as a nested, numbered list with checkboxes to allow for clear tracking and communication.
 
 **Example Structure:**
-```
-1.0: Phase 1 - Project Setup
+`1.0: Phase 1 - Project Setup
    1.1 [ ] Create the mock data file.
       1.1.1 [ ] Define the data structure (type) for a Product.
       1.1.2 [ ] Add 5 fake Products to the mock data array.
@@ -67,5 +66,4 @@ All tasks must be formatted as a nested, numbered list with checkboxes to allow 
 2.0: Phase 2 - Build the Component Library
    2.1 [ ] Create the StatusBadge component.
       2.1.1 [ ] It should accept a "status" prop (`active`, `retired`).
-      2.1.2 [ ] It should display with a green color for `active`...
-```
+      2.1.2 [ ] It should display with a green color for `active`...`

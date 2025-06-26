@@ -3,7 +3,7 @@
 > **Status:** Draft
 > **Author:** [Your Name/Team]
 > **Last Updated:** [Current Date]
-> **Related Documents:** [@vision-and-goals](/.cursor/context-library/vision-and-goals.mdc), [@mvp-scope](/.cursor/context-library/mvp-scope.mdc), [@prd-playbook](/.cursor/context-library/prd-playbook.mdc)
+> **Related Documents:** [@vision-and-goals](/.cursor/context-library/vision-and-goals.mdc), [@mvp-scope](/.cursor/context-library/mvp-scope.mdc), [@playbook-prd](/.cursor/context-library/playbook-prd.mdc)
 
 ---
 

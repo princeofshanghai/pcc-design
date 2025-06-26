@@ -1,6 +1,6 @@
 # Task List: Epic 1 - The Single Source of Truth
 
-This document breaks down the work for Epic 1 into small, concrete, and ordered tasks. It follows the "Design-First" methodology outlined in our `@task-generation-playbook.mdc`.
+This document breaks down the work for Epic 1 into small, concrete, and ordered tasks. It follows the "Design-First" methodology outlined in our `@playbook-tasks.mdc`.
 
 ---
 

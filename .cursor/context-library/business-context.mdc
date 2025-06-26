@@ -92,12 +92,8 @@ This model separates the **"what"** (the immutable SKU) from the **"how much and
     - Small Business
   - **LSS (LinkedIn Sales Solutions):**
     - Sales Navigator
-    - Sales Insights
   - **LMS (LinkedIn Marketing Solutions):**
-    - Sponsored Content
-    - Lead Gen
-    - Audience Network
-    - Campaign Manager
+    - Ads
 
 ### 2.3 Product ID
 - **Definition:**  
@@ -140,7 +136,7 @@ LinkedIn operates across five primary geographic regions:
 ### 3.4 Product Types
 - **Subscription**: Recurring billing products (majority of LinkedIn's products)
 - **One-time**: Single purchase products
-- **Usage-based**: Products billed based on consumption/usage
+- **Usage**: Products billed based on consumption/usage
 
 ### 3.5 Key Business Rules
 - A product cannot be multiple types (no mixed subscription + usage models)

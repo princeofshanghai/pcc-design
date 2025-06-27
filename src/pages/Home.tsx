@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Row, Col, Space, Tabs } from 'antd';
+import { Row, Col, Space } from 'antd';
 import ProductListItem from '../components/ProductListItem';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';
@@ -8,11 +8,17 @@ import FilterDropdown, { type SelectOption } from '../components/FilterDropdown'
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
 import ViewOptions from '../components/ViewOptions';
+import PillTabs from '../components/PillTabs';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
+
+const LOB_TAB_OPTIONS = [
+  { key: 'All', label: 'All LOBs' },
+  ...LOB_OPTIONS.map(lob => ({ key: lob, label: lob }))
+];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
@@ -29,9 +35,12 @@ const Home: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
+  const [activeLobTab, setActiveLobTab] = useState('All');
 
   const handleLobChange = (key: string) => {
+    setActiveLobTab(key);
     setLobFilter(key === 'All' ? null : (key as LOB));
+    setCategoryFilter(null);
   };
 
   const categoryOptions = useMemo(() => {
@@ -52,7 +61,7 @@ const Home: React.FC = () => {
         setCategoryFilter(null);
       }
     }
-  }, [lobFilter]);
+  }, [lobFilter, categoryFilter]);
 
   const sortedProducts = useMemo(() => {
     let products = mockProducts;
@@ -99,10 +108,11 @@ const Home: React.FC = () => {
         subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
       />
 
-      <Tabs defaultActiveKey="All" onChange={handleLobChange} type="card">
-        <Tabs.TabPane tab="All LOBs" key="All" />
-        {LOB_OPTIONS.map(lob => <Tabs.TabPane tab={lob} key={lob} />)}
-      </Tabs>
+      <PillTabs
+        options={LOB_TAB_OPTIONS}
+        selected={activeLobTab}
+        onChange={handleLobChange}
+      />
 
       <Row gutter={[16, 16]} justify="space-between" align="bottom">
         <Col>

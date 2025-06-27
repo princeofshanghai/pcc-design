@@ -9,7 +9,11 @@ const themeConfig: ThemeConfig = {
   token: {
     fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
     fontFamilyCode: "'Geist Mono', Menlo, Monaco, 'Courier New', monospace",
-    fontSizeHeading1: 28,
+    colorTextQuaternary: 'rgba(0, 0, 0, 0.45)',
+    colorBgLayout: '#fafafa',
+    colorText: 'rgba(0, 0, 0, 0.92)',
+    colorTextSecondary: 'rgba(0, 0, 0, 0.56)',
+    fontSizeHeading1: 32,
     fontSizeHeading2: 20,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,

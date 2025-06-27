@@ -119,7 +119,7 @@ const AppLayout = () => {
             background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : '#fff',
             backdropFilter: isScrolled ? 'blur(10px)' : 'none',
             WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
-            padding: '0 16px 0 8px', 
+            padding: '0 24px 0 24px', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between', 
@@ -139,8 +139,8 @@ const AppLayout = () => {
               onClick={() => setCollapsed(!collapsed)}
               style={{
                 fontSize: '16px',
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

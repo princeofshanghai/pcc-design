@@ -1,14 +1,16 @@
 import React from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import type { SizeType } from 'antd/es/config-provider/SizeContext';
 
 interface SearchBarProps {
   placeholder: string;
   onChange: (value: string) => void;
   style?: React.CSSProperties;
+  size?: SizeType;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onChange, style }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onChange, style, size }) => {
   return (
     <Input
       placeholder={placeholder}
@@ -16,6 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onChange, style }) =
       style={style}
       allowClear
       prefix={<SearchOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+      size={size}
     />
   );
 };

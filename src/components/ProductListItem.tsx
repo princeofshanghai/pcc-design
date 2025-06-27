@@ -18,7 +18,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
 
   const linkStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'minmax(0, 3fr) minmax(0, 2fr) auto',
+    gridTemplateColumns: '1fr auto',
     gap: '24px',
     alignItems: 'center',
     padding: '16px 20px',
@@ -36,22 +36,23 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Space direction="vertical" size={0} style={{ alignItems: 'flex-start' }}>
-        <Space align="center">
+      <Space direction="vertical" size={2} style={{ alignItems: 'flex-start' }}>
+        <Space align="center" size={8}>
           <Title level={4} style={{ margin: 0, fontWeight: 500 }}>
             {product.name}
           </Title>
-          <CopyableId id={product.id} />
         </Space>
-        <Text type="secondary">{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
+        <Space size={1} split={<Divider type="vertical" />}>
+          <Text type="secondary">{product.lob}</Text>
+          <Text type="secondary">{product.category}</Text>
+        </Space>
       </Space>
 
-      <Space direction="vertical" size={0}>
-        <Text>{product.lob}</Text>
-        <Text>{product.category}</Text>
+      <Space size={24}>
+        <CopyableId id={product.id} />
+        <Text>{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
+        <StatusTag status={product.status} />
       </Space>
-
-      <StatusTag status={product.status} />
     </Link>
   );
 };

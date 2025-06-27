@@ -1,33 +1,69 @@
 import React from 'react';
-import { Select, Typography, Space } from 'antd';
+import { Select, Tooltip } from 'antd';
+import type { SizeType } from 'antd/es/config-provider/SizeContext';
 
-const { Text } = Typography;
+const { OptGroup, Option } = Select;
 
-interface FilterDropdownProps {
+export interface Option {
   label: string;
-  options: string[];
-  placeholder?: string;
-  onChange: (value: string) => void;
-  style?: React.CSSProperties;
+  value: string;
 }
 
-const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, placeholder, onChange, style }) => {
+export interface OptionGroup {
+  label: string;
+  options: Option[];
+}
+
+export type SelectOption = Option | OptionGroup;
+
+interface FilterDropdownProps {
+  placeholder: string;
+  options: SelectOption[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+  style?: React.CSSProperties;
+  size?: SizeType;
+  showOptionTooltip?: boolean;
+}
+
+const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, value, onChange, style, size, showOptionTooltip = false }) => {
+  const renderLabel = (label: string) => {
+    if (showOptionTooltip) {
+      return <Tooltip title={label} placement="right">{label}</Tooltip>;
+    }
+    return label;
+  };
+
   return (
-    <Space align="center" style={style}>
-      <Text>{label}:</Text>
-      <Select
-        placeholder={placeholder}
-        onChange={onChange}
-        style={{ minWidth: 120 }}
-        allowClear
-      >
-        {options.map(option => (
-          <Select.Option key={option} value={option}>
-            {option}
-          </Select.Option>
-        ))}
-      </Select>
-    </Space>
+    <Select
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      style={{ minWidth: 150, ...style }}
+      allowClear
+      showSearch
+      optionFilterProp="label"
+      size={size}
+    >
+      {options.map(opt => {
+        if ('options' in opt) {
+          return (
+            <OptGroup key={opt.label} label={opt.label}>
+              {opt.options.map(child => (
+                <Option key={child.value} value={child.value} label={child.label}>
+                  {renderLabel(child.label)}
+                </Option>
+              ))}
+            </OptGroup>
+          );
+        }
+        return (
+          <Option key={opt.value} value={opt.value} label={opt.label}>
+            {renderLabel(opt.label)}
+          </Option>
+        );
+      })}
+    </Select>
   );
 };
 

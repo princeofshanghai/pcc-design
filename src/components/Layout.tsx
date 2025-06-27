@@ -145,7 +145,7 @@ const AppLayout = () => {
           minHeight: 280, 
           background: 'transparent',
         }}>
-          <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1024, margin: '0 auto' }}>
             <Outlet />
           </div>
         </Content>

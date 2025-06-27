@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Row, Col, Space } from 'antd';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Row, Col, Space, Tabs } from 'antd';
 import ProductListItem from '../components/ProductListItem';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';
@@ -30,6 +30,30 @@ const Home: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
+
+  const handleLobChange = (key: string) => {
+    setLobFilter(key === 'All' ? null : (key as LOB));
+  };
+
+  const categoryOptions = useMemo(() => {
+    if (lobFilter) {
+      return [...new Set(mockProducts.filter(p => p.lob === lobFilter).map(p => p.category))]
+        .map(category => ({ label: category, value: category }));
+    }
+    return CATEGORY_GROUPED_OPTIONS;
+  }, [lobFilter]);
+
+  useEffect(() => {
+    if (lobFilter) {
+      const validCategories = mockProducts
+        .filter(p => p.lob === lobFilter)
+        .map(p => p.category);
+      
+      if (categoryFilter && !validCategories.includes(categoryFilter)) {
+        setCategoryFilter(null);
+      }
+    }
+  }, [lobFilter]);
 
   const sortedProducts = useMemo(() => {
     let products = mockProducts;
@@ -76,6 +100,11 @@ const Home: React.FC = () => {
         subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
       />
 
+      <Tabs defaultActiveKey="All" onChange={handleLobChange} type="card">
+        <Tabs.TabPane tab="All LOBs" key="All" />
+        {LOB_OPTIONS.map(lob => <Tabs.TabPane tab={lob} key={lob} />)}
+      </Tabs>
+
       <Row gutter={[16, 16]} justify="space-between" align="bottom">
         <Col>
           <SearchBar
@@ -88,13 +117,6 @@ const Home: React.FC = () => {
         <Col>
           <Space>
             <FilterDropdown
-              placeholder="All LOBs"
-              options={LOB_SELECT_OPTIONS}
-              value={lobFilter}
-              onChange={(value) => setLobFilter((value as LOB) ?? null)}
-              size="large"
-            />
-            <FilterDropdown
               placeholder="All Statuses"
               options={STATUS_SELECT_OPTIONS}
               value={statusFilter}
@@ -103,7 +125,7 @@ const Home: React.FC = () => {
             />
             <FilterDropdown
               placeholder="All Categories"
-              options={CATEGORY_GROUPED_OPTIONS}
+              options={categoryOptions}
               value={categoryFilter}
               onChange={(value) => setCategoryFilter(value ?? null)}
               size="large"

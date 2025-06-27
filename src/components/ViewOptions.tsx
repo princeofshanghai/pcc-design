@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Dropdown, Menu, Divider } from 'antd';
+import { Badge, Button, Dropdown } from 'antd';
 import { SettingOutlined, CheckOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 

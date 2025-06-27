@@ -14,7 +14,6 @@ const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
-const LOB_SELECT_OPTIONS: SelectOption[] = LOB_OPTIONS.map(lob => ({ label: lob, value: lob }));
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
 const CATEGORY_GROUPED_OPTIONS: SelectOption[] = LOB_OPTIONS.map(lob => ({

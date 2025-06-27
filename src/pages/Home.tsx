@@ -7,14 +7,15 @@ import SearchBar from '../components/SearchBar';
 import FilterDropdown, { type SelectOption } from '../components/FilterDropdown';
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
+import ViewOptions from '../components/ViewOptions';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
-const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status'];
+const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
+const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
 const LOB_SELECT_OPTIONS: SelectOption[] = LOB_OPTIONS.map(lob => ({ label: lob, value: lob }));
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
-const GROUP_BY_SELECT_OPTIONS: SelectOption[] = GROUP_BY_OPTIONS.map(opt => ({ label: `Group by ${opt}`, value: opt }));
 
 const CATEGORY_GROUPED_OPTIONS: SelectOption[] = LOB_OPTIONS.map(lob => ({
   label: lob,
@@ -28,10 +29,12 @@ const Home: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
+  const [sortOrder, setSortOrder] = useState<string>('None');
 
-  const filteredProducts = useMemo(() => {
+  const sortedProducts = useMemo(() => {
     let products = mockProducts;
 
+    // Filtering
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       products = products.filter(p =>
@@ -40,40 +43,31 @@ const Home: React.FC = () => {
         p.category.toLowerCase().includes(lowercasedQuery)
       );
     }
+    if (lobFilter) { products = products.filter(p => p.lob === lobFilter); }
+    if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
+    if (categoryFilter) { products = products.filter(p => p.category === categoryFilter); }
 
-    if (lobFilter) {
-      products = products.filter(p => p.lob === lobFilter);
-    }
-
-    if (statusFilter) {
-      products = products.filter(p => p.status === statusFilter);
-    }
-
-    if (categoryFilter) {
-      products = products.filter(p => p.category === categoryFilter);
-    }
-
-    // Default sort by name
-    products.sort((a, b) => a.name.localeCompare(b.name));
+    // Sorting
+    products.sort((a, b) => {
+      if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
+      if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
+      return 0;
+    });
 
     return products;
-  }, [searchQuery, lobFilter, statusFilter, categoryFilter]);
+  }, [searchQuery, lobFilter, statusFilter, categoryFilter, sortOrder]);
 
   const groupedProducts = useMemo(() => {
-    if (groupBy === 'None') {
-      return null;
-    }
-    return filteredProducts.reduce((acc, product) => {
+    if (groupBy === 'None') return null;
+    return sortedProducts.reduce((acc, product) => {
       const key = product[groupBy.toLowerCase() as keyof Product] as string;
-      if (!acc[key]) {
-        acc[key] = [];
-      }
+      if (!acc[key]) { acc[key] = []; }
       acc[key].push(product);
       return acc;
     }, {} as Record<string, Product[]>);
-  }, [filteredProducts, groupBy]);
+  }, [sortedProducts, groupBy]);
 
-  const productCount = filteredProducts.length;
+  const productCount = sortedProducts.length;
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -115,12 +109,13 @@ const Home: React.FC = () => {
               size="large"
               showOptionTooltip
             />
-            <FilterDropdown
-              placeholder="Group by..."
-              options={GROUP_BY_SELECT_OPTIONS}
-              value={groupBy}
-              onChange={(value) => setGroupBy(value ?? 'None')}
-              size="large"
+            <ViewOptions 
+              groupBy={groupBy}
+              setGroupBy={setGroupBy}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
+              groupByOptions={GROUP_BY_OPTIONS}
+              sortOptions={SORT_OPTIONS}
             />
           </Space>
         </Col>
@@ -130,11 +125,11 @@ const Home: React.FC = () => {
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (
         <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
-          {filteredProducts.map((product: Product, index: number) => (
+          {sortedProducts.map((product, index) => (
             <ProductListItem
               key={product.id}
               product={product}
-              isLast={index === filteredProducts.length - 1}
+              isLast={index === sortedProducts.length - 1}
             />
           ))}
         </div>

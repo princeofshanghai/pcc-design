@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Row, Col, Space, Divider } from 'antd';
+import { Row, Col, Space } from 'antd';
 import ProductListItem from '../components/ProductListItem';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';

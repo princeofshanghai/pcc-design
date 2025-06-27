@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, message, theme } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
+import './CopyableId.css';
 
 interface CopyableIdProps {
   id: string;
@@ -9,7 +10,8 @@ interface CopyableIdProps {
 const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
   const { token } = theme.useToken();
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(id).then(
       () => {
         message.success('Copied to clipboard!');
@@ -27,9 +29,8 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
       size="small"
       icon={<CopyOutlined />}
       onClick={handleCopy}
+      className="copyable-id-button"
       style={{
-        color: '#666',
-        borderColor: '#e0e0e0',
         fontFamily: token.fontFamilyCode,
       }}
     >

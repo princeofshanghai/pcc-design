@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '../utils/types';
 import StatusTag from './StatusTag';
 import CopyableId from './CopyableId';
+import './ProductListItem.css';
 
 const { Title, Text } = Typography;
 
@@ -16,32 +17,22 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
   const [isHovered, setIsHovered] = useState(false);
   const skuCount = product.skus.length;
 
-  const linkStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '1fr auto',
-    gap: '24px',
-    alignItems: 'center',
-    padding: '16px 20px',
-    borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
-    backgroundColor: isHovered ? '#fafafa' : 'transparent',
-    transition: 'background-color 0.2s ease',
-    textDecoration: 'none',
-    color: 'inherit',
-  };
-
   return (
-    <Link
-      to={`/product/${product.id}`}
-      style={linkStyle}
+    <div
+      className="product-list-item"
+      style={{ 
+        borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
+        backgroundColor: isHovered ? '#fafafa' : 'transparent',
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Space direction="vertical" size={2} style={{ alignItems: 'flex-start' }}>
-        <Space align="center" size={8}>
+        <Link to={`/product/${product.id}`} className="product-name-link">
           <Title level={4} style={{ margin: 0, fontWeight: 500 }}>
             {product.name}
           </Title>
-        </Space>
+        </Link>
         <Space size={1} split={<Divider type="vertical" />}>
           <Text type="secondary">{product.lob}</Text>
           <Text type="secondary">{product.category}</Text>
@@ -53,7 +44,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
         <Text>{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
         <StatusTag status={product.status} />
       </Space>
-    </Link>
+    </div>
   );
 };
 

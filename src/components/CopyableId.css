@@ -1,0 +1,10 @@
+.copyable-id-button {
+  color: #666;
+  border-color: #e0e0e0;
+}
+
+.copyable-id-button:hover {
+  color: #4096ff;
+  border-color: #4096ff;
+  background-color: #fff;
+} 

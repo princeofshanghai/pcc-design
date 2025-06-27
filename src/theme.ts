@@ -13,11 +13,12 @@ const themeConfig: ThemeConfig = {
     colorBgLayout: '#fafafa',
     colorText: 'rgba(0, 0, 0, 0.92)',
     colorTextSecondary: 'rgba(0, 0, 0, 0.56)',
-    fontSizeHeading1: 32,
+    fontSizeHeading1: 28,
     fontSizeHeading2: 20,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,
-    fontWeightStrong: 600,
+    fontWeightStrong: 500,
+    fontSizeLG: 14,
   },
   components: {
     Modal: {

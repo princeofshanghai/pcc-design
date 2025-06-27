@@ -20,7 +20,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => 
       }}
     >
       <Space direction="vertical" size={0}>
-        <Title level={1} style={{ margin: 0 }}>
+        <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
           {title}
         </Title>
         {subtitle && <Text type="secondary">{subtitle}</Text>}

@@ -39,7 +39,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, v
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      style={{ minWidth: 150, ...style }}
+      style={{ minWidth: 180, ...style }}
       allowClear
       showSearch
       optionFilterProp="label"

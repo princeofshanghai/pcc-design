@@ -1,12 +1,23 @@
 .product-list-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 24px;
-  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
   padding: 16px 20px;
   transition: background-color 0.2s ease;
-  text-decoration: none;
-  color: inherit;
+  flex-wrap: wrap;
+}
+
+.product-list-item > .ant-space-vertical {
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.product-list-item > .ant-space:not(.ant-space-vertical) {
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px !important;
 }
 
 .product-name-link {

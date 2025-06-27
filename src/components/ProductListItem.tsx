@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Space, Divider } from 'antd';
+import { Typography, Space } from 'antd';
 import { Link } from 'react-router-dom';
 import type { Product } from '../utils/types';
 import StatusTag from './StatusTag';
@@ -33,14 +33,13 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
             {product.name}
           </Title>
         </Link>
-        <Space size={1} split={<Divider type="vertical" />}>
-          <Text type="secondary">{product.lob}</Text>
-          <Text type="secondary">{product.category}</Text>
-        </Space>
+        <Text type="secondary">{`${product.lob} / ${product.category}`}</Text>
+        <div style={{ marginTop: 8 }}>
+          <CopyableId id={product.id} />
+        </div>
       </Space>
 
       <Space size={24}>
-        <CopyableId id={product.id} />
         <Text>{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
         <StatusTag status={product.status} />
       </Space>

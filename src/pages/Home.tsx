@@ -126,14 +126,14 @@ const Home: React.FC = () => {
         <Col>
           <Space>
             <FilterDropdown
-              placeholder="All Statuses"
+              placeholder="All statuses"
               options={STATUS_SELECT_OPTIONS}
               value={statusFilter}
               onChange={(value) => setStatusFilter((value as Status) ?? null)}
               size="large"
             />
             <FilterDropdown
-              placeholder="All Categories"
+              placeholder="All categories"
               options={categoryOptions}
               value={categoryFilter}
               onChange={(value) => setCategoryFilter(value ?? null)}

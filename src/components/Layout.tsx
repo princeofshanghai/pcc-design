@@ -59,28 +59,32 @@ const AppLayout = () => {
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          justifyContent: collapsed ? 'center' : 'flex-start',
+          justifyContent: collapsed ? 'center' : 'space-between',
           height: 64, 
-          padding: collapsed ? 16 : '16px 16px 16px 16px'
+          padding: '0 16px',
+          borderBottom: '1px solid #f0f0f0'
         }}>
-          <img 
-            src={LinkedInLogo} 
-            alt="LinkedIn Logo" 
-            style={{ 
-              width: 24, 
-              height: 24, 
-              marginRight: collapsed ? 0 : 12 
-            }} 
-          />
           {!collapsed && (
-            <span style={{ 
-              fontWeight: 600, 
-              fontSize: 16, 
-              letterSpacing: 0.5 
-            }}>
-              PCC
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <img 
+                src={LinkedInLogo} 
+                alt="LinkedIn Logo" 
+                style={{ width: 24, height: 24 }} 
+              />
+              <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: 0.1 }}>
+                PCC
+              </span>
+            </div>
           )}
+          <Button
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            type="text"
+            style={{
+              fontSize: '16px',
+              color: '#666'
+            }}
+          />
         </div>
         <Menu 
           mode="inline" 
@@ -88,10 +92,10 @@ const AppLayout = () => {
           items={menuItems} 
           style={{ 
             border: 'none',
+            padding: '8px',
             // Center menu items when collapsed
             ...(collapsed && {
               '--ant-menu-item-padding-horizontal': '0px',
-              '--ant-menu-item-margin': '0px',
               '--ant-menu-item-height': '40px',
               '--ant-menu-item-border-radius': '0px'
             })
@@ -103,7 +107,6 @@ const AppLayout = () => {
             .collapsed-menu .ant-menu-item {
               text-align: center !important;
               padding: 0 !important;
-              margin: 0 !important;
             }
             .collapsed-menu .ant-menu-item .ant-menu-title-content {
               display: flex !important;
@@ -133,26 +136,11 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Button
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: '16px',
-                width: 28,
-                height: 28,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#666'
-              }}
-            />
-            <Breadcrumb>{getBreadcrumbItems(location)}</Breadcrumb>
-          </div>
+          <Breadcrumb>{getBreadcrumbItems(location)}</Breadcrumb>
           <Avatar icon={<UserOutlined />} />
         </Header>
         <Content style={{ 
-          margin: '88px 24px 24px 24px', // Top margin to account for fixed header
+          margin: '120px 24px 24px 24px', // Top margin to account for fixed header
           padding: 0, 
           minHeight: 280, 
           background: 'transparent',

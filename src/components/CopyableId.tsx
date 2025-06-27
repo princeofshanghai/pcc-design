@@ -32,6 +32,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
       className="copyable-id-button"
       style={{
         fontFamily: token.fontFamilyCode,
+        fontSize: 13,
       }}
     >
       {id}

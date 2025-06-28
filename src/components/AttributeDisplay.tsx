@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Row, Col, Tooltip } from 'antd';
-import { InfoCircleFilled } from '@ant-design/icons';
+import { Info } from 'lucide-react';
 import { toSentenceCase } from '../utils/formatting';
 
 const { Text } = Typography;
@@ -27,7 +27,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
       {toSentenceCase(label)}
       {tooltip && (
         <Tooltip title={tooltip}>
-          <InfoCircleFilled style={{ marginLeft: '4px', color: 'rgba(0, 0, 0, 0.45)' }} />
+          <Info size={14} style={{ marginLeft: '4px', color: 'rgba(0, 0, 0, 0.45)' }} />
         </Tooltip>
       )}
     </Text>

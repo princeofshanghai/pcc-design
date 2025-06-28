@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme } from 'antd';
-import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { User, PanelLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
@@ -99,7 +99,7 @@ const AppLayout = () => {
             </div>
           )}
           <Button
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={<PanelLeft size={20} />}
             onClick={() => setCollapsed(!collapsed)}
             type="text"
             style={{
@@ -159,7 +159,7 @@ const AppLayout = () => {
           }}
         >
           <Breadcrumb separator=">">{breadcrumbItems}</Breadcrumb>
-          <Avatar icon={<UserOutlined />} />
+          <Avatar icon={<User size={20} />} />
         </Header>
         <Content style={{ 
           margin: '120px 24px 24px 24px', // Top margin to account for fixed header

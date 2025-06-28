@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Button, Dropdown } from 'antd';
-import { SettingOutlined, CheckOutlined } from '@ant-design/icons';
+import { Settings, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
 
 interface ViewOptionsProps {
@@ -38,7 +38,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {opt === 'None' ? 'None' : `By ${opt}`}
-            {groupBy === opt && <CheckOutlined />}
+            {groupBy === opt && <Check size={16} />}
           </div>
         ),
         onClick: () => setGroupBy(opt),
@@ -56,7 +56,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {opt}
-            {sortOrder === opt && <CheckOutlined />}
+            {sortOrder === opt && <Check size={16} />}
           </div>
         ),
         onClick: () => setSortOrder(opt),
@@ -85,7 +85,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       <Button 
         icon={
           <Badge dot={isViewActive}>
-            <SettingOutlined />
+            <Settings size={16} />
           </Badge>
         } 
         size="large"

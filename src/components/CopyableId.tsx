@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, message, theme } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
+import { Copy } from 'lucide-react';
 import './CopyableId.css';
 
 interface CopyableIdProps {
@@ -30,7 +30,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
     <Button
       type="default"
       size={isMedium ? 'middle' : 'small'}
-      icon={<CopyOutlined />}
+      icon={<Copy size={isMedium ? 14 : 12} />}
       onClick={handleCopy}
       className="copyable-id-button"
       style={{

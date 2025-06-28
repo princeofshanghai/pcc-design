@@ -158,7 +158,7 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <Breadcrumb>{breadcrumbItems}</Breadcrumb>
+          <Breadcrumb separator=">">{breadcrumbItems}</Breadcrumb>
           <Avatar icon={<UserOutlined />} />
         </Header>
         <Content style={{ 

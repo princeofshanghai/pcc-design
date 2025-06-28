@@ -1,5 +1,6 @@
 import React from 'react';
-import { Typography, Row, Col } from 'antd';
+import { Typography, Row, Col, Tooltip } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
 import { toSentenceCase } from '../utils/formatting';
 
 const { Text } = Typography;
@@ -8,25 +9,36 @@ interface AttributeDisplayProps {
   label: string;
   children: React.ReactNode;
   layout?: 'vertical' | 'horizontal';
+  tooltip?: string;
 }
 
-const AttributeDisplay: React.FC<AttributeDisplayProps> = ({ label, children, layout = 'vertical' }) => {
+const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
+  label,
+  children,
+  layout = 'vertical',
+  tooltip,
+}) => {
   if (children === undefined || children === null || children === '') {
     return null;
   }
 
+  const labelContent = (
+    <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
+      {toSentenceCase(label)}
+      {tooltip && (
+        <Tooltip title={tooltip}>
+          <InfoCircleFilled style={{ marginLeft: '4px', color: 'rgba(0, 0, 0, 0.45)' }} />
+        </Tooltip>
+      )}
+    </Text>
+  );
+
   if (layout === 'horizontal') {
     return (
       <Row align="top" style={{ paddingBottom: '12px' }}>
-        <Col span={8}>
-          <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
-            {toSentenceCase(label)}
-          </Text>
-        </Col>
+        <Col span={8}>{labelContent}</Col>
         <Col span={16}>
-          <div style={{ fontSize: '14px' }}>
-            {children}
-          </div>
+          <div style={{ fontSize: '14px' }}>{children}</div>
         </Col>
       </Row>
     );
@@ -34,9 +46,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({ label, children, la
   
   return ( // Vertical layout
     <div style={{ marginBottom: '8px' }}>
-      <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
-        {toSentenceCase(label)}
-      </Text>
+      {labelContent}
       <div style={{ marginTop: '2px', fontSize: '14px' }}>
         {children}
       </div>

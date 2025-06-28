@@ -4,13 +4,14 @@ import { Typography, Space } from 'antd';
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
+  preTitle?: string;
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
   tagContent?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, tagContent }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, actions, tagContent }) => {
   return (
     <div
       style={{
@@ -20,7 +21,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, tagCo
         marginBottom: '24px',
       }}
     >
-      <Space direction="vertical" size={0}>
+      <Space direction="vertical" size={2}>
+        {preTitle && (
+          <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
+            {preTitle}
+          </Text>
+        )}
         <Space align="center" size="middle">
           <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
             {title}

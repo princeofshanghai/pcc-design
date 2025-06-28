@@ -25,7 +25,7 @@ const themeConfig: ThemeConfig = {
     colorTextTertiary: 'rgba(0, 0, 0, 0.45)',
     colorTextQuaternary: 'rgba(0, 0, 0, 0.45)',
     colorBorder: '#d9d9d9',
-    colorBorderSecondary: '#f0f0f0',
+    colorBorderSecondary: '#e5e5e5',
     colorBgLayout: '#fafafa',
     colorBgContainer: '#ffffff',
   },

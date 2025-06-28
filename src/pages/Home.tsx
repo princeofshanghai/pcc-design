@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Row, Col, Space } from 'antd';
+import { Row, Col, Space, Tabs } from 'antd';
 import ProductListItem from '../components/ProductListItem';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';
@@ -8,7 +8,6 @@ import FilterDropdown, { type SelectOption } from '../components/FilterDropdown'
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
 import ViewOptions from '../components/ViewOptions';
-import PillTabs from '../components/PillTabs';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
@@ -108,10 +107,10 @@ const Home: React.FC = () => {
         subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
       />
 
-      <PillTabs
-        options={LOB_TAB_OPTIONS}
-        selected={activeLobTab}
+      <Tabs
+        activeKey={activeLobTab}
         onChange={handleLobChange}
+        items={LOB_TAB_OPTIONS}
       />
 
       <Row gutter={[16, 16]} justify="space-between" align="bottom">
@@ -155,7 +154,13 @@ const Home: React.FC = () => {
       {groupedProducts ? (
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (
-        <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+        <div style={{
+          border: '1px solid #f0f0f0',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          background: '#fff',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+        }}>
           {sortedProducts.map((product, index) => (
             <ProductListItem
               key={product.id}

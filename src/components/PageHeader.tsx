@@ -7,9 +7,10 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  tagContent?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, tagContent }) => {
   return (
     <div
       style={{
@@ -20,9 +21,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => 
       }}
     >
       <Space direction="vertical" size={0}>
-        <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
-          {title}
-        </Title>
+        <Space align="center" size="middle">
+          <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
+            {title}
+          </Title>
+          {tagContent}
+        </Space>
         {subtitle && <Text type="secondary">{subtitle}</Text>}
       </Space>
       {actions && <Space>{actions}</Space>}

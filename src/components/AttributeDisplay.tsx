@@ -17,7 +17,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({ label, children, la
 
   if (layout === 'horizontal') {
     return (
-      <Row align="top" style={{ paddingBottom: '16px' }}>
+      <Row align="top" style={{ paddingBottom: '12px' }}>
         <Col span={8}>
           <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
             {toSentenceCase(label)}
@@ -33,7 +33,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({ label, children, la
   }
   
   return ( // Vertical layout
-    <div>
+    <div style={{ marginBottom: '8px' }}>
       <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
         {toSentenceCase(label)}
       </Text>

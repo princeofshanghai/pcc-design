@@ -10,6 +10,7 @@ import AttributeDisplay from '../components/AttributeDisplay';
 import CopyableId from '../components/CopyableId';
 import DetailSection from '../components/DetailSection';
 import DigitalGoodsTable from '../components/DigitalGoodsTable';
+import StatusTag from '../components/StatusTag';
 
 const { Title } = Typography;
 
@@ -64,11 +65,9 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <DetailSection title="Core Details">
-            <AttributeDisplay layout="horizontal" label="Product ID"><CopyableId id={product.id}/></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="LOB">{product.lob}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Category">{product.category}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Billing Model">{product.billingModel}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Status"><Tag>{product.status}</Tag></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
           </DetailSection>
@@ -136,6 +135,8 @@ const ProductDetail: React.FC = () => {
       <PageHeader 
         title={product.name}
         subtitle={product.description}
+        tagContent={<StatusTag status={product.status} />}
+        actions={<CopyableId id={product.id} size="medium" />}
       />
       <Tabs defaultActiveKey="details" items={tabItems} />
     </Space>

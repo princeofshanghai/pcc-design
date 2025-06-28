@@ -14,17 +14,23 @@ const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts
   const { token } = theme.useToken();
 
   return (
-    <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
-      <Collapse defaultActiveKey={Object.keys(groupedProducts)} ghost>
-        {Object.entries(groupedProducts).map(([groupName, products]) => (
-          <Panel 
-            header={
-              <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>
-                {groupName} <Text type="secondary">({products.length})</Text>
-              </Text>
-            } 
-            key={groupName}
-          >
+    <Collapse defaultActiveKey={Object.keys(groupedProducts)}>
+      {Object.entries(groupedProducts).map(([groupName, products]) => (
+        <Panel 
+          header={
+            <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>
+              {groupName} <Text type="secondary">({products.length})</Text>
+            </Text>
+          } 
+          key={groupName}
+        >
+          <div style={{
+            border: '1px solid #f0f0f0',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            background: '#fff',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+          }}>
             {products.map((product, index) => (
               <ProductListItem 
                 key={product.id}
@@ -32,10 +38,10 @@ const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts
                 isLast={index === products.length - 1}
               />
             ))}
-          </Panel>
-        ))}
-      </Collapse>
-    </div>
+          </div>
+        </Panel>
+      ))}
+    </Collapse>
   );
 };
 

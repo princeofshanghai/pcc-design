@@ -25,12 +25,12 @@ This document breaks down the work for the second major epic: building the Produ
     - [x] 4.3.1: In `ProductDetail.tsx`, fetch the correct product from the `mock-data.ts` file based on the `productId` from the URL.
     - [x] 4.3.1a: Implement dynamic breadcrumbs for the Product Detail Page.
     - [x] 4.3.2: Use the existing `PageHeader.tsx` component to display the product's `name` and its `description` as the subtitle.
-    - [ ] 4.3.3: Below the header, display other key product attributes like `Product ID`, `LOB`, `Category`, and `Billing Model` using Ant Design `Descriptions` or `Tag` components for a clean layout.
+    - [x] 4.3.3: Below the header, display other key product attributes like `Product ID`, `LOB`, `Category`, and `Billing Model` using Ant Design `Descriptions` or `Tag` components for a clean layout.
 
-- [ ] **4.4: Build the SKU List**
-    - [ ] 4.4.1: In `ProductDetail.tsx`, display a list of all SKUs associated with the current product.
-    - [ ] 4.4.2: Use the existing `SkuListItem.tsx` component to render each SKU in the list.
-    - [ ] 4.4.3: Add a header for the SKU list section that includes the number of SKUs, e.g., "SKU Configurations (12)".
+- [x] **4.4: Build the SKU List**
+    - [x] 4.4.1: In `ProductDetail.tsx`, display a list of all SKUs associated with the current product.
+    - [x] 4.4.2: Use the existing `SkuListItem.tsx` component to render each SKU in the list.
+    - [x] 4.4.3: Add a header for the SKU list section that includes the number of SKUs, e.g., "SKU Configurations (12)".
 
 - [ ] **4.5: Implement SKU Filtering**
     - [ ] 4.5.1: Above the SKU list, add `FilterDropdown.tsx` components to allow filtering by `Region`, `Sales Channel`, and `Billing Cycle` as per the PRD.

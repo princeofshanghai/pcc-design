@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Space, Row, Col, Tag } from 'antd';
+import { Typography, Space, Row, Col, Tag, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
@@ -8,6 +8,8 @@ import PageHeader from '../components/PageHeader';
 import SkuListTable from '../components/SkuListTable';
 import AttributeDisplay from '../components/AttributeDisplay';
 import CopyableId from '../components/CopyableId';
+import DetailSection from '../components/DetailSection';
+import DigitalGoodsTable from '../components/DigitalGoodsTable';
 
 const { Title } = Typography;
 
@@ -33,7 +35,7 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     // Set the max-width for this page
-    setMaxWidth('1400px');
+    setMaxWidth('1024px');
 
     // Reset the max-width when the component unmounts
     return () => {
@@ -55,80 +57,87 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
+  const tabItems = [
+    {
+      key: 'details',
+      label: 'Details',
+      children: (
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <DetailSection title="Core Details">
+            <AttributeDisplay layout="horizontal" label="Product ID"><CopyableId id={product.id}/></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="LOB">{product.lob}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Category">{product.category}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Billing Model">{product.billingModel}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Status"><Tag>{product.status}</Tag></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
+          </DetailSection>
+
+          <DetailSection title={`SKU Configurations (${product.skus.length})`}>
+            <SkuListTable skus={product.skus} />
+          </DetailSection>
+
+          {product.digitalGoods && product.digitalGoods.length > 0 && (
+            <DetailSection title="Digital Goods">
+              <DigitalGoodsTable product={product} />
+            </DetailSection>
+          )}
+        </Space>
+      ),
+    },
+    {
+      key: 'other',
+      label: 'Other',
+      children: (
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <DetailSection title="Configuration">
+            <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+          </DetailSection>
+
+          {product.tags && product.tags.length > 0 && (
+            <DetailSection title="Tags">
+              <AttributeDisplay label="Product Tags">
+                <Space size={[0, 8]} wrap>
+                  {product.tags.map(tag => <Tag key={tag.type}>{tag.type}: {tag.value}</Tag>)}
+                </Space>
+              </AttributeDisplay>
+            </DetailSection>
+          )}
+
+          <DetailSection title="Links">
+            <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+          </DetailSection>
+
+          <DetailSection title="Miscellaneous">
+            <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+          </DetailSection>
+        </Space>
+      ),
+    }
+  ];
+
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <PageHeader 
         title={product.name}
         subtitle={product.description}
       />
-      <Row gutter={32}>
-        <Col span={6}>
-          <div style={{ position: 'sticky', top: 100 }}>
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
-              
-              <Title level={5} style={{ marginBottom: 0 }}>Core Details</Title>
-              <Row gutter={[16, 24]}>
-                <Col span={12}><AttributeDisplay label="Product ID"><CopyableId id={product.id}/></AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="LOB">{product.lob}</AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="Category">{product.category}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Billing Model">{product.billingModel}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Status"><Tag>{product.status}</Tag></AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Seat Type">{product.seatType}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay></Col>
-              </Row>
-
-              <Title level={5} style={{ marginBottom: 0 }}>Configuration</Title>
-              <Row gutter={[16, 24]}>
-                <Col span={24}><AttributeDisplay label="Tax Class">{product.taxClass}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Seat Min">{product.seatMin}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Seat Max">{product.seatMax}</AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="Digital Goods">{renderValue(product.digitalGoods)}</AttributeDisplay></Col>
-              </Row>
-
-              {product.tags && product.tags.length > 0 && (
-                <>
-                  <Title level={5} style={{ marginBottom: 0 }}>Tags</Title>
-                  <AttributeDisplay label="Product Tags">
-                    <Space size={[0, 8]} wrap>
-                      {product.tags.map(tag => <Tag key={tag.type}>{tag.type}: {tag.value}</Tag>)}
-                    </Space>
-                  </AttributeDisplay>
-                </>
-              )}
-
-              <Title level={5} style={{ marginBottom: 0 }}>Links</Title>
-              <Row gutter={[16, 24]}>
-                <Col span={24}><AttributeDisplay label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay></Col>
-                <Col span={24}><AttributeDisplay label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay></Col>
-              </Row>
-
-              <Title level={5} style={{ marginBottom: 0 }}>Miscellaneous</Title>
-              <Row gutter={[16, 24]}>
-                <Col span={12}><AttributeDisplay label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay></Col>
-                <Col span={12}><AttributeDisplay label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay></Col>
-              </Row>
-
-            </Space>
-          </div>
-        </Col>
-        <Col span={18}>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Title level={4}>SKU Configurations ({product.skus.length})</Title>
-            <SkuListTable skus={product.skus} />
-          </Space>
-        </Col>
-      </Row>
+      <Tabs defaultActiveKey="details" items={tabItems} />
     </Space>
   );
 };

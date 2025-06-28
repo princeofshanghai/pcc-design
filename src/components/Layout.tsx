@@ -1,4 +1,4 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button } from 'antd';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme } from 'antd';
 import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
@@ -24,6 +24,7 @@ const AppLayout = () => {
   const location = useLocation();
   const { productName } = useBreadcrumb();
   const { maxWidth } = useLayout();
+  const { token } = theme.useToken();
 
   // Find the current menu item based on the path
   const currentMenuItem = menuItems.find(item => item.path === location.pathname);
@@ -137,10 +138,10 @@ const AppLayout = () => {
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 220 }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 220, backgroundColor: token.colorBgContainer }}>
         <Header 
           style={{ 
-            background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : '#fff',
+            background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,
             backdropFilter: isScrolled ? 'blur(10px)' : 'none',
             WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
             padding: '0 24px 0 24px', 

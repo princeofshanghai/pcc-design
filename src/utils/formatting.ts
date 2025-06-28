@@ -20,4 +20,29 @@ export const formatCurrency = (pricePoint: PricePoint): string => {
   }
   // Default to 2 decimal places for all other currencies
   return `${pricePoint.currencyCode} ${pricePoint.amount.toFixed(2)}`;
-}; 
+};
+
+const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA']);
+
+export function toSentenceCase(str: string): string {
+  if (!str) return '';
+
+  const finalSentence = str
+    .split(' ')
+    .map(word => {
+      // Preserve parenthesized numbers entirely
+      if (/^\(\d+\)$/.test(word)) {
+        return word;
+      }
+      // Handle acronyms
+      if (ACRONYMS.has(word.toUpperCase())) {
+        return word.toUpperCase();
+      }
+      // Lowercase everything else
+      return word.toLowerCase();
+    })
+    .join(' ');
+
+  // Capitalize the first letter of the whole sentence
+  return finalSentence.charAt(0).toUpperCase() + finalSentence.slice(1);
+} 

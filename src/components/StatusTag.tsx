@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Tooltip } from 'antd';
+import { Tag, Tooltip, theme } from 'antd';
 import type { Status } from '../utils/types';
 
 interface StatusTagProps {
@@ -22,11 +22,38 @@ const statusConfig: Record<Status, { color: string; description: string }> = {
 };
 
 const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
-  const { color, description } = statusConfig[status];
+  const { token } = theme.useToken();
+  const { description } = statusConfig[status];
+
+  const styleMapping: Record<Status, React.CSSProperties> = {
+    Active: {
+      backgroundColor: token.colorSuccessBg,
+      color: token.colorSuccessText,
+    },
+    Retired: {
+      backgroundColor: token.colorErrorBg,
+      color: token.colorErrorText,
+    },
+    Legacy: {
+      backgroundColor: token.colorFillAlter,
+      color: token.colorTextSecondary,
+    },
+  };
+
+  const tagStyle = styleMapping[status];
 
   return (
     <Tooltip title={description}>
-      <Tag color={color}>{status}</Tag>
+      <Tag
+        bordered={false}
+        style={{
+          ...tagStyle,
+          borderRadius: '999px',
+          border: 'none',
+        }}
+      >
+        {status}
+      </Tag>
     </Tooltip>
   );
 };

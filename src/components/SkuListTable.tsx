@@ -1,8 +1,9 @@
 import React from 'react';
 import { Table, Tag, Space } from 'antd';
-import type { Sku, Status } from '../utils/types';
+import type { Sku, Status, SalesChannel } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
+import SalesChannelDisplay from './SalesChannelDisplay';
 import type { ColumnsType } from 'antd/es/table';
 import { formatCurrency, toSentenceCase } from '../utils/formatting';
 
@@ -27,7 +28,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
       title: toSentenceCase('Sales Channel'),
       dataIndex: 'salesChannel',
       key: 'salesChannel',
-      render: (channel: string) => <Tag>{channel}</Tag>,
+      render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />,
     },
     {
       title: toSentenceCase('Billing Cycle'),

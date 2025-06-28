@@ -20,8 +20,10 @@ const themeConfig: ThemeConfig = {
     lineHeight: 1.5715,
     
     // Colors
+    colorSuccess: '#22c55e', // Tailwind Green 500
+    colorError: '#ef4444', // Tailwind Red 500
     colorText: 'rgba(0, 0, 0, 0.92)',
-    colorTextSecondary: 'rgba(0, 0, 0, 0.64)',
+    colorTextSecondary: '#6b7280', // Tailwind Gray 500
     colorTextTertiary: 'rgba(0, 0, 0, 0.45)',
     colorTextQuaternary: 'rgba(0, 0, 0, 0.45)',
     colorBorder: '#d9d9d9',

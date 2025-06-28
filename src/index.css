@@ -1,0 +1,14 @@
+/* 
+  This file will contain global CSS overrides and utility styles.
+  We can use this to apply consistent styling tweaks across the application.
+*/
+
+/*
+  Lucide Icon Alignment Fix
+  By default, lucide-react icons don't always vertically align perfectly with text.
+  This rule targets all lucide icons and adjusts their vertical alignment to ensure
+  they appear centered when placed next to text.
+*/
+.lucide {
+  vertical-align: -0.125em;
+} 

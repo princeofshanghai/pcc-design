@@ -141,7 +141,7 @@ const AppLayout = () => {
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 220, backgroundColor: token.colorBgContainer }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 220, backgroundColor: token.colorBgLayout }}>
         <Header 
           style={{ 
             background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,

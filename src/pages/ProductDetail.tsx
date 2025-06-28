@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Typography, Space, Row, Col, Tag } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { useLayout } from '../context/LayoutContext';
 import PageHeader from '../components/PageHeader';
 import SkuListTable from '../components/SkuListTable';
 import AttributeDisplay from '../components/AttributeDisplay';
@@ -27,7 +28,18 @@ const renderValue = (value: any, isBoolean = false) => {
 const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { setProductName } = useBreadcrumb();
+  const { setMaxWidth } = useLayout();
   const product = mockProducts.find(p => p.id === productId);
+
+  useEffect(() => {
+    // Set the max-width for this page
+    setMaxWidth('1400px');
+
+    // Reset the max-width when the component unmounts
+    return () => {
+      setMaxWidth('1024px'); // Or your default width
+    };
+  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {

@@ -5,6 +5,7 @@ import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
 import { zIndex } from '../theme';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { useLayout } from '../context/LayoutContext';
 
 const { Sider, Header, Content } = Layout;
 
@@ -22,6 +23,7 @@ const AppLayout = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName } = useBreadcrumb();
+  const { maxWidth } = useLayout();
 
   // Find the current menu item based on the path
   const currentMenuItem = menuItems.find(item => item.path === location.pathname);
@@ -164,7 +166,7 @@ const AppLayout = () => {
           minHeight: 280, 
           background: 'transparent',
         }}>
-          <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+          <div style={{ maxWidth, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
             <Outlet />
           </div>
         </Content>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Typography, Space } from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { Product } from '../utils/types';
 import StatusTag from './StatusTag';
 import CopyableId from './CopyableId';
@@ -15,7 +15,12 @@ interface ProductListItemProps {
 
 const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = false }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   const skuCount = product.skus.length;
+
+  const handleNavigate = () => {
+    navigate(`/product/${product.id}`);
+  };
 
   return (
     <div
@@ -23,16 +28,16 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
       style={{ 
         borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
         backgroundColor: isHovered ? '#fafafa' : 'transparent',
+        cursor: 'pointer',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleNavigate}
     >
       <Space direction="vertical" size={2} style={{ alignItems: 'flex-start' }}>
-        <Link to={`/product/${product.id}`} className="product-name-link">
-          <Title level={4} style={{ margin: 0, fontWeight: 500 }}>
-            {product.name}
-          </Title>
-        </Link>
+        <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
+          {product.name}
+        </Title>
         <Text type="secondary">{`${product.lob} / ${product.category}`}</Text>
         <div style={{ marginTop: 8 }}>
           <CopyableId id={product.id} />

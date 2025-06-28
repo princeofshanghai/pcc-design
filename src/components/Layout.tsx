@@ -1,36 +1,55 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button } from 'antd';
 import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
-import { Link, useLocation, Outlet, type Location } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
 import { zIndex } from '../theme';
+import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 const { Sider, Header, Content } = Layout;
 
 const menuItems = [
-  { key: 'home', label: <Link to="/">Home</Link> },
+  { 
+    key: 'home', 
+    label: 'Product Catalog', 
+    path: '/' 
+  },
   // Add more menu items here as you add pages
 ];
-
-function getBreadcrumbItems(location: Location) {
-  // Split the path and create breadcrumb items
-  const pathSnippets: string[] = location.pathname.split('/').filter((i: string) => i);
-  const breadcrumbItems = [
-    <Breadcrumb.Item key="home">
-      <Link to="/">Home</Link>
-    </Breadcrumb.Item>
-  ];
-  pathSnippets.forEach((_segment: string, _idx: number) => {
-    // For future nested routes
-    // You can customize label per route if needed
-  });
-  return breadcrumbItems;
-}
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { productName } = useBreadcrumb();
+
+  // Find the current menu item based on the path
+  const currentMenuItem = menuItems.find(item => item.path === location.pathname);
+
+  const breadcrumbItems = [];
+  if (currentMenuItem) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key={currentMenuItem.key}>
+        <Link to={currentMenuItem.path}>{currentMenuItem.label}</Link>
+      </Breadcrumb.Item>
+    );
+  }
+
+  if (location.pathname.startsWith('/product/') && productName) {
+    // Add Home link first for product pages
+    if (!currentMenuItem) {
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="home">
+          <Link to="/">Product Catalog</Link>
+        </Breadcrumb.Item>
+      );
+    }
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="product">
+        {productName}
+      </Breadcrumb.Item>
+    );
+  }
 
   // Handle scroll effect
   useEffect(() => {
@@ -89,7 +108,7 @@ const AppLayout = () => {
         <Menu 
           mode="inline" 
           defaultSelectedKeys={['home']} 
-          items={menuItems} 
+          items={menuItems.map(item => ({ key: item.key, label: <Link to={item.path}>{item.label}</Link> }))}
           style={{ 
             border: 'none',
             padding: '8px',
@@ -136,7 +155,7 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <Breadcrumb>{getBreadcrumbItems(location)}</Breadcrumb>
+          <Breadcrumb>{breadcrumbItems}</Breadcrumb>
           <Avatar icon={<UserOutlined />} />
         </Header>
         <Content style={{ 

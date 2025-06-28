@@ -8,23 +8,24 @@ This document breaks down the work for the second major epic: building the Produ
 
 **Goal:** Build the dedicated page that displays a single product's details and its associated SKUs, fulfilling User Stories 2 and 3 from the PRD.
 
-- [ ] **4.1: Enhance Data Models (Source of Truth)**
-    - [ ] 4.1.1: In `src/utils/types.ts`, update the `Product` type to include `productType: string;` and `description: string;`.
-    - [ ] 4.1.2: In `src/utils/types.ts`, create a new `PricePoint` type with fields for `currencyCode: string;` and `amount: number;`.
-    - [ ] 4.1.3: In `src/utils/types.ts`, create a new `Price` type with fields for `startDate: string;`, `endDate: string;`, and `pricePoints: PricePoint[];`.
-    - [ ] 4.1.4: In `src/utils/types.ts`, update the `Sku` type to include `taxClass: 'Tax-Inclusive' | 'Tax-Exclusive';` and `price: Price;`.
-    - [ ] 4.1.5: In `src/utils/mock-data.ts`, update the mock `Product` objects to include realistic data for the new `productType` and `description` fields.
-    - [ ] 4.1.6: In `src/utils/mock-data.ts`, update the mock `Sku` objects to include realistic data for the new `taxClass` and `price` fields, including nested `PricePoint` data.
+- [x] **4.1: Enhance Data Models (Source of Truth)**
+    - [x] 4.1.1: In `src/utils/types.ts`, ensure the `Product` type includes `billingModel: BillingModel;` and an optional `description: string;`.
+    - [x] 4.1.2: In `src/utils/types.ts`, ensure a `PricePoint` type exists with fields for `currencyCode: string;` and `amount: number;`.
+    - [x] 4.1.3: In `src/utils/types.ts`, ensure a `Price` type exists with optional `startDate: string;` and `endDate: string;` fields, and a required `pricePoints: PricePoint[];` array.
+    - [x] 4.1.4: In `src/utils/types.ts`, ensure the `Sku` type includes `taxClass: 'Tax-Inclusive' | 'Tax-Exclusive';` and a single `price: Price;` object.
+    - [x] 4.1.5: In `src/utils/mock-data.ts`, update the mock `Product` objects to include realistic data for the new `billingModel` and optional `description` fields.
+    - [x] 4.1.6: In `src/utils/mock-data.ts`, update the mock `Sku` objects to include realistic data for the new `taxClass` and `price` fields, including nested `PricePoint` data with optional dates.
 
-- [ ] **4.2: Create Product Detail Page & Routing**
-    - [ ] 4.2.1: In `src/pages`, create a new file named `ProductDetail.tsx`.
-    - [ ] 4.2.2: In `src/App.tsx`, add a new route for the product detail page. The path should be dynamic, like `/product/:productId`, and it should render the `ProductDetail.tsx` component.
-    - [ ] 4.2.3: In `ProductListItem.tsx`, ensure the link navigates to the correct dynamic URL for the product (e.g., `/product/5124922`).
+- [x] **4.2: Create Product Detail Page & Routing**
+    - [x] 4.2.1: In `src/pages`, create a new file named `ProductDetail.tsx`.
+    - [x] 4.2.2: In `src/App.tsx`, add a new route for the product detail page. The path should be dynamic, like `/product/:productId`, and it should render the `ProductDetail.tsx` component.
+    - [x] 4.2.3: In `ProductListItem.tsx`, ensure the link navigates to the correct dynamic URL for the product (e.g., `/product/5124922`).
 
-- [ ] **4.3: Build the Product Detail Header**
-    - [ ] 4.3.1: In `ProductDetail.tsx`, fetch the correct product from the `mock-data.ts` file based on the `productId` from the URL.
-    - [ ] 4.3.2: Use the existing `PageHeader.tsx` component to display the product's `name` and its `description` as the subtitle.
-    - [ ] 4.3.3: Below the header, display other key product attributes like `Product ID`, `LOB`, `Category`, and `Product Type` using Ant Design `Descriptions` or `Tag` components for a clean layout.
+- [x] **4.3: Build the Product Detail Header**
+    - [x] 4.3.1: In `ProductDetail.tsx`, fetch the correct product from the `mock-data.ts` file based on the `productId` from the URL.
+    - [x] 4.3.1a: Implement dynamic breadcrumbs for the Product Detail Page.
+    - [x] 4.3.2: Use the existing `PageHeader.tsx` component to display the product's `name` and its `description` as the subtitle.
+    - [ ] 4.3.3: Below the header, display other key product attributes like `Product ID`, `LOB`, `Category`, and `Billing Model` using Ant Design `Descriptions` or `Tag` components for a clean layout.
 
 - [ ] **4.4: Build the SKU List**
     - [ ] 4.4.1: In `ProductDetail.tsx`, display a list of all SKUs associated with the current product.

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Button, Dropdown } from 'antd';
-import { Settings, Check } from 'lucide-react';
+import { Settings2, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
 
 interface ViewOptionsProps {
@@ -85,7 +85,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       <Button 
         icon={
           <Badge dot={isViewActive}>
-            <Settings size={16} />
+            <Settings2 size={16} />
           </Badge>
         } 
         size="large"

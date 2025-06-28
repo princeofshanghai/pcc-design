@@ -1,5 +1,6 @@
 import React from 'react';
 import { Typography, Space } from 'antd';
+import { Box } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
@@ -23,9 +24,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, acti
     >
       <Space direction="vertical" size={2}>
         {preTitle && (
-          <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
-            {preTitle}
-          </Text>
+          <Space align="center" size={4}>
+            <Box size={14} style={{ color: 'var(--ant-color-text-secondary)' }} />
+            <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
+              {preTitle}
+            </Text>
+          </Space>
         )}
         <Space align="center" size="middle">
           <Title level={1} style={{ margin: 0, fontWeight: 500 }}>

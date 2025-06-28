@@ -1,5 +1,5 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme } from 'antd';
-import { User, PanelLeft } from 'lucide-react';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
+import { User, PanelLeft, Box } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
@@ -49,7 +49,10 @@ const AppLayout = () => {
     }
     breadcrumbItems.push(
       <Breadcrumb.Item key="product">
-        {productName}
+        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)'}}>
+          <Box size={14} />
+          <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+        </Space>
       </Breadcrumb.Item>
     );
   }

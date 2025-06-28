@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Table, Tag, Space, Modal } from 'antd';
+import React from 'react';
+import { Table, Tag, Space } from 'antd';
 import type { Sku, Status } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';

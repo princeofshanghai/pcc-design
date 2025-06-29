@@ -14,6 +14,7 @@ import { toSentenceCase } from '../utils/formatting';
 import BillingModelDisplay from '../components/BillingModelDisplay';
 import LobTag from '../components/LobTag';
 import CategoryTag from '../components/CategoryTag';
+import CountTag from '../components/CountTag';
 
 const { Title } = Typography;
 
@@ -101,7 +102,7 @@ const ProductDetail: React.FC = () => {
             title={
               <Space>
                 <span>{toSentenceCase('SKUs')}</span>
-                <Tag style={{ borderRadius: '12px' }}>{product.skus.length}</Tag>
+                <CountTag count={product.skus.length} />
               </Space>
             }
             subtitle={`SKUs associated with ${product.name}.`}

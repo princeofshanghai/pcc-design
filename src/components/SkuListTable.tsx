@@ -1,11 +1,12 @@
 import React from 'react';
-import { Table, Tag, Space } from 'antd';
+import { Table, Space } from 'antd';
 import type { Sku, Status, SalesChannel } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
 import SalesChannelDisplay from './SalesChannelDisplay';
 import type { ColumnsType } from 'antd/es/table';
 import { formatCurrency, toSentenceCase } from '../utils/formatting';
+import CountTag from './CountTag';
 
 interface SkuListTableProps {
   skus: Sku[];
@@ -52,9 +53,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
           <Space>
             <span>{formatCurrency(usdPrice)}</span>
             {otherPricePointsCount > 0 && (
-              <Tag style={{ borderRadius: '12px' }}>
-                +{otherPricePointsCount}
-              </Tag>
+              <CountTag count={otherPricePointsCount} />
             )}
           </Space>
         );

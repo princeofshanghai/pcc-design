@@ -9,16 +9,13 @@ import GroupedProductList from '../components/GroupedProductList';
 import ProductList from '../components/ProductList';
 import ViewOptions, { type ViewMode } from '../components/ViewOptions';
 import ProductListTable from '../components/ProductListTable';
+import CountTag from '../components/CountTag';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
-const LOB_TAB_OPTIONS = [
-  { key: 'All', label: 'All LOBs' },
-  ...LOB_OPTIONS.map(lob => ({ key: lob, label: lob }))
-];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
@@ -37,6 +34,37 @@ const Home: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<string>('None');
   const [activeLobTab, setActiveLobTab] = useState('All');
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+
+  const lobCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: mockProducts.length };
+    LOB_OPTIONS.forEach(lob => {
+      counts[lob] = mockProducts.filter(p => p.lob === lob).length;
+    });
+    return counts;
+  }, []);
+
+  const lobTabOptions = useMemo(() => {
+    return [
+      { 
+        key: 'All', 
+        label: (
+          <Space>
+            <span>All LOBs</span>
+            <CountTag count={lobCounts.All} />
+          </Space>
+        )
+      },
+      ...LOB_OPTIONS.map(lob => ({ 
+        key: lob, 
+        label: (
+          <Space>
+            <span>{lob}</span>
+            <CountTag count={lobCounts[lob]} />
+          </Space>
+        )
+      }))
+    ];
+  }, [lobCounts]);
 
   useEffect(() => {
     if (viewMode === 'list') {
@@ -118,7 +146,7 @@ const Home: React.FC = () => {
       <Tabs
         activeKey={activeLobTab}
         onChange={handleLobChange}
-        items={LOB_TAB_OPTIONS}
+        items={lobTabOptions}
       />
 
       <Row gutter={[16, 16]} justify="space-between" align="bottom">

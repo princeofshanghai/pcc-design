@@ -125,12 +125,12 @@ const ProductDetail: React.FC = () => {
     {
       key: 'offers',
       label: 'Offers',
-      children: <div>Placeholder for Offers</div>,
+      children: <div>NOTE* This should show offers applicable to this product</div>,
     },
     {
       key: 'bundles',
       label: 'Bundles',
-      children: <div>Placeholder for Bundles</div>,
+      children: <div>NOTE* This shows bundles that this product is a part of</div>,
     },
     {
       key: 'other',
@@ -182,13 +182,14 @@ const ProductDetail: React.FC = () => {
     {
       key: 'activity',
       label: 'Activity',
-      children: <div>Placeholder for Activity</div>,
+      children: <div>NOTE* This should show activity for this product. List of activities with link to change request</div>,
     },
   ];
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
+        preTitle="Product"
         title={product.name}
         onBack={() => navigate('/')}
         tagContent={<StatusTag status={product.status} />}

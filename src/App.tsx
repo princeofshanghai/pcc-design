@@ -7,11 +7,13 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <Router>
+        <ScrollToTop />
         <BreadcrumbProvider>
           <LayoutProvider>
             <Routes>

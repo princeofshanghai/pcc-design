@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Space } from 'antd';
-import { Box, ChevronLeft } from 'lucide-react';
+import { Typography, Space, theme } from 'antd';
+import { Box, ArrowLeft } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
@@ -14,6 +14,8 @@ interface PageHeaderProps {
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, actions, tagContent, onBack }) => {
+  const { token } = theme.useToken();
+
   return (
     <div
       style={{
@@ -26,13 +28,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, acti
       <Space align="start" size="middle">
         {onBack && (
           <div onClick={onBack} style={{ cursor: 'pointer', marginTop: '8px' }}>
-            <ChevronLeft size={24} style={{ color: 'var(--ant-color-text-secondary)' }} />
+            <ArrowLeft size={24} style={{ color: token.colorTextSecondary }} />
           </div>
         )}
         <Space direction="vertical" size={2}>
           {preTitle && (
             <Space align="center" size={4}>
-              <Box size={14} style={{ color: 'var(--ant-color-text-secondary)' }} />
+              <Box size={14} style={{ color: token.colorTextSecondary }} />
               <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
                 {preTitle}
               </Text>

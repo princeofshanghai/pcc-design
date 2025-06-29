@@ -7,7 +7,8 @@ import FilterDropdown, { type SelectOption } from '../components/FilterDropdown'
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
 import ProductList from '../components/ProductList';
-import ViewOptions from '../components/ViewOptions';
+import ViewOptions, { type ViewMode } from '../components/ViewOptions';
+import ProductListTable from '../components/ProductListTable';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
@@ -35,6 +36,13 @@ const Home: React.FC = () => {
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
   const [activeLobTab, setActiveLobTab] = useState('All');
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
+
+  useEffect(() => {
+    if (viewMode === 'list') {
+      setGroupBy('None');
+    }
+  }, [viewMode]);
 
   const handleLobChange = (key: string) => {
     setActiveLobTab(key);
@@ -146,12 +154,17 @@ const Home: React.FC = () => {
               setSortOrder={setSortOrder}
               groupByOptions={GROUP_BY_OPTIONS}
               sortOptions={SORT_OPTIONS}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              isGroupingDisabled={viewMode === 'list'}
             />
           </Space>
         </Col>
       </Row>
 
-      {groupedProducts ? (
+      {viewMode === 'list' ? (
+        <ProductListTable products={sortedProducts} />
+      ) : groupedProducts ? (
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (
         <ProductList products={sortedProducts} />

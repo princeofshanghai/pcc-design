@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, Col, Row } from 'antd';
+import { Typography, Space, Tag, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import PageHeader from '../components/PageHeader';
 import SkuListTable from '../components/SkuListTable';
 import AttributeDisplay from '../components/AttributeDisplay';
-import CopyableId from '../components/CopyableId';
 import DetailSection from '../components/DetailSection';
 import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import StatusTag from '../components/StatusTag';
@@ -16,7 +15,7 @@ import BillingModelDisplay from '../components/BillingModelDisplay';
 import LobTag from '../components/LobTag';
 import CategoryTag from '../components/CategoryTag';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -63,6 +62,14 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
+  const groupedTags = (product.tags || []).reduce((acc, tag) => {
+    if (!acc[tag.type]) {
+      acc[tag.type] = [];
+    }
+    acc[tag.type].push(tag.value);
+    return acc;
+  }, {} as Record<string, string[]>);
+
   const tabItems = [
     {
       key: 'details',
@@ -93,7 +100,7 @@ const ProductDetail: React.FC = () => {
           <DetailSection
             title={
               <Space>
-                <span>{toSentenceCase('SKU')}</span>
+                <span>{toSentenceCase('SKUs')}</span>
                 <Tag style={{ borderRadius: '12px' }}>{product.skus.length}</Tag>
               </Space>
             }
@@ -141,15 +148,17 @@ const ProductDetail: React.FC = () => {
 
           {product.tags && product.tags.length > 0 && (
             <DetailSection title={toSentenceCase('Tags')}>
-              <AttributeDisplay label="Product Tags">
-                <Space size={[0, 8]} wrap>
-                  {product.tags.map(tag => <Tag key={tag.type}>{tag.type}: {tag.value}</Tag>)}
-                </Space>
-              </AttributeDisplay>
+              {Object.entries(groupedTags).map(([type, values]) => (
+                <AttributeDisplay layout="horizontal" key={type} label={toSentenceCase(type)}>
+                  <Space size={[0, 8]} wrap>
+                    {values.map(value => <Tag key={value}>{value}</Tag>)}
+                  </Space>
+                </AttributeDisplay>
+              ))}
             </DetailSection>
           )}
 
-          <DetailSection title={toSentenceCase('Links')}>
+          <DetailSection title="Links">
             <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
@@ -157,7 +166,7 @@ const ProductDetail: React.FC = () => {
             <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
           </DetailSection>
 
-          <DetailSection title={toSentenceCase('Miscellaneous')}>
+          <DetailSection title="Visibility">
             <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>

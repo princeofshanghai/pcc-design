@@ -34,8 +34,15 @@ export function toSentenceCase(str: string): string {
       if (/^\(\d+\)$/.test(word)) {
         return word;
       }
+      
+      const upperWord = word.toUpperCase();
+      // Handle plural acronyms (e.g., SKUs)
+      if (upperWord.endsWith('S') && ACRONYMS.has(upperWord.slice(0, -1))) {
+        return upperWord.slice(0, -1) + 's';
+      }
+
       // Handle acronyms
-      if (ACRONYMS.has(word.toUpperCase())) {
+      if (ACRONYMS.has(upperWord)) {
         return word.toUpperCase();
       }
       // Lowercase everything else
@@ -45,4 +52,4 @@ export function toSentenceCase(str: string): string {
 
   // Capitalize the first letter of the whole sentence
   return finalSentence.charAt(0).toUpperCase() + finalSentence.slice(1);
-} 
+}

@@ -1,59 +1,45 @@
 import React from 'react';
-import { Tag, Tooltip, theme } from 'antd';
+import { Typography, Tooltip, theme, Space } from 'antd';
 import type { Status } from '../utils/types';
+import { CheckCircle2, Archive, XCircle } from 'lucide-react';
+
+const { Text } = Typography;
 
 interface StatusTagProps {
   status: Status;
 }
 
-const statusConfig: Record<Status, { color: string; description: string }> = {
+type ColorToken = 'colorSuccessText' | 'colorTextSecondary' | 'colorErrorText';
+
+const statusConfig: Record<Status, { icon: React.FC<any>; description: string; colorToken: ColorToken }> = {
   Active: {
-    color: 'green',
+    icon: CheckCircle2,
     description: 'Currently live and being offered/used.',
+    colorToken: 'colorSuccessText',
   },
   Legacy: {
-    color: 'default',
+    icon: Archive,
     description: 'No longer offered to new customers, but still used by existing customers.',
+    colorToken: 'colorTextSecondary',
   },
   Retired: {
-    color: 'red',
+    icon: XCircle,
     description: 'Completely shut off and no longer in use.',
+    colorToken: 'colorErrorText',
   },
 };
 
 const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
   const { token } = theme.useToken();
-  const { description } = statusConfig[status];
-
-  const styleMapping: Record<Status, React.CSSProperties> = {
-    Active: {
-      backgroundColor: token.colorSuccessBg,
-      color: token.colorSuccessText,
-    },
-    Retired: {
-      backgroundColor: token.colorErrorBg,
-      color: token.colorErrorText,
-    },
-    Legacy: {
-      backgroundColor: token.colorFillAlter,
-      color: token.colorTextSecondary,
-    },
-  };
-
-  const tagStyle = styleMapping[status];
+  const { icon: Icon, description, colorToken } = statusConfig[status];
+  const color = token[colorToken];
 
   return (
     <Tooltip title={description}>
-      <Tag
-        bordered={false}
-        style={{
-          ...tagStyle,
-          borderRadius: '999px',
-          border: 'none',
-        }}
-      >
-        {status}
-      </Tag>
+      <Space size={4} style={{ alignItems: 'center' }}>
+        <Icon size={14} color={color} />
+        <Text style={{ lineHeight: '1' }}>{status}</Text>
+      </Space>
     </Tooltip>
   );
 };

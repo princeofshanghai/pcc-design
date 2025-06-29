@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs } from 'antd';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Typography, Space, Tag, Tabs, Col, Row } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
@@ -12,8 +12,11 @@ import DetailSection from '../components/DetailSection';
 import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import StatusTag from '../components/StatusTag';
 import { toSentenceCase } from '../utils/formatting';
+import BillingModelDisplay from '../components/BillingModelDisplay';
+import LobTag from '../components/LobTag';
+import CategoryTag from '../components/CategoryTag';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -34,6 +37,7 @@ const ProductDetail: React.FC = () => {
   const { setProductName } = useBreadcrumb();
   const { setMaxWidth } = useLayout();
   const product = mockProducts.find(p => p.id === productId);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Set the max-width for this page
@@ -80,9 +84,9 @@ const ProductDetail: React.FC = () => {
             >
               {product.description}
             </AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="LOB">{product.lob}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Category">{product.category}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Billing Model">{product.billingModel}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Billing Model">
+              <BillingModelDisplay model={product.billingModel} />
+            </AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
           </DetailSection>
 
@@ -94,6 +98,7 @@ const ProductDetail: React.FC = () => {
               </Space>
             }
             subtitle={`SKUs associated with ${product.name}.`}
+            noBodyPadding
           >
             <SkuListTable skus={product.skus} />
           </DetailSection>
@@ -102,6 +107,7 @@ const ProductDetail: React.FC = () => {
             <DetailSection
               title={toSentenceCase('Digital Goods')}
               subtitle="Digital goods are the features that customers can access for this product."
+              noBodyPadding
             >
               <DigitalGoodsTable product={product} />
             </DetailSection>
@@ -172,13 +178,19 @@ const ProductDetail: React.FC = () => {
   ];
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <PageHeader 
-        preTitle="Product"
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <PageHeader
         title={product.name}
+        onBack={() => navigate('/')}
         tagContent={<StatusTag status={product.status} />}
-        actions={<CopyableId id={product.id} size="medium" />}
+        subtitle={
+          <Space>
+            <LobTag lob={product.lob} />
+            <CategoryTag category={product.category} lob={product.lob} />
+          </Space>
+        }
       />
+
       <Tabs defaultActiveKey="details" items={tabItems} />
     </Space>
   );

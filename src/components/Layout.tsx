@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
-import { User, PanelLeft, Box } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
@@ -161,7 +161,7 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <Breadcrumb separator=">">{breadcrumbItems}</Breadcrumb>
+          <Breadcrumb separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}>{breadcrumbItems}</Breadcrumb>
           <Avatar icon={<User size={20} />} />
         </Header>
         <Content style={{ 

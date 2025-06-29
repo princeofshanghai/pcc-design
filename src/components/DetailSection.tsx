@@ -8,6 +8,7 @@ interface DetailSectionProps {
   subtitle?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
+  noBodyPadding?: boolean;
 }
 
 const DetailSection: React.FC<DetailSectionProps> = ({
@@ -15,6 +16,7 @@ const DetailSection: React.FC<DetailSectionProps> = ({
   subtitle,
   actions,
   children,
+  noBodyPadding = false,
 }) => {
   const cardTitle = (
     <div>
@@ -34,6 +36,7 @@ const DetailSection: React.FC<DetailSectionProps> = ({
       title={cardTitle}
       extra={actions}
       headStyle={subtitle ? { paddingTop: '12px', paddingBottom: '12px' } : {}}
+      bodyStyle={noBodyPadding ? { paddingLeft: 0, paddingRight: 0 } : {}}
       style={{ boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}
     >
       {children}

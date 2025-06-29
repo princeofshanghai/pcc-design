@@ -1,4 +1,5 @@
 import { type ThemeConfig } from 'antd';
+import type { LOB } from './utils/types';
 
 export const zIndex = {
   header: 1001,
@@ -42,6 +43,13 @@ const themeConfig: ThemeConfig = {
       colorTextHeading: 'rgba(0, 0, 0, 0.92)',
     }
   },
+};
+
+export const LOB_COLORS: Record<LOB, string> = {
+  Premium: 'blue',
+  LTS: 'purple',
+  LMS: 'geekblue',
+  LSS: 'cyan',
 };
 
 export default themeConfig;

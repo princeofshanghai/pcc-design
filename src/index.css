@@ -11,4 +11,8 @@
 */
 .lucide {
   vertical-align: -0.125em;
+}
+
+.table-col-first {
+  padding-left: 24px !important;
 } 

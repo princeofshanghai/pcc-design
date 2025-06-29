@@ -4,16 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import type { Product } from '../utils/types';
 import StatusTag from './StatusTag';
 import CopyableId from './CopyableId';
+import LobTag from './LobTag';
+import CategoryTag from './CategoryTag';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;
 
 interface ProductListItemProps {
   product: Product;
-  isLast?: boolean;
 }
 
-const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = false }) => {
+const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const skuCount = product.skus.length;
@@ -25,26 +26,36 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product, isLast = fal
   return (
     <div
       className="product-list-item"
-      style={{ 
-        borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
-        backgroundColor: isHovered ? '#fafafa' : 'transparent',
+      style={{
+        padding: '16px 24px',
+        border: '1px solid #e8e8e8',
+        borderRadius: '8px',
+        backgroundColor: isHovered ? '#fafafa' : '#ffffff',
+        boxShadow: isHovered ? '0 2px 8px rgba(0, 0, 0, 0.09)' : '0 1px 2px rgba(0, 0, 0, 0.03)',
         cursor: 'pointer',
+        transition: 'box-shadow 0.3s, background-color 0.3s',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleNavigate}
     >
-      <Space direction="vertical" size={2} style={{ alignItems: 'flex-start' }}>
+      <Space direction="vertical" size={4} style={{ alignItems: 'flex-start' }}>
         <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
           {product.name}
         </Title>
-        <Text type="secondary">{`${product.lob} / ${product.category}`}</Text>
-        <div style={{ marginTop: 8 }}>
-          <CopyableId id={product.id} />
+        <CopyableId id={product.id} />
+        <div style={{ marginTop: '8px' }}>
+          <Space size={0}>
+            <LobTag lob={product.lob} />
+            <CategoryTag category={product.category} lob={product.lob} />
+          </Space>
         </div>
       </Space>
 
-      <Space size={24}>
+      <Space size={24} align="center">
         <Text>{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
         <StatusTag status={product.status} />
       </Space>

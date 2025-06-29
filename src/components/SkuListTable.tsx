@@ -18,6 +18,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
       dataIndex: 'id',
       key: 'id',
       render: (id: string) => <CopyableId id={id} />,
+      className: 'table-col-first',
     },
     {
       title: toSentenceCase('Region'),

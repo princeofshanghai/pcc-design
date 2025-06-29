@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse, Typography, theme } from 'antd';
+import { Collapse, Typography, theme, Tag, Space } from 'antd';
 import type { Product } from '../utils/types';
 import ProductListItem from './ProductListItem';
 
@@ -18,24 +18,25 @@ const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts
       {Object.entries(groupedProducts).map(([groupName, products]) => (
         <Panel 
           header={
-            <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>
-              {groupName} <Text type="secondary">({products.length})</Text>
-            </Text>
+            <Space>
+              <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>
+                {groupName}
+              </Text>
+              <Tag style={{ borderRadius: '12px' }}>{products.length}</Tag>
+            </Space>
           } 
           key={groupName}
         >
           <div style={{
-            border: '1px solid #f0f0f0',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            background: '#fff',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+            paddingTop: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
           }}>
-            {products.map((product, index) => (
+            {products.map((product) => (
               <ProductListItem 
                 key={product.id}
-                product={product} 
-                isLast={index === products.length - 1}
+                product={product}
               />
             ))}
           </div>

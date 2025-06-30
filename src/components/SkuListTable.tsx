@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space } from 'antd';
+import { Table, Space, Tooltip, theme } from 'antd';
 import type { Sku, Status, SalesChannel } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
@@ -13,6 +13,7 @@ interface SkuListTableProps {
 }
 
 const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
+  const { token } = theme.useToken();
   const columns: ColumnsType<Sku> = [
     {
       title: toSentenceCase('SKU ID'),
@@ -38,6 +39,35 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
       key: 'billingCycle',
     },
     {
+      title: toSentenceCase('Effective Date'),
+      key: 'effectiveDate',
+      render: (_: any, sku: Sku) => {
+        const { startDate, endDate } = sku.price;
+
+        if (!startDate && !endDate) {
+          return 'Always';
+        }
+
+        const formatDate = (dateString: string) =>
+          new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+
+        if (startDate && endDate) {
+          return `${formatDate(startDate)} – ${formatDate(endDate)}`;
+        }
+        if (startDate) {
+          return `From ${formatDate(startDate)}`;
+        }
+        if (endDate) {
+          return `Until ${formatDate(endDate)}`;
+        }
+        return 'N/A';
+      },
+    },
+    {
       title: toSentenceCase('Amount'),
       key: 'amount',
       render: (_: any, sku: Sku) => {
@@ -56,6 +86,29 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
               <CountTag count={otherPricePointsCount} />
             )}
           </Space>
+        );
+      },
+    },
+    {
+      title: 'Lix Key',
+      dataIndex: 'lix',
+      key: 'lix',
+      render: (lix) => {
+        if (!lix) {
+          return null;
+        }
+        return (
+          <Tooltip
+            title={
+              <span style={{ fontFamily: token.fontFamilyCode, letterSpacing: '-0.5px' }}>
+                {lix.treatment}
+              </span>
+            }
+          >
+            <span style={{ fontFamily: token.fontFamilyCode, letterSpacing: '-0.5px' }}>
+              {lix.key}
+            </span>
+          </Tooltip>
         );
       },
     },

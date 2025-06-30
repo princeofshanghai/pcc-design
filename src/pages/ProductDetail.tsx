@@ -41,11 +41,11 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     // Set the max-width for this page
-    setMaxWidth('1024px');
+    setMaxWidth('1280px');
 
     // Reset the max-width when the component unmounts
     return () => {
-      setMaxWidth('1024px'); // Or your default width
+      setMaxWidth('1280px'); // Or your default width
     };
   }, [setMaxWidth]);
 

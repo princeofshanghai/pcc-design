@@ -1,8 +1,7 @@
 import React from 'react';
-import { Table, Typography } from 'antd';
+import { Table } from 'antd';
 import type { Product } from '../utils/types';
 
-const { Text } = Typography;
 
 interface DigitalGoodsTableProps {
   product: Product;

@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 # Rule: `design-rules`
 
 1.  **Icon Source of Truth**: For any and all icons, I will exclusively use the `lucide-react` library. I will not introduce or use any other icon libraries (such as `@ant-design/icons` or `react-icons`) or inline SVGs.

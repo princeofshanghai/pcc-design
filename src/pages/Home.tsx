@@ -1,24 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Row, Col, Space } from 'antd';
-import ProductListItem from '../components/ProductListItem';
+import { Row, Col, Space, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import type { Product, LOB, Status } from '../utils/types';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown, { type SelectOption } from '../components/FilterDropdown';
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
-import ViewOptions from '../components/ViewOptions';
-import PillTabs from '../components/PillTabs';
+import ProductList from '../components/ProductList';
+import ViewOptions, { type ViewMode } from '../components/ViewOptions';
+import ProductListTable from '../components/ProductListTable';
+import CountTag from '../components/CountTag';
 
 const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
-const LOB_TAB_OPTIONS = [
-  { key: 'All', label: 'All LOBs' },
-  ...LOB_OPTIONS.map(lob => ({ key: lob, label: lob }))
-];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
@@ -36,6 +33,44 @@ const Home: React.FC = () => {
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
   const [activeLobTab, setActiveLobTab] = useState('All');
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
+
+  const lobCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: mockProducts.length };
+    LOB_OPTIONS.forEach(lob => {
+      counts[lob] = mockProducts.filter(p => p.lob === lob).length;
+    });
+    return counts;
+  }, []);
+
+  const lobTabOptions = useMemo(() => {
+    return [
+      { 
+        key: 'All', 
+        label: (
+          <Space>
+            <span>All LOBs</span>
+            <CountTag count={lobCounts.All} />
+          </Space>
+        )
+      },
+      ...LOB_OPTIONS.map(lob => ({ 
+        key: lob, 
+        label: (
+          <Space>
+            <span>{lob}</span>
+            <CountTag count={lobCounts[lob]} />
+          </Space>
+        )
+      }))
+    ];
+  }, [lobCounts]);
+
+  useEffect(() => {
+    if (viewMode === 'list') {
+      setGroupBy('None');
+    }
+  }, [viewMode]);
 
   const handleLobChange = (key: string) => {
     setActiveLobTab(key);
@@ -108,10 +143,10 @@ const Home: React.FC = () => {
         subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
       />
 
-      <PillTabs
-        options={LOB_TAB_OPTIONS}
-        selected={activeLobTab}
+      <Tabs
+        activeKey={activeLobTab}
         onChange={handleLobChange}
+        items={lobTabOptions}
       />
 
       <Row gutter={[16, 16]} justify="space-between" align="bottom">
@@ -131,6 +166,8 @@ const Home: React.FC = () => {
               value={statusFilter}
               onChange={(value) => setStatusFilter((value as Status) ?? null)}
               size="large"
+              style={{ width: 180 }}
+              dropdownStyle={{ minWidth: 220 }}
             />
             <FilterDropdown
               placeholder="All categories"
@@ -139,6 +176,8 @@ const Home: React.FC = () => {
               onChange={(value) => setCategoryFilter(value ?? null)}
               size="large"
               showOptionTooltip
+              style={{ width: 180 }}
+              dropdownStyle={{ minWidth: 280 }}
             />
             <ViewOptions 
               groupBy={groupBy}
@@ -147,23 +186,20 @@ const Home: React.FC = () => {
               setSortOrder={setSortOrder}
               groupByOptions={GROUP_BY_OPTIONS}
               sortOptions={SORT_OPTIONS}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              isGroupingDisabled={viewMode === 'list'}
             />
           </Space>
         </Col>
       </Row>
 
-      {groupedProducts ? (
+      {viewMode === 'list' ? (
+        <ProductListTable products={sortedProducts} />
+      ) : groupedProducts ? (
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (
-        <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
-          {sortedProducts.map((product, index) => (
-            <ProductListItem
-              key={product.id}
-              product={product}
-              isLast={index === sortedProducts.length - 1}
-            />
-          ))}
-        </div>
+        <ProductList products={sortedProducts} />
       )}
     </Space>
   );

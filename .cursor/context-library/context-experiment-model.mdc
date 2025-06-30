@@ -1,0 +1,69 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Experimentation Model: Effective Dates & LIX Logic
+
+---
+
+## 1. LIX: Experimentation at the SKU Level
+
+All experimentation in PCC is handled at the **SKU level**.
+
+A SKU represents a stable, immutable configuration. To test changes (e.g., new billing cycle, price, digital goods, or description), we create a **new SKU** and assign it to a LIX experiment.
+
+- **Lix Key**: Experiment identifier (e.g., `sku_quarterly_billing_2025`)
+- **Lix Treatment**: User group bucket (e.g., `control`, `variantA`)
+
+Only users bucketed into the treatment will see the new SKU. If no LIX is set, the SKU is generally visible.
+
+✅ Example: To test quarterly billing for a product, create a new SKU with quarterly billing, new price group, and LIX assignment. The entire configuration (description, pricing, digital goods) is versioned and tested as a unit.
+
+---
+
+## 2. Effective Dates
+
+While LIX controls **who** sees a SKU, **Effective Dates** control **when** its prices apply.
+
+Every **Price Group** tied to a SKU can have:
+- **Start Date**: When pricing becomes active
+- **End Date**: When it ends (optional)
+
+If left blank:
+- Start defaults to the moment the Price Group is pushed to production
+- End remains open-ended
+
+**Price Points** (per currency) inherit the effective dates from the Price Group but can override them (e.g., adding EUR pricing later).
+
+---
+
+## 3. Combined Logic
+
+| Condition                      | Result                                      |
+|-------------------------------|---------------------------------------------|
+| SKU has no LIX                | Shown to all users once prices are active   |
+| SKU has LIX only              | Shown only to treatment group users         |
+| SKU has LIX + start date      | Shown only to treatment group after date    |
+| SKU with expired price group  | Not shown regardless of LIX                 |
+
+---
+
+## 4. Why SKU-Level LIX?
+
+- **Atomic experiments**: Bundle changes to name, price, entitlements, and attributes
+- **Safe rollouts**: Legacy SKUs remain untouched
+- **Easy rollback**: Just unassign LIX or retire the test SKU
+- **Minimal engineering dependency**
+
+---
+
+## 5. Summary
+
+- **LIX = who** sees a SKU
+- **Effective Dates = when** its pricing is valid
+- **SKU = unit of experimentation**
+
+Every change—price, billing cycle, digital good, or description—is modeled as a new SKU gated by a LIX experiment.
+
+---

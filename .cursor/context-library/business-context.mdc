@@ -133,7 +133,7 @@ LinkedIn operates across five primary geographic regions:
 - **Quarterly**: Recurring quarterly billing
 - **Annual**: Recurring annual billing (often with discounts)
 
-### 3.4 Product Types
+### 3.4 Billing models
 - **Subscription**: Recurring billing products (majority of LinkedIn's products)
 - **One-time**: Single purchase products
 - **Usage**: Products billed based on consumption/usage
@@ -156,6 +156,13 @@ LinkedIn operates across five primary geographic regions:
 - After FX conversion, prices may be further adjusted for business strategy or to use "charm pricing" (e.g., $49.99 instead of $50).
 - In the UI, always display the USD price first, with other currencies as secondary details.
 - FX rates are a starting point, but local market adjustments are common.
+
+#### 4.2 Charm Pricing
+To ensure prices appear realistic and align with common SaaS strategies, mock data and pricing models should adhere to the following "charm pricing" conventions:
+- **Primary Currency:** USD is the primary currency and should follow these rules most closely.
+- **Monthly Prices:** Should generally end in `.99` or `.95` to be psychologically appealing (e.g., $29.99, $49.95). Avoid whole numbers for monthly rates.
+- **Annual Prices:** Annual prices should reflect a discount compared to the monthly price (e.g., the cost of 10 or 11 months for a 12-month subscription). They can resolve to a clean whole number (e.g., $999) or also end in a charm price (e.g., $299.90).
+- **Other Currencies:** While USD is the priority, other currencies should follow similar local conventions where possible (e.g., EUR prices ending in `.99` or `.00`, JPY prices being whole numbers).
 
 ---
 
@@ -394,3 +401,18 @@ These attributes are the foundation for Epic 1's UI and user stories. All other 
 - **Tax Mode:** Whether a price is tax-inclusive (mobile) or tax-exclusive (desktop).
 - **Publishing Status:** The workflow state of a product, price, or price point (Draft, Pending, EI, Prod).
 - **Business Status:** Whether a product, price, or price point is Active, Legacy, or Retired.
+
+### Core Data Model Business Rules
+
+This section defines the key business rules for our core data structures. These rules should be treated as the source of truth when there is any ambiguity in a task or PRD.
+
+#### Product
+- `description`: This field is **optional**. A product does not need to have a description.
+- `billingModel`: This field is **required**. Its value must be one of the following strings:
+  - `'Subscription'`
+  - `'One-time'`
+  - `'Usage'`
+
+#### Price
+- `startDate`: This field is **optional**. A price can have an open-ended start date.
+- `endDate`: This field is **optional**. A price can have an open-ended end date.

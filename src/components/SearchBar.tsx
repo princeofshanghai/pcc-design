@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Search } from 'lucide-react';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 
 interface SearchBarProps {
@@ -17,7 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onChange, style, siz
       onChange={(e) => onChange(e.target.value)}
       style={style}
       allowClear
-      prefix={<SearchOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+      prefix={<Search size={16} color={'rgba(0,0,0,.25)'} />}
       size={size}
     />
   );

@@ -1,36 +1,61 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button } from 'antd';
-import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
+import { User, PanelLeft, Box, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link, useLocation, Outlet, type Location } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
 import { zIndex } from '../theme';
+import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { useLayout } from '../context/LayoutContext';
 
 const { Sider, Header, Content } = Layout;
 
 const menuItems = [
-  { key: 'home', label: <Link to="/">Home</Link> },
+  { 
+    key: 'home', 
+    label: 'Product Catalog', 
+    path: '/' 
+  },
   // Add more menu items here as you add pages
 ];
-
-function getBreadcrumbItems(location: Location) {
-  // Split the path and create breadcrumb items
-  const pathSnippets: string[] = location.pathname.split('/').filter((i: string) => i);
-  const breadcrumbItems = [
-    <Breadcrumb.Item key="home">
-      <Link to="/">Home</Link>
-    </Breadcrumb.Item>
-  ];
-  pathSnippets.forEach((_segment: string, _idx: number) => {
-    // For future nested routes
-    // You can customize label per route if needed
-  });
-  return breadcrumbItems;
-}
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { productName } = useBreadcrumb();
+  const { maxWidth } = useLayout();
+  const { token } = theme.useToken();
+
+  // Find the current menu item based on the path
+  const currentMenuItem = menuItems.find(item => item.path === location.pathname);
+
+  const breadcrumbItems = [];
+  if (currentMenuItem) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key={currentMenuItem.key}>
+        <Link to={currentMenuItem.path}>{currentMenuItem.label}</Link>
+      </Breadcrumb.Item>
+    );
+  }
+
+  if (location.pathname.startsWith('/product/') && productName) {
+    // Add Home link first for product pages
+    if (!currentMenuItem) {
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="home">
+          <Link to="/">Product Catalog</Link>
+        </Breadcrumb.Item>
+      );
+    }
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="product">
+        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)'}}>
+          <Box size={14} />
+          <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+        </Space>
+      </Breadcrumb.Item>
+    );
+  }
 
   // Handle scroll effect
   useEffect(() => {
@@ -77,7 +102,7 @@ const AppLayout = () => {
             </div>
           )}
           <Button
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={<PanelLeft size={20} />}
             onClick={() => setCollapsed(!collapsed)}
             type="text"
             style={{
@@ -89,7 +114,7 @@ const AppLayout = () => {
         <Menu 
           mode="inline" 
           defaultSelectedKeys={['home']} 
-          items={menuItems} 
+          items={menuItems.map(item => ({ key: item.key, label: <Link to={item.path}>{item.label}</Link> }))}
           style={{ 
             border: 'none',
             padding: '8px',
@@ -116,10 +141,10 @@ const AppLayout = () => {
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 220 }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 220, backgroundColor: token.colorBgLayout }}>
         <Header 
           style={{ 
-            background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : '#fff',
+            background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,
             backdropFilter: isScrolled ? 'blur(10px)' : 'none',
             WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
             padding: '0 24px 0 24px', 
@@ -136,8 +161,8 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <Breadcrumb>{getBreadcrumbItems(location)}</Breadcrumb>
-          <Avatar icon={<UserOutlined />} />
+          <Breadcrumb separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}>{breadcrumbItems}</Breadcrumb>
+          <Avatar icon={<User size={20} />} />
         </Header>
         <Content style={{ 
           margin: '120px 24px 24px 24px', // Top margin to account for fixed header
@@ -145,7 +170,7 @@ const AppLayout = () => {
           minHeight: 280, 
           background: 'transparent',
         }}>
-          <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+          <div style={{ maxWidth, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
             <Outlet />
           </div>
         </Content>

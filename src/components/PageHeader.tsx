@@ -1,15 +1,21 @@
 import React from 'react';
-import { Typography, Space } from 'antd';
+import { Typography, Space, theme } from 'antd';
+import { Box, ArrowLeft } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
+  preTitle?: string;
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
+  tagContent?: React.ReactNode;
+  onBack?: () => void;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, actions, tagContent, onBack }) => {
+  const { token } = theme.useToken();
+
   return (
     <div
       style={{
@@ -19,11 +25,29 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => 
         marginBottom: '24px',
       }}
     >
-      <Space direction="vertical" size={0}>
-        <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
-          {title}
-        </Title>
-        {subtitle && <Text type="secondary">{subtitle}</Text>}
+      <Space align="start" size="middle">
+        {onBack && (
+          <div onClick={onBack} style={{ cursor: 'pointer', marginTop: '8px' }}>
+            <ArrowLeft size={24} style={{ color: token.colorTextSecondary }} />
+          </div>
+        )}
+        <Space direction="vertical" size={2}>
+          {preTitle && (
+            <Space align="center" size={4}>
+              <Box size={14} style={{ color: token.colorTextSecondary }} />
+              <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
+                {preTitle}
+              </Text>
+            </Space>
+          )}
+          <Space align="center" size="middle">
+            <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
+              {title}
+            </Title>
+            {tagContent}
+          </Space>
+          {subtitle && <div style={{ marginTop: '4px' }}><Text type="secondary">{subtitle}</Text></div>}
+        </Space>
       </Space>
       {actions && <Space>{actions}</Space>}
     </div>

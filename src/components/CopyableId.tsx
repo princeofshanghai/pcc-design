@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button, message, theme } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
+import { Copy } from 'lucide-react';
 import './CopyableId.css';
 
 interface CopyableIdProps {
   id: string;
+  size?: 'small' | 'medium';
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -23,16 +24,18 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
     );
   };
 
+  const isMedium = size === 'medium';
+
   return (
     <Button
       type="default"
-      size="small"
-      icon={<CopyOutlined />}
+      size={isMedium ? 'middle' : 'small'}
+      icon={<Copy size={isMedium ? 14 : 12} />}
       onClick={handleCopy}
       className="copyable-id-button"
       style={{
         fontFamily: token.fontFamilyCode,
-        fontSize: 13,
+        fontSize: isMedium ? 14 : 13,
       }}
     >
       {id}

@@ -4,16 +4,26 @@ import 'antd/dist/reset.css';
 import themeConfig from './theme';
 import AppLayout from './components/Layout';
 import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
+import { BreadcrumbProvider } from './context/BreadcrumbContext';
+import { LayoutProvider } from './context/LayoutContext';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <Router>
-        <Routes>
-          <Route path="/" element={<AppLayout />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
+        <ScrollToTop />
+        <BreadcrumbProvider>
+          <LayoutProvider>
+            <Routes>
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<Home />} />
+                <Route path="product/:productId" element={<ProductDetail />} />
+              </Route>
+            </Routes>
+          </LayoutProvider>
+        </BreadcrumbProvider>
       </Router>
     </ConfigProvider>
   );

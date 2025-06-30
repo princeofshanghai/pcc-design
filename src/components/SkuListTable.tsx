@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space } from 'antd';
+import { Table, Space, Tooltip } from 'antd';
 import type { Sku, Status, SalesChannel, Product } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
@@ -8,6 +8,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatting';
 import CountTag from './CountTag';
 import PriceDetailView from './PriceDetailView';
+import { FlaskConical } from 'lucide-react';
 
 interface SkuListTableProps {
   skus: Sku[];
@@ -64,6 +65,24 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
               <CountTag count={otherPricePointsCount} />
             )}
           </Space>
+        );
+      },
+    },
+    {
+      title: toSentenceCase('LIX'),
+      key: 'lix',
+      render: (_: any, sku: Sku) => {
+        if (!sku.lix) {
+          return null;
+        }
+
+        return (
+          <Tooltip title={`Treatment: ${sku.lix.treatment}`}>
+            <Space>
+              <FlaskConical size={14} />
+              <span>{sku.lix.key}</span>
+            </Space>
+          </Tooltip>
         );
       },
     },

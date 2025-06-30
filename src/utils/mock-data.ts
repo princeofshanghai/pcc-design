@@ -279,6 +279,10 @@ export const mockProducts: Product[] = [
         switcherLogic: [{type: 'Upgrade', targetProductId: '5073467'}],
         refundPolicy: { id: 'YES_AUTOMATED', description: 'Yes (automated/robo-refund)' },
         seatMax: 40,
+        lix: {
+          key: 'rc-simplified-pricing',
+          treatment: 'enabled',
+        },
       },
     ],
   },

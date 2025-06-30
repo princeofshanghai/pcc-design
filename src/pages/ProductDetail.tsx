@@ -49,11 +49,11 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     // Set the max-width for this page
-    setMaxWidth('1024px');
+    setMaxWidth('1280px');
 
     // Reset the max-width when the component unmounts
     return () => {
-      setMaxWidth('1024px'); // Or your default width
+      setMaxWidth('1280px'); // Or your default width
     };
   }, [setMaxWidth]);
 
@@ -100,7 +100,7 @@ const ProductDetail: React.FC = () => {
       key: 'details',
       label: 'Details',
       children: (
-        <Space direction="vertical" size="large" style={{ width: '100%', marginTop: '1rem' }}>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <DetailSection title={toSentenceCase('General')}>
             <AttributeDisplay
               layout="horizontal"
@@ -122,14 +122,14 @@ const ProductDetail: React.FC = () => {
             <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
           </DetailSection>
 
-          <div>
-            <Space style={{ width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <Title level={3} style={{ margin: 0 }}>
-                <Space>
-                  <span>{toSentenceCase('SKUs')}</span>
-                  <CountTag count={filteredSkus.length} />
-                </Space>
-              </Title>
+          <DetailSection
+            title={
+              <Space>
+                <span>{toSentenceCase('SKUs')}</span>
+                <CountTag count={filteredSkus.length} />
+              </Space>
+            }
+            actions={
               <Space>
                 <FilterDropdown
                   placeholder={toSentenceCase("All Regions")}
@@ -164,21 +164,20 @@ const ProductDetail: React.FC = () => {
                   dropdownStyle={{ minWidth: 220 }}
                 />
               </Space>
-            </Space>
+            }
+            noBodyPadding
+          >
             <SkuListTable skus={filteredSkus} product={product} />
-          </div>
+          </DetailSection>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (
-            <div>
-              <Title level={3} style={{ margin: '2rem 0 1rem 0' }}>{toSentenceCase('Digital Goods')}</Title>
-              <div className="content-panel">
-                <List
-                  size="small"
-                  dataSource={product.digitalGoods}
-                  renderItem={item => <List.Item style={{paddingLeft: '24px', paddingRight: '24px'}}>{item}</List.Item>}
-                />
-              </div>
-            </div>
+            <DetailSection title={toSentenceCase('Digital Goods')}>
+              <List
+                size="small"
+                dataSource={product.digitalGoods}
+                renderItem={item => <List.Item style={{paddingLeft: '24px', paddingRight: '24px'}}>{item}</List.Item>}
+              />
+            </DetailSection>
           )}
         </Space>
       ),

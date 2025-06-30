@@ -19,7 +19,7 @@ Each PRD should contain the following sections in order.
 
 ### 1. Background & Problem Statement
 - **Purpose:** A brief, compelling narrative explaining the "why." What pain point is this specific epic solving? Why is it important *now*?
-- **Source:** This section should align with the project's high-level `@vision-and-goals.mdc` to ensure our story is consistent.
+- **Source:** This section should align with the project's high-level `@scope-vision` to ensure our story is consistent.
 
 ### 2. Goals & Success Metrics
 - **Purpose:** A small, specific, and measurable set of goals for *this epic only*.

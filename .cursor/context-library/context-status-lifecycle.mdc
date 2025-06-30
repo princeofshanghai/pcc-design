@@ -1,0 +1,68 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Status & Lifecycle Model
+
+---
+
+## 1. Business Status
+
+Tracks whether a Product, SKU, or Price is actively offered.
+
+- **Active** – Currently in use
+- **Legacy** – No longer offered to new users, but still in use
+- **Retired** – Fully deprecated and unused
+
+### Status Cascade
+
+Status flows upward from Price Point → Price → SKU → Product:
+
+- If any Price Point is Active → Price is Active
+- If any Price is Active → SKU is Active
+- If any SKU is Active → Product is Active
+
+> Example:  
+> - A `Monthly, NAMER, Desktop` SKU has a Price with a single active USD Price Point → the entire SKU and Product are considered Active.
+
+---
+
+## 2. Publishing Status (Lifecycle State)
+
+Tracks where a change is in the deployment workflow. This is separate from business status.
+
+- **Draft** - Being edited
+- **Pending to EI** - Awaiting engineering staging
+- **EI** - In Enterprise Infrastructure staging
+- **Pending to Prod** - Passed EI, queued for production
+- **Prod** - Fully live
+
+Only **Prod** entities affect real users.
+
+> Note: In MVP (Epic 1), users only view live Prod data. Lifecycle tracking becomes critical in Epic 2 (editing workflows).
+
+---
+
+## 3. Business vs. Publishing Status
+
+| Level              | Business Status        | Publishing Status         |
+|--------------------|------------------------|----------------------------|
+| **Product**        | Active, Legacy, Retired| Draft → EI → Prod          |
+| **SKU**            | Same as above          | Same                       |
+| **Price Group**    | Same                   | Same                       |
+| **Price Point**    | Same                   | Same                       |
+
+- Both statuses should be independently displayed.
+- Lifecycle helps track proposed vs. live changes.
+- Business status reflects customer-facing availability.
+
+---
+
+## 4. Summary
+
+- **Business Status** = what is live/offered
+- **Publishing Status** = where a change is in the deployment pipeline
+- Lifecycle tracking will power future edit flows, CR dashboards, and safety reviews
+
+---

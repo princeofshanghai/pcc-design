@@ -41,6 +41,9 @@ const themeConfig: ThemeConfig = {
     Card: {
       headerFontSize: 18,
       colorTextHeading: 'rgba(0, 0, 0, 0.92)',
+    },
+    Select: {
+      colorTextPlaceholder: 'rgba(0, 0, 0, 0.92)',
     }
   },
 };

@@ -24,9 +24,10 @@ interface FilterDropdownProps {
   style?: React.CSSProperties;
   size?: SizeType;
   showOptionTooltip?: boolean;
+  dropdownStyle?: React.CSSProperties;
 }
 
-const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, value, onChange, style, size, showOptionTooltip = false }) => {
+const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, value, onChange, style, size, showOptionTooltip = false, dropdownStyle }) => {
   const renderLabel = (label: string) => {
     if (showOptionTooltip) {
       return <Tooltip title={label} placement="right">{label}</Tooltip>;
@@ -39,11 +40,12 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, v
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      style={{ minWidth: 180, ...style }}
+      style={{ minWidth: 140, ...style }}
       allowClear
       showSearch
       optionFilterProp="label"
       size={size}
+      dropdownStyle={dropdownStyle}
     >
       {options.map(opt => {
         if ('options' in opt) {

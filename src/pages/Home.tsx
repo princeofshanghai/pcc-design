@@ -166,6 +166,8 @@ const Home: React.FC = () => {
               value={statusFilter}
               onChange={(value) => setStatusFilter((value as Status) ?? null)}
               size="large"
+              style={{ width: 180 }}
+              dropdownStyle={{ minWidth: 220 }}
             />
             <FilterDropdown
               placeholder="All categories"
@@ -174,6 +176,8 @@ const Home: React.FC = () => {
               onChange={(value) => setCategoryFilter(value ?? null)}
               size="large"
               showOptionTooltip
+              style={{ width: 180 }}
+              dropdownStyle={{ minWidth: 280 }}
             />
             <ViewOptions 
               groupBy={groupBy}

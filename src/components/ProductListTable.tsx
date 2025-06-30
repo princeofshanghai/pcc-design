@@ -58,16 +58,18 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products }) => {
   ];
 
   return (
-    <Table
-      columns={columns}
-      dataSource={products}
-      rowKey="id"
-      pagination={false}
-      onRow={(record) => ({
-        onClick: () => navigate(`/product/${record.id}`),
-        style: { cursor: 'pointer' },
-      })}
-    />
+    <div className="content-panel">
+      <Table
+        columns={columns}
+        dataSource={products}
+        rowKey="id"
+        pagination={false}
+        onRow={(record) => ({
+          onClick: () => navigate(`/product/${record.id}`),
+          style: { cursor: 'pointer' },
+        })}
+      />
+    </div>
   );
 };
 

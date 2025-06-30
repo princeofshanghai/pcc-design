@@ -131,19 +131,25 @@ const ProductDetail: React.FC = () => {
                   placeholder={toSentenceCase("All Regions")}
                   options={regionOptions}
                   value={selectedRegion}
-                  onChange={(value) => setSelectedRegion(value as Region | null)}
+                  onChange={(value) => setSelectedRegion((value as Region) ?? null)}
+                  style={{ width: 140 }}
+                  dropdownStyle={{ minWidth: 220 }}
                 />
                 <FilterDropdown
                   placeholder={toSentenceCase("All Channels")}
                   options={channelOptions}
                   value={selectedChannel}
-                  onChange={(value) => setSelectedChannel(value as SalesChannel | null)}
+                  onChange={(value) => setSelectedChannel((value as SalesChannel) ?? null)}
+                  style={{ width: 140 }}
+                  dropdownStyle={{ minWidth: 220 }}
                 />
                 <FilterDropdown
                   placeholder={toSentenceCase("All Statuses")}
                   options={statusOptions}
                   value={selectedStatus}
-                  onChange={(value) => setSelectedStatus(value as Status | null)}
+                  onChange={(value) => setSelectedStatus((value as Status) ?? null)}
+                  style={{ width: 140 }}
+                  dropdownStyle={{ minWidth: 220 }}
                 />
               </Space>
             </Space>
@@ -153,13 +159,13 @@ const ProductDetail: React.FC = () => {
           {product.digitalGoods && product.digitalGoods.length > 0 && (
             <div>
               <Title level={3} style={{ margin: '2rem 0 1rem 0' }}>{toSentenceCase('Digital Goods')}</Title>
-              <List
-                size="small"
-                bordered
-                dataSource={product.digitalGoods}
-                renderItem={item => <List.Item>{item}</List.Item>}
-                style={{ backgroundColor: 'white' }}
-              />
+              <div className="content-panel">
+                <List
+                  size="small"
+                  dataSource={product.digitalGoods}
+                  renderItem={item => <List.Item style={{paddingLeft: '24px', paddingRight: '24px'}}>{item}</List.Item>}
+                />
+              </div>
             </div>
           )}
         </Space>

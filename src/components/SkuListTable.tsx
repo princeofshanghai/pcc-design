@@ -5,8 +5,9 @@ import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
 import SalesChannelDisplay from './SalesChannelDisplay';
 import type { ColumnsType } from 'antd/es/table';
-import { formatCurrency, toSentenceCase } from '../utils/formatting';
+import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatting';
 import CountTag from './CountTag';
+import PriceDetailView from './PriceDetailView';
 
 interface SkuListTableProps {
   skus: Sku[];
@@ -38,6 +39,12 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
       key: 'billingCycle',
     },
     {
+      title: toSentenceCase('Effective Date'),
+      dataIndex: 'price',
+      key: 'effectiveDates',
+      render: (price: Sku['price']) => formatEffectiveDateRange(price.startDate, price.endDate),
+    },
+    {
       title: toSentenceCase('Amount'),
       key: 'amount',
       render: (_: any, sku: Sku) => {
@@ -67,7 +74,23 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
     },
   ];
 
-  return <Table columns={columns} dataSource={skus} rowKey="id" pagination={false} size="small" />;
+  return (
+    <div className="content-panel">
+      <Table
+        columns={columns}
+        dataSource={skus}
+        rowKey="id"
+        pagination={false}
+        size="small"
+        expandable={{
+          expandedRowRender: (record) => (
+            <PriceDetailView sku={record} />
+          ),
+          rowExpandable: (record) => record.id !== 'Not Expandable',
+        }}
+      />
+    </div>
+  );
 };
 
 export default SkuListTable; 

@@ -56,6 +56,16 @@ The primary goal of this epic is to **empower business users to independently fi
 - **AC3:** Within that `Price` version, the view must list all `Price Points` (the actual amounts), including **Currency Code** and **Amount**.
 - **AC4:** The expanded view must clearly display the `Tax Class` of the SKU.
 - **AC5:** If a SKU is part of a **LIX experiment**, the table must clearly indicate the LIX `key` and show the `treatment` on hover.
+- **AC6:** If a SKU has any attribute values that override the Product-level defaults (e.g., `Grace Period`, `Seat Min/Max`), these must be clearly listed in a dedicated "Overrides" section within the expanded view.
+
+**User Story 4: Deep Dive into a Single SKU**
+*As a product stakeholder, I want to navigate from the SKU list to a dedicated, linkable detail page for a single SKU, so that I can perform a focused analysis or share a direct link to that specific configuration with a colleague.*
+
+- **AC1:** In the SKU table, the SKU ID must be a hyperlink that navigates to a unique URL for that SKU.
+- **AC2:** The SKU Detail Page must display all information from the expanded view (Price, Price Points, Tax Class, LIX info).
+- **AC3:** The SKU Detail Page must also display other SKU-level attributes, such as Digital Goods and any product-level overrides.
+- **AC4:** When displaying an overridden attribute, the page must also show the original Product-level value that was overridden for context (e.g., "14 days (Overrides product default of 7 days)").
+- **AC5:** The page must have its own breadcrumb trail (e.g., `Home > Product: Sales Nav > SKU: 12345`).
 
 ### 5. Scope and Data Requirements
 

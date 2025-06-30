@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, Typography } from 'antd';
+import { Typography } from 'antd';
+import './DetailSection.css';
 
 const { Title, Text } = Typography;
 
@@ -18,29 +19,25 @@ const DetailSection: React.FC<DetailSectionProps> = ({
   children,
   noBodyPadding = false,
 }) => {
-  const cardTitle = (
-    <div>
-      <Title level={5} style={{ margin: 0 }}>
-        {title}
-      </Title>
-      {subtitle && (
-        <Text type="secondary" style={{ fontWeight: 'normal' }}>
-          {subtitle}
-        </Text>
-      )}
-    </div>
-  );
-
   return (
-    <Card
-      title={cardTitle}
-      extra={actions}
-      headStyle={subtitle ? { paddingTop: '12px', paddingBottom: '12px' } : {}}
-      bodyStyle={noBodyPadding ? { paddingLeft: 0, paddingRight: 0 } : {}}
-      style={{ boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}
-    >
-      {children}
-    </Card>
+    <div className="content-panel">
+      <div className={`detail-section-header ${subtitle ? 'with-subtitle' : ''}`}>
+        <div className="detail-section-title">
+          <Title level={5} style={{ margin: 0 }}>
+            {title}
+          </Title>
+          {subtitle && (
+            <Text type="secondary" style={{ fontWeight: 'normal' }}>
+              {subtitle}
+            </Text>
+          )}
+        </div>
+        {actions && <div className="detail-section-actions">{actions}</div>}
+      </div>
+      <div className={`detail-section-body ${noBodyPadding ? 'no-padding' : ''}`}>
+        {children}
+      </div>
+    </div>
   );
 };
 

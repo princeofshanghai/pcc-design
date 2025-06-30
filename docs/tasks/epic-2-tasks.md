@@ -37,11 +37,11 @@ This document breaks down the work for the second major epic: building the Produ
     - [x] 4.5.3: Ensure the SKU count in the section header updates as filters are applied.
 
 - [ ] **4.6: Implement Expandable Price & Tax View**
-    - [ ] 4.6.1: Make the rows in `SkuListTable.tsx` expandable.
-    - [ ] 4.6.2: Create a `PriceDetailView.tsx` component to render inside the expanded row.
-    - [ ] 4.6.3: The `PriceDetailView` must display the SKU's `Tax Class`.
-    - [ ] 4.6.4: The view should show the `Start Date` and `End Date` for the SKU's active `Price` object.
-    - [ ] 4.6.5: The `PriceDetailView` must display a list of all `Price Points` (currency and amount).
+    - [x] 4.6.1: Make the rows in `SkuListTable.tsx` expandable.
+    - [x] 4.6.2: Create a `PriceDetailView.tsx` component to render inside the expanded row.
+    - [x] 4.6.3: Add an "Effective Date" column to the `SkuListTable` with user-friendly date formatting.
+    - [x] 4.6.4: The `PriceDetailView` must display a list of all `Price Points` (currency and amount).
+    - [ ] 4.6.5: Add a section to the expanded view that only appears if a SKU has overrides and lists them clearly.
     
 - [ ] **4.7: Flesh out Detail Sections**
     - [ ] 4.7.1: In the "Details" tab, add a section for "Digital Goods" and display them in a table.

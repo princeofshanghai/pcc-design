@@ -27,12 +27,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, tagC
     >
       <Space align="start" size="middle">
         {onBack && (
-          <Button
-            type="text"
-            shape="circle"
-            icon={<ArrowLeft size={20} />}
+          <Button 
+            shape="circle" 
+            icon={<ArrowLeft size={16} />} 
             onClick={onBack}
-            style={{ marginTop: '4px', color: token.colorTextSecondary }}
           />
         )}
         <Space direction="vertical" size={2}>

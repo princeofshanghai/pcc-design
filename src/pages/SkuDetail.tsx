@@ -50,7 +50,6 @@ const SkuDetail: React.FC = () => {
           </Space>
         }
         title={sku.id}
-        subtitle={<Link to={`/product/${product.id}`}>{product.name}</Link>}
         onBack={() => navigate(`/product/${product.id}`)}
         tagContent={<StatusTag status={sku.status} />}
       />

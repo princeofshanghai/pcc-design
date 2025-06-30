@@ -278,10 +278,7 @@ export const mockProducts: Product[] = [
         revenueRecognition: 'On payment receipt',
         switcherLogic: [{type: 'Upgrade', targetProductId: '5073467'}],
         refundPolicy: { id: 'YES_AUTOMATED', description: 'Yes (automated/robo-refund)' },
-        lix: {
-          key: 'sales-nav-core-monthly-v2',
-          treatment: 'control',
-        },
+        seatMax: 40,
       },
     ],
   },

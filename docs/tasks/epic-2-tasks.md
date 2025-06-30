@@ -36,16 +36,16 @@ This document breaks down the work for the second major epic: building the Produ
     - [x] 4.5.2: Implement state management (`useState`) to handle filter selections and update the table in real-time.
     - [x] 4.5.3: Ensure the SKU count in the section header updates as filters are applied.
 
-- [ ] **4.6: Implement Expandable Price & Tax View**
+- [x] **4.6: Implement Expandable Price & Tax View**
     - [x] 4.6.1: Make the rows in `SkuListTable.tsx` expandable.
     - [x] 4.6.2: Create a `PriceDetailView.tsx` component to render inside the expanded row.
     - [x] 4.6.3: Add an "Effective Date" column to the `SkuListTable` with user-friendly date formatting.
     - [x] 4.6.4: The `PriceDetailView` must display a list of all `Price Points` (currency and amount).
-    - [ ] 4.6.5: Add a section to the expanded view that only appears if a SKU has overrides and lists them clearly.
+    - [x] 4.6.5: Add a section to the expanded view that only appears if a SKU has overrides and lists them clearly.
     
-- [ ] **4.7: Flesh out Detail Sections**
-    - [ ] 4.7.1: In the "Details" tab, add a section for "Digital Goods" and display them in a table.
-    - [ ] 4.7.2: In the "Other" tab, populate the "Configuration" section with relevant product attributes (e.g., `Tax Class`, `Seat Type`, `Grace Periods`).
-    - [ ] 4.7.3: In the "Other" tab, populate the "Tags" section, grouping tags by their type.
-    - [ ] 4.7.4: In the "Other" tab, populate the "Links" section with all relevant URLs.
-    - [ ] 4.7.5: In the "Other" tab, populate the "Visibility" section with the various boolean flags on the product. 
+- [x] **4.7: Flesh out Detail Sections**
+    - [x] 4.7.1: In the "Details" tab, add a section for "Digital Goods" and display them in a table.
+    - [x] 4.7.2: In the "Other" tab, populate the "Configuration" section with relevant product attributes (e.g., `Tax Class`, `Seat Type`, `Grace Periods`).
+    - [x] 4.7.3: In the "Other" tab, populate the "Tags" section, grouping tags by their type.
+    - [x] 4.7.4: In the "Other" tab, populate the "Links" section with all relevant URLs.
+    - [x] 4.7.5: In the "Other" tab, populate the "Visibility" section with the various boolean flags on the product. 

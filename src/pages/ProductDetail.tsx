@@ -153,7 +153,7 @@ const ProductDetail: React.FC = () => {
                 />
               </Space>
             </Space>
-            <SkuListTable skus={filteredSkus} />
+            <SkuListTable skus={filteredSkus} product={product} />
           </div>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (
@@ -193,6 +193,11 @@ const ProductDetail: React.FC = () => {
             <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+              <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                {product.postPurchaseLandingUrl}
+              </a>
+            </AttributeDisplay>
           </DetailSection>
 
           {product.tags && product.tags.length > 0 && (
@@ -211,8 +216,13 @@ const ProductDetail: React.FC = () => {
             <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
             <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
+            <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
           </DetailSection>
 
           <DetailSection title="Visibility">

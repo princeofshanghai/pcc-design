@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Space } from 'antd';
-import type { Sku, Status, SalesChannel } from '../utils/types';
+import type { Sku, Status, SalesChannel, Product } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
 import SalesChannelDisplay from './SalesChannelDisplay';
@@ -11,9 +11,10 @@ import PriceDetailView from './PriceDetailView';
 
 interface SkuListTableProps {
   skus: Sku[];
+  product: Product;
 }
 
-const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
+const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
   const columns: ColumnsType<Sku> = [
     {
       title: toSentenceCase('SKU ID'),
@@ -84,7 +85,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus }) => {
         size="small"
         expandable={{
           expandedRowRender: (record) => (
-            <PriceDetailView sku={record} />
+            <PriceDetailView sku={record} product={product} />
           ),
           rowExpandable: (record) => record.id !== 'Not Expandable',
         }}

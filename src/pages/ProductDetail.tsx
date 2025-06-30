@@ -44,6 +44,7 @@ const ProductDetail: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<SalesChannel | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState<string | null>(null);
 
   useEffect(() => {
     // Set the max-width for this page
@@ -73,11 +74,13 @@ const ProductDetail: React.FC = () => {
   const regionOptions = [...new Set(product.skus.map(sku => sku.region))].map(r => ({ value: r, label: toSentenceCase(r) }));
   const channelOptions = [...new Set(product.skus.map(sku => sku.salesChannel))].map(c => ({ value: c, label: toSentenceCase(c) }));
   const statusOptions = [...new Set(product.skus.map(sku => sku.status))].map(s => ({ value: s, label: toSentenceCase(s) }));
+  const billingCycleOptions = [...new Set(product.skus.map(sku => sku.billingCycle))].map(bc => ({ value: bc, label: toSentenceCase(bc) }));
 
   const filteredSkus = product.skus.filter(sku => {
     return (
       (selectedRegion === null || sku.region === selectedRegion) &&
       (selectedChannel === null || sku.salesChannel === selectedChannel) &&
+      (selectedBillingCycle === null || sku.billingCycle === selectedBillingCycle) &&
       (selectedStatus === null || sku.status === selectedStatus)
     );
   });
@@ -140,6 +143,14 @@ const ProductDetail: React.FC = () => {
                   options={channelOptions}
                   value={selectedChannel}
                   onChange={(value) => setSelectedChannel((value as SalesChannel) ?? null)}
+                  style={{ width: 140 }}
+                  dropdownStyle={{ minWidth: 220 }}
+                />
+                <FilterDropdown
+                  placeholder={toSentenceCase("All Cycles")}
+                  options={billingCycleOptions}
+                  value={selectedBillingCycle}
+                  onChange={(value) => setSelectedBillingCycle(value as string ?? null)}
                   style={{ width: 140 }}
                   dropdownStyle={{ minWidth: 220 }}
                 />

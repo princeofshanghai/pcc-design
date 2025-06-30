@@ -11,7 +11,7 @@ import ViewOptions, { type ViewMode } from '../components/ViewOptions';
 import ProductListTable from '../components/ProductListTable';
 import CountTag from '../components/CountTag';
 
-const LOB_OPTIONS: LOB[] = ['LTS', 'LMS', 'LSS', 'Premium'];
+const LOB_OPTIONS: LOB[] = [...new Set(mockProducts.map(p => p.lob))];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];

@@ -9,6 +9,7 @@ import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../uti
 import CountTag from './CountTag';
 import PriceDetailView from './PriceDetailView';
 import { FlaskConical } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface SkuListTableProps {
   skus: Sku[];
@@ -21,7 +22,12 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
       title: toSentenceCase('SKU ID'),
       dataIndex: 'id',
       key: 'id',
-      render: (id: string) => <CopyableId id={id} />,
+      render: (id: string) => (
+        <Space>
+          <Link to={`/product/${product.id}/sku/${id}`}>{id}</Link>
+          <CopyableId id={id} showId={false} />
+        </Space>
+      ),
       className: 'table-col-first',
     },
     {

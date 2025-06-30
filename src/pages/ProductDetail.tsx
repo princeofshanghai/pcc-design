@@ -16,6 +16,7 @@ import LobTag from '../components/LobTag';
 import CategoryTag from '../components/CategoryTag';
 import CountTag from '../components/CountTag';
 import FilterDropdown from '../components/FilterDropdown';
+import { Box } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -259,7 +260,12 @@ const ProductDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        preTitle="Product"
+        preTitle={
+          <Space size="small">
+            <Box size={14} />
+            <span>Product</span>
+          </Space>
+        }
         title={product.name}
         onBack={() => navigate('/')}
         tagContent={<StatusTag status={product.status} />}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../utils/types';
 import LobTag from './LobTag';
@@ -27,7 +27,12 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products }) => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      render: (id: string) => <CopyableId id={id} />,
+      render: (id: string) => (
+        <Space>
+          <span>{id}</span>
+          <CopyableId id={id} showId={false} />
+        </Space>
+      ),
     },
     {
       title: 'LOB',

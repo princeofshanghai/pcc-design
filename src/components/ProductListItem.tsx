@@ -46,7 +46,10 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
         <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
           {product.name}
         </Title>
-        <CopyableId id={product.id} />
+        <Space>
+          <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'rgba(0, 0, 0, 0.88)' }}>{product.id}</span>
+          <CopyableId id={product.id} showId={false} />
+        </Space>
         <div style={{ marginTop: '8px' }}>
           <Space size={0}>
             <LobTag lob={product.lob} />

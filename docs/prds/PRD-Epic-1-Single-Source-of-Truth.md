@@ -3,7 +3,7 @@
 > **Status:** Draft
 > **Author:** [Your Name/Team]
 > **Last Updated:** [Current Date]
-> **Related Documents:** [@vision-and-goals](/.cursor/context-library/vision-and-goals.mdc), [@mvp-scope](/.cursor/context-library/mvp-scope.mdc), [@playbook-prd](/.cursor/context-library/playbook-prd.mdc)
+> **Related Documents:** [@scope-vision](/.cursor/context-library/scope-vision.mdc), [@scope-mvp](/.cursor/context-library/scope-mvp.mdc), [@playbook-prd](/.cursor/rules/playbook-prd.mdc)
 
 ---
 
@@ -42,32 +42,34 @@ The primary goal of this epic is to **empower business users to independently fi
 *As Anand the Pricing Manager, I want to select a product and see all of its available configurations (SKUs), so that I can understand all the different ways we sell it.*
 
 - **AC1:** Clicking on a product from the main list navigates to a "Product Detail Page".
-- **AC2:** This page must display a clear header showing the parent Product's key details (Name, ID, LOB, Category, Status).
-- **AC3:** The page must display a list of all **SKUs** associated with that Product.
-- **AC4:** The SKU list must be filterable by **Region**, **Sales Channel**, and **Billing Cycle**.
-- **AC5:** Each SKU in the list should display its key defining attributes (e.g., `Region: NAMER`, `Channel: Desktop`) and its business status (Active, Legacy, Retired).
+- **AC2:** This page must display a clear header showing the parent Product's key details (Name, LOB, Category, Status).
+- **AC3:** The page must present information in a clean, tabbed interface, separating high-level details from other areas like Configuration, Links, etc.
+- **AC4:** Within the main tab, the page must display a table of all **SKUs** associated with that Product.
+- **AC5:** The SKU table must be filterable by **Region**, **Sales Channel**, and **Status**.
+- **AC6:** The SKU table must have columns for key attributes including **SKU ID**, **Region**, **Sales Channel**, **Billing Cycle**, **Effective Date**, **Price**, and **Status**.
 
-**User Story 3: Inspect a Single SKU's Price**
-*As Sam the Business Partner, I want to select a single, specific SKU and see its detailed price points in all currencies, so that I can confirm the exact price for a customer.*
+**User Story 3: Inspect a Single SKU's Price and Configuration**
+*As Sam the Business Partner, I want to select a single, specific SKU and see its detailed price points and configuration, so that I can confirm the exact price and setup for a customer.*
 
-- **AC1:** Selecting or expanding a SKU from the list reveals its detailed price view.
-- **AC2:** The view must show the active `Price` for that SKU, including its `Start Date` and `End Date`.
-- **AC3:** The view must list all `Price Points` (the actual amounts) for the active `Price`, including **Currency Code** and **Amount**.
-- **AC4:** The UI must clearly indicate whether a price is **tax-inclusive** or **tax-exclusive** based on its sales channel (e.g., Mobile vs. Desktop).
+- **AC1:** The SKU table rows must be expandable to reveal a detailed view for that specific SKU.
+- **AC2:** The expanded view must show the SKU's active `Price` version, including its `Start Date` and `End Date`.
+- **AC3:** Within that `Price` version, the view must list all `Price Points` (the actual amounts), including **Currency Code** and **Amount**.
+- **AC4:** The expanded view must clearly display the `Tax Class` of the SKU.
+- **AC5:** If a SKU is part of a **LIX experiment**, the table must clearly indicate the LIX `key` and show the `treatment` on hover.
 
 ### 5. Scope and Data Requirements
 
 #### In Scope:
 - A read-only interface for browsing and searching the product catalog.
-- A two-level view: a main catalog list of **Products**, and a detail page for each Product that lists its **SKUs**.
+- A hierarchical view: a main catalog of **Products**, a detail page for each Product listing its **SKUs**, and an expanded view for each SKU showing its active **Price** and its **Price Points**.
 - Displaying all key attributes for Products and SKUs as defined in the data table below.
 - Filtering and sorting by the most important attributes.
 
 #### Out of Scope (for Epic 1):
 - **Any and all editing functionality.** This is strictly a "read-only" epic.
 - Creating new Products or SKUs.
-- Designing or launching pricing experiments (this is a future epic).
-- Backend integrations, authentication, or publishing workflows. All data is assumed to be available via a pre-defined source.
+- **Experimentation workflows.** While the UI will display LIX assignments, this epic does not include the workflows for creating new experiment SKUs. Per the experimentation model, all experiments are handled by creating new, versioned SKUs.
+- Backend integrations, authentication, or **publishing workflows.** The UI will only show data with a "Prod" publishing status.
 - Analytics or experiment result dashboards.
 
 #### Data Requirements:
@@ -77,21 +79,35 @@ The primary goal of this epic is to **empower business users to independently fi
 | Product ID | Product | Unique identifier for the product (e.g., 5095295) |
 | Line of Business (LOB)| Product | Business line grouping (LTS, LMS, LSS, Premium) |
 | Category | Product | Logical grouping within LOB (e.g., "Career Pages") |
-| Product Status | Product | Active, Legacy, Retired |
+| Product Status | Product | Business status: Active, Legacy, Retired. (Future epics will add a `Publishing Status`). |
 | Product Type | Product | Subscription, Consumable, etc. |
 | Product Description | Product | Short summary of the product (if available) |
 | SKU ID | SKU | Unique identifier for the SKU/configuration |
 | Sales Channel | SKU | Desktop, Field, Mobile |
 | Billing Cycle | SKU | Monthly, Quarterly, Annual |
 | Region | SKU | NAMER, EMEA, APAC, LATAM, OTHER |
-| Digital Goods | SKU | Features, entitlements, consumables (e.g., InMail credits) |
-| Price / Price Points | SKU | Price in each currency (e.g., $99.00 USD, €89.00 EUR) |
+| LIX Assignment | SKU | Optional LIX experiment key and treatment. |
+| Digital Goods | SKU | Features included. Can be an `Entitlement` (boolean) or `Consumable` (numeric). |
+| Price | Price | A versioned container for price points with an effective `Start Date` and `End Date`. |
+| Price Points | Price Point | The actual price in a given `Currency Code` and `Amount`. |
 | Tax Class | SKU | A label indicating if the price is tax-inclusive or exclusive |
-| SKU Status | SKU | Active, Legacy, Retired |
+| SKU Status | SKU | Business status: Active, Legacy, Retired. |
 
 ### 6. Open Questions & Design Considerations
-- **Q1:** How can we best display a potentially long list of SKUs on the Product Detail Page? (e.g., Table, cards, expandable list?)
-- **Q2:** What is the most intuitive UI for the filter controls? (e.g., Dropdowns, multi-select checkboxes?)
+- **Q1:** How can we best display a potentially long list of SKUs on the Product Detail Page? (Answered: A filterable, expandable table.)
+- **Q2:** What is the most intuitive UI for the filter controls? (Answered: Dropdowns.)
 - **Q3:** What should the UI display if a product has no active SKUs?
-- **Q4:** How do we visually distinguish between `Active`, `Legacy`, and `Retired` entities to avoid user confusion? This is critical for data trust.
-- **Q5:** How should we display the list of "Digital Goods" for a SKU? Is a simple list sufficient for the MVP? 
+- **Q4:** How do we visually distinguish between `Active`, `Legacy`, and `Retired` entities to avoid user confusion? (Answered: Color-coded tags.)
+- **Q5:** How should we display the list of "Digital Goods" for a SKU? Is a simple list sufficient for the MVP?
+
+### 7. Glossary
+- **Product:** The highest-level conceptual offering that users recognize (e.g., "Sales Navigator Core").
+- **SKU (Sellable Configuration):** A unique, immutable combination of commercial attributes. A single Product can have many SKUs. The SKU is the unit of experimentation.
+- **Price:** A versioned container attached to a SKU that holds price points and has effective start/end dates.
+- **Price Point:** The most granular level, representing the actual monetary amount in a specific currency.
+- **Digital Good:** A feature or benefit included with a SKU.
+- **Entitlement:** A type of Digital Good that is a boolean (yes/no) permission to access a feature.
+- **Consumable:** A type of Digital Good that is a countable or spendable benefit (e.g., InMail credits).
+- **Business Status:** Whether a product or SKU is `Active`, `Legacy`, or `Retired`.
+- **Publishing Status:** The lifecycle state of a change in the publishing workflow (`Draft`, `Prod`, etc.). Out of scope for Epic 1.
+- **LIX:** The internal experimentation framework at LinkedIn. 

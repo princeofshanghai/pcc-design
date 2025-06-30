@@ -22,7 +22,7 @@ export const formatCurrency = (pricePoint: PricePoint): string => {
   return `${pricePoint.currencyCode} ${pricePoint.amount.toFixed(2)}`;
 };
 
-const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA']);
+const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM']);
 
 export function toSentenceCase(str: string): string {
   if (!str) return '';

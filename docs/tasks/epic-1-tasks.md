@@ -8,18 +8,18 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
 
 **Goal:** Prepare the project with the necessary tools and a central place for our mock data.
 
-- [ ] **1.1: Install and Configure Ant Design**
+- [x] **1.1: Install and Configure Ant Design**
     - [x] 1.1.1: As per our technical stack, we will use Ant Design. Run `npm i antd` in the terminal.
     - [x] 1.1.2: Import Ant Design's global stylesheet. In `src/main.tsx`, add the line `import 'antd/dist/reset.css';` at the top. This provides the default styling for all components.
 
-- [ ] **1.2: Create Mock Data and Types**
+- [x] **1.2: Create Mock Data and Types**
     - [x] 1.2.1: In the `src/utils` directory, create a new file named `mock-data.ts`. This will be the single source of truth for all data in the prototype.
     - [x] 1.2.2: In the same directory, create `types.ts`. We'll define the "shape" of our data here.
     - [x] 1.2.3: In `types.ts`, define and export a TypeScript `type` called `Product`. Based on the PRD, it should include fields like `id`, `name`, `lob`, `category`, `status`, and an array of `skus`.
     - [x] 1.2.4: In `types.ts`, define and export a `type` called `Sku`. It should include `id`, `region`, `channel`, `billingCycle`, `status`, `pricePoints`, etc.
     - [x] 1.2.5: In `mock-data.ts`, import the types and create an array of at least 5-7 realistic-looking `Product` objects, each with 3-5 `Sku` objects inside. Populate them with varied data (e.g., different statuses, LOBs, regions) to ensure our UI can handle all cases.
 
-- [ ] **1.3: Set up Basic App Structure**
+- [x] **1.3: Set up Basic App Structure**
     - [x] 1.3.1: Use the existing `Layout.tsx` which includes a polished, collapsible sidebar with the "PCC" logo and a professional header.
     - [x] 1.3.2: Ensure the `Home.tsx` page in `src/pages` is rendered inside the `Layout`'s `Content` section. This will be our main product catalog view.
 
@@ -29,7 +29,7 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
 
 **Goal:** Create all the small, reusable UI components needed to build the pages.
 
-- [ ] **2.1: `StatusTag.tsx` Component**
+- [x] **2.1: `StatusTag.tsx` Component**
     - [x] 2.1.1: Create a new component in `src/components` called `StatusTag.tsx`.
     - [x] 2.1.2: It should accept a `status` prop which can be 'Active', 'Legacy', or 'Retired'.
     - [x] 2.1.3: It should use Ant Design's `Tag` component and map the status to a specific `color` prop (e.g., `green` for Active, `default` for Legacy, `red` for Retired).
@@ -46,6 +46,7 @@ This document breaks down the work for Epic 1 into small, concrete, and ordered 
     - [x] 2.3.2: It should accept a single `sku` object of type `Sku` as a prop.
     - [x] 2.3.3: It should display key SKU attributes like `Region`, `Sales Channel`, and `Billing Cycle` using Ant Design `Tag` components.
     - [x] 2.3.4: It should also use the `StatusTag` to display the SKU's status.
+    - [x] 2.3.5: NOTE - This component was later deprecated and replaced by the more robust `SkuListTable.tsx` in Epic 2.
 
 - [x] **2.4: Search and Filter Components**
     - [x] 2.4.1: Create a `SearchBar.tsx` component that renders Ant Design's `Input.Search` component.

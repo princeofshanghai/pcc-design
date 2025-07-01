@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Space, theme, Button } from 'antd';
-import { Box, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 const { Title, Text } = Typography;
 

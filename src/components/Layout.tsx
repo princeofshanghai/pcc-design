@@ -13,7 +13,8 @@ const menuItems = [
   { 
     key: 'home', 
     label: 'Product Catalog', 
-    path: '/' 
+    path: '/',
+    icon: <Box size={16} />
   },
   // Add more menu items here as you add pages
 ];
@@ -135,7 +136,11 @@ const AppLayout = () => {
         <Menu 
           mode="inline" 
           defaultSelectedKeys={['home']} 
-          items={menuItems.map(item => ({ key: item.key, label: <Link to={item.path}>{item.label}</Link> }))}
+          items={menuItems.map(item => ({ 
+            key: item.key, 
+            icon: item.icon,
+            label: <Link to={item.path}>{item.label}</Link> 
+          }))}
           style={{ 
             border: 'none',
             padding: '8px',

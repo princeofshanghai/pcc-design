@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, List } from 'antd';
+import { Typography, Space, Tag, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import type { Region, SalesChannel, Status } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import PageHeader from '../components/PageHeader';
 import SkuListTable from '../components/SkuListTable';
+import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import AttributeDisplay from '../components/AttributeDisplay';
 import DetailSection from '../components/DetailSection';
 import StatusTag from '../components/StatusTag';
@@ -171,12 +172,8 @@ const ProductDetail: React.FC = () => {
           </DetailSection>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (
-            <DetailSection title={toSentenceCase('Digital Goods')}>
-              <List
-                size="small"
-                dataSource={product.digitalGoods}
-                renderItem={item => <List.Item style={{paddingLeft: '24px', paddingRight: '24px'}}>{item}</List.Item>}
-              />
+            <DetailSection title={toSentenceCase('Digital Goods')} noBodyPadding>
+              <DigitalGoodsTable digitalGoods={product.digitalGoods} />
             </DetailSection>
           )}
         </Space>

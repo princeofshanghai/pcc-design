@@ -53,7 +53,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
       render: (price: Sku['price']) => formatEffectiveDateRange(price.startDate, price.endDate),
     },
     {
-      title: toSentenceCase('Amount'),
+      title: toSentenceCase('Price'),
       key: 'amount',
       render: (_: any, sku: Sku) => {
         const usdPrice = sku.price.pricePoints.find(p => p.currencyCode === 'USD');

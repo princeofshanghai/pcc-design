@@ -5,7 +5,7 @@ import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
 import SalesChannelDisplay from './SalesChannelDisplay';
 import type { ColumnsType } from 'antd/es/table';
-import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatting';
+import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
 import CountTag from './CountTag';
 import PriceDetailView from './PriceDetailView';
 import { FlaskConical } from 'lucide-react';

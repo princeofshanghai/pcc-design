@@ -11,7 +11,7 @@ import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import AttributeDisplay from '../components/AttributeDisplay';
 import DetailSection from '../components/DetailSection';
 import StatusTag from '../components/StatusTag';
-import { toSentenceCase } from '../utils/formatting';
+import { toSentenceCase } from '../utils/formatters';
 import BillingModelDisplay from '../components/BillingModelDisplay';
 import LobTag from '../components/LobTag';
 import CategoryTag from '../components/CategoryTag';

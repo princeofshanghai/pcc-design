@@ -72,6 +72,40 @@ export const mockProducts: Product[] = [
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [
       {
+        id: 'sku_5095285l',
+        status: 'Active',
+        region: 'NAMER',
+        salesChannel: 'Desktop',
+        billingCycle: 'Monthly',
+        price: {
+          startDate: '2023-06-01',
+          endDate: '2023-09-30',
+          pricePoints: [
+            { currencyCode: 'USD', amount: 39.99 }, { currencyCode: 'EUR', amount: 39.99 }, { currencyCode: 'CAD', amount: 49.99 }, { currencyCode: 'AUD', amount: 54.99 }, { currencyCode: 'CHF', amount: 39.99 }, { currencyCode: 'DKK', amount: 249.99 }, { currencyCode: 'NOK', amount: 349.99 }, { currencyCode: 'SEK', amount: 349.99 }, { currencyCode: 'GBP', amount: 34.99 }, { currencyCode: 'HKD', amount: 299.99 }, { currencyCode: 'SGD', amount: 50.46 }, { currencyCode: 'BRL', amount: 89.99 }, { currencyCode: 'NZD', amount: 44.99 }, { currencyCode: 'JPY', amount: 3999 }, { currencyCode: 'INR', amount: 1850 }, { currencyCode: 'ZAR', amount: 450.00 }, { currencyCode: 'AED', amount: 138.99 }, { currencyCode: 'PLN', amount: 149.00 }, { currencyCode: 'SAR', amount: 167.99 }, { currencyCode: 'MXN', amount: 729.00 }, { currencyCode: 'EGP', amount: 529.00 }, { currencyCode: 'TRY', amount: 133.99 }
+          ]
+        },
+        revenueRecognition: 'On payment receipt',
+        switcherLogic: [{ type: 'Upgrade', targetProductId: '5095295' }],
+        refundPolicy: { id: 'YES_AUTOMATED', description: 'Yes (automated/robo-refund)' },
+      },
+      {
+        id: 'sku_5095285m',
+        status: 'Active',
+        region: 'NAMER',
+        salesChannel: 'Desktop',
+        billingCycle: 'Annual',
+        price: {
+          startDate: '2023-06-01',
+          endDate: '2023-09-30',
+          pricePoints: [
+            { currencyCode: 'USD', amount: 239.88 }, { currencyCode: 'EUR', amount: 239.88 }, { currencyCode: 'CAD', amount: 299.88 }, { currencyCode: 'AUD', amount: 299.88 }, { currencyCode: 'CHF', amount: 239.88 }, { currencyCode: 'DKK', amount: 1499.88 }, { currencyCode: 'NOK', amount: 2099.88 }, { currencyCode: 'SEK', amount: 2099.88 }, { currencyCode: 'GBP', amount: 179.88 }, { currencyCode: 'HKD', amount: 1799.88 }, { currencyCode: 'SGD', amount: 302.68 }, { currencyCode: 'BRL', amount: 539.88 }, { currencyCode: 'NZD', amount: 239.88 }, { currencyCode: 'JPY', amount: 23988 }, { currencyCode: 'INR', amount: 11100 }, { currencyCode: 'ZAR', amount: 2699.88 }, { currencyCode: 'AED', amount: 1127.88 }, { currencyCode: 'PLN', amount: 1188.00 }, { currencyCode: 'SAR', amount: 1355.88 }, { currencyCode: 'MXN', amount: 5868.00 }, { currencyCode: 'EGP', amount: 4308.00 }, { currencyCode: 'TRY', amount: 1079.88 }
+          ]
+        },
+        revenueRecognition: 'On payment receipt',
+        switcherLogic: [{ type: 'Upgrade', targetProductId: '5095295' }],
+        refundPolicy: { id: 'YES_AUTOMATED', description: 'Yes (automated/robo-refund)' },
+      },
+      {
         id: 'sku_5095285j',
         status: 'Active',
         region: 'NAMER',

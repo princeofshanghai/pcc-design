@@ -98,22 +98,46 @@ const Home: React.FC = () => {
       />
 
       <FilterBar
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        statusOptions={STATUS_SELECT_OPTIONS}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        categoryOptions={categoryOptions}
-        groupBy={groupBy}
-        setGroupBy={setGroupBy}
-        groupByOptions={GROUP_BY_OPTIONS}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        sortOptions={SORT_OPTIONS}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        isGroupingDisabled={viewMode === 'list'}
+        search={{
+          placeholder: "Search by name, ID, or category...",
+          onChange: setSearchQuery,
+        }}
+        filters={[
+          {
+            placeholder: "All statuses",
+            options: STATUS_SELECT_OPTIONS,
+            value: statusFilter,
+            onChange: (value) => setStatusFilter((value as Status) ?? null),
+            style: { width: 180 },
+            dropdownStyle: { minWidth: 220 },
+          },
+          {
+            placeholder: "All categories",
+            options: categoryOptions,
+            value: categoryFilter,
+            onChange: (value) => setCategoryFilter(value ?? null),
+            showOptionTooltip: true,
+            style: { width: 180 },
+            dropdownStyle: { minWidth: 280 },
+          },
+        ]}
+        viewOptions={{
+          groupBy: {
+            value: groupBy,
+            setter: setGroupBy,
+            options: GROUP_BY_OPTIONS,
+            disabled: viewMode === 'list',
+          },
+          sortOrder: {
+            value: sortOrder,
+            setter: setSortOrder,
+            options: SORT_OPTIONS,
+          },
+          viewMode: {
+            value: viewMode,
+            setter: setViewMode,
+          },
+        }}
       />
 
       {viewMode === 'list' ? (

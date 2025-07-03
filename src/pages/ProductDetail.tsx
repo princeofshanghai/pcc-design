@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Typography, Space, Tag, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
+import { useSkuFilters } from '../hooks/useSkuFilters';
 import type { Region, SalesChannel, Status } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
@@ -16,10 +17,12 @@ import BillingModelDisplay from '../components/BillingModelDisplay';
 import LobTag from '../components/LobTag';
 import CategoryTag from '../components/CategoryTag';
 import CountTag from '../components/CountTag';
-import FilterDropdown from '../components/FilterDropdown';
+import FilterBar from '../components/FilterBar';
 import { Box } from 'lucide-react';
 
 const { Title } = Typography;
+
+const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -42,11 +45,17 @@ const ProductDetail: React.FC = () => {
   const product = mockProducts.find(p => p.id === productId);
   const navigate = useNavigate();
 
-  // State for filters
-  const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<SalesChannel | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
-  const [selectedBillingCycle, setSelectedBillingCycle] = useState<string | null>(null);
+  // New hook for SKU filtering
+  const {
+    setSearchQuery,
+    regionFilter, setRegionFilter, regionOptions,
+    channelFilter, setChannelFilter, channelOptions,
+    statusFilter, setStatusFilter, statusOptions,
+    billingCycleFilter, setBillingCycleFilter, billingCycleOptions,
+    sortOrder, setSortOrder,
+    sortedSkus,
+    skuCount,
+  } = useSkuFilters(product?.skus || []);
 
   useEffect(() => {
     // Set the max-width for this page
@@ -71,22 +80,6 @@ const ProductDetail: React.FC = () => {
   if (!product) {
     return <Title level={2}>Product not found</Title>;
   }
-
-  // --- Filtering Logic ---
-  const regionOptions = [...new Set(product.skus.map(sku => sku.region))].map(r => ({ value: r, label: toSentenceCase(r) }));
-  const channelOptions = [...new Set(product.skus.map(sku => sku.salesChannel))].map(c => ({ value: c, label: toSentenceCase(c) }));
-  const statusOptions = [...new Set(product.skus.map(sku => sku.status))].map(s => ({ value: s, label: toSentenceCase(s) }));
-  const billingCycleOptions = [...new Set(product.skus.map(sku => sku.billingCycle))].map(bc => ({ value: bc, label: toSentenceCase(bc) }));
-
-  const filteredSkus = product.skus.filter(sku => {
-    return (
-      (selectedRegion === null || sku.region === selectedRegion) &&
-      (selectedChannel === null || sku.salesChannel === selectedChannel) &&
-      (selectedBillingCycle === null || sku.billingCycle === selectedBillingCycle) &&
-      (selectedStatus === null || sku.status === selectedStatus)
-    );
-  });
-  // --- End Filtering Logic ---
 
   const groupedTags = (product.tags || []).reduce((acc, tag) => {
     if (!acc[tag.type]) {
@@ -127,48 +120,53 @@ const ProductDetail: React.FC = () => {
             title={
               <Space>
                 <span>{toSentenceCase('SKUs')}</span>
-                <CountTag count={filteredSkus.length} />
-              </Space>
-            }
-            actions={
-              <Space>
-                <FilterDropdown
-                  placeholder={toSentenceCase("All Regions")}
-                  options={regionOptions}
-                  value={selectedRegion}
-                  onChange={(value) => setSelectedRegion((value as Region) ?? null)}
-                  style={{ width: 140 }}
-                  dropdownStyle={{ minWidth: 220 }}
-                />
-                <FilterDropdown
-                  placeholder={toSentenceCase("All Channels")}
-                  options={channelOptions}
-                  value={selectedChannel}
-                  onChange={(value) => setSelectedChannel((value as SalesChannel) ?? null)}
-                  style={{ width: 140 }}
-                  dropdownStyle={{ minWidth: 220 }}
-                />
-                <FilterDropdown
-                  placeholder={toSentenceCase("All Cycles")}
-                  options={billingCycleOptions}
-                  value={selectedBillingCycle}
-                  onChange={(value) => setSelectedBillingCycle(value as string ?? null)}
-                  style={{ width: 140 }}
-                  dropdownStyle={{ minWidth: 220 }}
-                />
-                <FilterDropdown
-                  placeholder={toSentenceCase("All Statuses")}
-                  options={statusOptions}
-                  value={selectedStatus}
-                  onChange={(value) => setSelectedStatus((value as Status) ?? null)}
-                  style={{ width: 140 }}
-                  dropdownStyle={{ minWidth: 220 }}
-                />
+                <CountTag count={skuCount} />
               </Space>
             }
             noBodyPadding
           >
-            <SkuListTable skus={filteredSkus} product={product} />
+            <div style={{ padding: '16px 24px', marginBottom: '0px' }}>
+              <FilterBar
+                search={{
+                  placeholder: "Search by SKU ID...",
+                  onChange: setSearchQuery,
+                }}
+                filters={[
+                  {
+                    placeholder: toSentenceCase("All Regions"),
+                    options: regionOptions,
+                    value: regionFilter,
+                    onChange: (value) => setRegionFilter(value as Region ?? null),
+                  },
+                  {
+                    placeholder: toSentenceCase("All Channels"),
+                    options: channelOptions,
+                    value: channelFilter,
+                    onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
+                  },
+                  {
+                    placeholder: toSentenceCase("All Cycles"),
+                    options: billingCycleOptions,
+                    value: billingCycleFilter,
+                    onChange: (value) => setBillingCycleFilter(value as string ?? null),
+                  },
+                  {
+                    placeholder: toSentenceCase("All Statuses"),
+                    options: statusOptions,
+                    value: statusFilter,
+                    onChange: (value) => setStatusFilter(value as Status ?? null),
+                  },
+                ]}
+                viewOptions={{
+                  sortOrder: {
+                    value: sortOrder,
+                    setter: setSortOrder,
+                    options: SKU_SORT_OPTIONS,
+                  },
+                }}
+              />
+            </div>
+            <SkuListTable skus={sortedSkus} product={product} />
           </DetailSection>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (

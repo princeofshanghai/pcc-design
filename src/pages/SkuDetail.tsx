@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Typography, Space } from 'antd';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import PageHeader from '../components/PageHeader';

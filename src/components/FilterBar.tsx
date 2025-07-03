@@ -3,92 +3,93 @@ import { Row, Col, Space } from 'antd';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions, { type ViewMode } from './ViewOptions';
-import type { Status } from '../utils/types';
+
+export interface FilterConfig {
+  placeholder: string;
+  options: SelectOption[];
+  value: string | null;
+  onChange: (value: any) => void;
+  style?: React.CSSProperties;
+  dropdownStyle?: React.CSSProperties;
+  showOptionTooltip?: boolean;
+}
 
 interface FilterBarProps {
-  setSearchQuery: (query: string) => void;
-
-  statusFilter: Status | null;
-  setStatusFilter: (status: Status | null) => void;
-  statusOptions: SelectOption[];
-
-  categoryFilter: string | null;
-  setCategoryFilter: (category: string | null) => void;
-  categoryOptions: SelectOption[];
-  
-  groupBy: string;
-  setGroupBy: (group: string) => void;
-  groupByOptions: string[];
-
-  sortOrder: string;
-  setSortOrder: (order: string) => void;
-  sortOptions: string[];
-
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
-  isGroupingDisabled: boolean;
+  search?: {
+    placeholder: string;
+    onChange: (query: string) => void;
+    style?: React.CSSProperties;
+  };
+  filters?: FilterConfig[];
+  viewOptions?: {
+    groupBy?: {
+      value: string;
+      setter: (group: string) => void;
+      options: string[];
+      disabled?: boolean;
+    };
+    sortOrder?: {
+      value: string;
+      setter: (order: string) => void;
+      options: string[];
+    };
+    viewMode?: {
+      value: ViewMode;
+      setter: (mode: ViewMode) => void;
+    };
+  };
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
-  setSearchQuery,
-  statusFilter,
-  setStatusFilter,
-  statusOptions,
-  categoryFilter,
-  setCategoryFilter,
-  categoryOptions,
-  groupBy,
-  setGroupBy,
-  groupByOptions,
-  sortOrder,
-  setSortOrder,
-  sortOptions,
-  viewMode,
-  setViewMode,
-  isGroupingDisabled,
+  search,
+  filters = [],
+  viewOptions,
 }) => {
+  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.viewMode;
+
   return (
     <Row gutter={[16, 16]} justify="space-between" align="bottom">
       <Col>
-        <SearchBar
-          placeholder="Search by name, ID, or category..."
-          onChange={setSearchQuery}
-          style={{ width: 300 }}
-          size="large"
-        />
+        {search && (
+          <SearchBar
+            placeholder={search.placeholder}
+            onChange={search.onChange}
+            style={search.style || { width: 300 }}
+            size="large"
+          />
+        )}
       </Col>
       <Col>
         <Space>
-          <FilterDropdown
-            placeholder="All statuses"
-            options={statusOptions}
-            value={statusFilter}
-            onChange={(value) => setStatusFilter((value as Status) ?? null)}
-            size="large"
-            style={{ width: 180 }}
-            dropdownStyle={{ minWidth: 220 }}
-          />
-          <FilterDropdown
-            placeholder="All categories"
-            options={categoryOptions}
-            value={categoryFilter}
-            onChange={(value) => setCategoryFilter(value ?? null)}
-            size="large"
-            showOptionTooltip
-            style={{ width: 180 }}
-            dropdownStyle={{ minWidth: 280 }}
-          />
-          <ViewOptions 
-            groupBy={groupBy}
-            setGroupBy={setGroupBy}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-            groupByOptions={groupByOptions}
-            sortOptions={sortOptions}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            isGroupingDisabled={isGroupingDisabled}
-          />
+          {filters.map((filter, index) => (
+            <FilterDropdown
+              key={index}
+              placeholder={filter.placeholder}
+              options={filter.options}
+              value={filter.value}
+              onChange={filter.onChange}
+              size="large"
+              style={filter.style || { width: 180 }}
+              dropdownStyle={filter.dropdownStyle}
+              showOptionTooltip={filter.showOptionTooltip}
+            />
+          ))}
+
+          {shouldRenderViewOptions && viewOptions && (
+            <ViewOptions 
+              groupBy={viewOptions.groupBy?.value}
+              setGroupBy={viewOptions.groupBy?.setter}
+              groupByOptions={viewOptions.groupBy?.options}
+              isGroupingDisabled={viewOptions.groupBy?.disabled}
+
+              sortOrder={viewOptions.sortOrder?.value}
+              setSortOrder={viewOptions.sortOrder?.setter}
+              sortOptions={viewOptions.sortOrder?.options}
+
+              viewMode={viewOptions.viewMode?.value}
+              setViewMode={viewOptions.viewMode?.setter}
+            />
+          )}
         </Space>
       </Col>
     </Row>

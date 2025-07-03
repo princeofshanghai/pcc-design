@@ -1,3 +1,3 @@
 export { formatCurrency } from './currency';
-export { toSentenceCase } from './text';
-export { formatEffectiveDateRange } from './dates'; 
+export { formatEffectiveDateRange, formatFullDate } from './dates';
+export { toSentenceCase } from './text'; 

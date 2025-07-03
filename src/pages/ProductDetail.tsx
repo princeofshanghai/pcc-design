@@ -8,6 +8,7 @@ import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import PageHeader from '../components/PageHeader';
 import SkuListTable from '../components/SkuListTable';
+import GroupedSkuListTable from '../components/GroupedSkuListTable';
 import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import AttributeDisplay from '../components/AttributeDisplay';
 import DetailSection from '../components/DetailSection';
@@ -23,6 +24,7 @@ import { Box } from 'lucide-react';
 const { Title } = Typography;
 
 const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
+const SKU_GROUP_BY_OPTIONS = ['None', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -53,7 +55,9 @@ const ProductDetail: React.FC = () => {
     statusFilter, setStatusFilter, statusOptions,
     billingCycleFilter, setBillingCycleFilter, billingCycleOptions,
     sortOrder, setSortOrder,
+    groupBy, setGroupBy,
     sortedSkus,
+    groupedSkus,
     skuCount,
   } = useSkuFilters(product?.skus || []);
 
@@ -163,10 +167,19 @@ const ProductDetail: React.FC = () => {
                     setter: setSortOrder,
                     options: SKU_SORT_OPTIONS,
                   },
+                  groupBy: {
+                    value: groupBy,
+                    setter: setGroupBy,
+                    options: SKU_GROUP_BY_OPTIONS,
+                  },
                 }}
               />
             </div>
-            <SkuListTable skus={sortedSkus} product={product} />
+            {groupedSkus ? (
+              <GroupedSkuListTable groupedSkus={groupedSkus} product={product} />
+            ) : (
+              <SkuListTable skus={sortedSkus} product={product} />
+            )}
           </DetailSection>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (

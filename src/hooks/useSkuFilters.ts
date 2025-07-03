@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Sku, Region, SalesChannel, Status } from '../utils/types';
-import { toSentenceCase } from '../utils/formatters';
+import { toSentenceCase, formatFullDate } from '../utils/formatters';
 
 export const useSkuFilters = (initialSkus: Sku[]) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,6 +9,7 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<string>('None');
+  const [groupBy, setGroupBy] = useState<string>('None');
 
   const filteredSkus = useMemo(() => {
     let skus = initialSkus;
@@ -46,6 +47,42 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
     return sorted;
   }, [filteredSkus, sortOrder]);
 
+  const groupedSkus = useMemo(() => {
+    if (groupBy === 'None') return null;
+
+    return sortedSkus.reduce((acc, sku) => {
+      let key: string;
+      switch (groupBy) {
+        case 'Effective Date':
+          key = sku.price.startDate ? formatFullDate(sku.price.startDate) : 'No Date';
+          break;
+        case 'LIX':
+          key = sku.lix ? sku.lix.key : 'No LIX';
+          break;
+        case 'Status':
+          key = sku.status;
+          break;
+        case 'Region':
+          key = sku.region;
+          break;
+        case 'Sales Channel':
+          key = sku.salesChannel;
+          break;
+        case 'Billing Cycle':
+          key = sku.billingCycle;
+          break;
+        default:
+          key = 'Other';
+      }
+      
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(sku);
+      return acc;
+    }, {} as Record<string, Sku[]>);
+  }, [sortedSkus, groupBy]);
+
   const skuCount = sortedSkus.length;
 
   // Generate dynamic options for filters based on the *initial* list
@@ -62,9 +99,11 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
     statusFilter, setStatusFilter,
     billingCycleFilter, setBillingCycleFilter,
     sortOrder, setSortOrder,
+    groupBy, setGroupBy,
 
     // Derived Data
     sortedSkus,
+    groupedSkus,
     skuCount,
 
     // Filter Options

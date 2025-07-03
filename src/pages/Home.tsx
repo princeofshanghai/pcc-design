@@ -8,6 +8,7 @@ import GroupedProductList from '../components/GroupedProductList';
 import ProductList from '../components/ProductList';
 import type { ViewMode } from '../components/ViewOptions';
 import ProductListTable from '../components/ProductListTable';
+import GroupedProductListTable from '../components/GroupedProductListTable';
 import CountTag from '../components/CountTag';
 import FilterBar from '../components/FilterBar';
 import type { SelectOption } from '../components/FilterDropdown';
@@ -126,7 +127,6 @@ const Home: React.FC = () => {
             value: groupBy,
             setter: setGroupBy,
             options: GROUP_BY_OPTIONS,
-            disabled: viewMode === 'list',
           },
           sortOrder: {
             value: sortOrder,
@@ -141,7 +141,11 @@ const Home: React.FC = () => {
       />
 
       {viewMode === 'list' ? (
-        <ProductListTable products={sortedProducts} />
+        groupedProducts ? (
+          <GroupedProductListTable groupedProducts={groupedProducts} />
+        ) : (
+          <ProductListTable products={sortedProducts} />
+        )
       ) : groupedProducts ? (
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (

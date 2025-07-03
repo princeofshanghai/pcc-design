@@ -1,4 +1,3 @@
-import { format, parseISO } from 'date-fns';
 
 /**
  * Formats a date range into a user-friendly string.
@@ -6,17 +5,36 @@ import { format, parseISO } from 'date-fns';
  * @param endDate - The end date string (e.g., "2024-12-31").
  * @returns A formatted date range string.
  */
-export const formatEffectiveDateRange = (startDate?: string, endDate?: string): string => {
-  const dateFormat = 'MMM d, yyyy';
+export const formatEffectiveDateRange = (start?: string, end?: string): string => {
+  if (!start) return 'N/A';
 
-  if (startDate && endDate) {
-    return `${format(parseISO(startDate), dateFormat)} - ${format(parseISO(endDate), dateFormat)}`;
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC', // Assume dates are in UTC to prevent timezone shifts
+  };
+
+  const startDate = new Date(start);
+  const formattedStart = startDate.toLocaleDateString('en-US', options);
+
+  if (!end) {
+    return `${formattedStart} - Present`;
   }
-  if (startDate) {
-    return `${format(parseISO(startDate), dateFormat)} - Present`;
-  }
-  if (endDate) {
-    return `Until ${format(parseISO(endDate), dateFormat)}`;
-  }
-  return 'N/A';
+
+  const endDate = new Date(end);
+  const formattedEnd = endDate.toLocaleDateString('en-US', options);
+
+  return `${formattedStart} - ${formattedEnd}`;
+};
+
+export const formatFullDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  };
+  return new Date(dateString).toLocaleDateString('en-US', options);
 }; 

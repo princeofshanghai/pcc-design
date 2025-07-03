@@ -16,8 +16,8 @@ export function toSentenceCase(str: string): string {
   const finalSentence = str
     .split(' ')
     .map(word => {
-      // Preserve parenthesized numbers entirely
-      if (/^\(\d+\)$/.test(word)) {
+      // Preserve anything in parentheses
+      if (word.startsWith('(') && word.endsWith(')')) {
         return word;
       }
       

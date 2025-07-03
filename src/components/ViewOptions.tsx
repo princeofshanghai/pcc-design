@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge, Button, Dropdown, Segmented, Space, Typography, Divider } from 'antd';
 import { Settings2, Check, LayoutGrid, List } from 'lucide-react';
 import type { MenuProps } from 'antd';
+import { toSentenceCase } from '../utils/formatters';
 
 const { Text } = Typography;
 
@@ -46,14 +47,14 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   if (showGroupBy) {
     menuItems.push({
       key: 'group-by-group',
-      label: 'Group by',
+      label: toSentenceCase('Group by'),
       type: 'group',
       children: groupByOptions.map(opt => ({
         key: `group-${opt}`,
         disabled: isGroupingDisabled,
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {opt === 'None' ? 'None' : `By ${opt}`}
+            {toSentenceCase(opt)}
             {groupBy === opt && !isGroupingDisabled && <Check size={16} />}
           </div>
         ),
@@ -69,13 +70,13 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   if (showSortBy) {
     menuItems.push({
       key: 'sort-by-group',
-      label: 'Sort by',
+      label: toSentenceCase('Sort by'),
       type: 'group',
       children: sortOptions.map(opt => ({
         key: `sort-${opt}`,
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {opt}
+            {toSentenceCase(opt)}
             {sortOrder === opt && <Check size={16} />}
           </div>
         ),
@@ -90,7 +91,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       key: 'clear-all',
       label: (
         <Button size="small" onClick={handleClearAll}>
-          Clear all
+          {toSentenceCase('Clear all')}
         </Button>
       ),
       style: { padding: '8px 12px', height: 'auto' },
@@ -113,7 +114,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
             <>
               <div style={{ padding: '8px 12px' }}>
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  <Text type="secondary" style={{ padding: '0 4px', marginBottom: '4px' }}>View as</Text>
+                  <Text type="secondary" style={{ padding: '0 4px', marginBottom: '4px' }}>{toSentenceCase('View as')}</Text>
                   <Segmented
                     options={[
                       { value: 'card', icon: <LayoutGrid size={16} /> },
@@ -134,13 +135,13 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     >
       <Button 
         icon={
-          <Badge dot={isViewActive}>
+          <Badge dot={isViewActive || false}>
             <Settings2 size={16} />
           </Badge>
         } 
         size="large"
       >
-        View
+        {toSentenceCase('View')}
       </Button>
     </Dropdown>
   );

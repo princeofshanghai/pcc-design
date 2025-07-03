@@ -16,6 +16,11 @@
   flex-direction: column;
 }
 
+.detail-section-actions {
+  display: flex;
+  align-items: center;
+}
+
 .detail-section-body {
   padding: 24px;
 }

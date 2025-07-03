@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
-import { User, PanelLeft, Box, ChevronRight } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../assets/linkedin-logo.svg';
@@ -13,7 +13,8 @@ const menuItems = [
   { 
     key: 'home', 
     label: 'Product Catalog', 
-    path: '/' 
+    path: '/',
+    icon: <Box size={16} />
   },
   // Add more menu items here as you add pages
 ];
@@ -22,7 +23,7 @@ const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const { productName } = useBreadcrumb();
+  const { productName, skuId } = useBreadcrumb();
   const { maxWidth } = useLayout();
   const { token } = theme.useToken();
 
@@ -47,14 +48,35 @@ const AppLayout = () => {
         </Breadcrumb.Item>
       );
     }
+
+    const productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
+    const isSkuPage = location.pathname.includes('/sku/');
+
     breadcrumbItems.push(
       <Breadcrumb.Item key="product">
-        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)'}}>
+        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
           <Box size={14} />
-          <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+          {isSkuPage ? (
+            <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
+              {productName}
+            </Link>
+          ) : (
+            <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+          )}
         </Space>
       </Breadcrumb.Item>
     );
+
+    if (isSkuPage && skuId) {
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="sku">
+          <Space size={4}>
+            <Tag size={14} />
+            <span>SKU: {skuId}</span>
+          </Space>
+        </Breadcrumb.Item>
+      );
+    }
   }
 
   // Handle scroll effect
@@ -114,7 +136,11 @@ const AppLayout = () => {
         <Menu 
           mode="inline" 
           defaultSelectedKeys={['home']} 
-          items={menuItems.map(item => ({ key: item.key, label: <Link to={item.path}>{item.label}</Link> }))}
+          items={menuItems.map(item => ({ 
+            key: item.key, 
+            icon: item.icon,
+            label: <Link to={item.path}>{item.label}</Link> 
+          }))}
           style={{ 
             border: 'none',
             padding: '8px',

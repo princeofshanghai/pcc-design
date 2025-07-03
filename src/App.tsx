@@ -8,6 +8,7 @@ import ProductDetail from './pages/ProductDetail';
 import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
 import ScrollToTop from './components/ScrollToTop';
+import SkuDetail from './pages/SkuDetail';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Home />} />
                 <Route path="product/:productId" element={<ProductDetail />} />
+                <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
               </Route>
             </Routes>
           </LayoutProvider>

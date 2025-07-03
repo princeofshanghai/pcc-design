@@ -1,15 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Row, Col, Space, Tabs } from 'antd';
+import { Space, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
-import type { Product, LOB, Status } from '../utils/types';
-import SearchBar from '../components/SearchBar';
-import FilterDropdown, { type SelectOption } from '../components/FilterDropdown';
+import type { LOB, Status } from '../utils/types';
+import { useProductFilters } from '../hooks/useProductFilters';
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
 import ProductList from '../components/ProductList';
-import ViewOptions, { type ViewMode } from '../components/ViewOptions';
+import type { ViewMode } from '../components/ViewOptions';
 import ProductListTable from '../components/ProductListTable';
+import GroupedProductListTable from '../components/GroupedProductListTable';
 import CountTag from '../components/CountTag';
+import FilterBar from '../components/FilterBar';
+import type { SelectOption } from '../components/FilterDropdown';
 
 const LOB_OPTIONS: LOB[] = [...new Set(mockProducts.map(p => p.lob))];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
@@ -19,21 +21,26 @@ const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
-const CATEGORY_GROUPED_OPTIONS: SelectOption[] = LOB_OPTIONS.map(lob => ({
-  label: lob,
-  options: [...new Set(mockProducts.filter(p => p.lob === lob).map(p => p.category))]
-    .map(category => ({ label: category, value: category }))
-})).filter(group => group.options.length > 0);
-
 const Home: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [lobFilter, setLobFilter] = useState<LOB | null>(null);
-  const [statusFilter, setStatusFilter] = useState<Status | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [groupBy, setGroupBy] = useState<string>('None');
-  const [sortOrder, setSortOrder] = useState<string>('None');
   const [activeLobTab, setActiveLobTab] = useState('All');
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+
+  const {
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    categoryFilter,
+    setCategoryFilter,
+    groupBy,
+    setGroupBy,
+    sortOrder,
+    setSortOrder,
+    sortedProducts,
+    groupedProducts,
+    productCount,
+    categoryOptions,
+  } = useProductFilters(mockProducts, lobFilter);
 
   const lobCounts = useMemo(() => {
     const counts: Record<string, number> = { All: mockProducts.length };
@@ -70,71 +77,13 @@ const Home: React.FC = () => {
     if (viewMode === 'list') {
       setGroupBy('None');
     }
-  }, [viewMode]);
+  }, [viewMode, setGroupBy]);
 
   const handleLobChange = (key: string) => {
     setActiveLobTab(key);
     setLobFilter(key === 'All' ? null : (key as LOB));
     setCategoryFilter(null);
   };
-
-  const categoryOptions = useMemo(() => {
-    if (lobFilter) {
-      return [...new Set(mockProducts.filter(p => p.lob === lobFilter).map(p => p.category))]
-        .map(category => ({ label: category, value: category }));
-    }
-    return CATEGORY_GROUPED_OPTIONS;
-  }, [lobFilter]);
-
-  useEffect(() => {
-    if (lobFilter) {
-      const validCategories = mockProducts
-        .filter(p => p.lob === lobFilter)
-        .map(p => p.category);
-      
-      if (categoryFilter && !validCategories.includes(categoryFilter)) {
-        setCategoryFilter(null);
-      }
-    }
-  }, [lobFilter, categoryFilter]);
-
-  const sortedProducts = useMemo(() => {
-    let products = mockProducts;
-
-    // Filtering
-    if (searchQuery) {
-      const lowercasedQuery = searchQuery.toLowerCase();
-      products = products.filter(p =>
-        p.name.toLowerCase().includes(lowercasedQuery) ||
-        p.id.toLowerCase().includes(lowercasedQuery) ||
-        p.category.toLowerCase().includes(lowercasedQuery)
-      );
-    }
-    if (lobFilter) { products = products.filter(p => p.lob === lobFilter); }
-    if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
-    if (categoryFilter) { products = products.filter(p => p.category === categoryFilter); }
-
-    // Sorting
-    products.sort((a, b) => {
-      if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
-      if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
-      return 0;
-    });
-
-    return products;
-  }, [searchQuery, lobFilter, statusFilter, categoryFilter, sortOrder]);
-
-  const groupedProducts = useMemo(() => {
-    if (groupBy === 'None') return null;
-    return sortedProducts.reduce((acc, product) => {
-      const key = product[groupBy.toLowerCase() as keyof Product] as string;
-      if (!acc[key]) { acc[key] = []; }
-      acc[key].push(product);
-      return acc;
-    }, {} as Record<string, Product[]>);
-  }, [sortedProducts, groupBy]);
-
-  const productCount = sortedProducts.length;
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -149,53 +98,54 @@ const Home: React.FC = () => {
         items={lobTabOptions}
       />
 
-      <Row gutter={[16, 16]} justify="space-between" align="bottom">
-        <Col>
-          <SearchBar
-            placeholder="Search by name, ID, or category..."
-            onChange={setSearchQuery}
-            style={{ width: 300 }}
-            size="large"
-          />
-        </Col>
-        <Col>
-          <Space>
-            <FilterDropdown
-              placeholder="All statuses"
-              options={STATUS_SELECT_OPTIONS}
-              value={statusFilter}
-              onChange={(value) => setStatusFilter((value as Status) ?? null)}
-              size="large"
-              style={{ width: 180 }}
-              dropdownStyle={{ minWidth: 220 }}
-            />
-            <FilterDropdown
-              placeholder="All categories"
-              options={categoryOptions}
-              value={categoryFilter}
-              onChange={(value) => setCategoryFilter(value ?? null)}
-              size="large"
-              showOptionTooltip
-              style={{ width: 180 }}
-              dropdownStyle={{ minWidth: 280 }}
-            />
-            <ViewOptions 
-              groupBy={groupBy}
-              setGroupBy={setGroupBy}
-              sortOrder={sortOrder}
-              setSortOrder={setSortOrder}
-              groupByOptions={GROUP_BY_OPTIONS}
-              sortOptions={SORT_OPTIONS}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              isGroupingDisabled={viewMode === 'list'}
-            />
-          </Space>
-        </Col>
-      </Row>
+      <FilterBar
+        search={{
+          placeholder: "Search by name, ID, or category...",
+          onChange: setSearchQuery,
+        }}
+        filters={[
+          {
+            placeholder: "All statuses",
+            options: STATUS_SELECT_OPTIONS,
+            value: statusFilter,
+            onChange: (value) => setStatusFilter((value as Status) ?? null),
+            style: { width: 180 },
+            dropdownStyle: { minWidth: 220 },
+          },
+          {
+            placeholder: "All categories",
+            options: categoryOptions,
+            value: categoryFilter,
+            onChange: (value) => setCategoryFilter(value ?? null),
+            showOptionTooltip: true,
+            style: { width: 180 },
+            dropdownStyle: { minWidth: 280 },
+          },
+        ]}
+        viewOptions={{
+          groupBy: {
+            value: groupBy,
+            setter: setGroupBy,
+            options: GROUP_BY_OPTIONS,
+          },
+          sortOrder: {
+            value: sortOrder,
+            setter: setSortOrder,
+            options: SORT_OPTIONS,
+          },
+          viewMode: {
+            value: viewMode,
+            setter: setViewMode,
+          },
+        }}
+      />
 
       {viewMode === 'list' ? (
-        <ProductListTable products={sortedProducts} />
+        groupedProducts ? (
+          <GroupedProductListTable groupedProducts={groupedProducts} />
+        ) : (
+          <ProductListTable products={sortedProducts} />
+        )
       ) : groupedProducts ? (
         <GroupedProductList groupedProducts={groupedProducts} />
       ) : (

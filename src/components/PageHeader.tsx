@@ -1,19 +1,19 @@
 import React from 'react';
-import { Typography, Space, theme } from 'antd';
-import { Box, ArrowLeft } from 'lucide-react';
+import { Typography, Space, theme, Button } from 'antd';
+import { ArrowLeft } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
-  preTitle?: string;
-  title: string;
+  preTitle?: React.ReactNode;
+  title?: React.ReactNode;
   subtitle?: React.ReactNode;
-  actions?: React.ReactNode;
   tagContent?: React.ReactNode;
   onBack?: () => void;
+  actions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, actions, tagContent, onBack }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, tagContent, onBack, actions }) => {
   const { token } = theme.useToken();
 
   return (
@@ -27,18 +27,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, acti
     >
       <Space align="start" size="middle">
         {onBack && (
-          <div onClick={onBack} style={{ cursor: 'pointer', marginTop: '8px' }}>
-            <ArrowLeft size={24} style={{ color: token.colorTextSecondary }} />
-          </div>
+          <Button 
+            shape="circle" 
+            icon={<ArrowLeft size={16} />} 
+            onClick={onBack}
+          />
         )}
         <Space direction="vertical" size={2}>
           {preTitle && (
-            <Space align="center" size={4}>
-              <Box size={14} style={{ color: token.colorTextSecondary }} />
-              <Text type="secondary" style={{ textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
-                {preTitle}
-              </Text>
-            </Space>
+            <div style={{ color: token.colorTextSecondary, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
+              {preTitle}
+            </div>
           )}
           <Space align="center" size="middle">
             <Title level={1} style={{ margin: 0, fontWeight: 500 }}>

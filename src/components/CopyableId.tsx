@@ -6,9 +6,10 @@ import './CopyableId.css';
 interface CopyableIdProps {
   id: string;
   size?: 'small' | 'medium';
+  showId?: boolean;
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small', showId = true }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -38,7 +39,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
         fontSize: isMedium ? 14 : 13,
       }}
     >
-      {id}
+      {showId && id}
     </Button>
   );
 };

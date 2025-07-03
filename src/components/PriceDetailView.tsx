@@ -2,7 +2,7 @@ import React from 'react';
 import { List, Typography, Space, Descriptions } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import type { Sku, PricePoint, Product } from '../utils/types';
-import { formatCurrency, toSentenceCase } from '../utils/formatting';
+import { formatCurrency, toSentenceCase } from '../utils/formatters';
 
 interface PriceDetailViewProps {
   sku: Sku;

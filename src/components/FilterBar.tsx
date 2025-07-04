@@ -4,7 +4,8 @@ import { ListFilter } from 'lucide-react';
 import { zIndex } from '../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
-import ViewOptions, { type ViewMode } from './ViewOptions';
+import ViewOptions from './ViewOptions';
+import ViewToggle, { type ViewMode } from './ViewToggle';
 
 export interface FilterConfig {
   placeholder: string;
@@ -36,10 +37,10 @@ interface FilterBarProps {
       setter: (order: string) => void;
       options: string[];
     };
-    viewMode?: {
-      value: ViewMode;
-      setter: (mode: ViewMode) => void;
-    };
+  };
+  viewMode?: {
+    value: ViewMode;
+    setter: (mode: ViewMode) => void;
   };
 }
 
@@ -48,9 +49,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
   filters = [],
   onClearAll,
   viewOptions,
+  viewMode,
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.viewMode;
+  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder;
 
   const activeFilterCount = filters.filter(f => f.value != null).length;
 
@@ -68,12 +70,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <>
       <Row gutter={[16, 16]} justify="space-between" align="middle">
-        <Col>
+        <Col flex="auto">
           {search && (
             <SearchBar
               placeholder={search.placeholder}
               onChange={search.onChange}
-              style={search.style || { width: 300 }}
+              style={{ ...search.style, width: '100%' }}
               size="large"
             />
           )}
@@ -102,9 +104,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 sortOrder={viewOptions.sortOrder?.value}
                 setSortOrder={viewOptions.sortOrder?.setter}
                 sortOptions={viewOptions.sortOrder?.options}
+              />
+            )}
 
-                viewMode={viewOptions.viewMode?.value}
-                setViewMode={viewOptions.viewMode?.setter}
+            {viewMode && (
+              <ViewToggle
+                viewMode={viewMode.value}
+                onChange={viewMode.setter}
               />
             )}
           </Space>

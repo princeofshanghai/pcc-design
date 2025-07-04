@@ -6,7 +6,7 @@ import { useProductFilters } from '../hooks/useProductFilters';
 import PageHeader from '../components/PageHeader';
 import GroupedProductList from '../components/GroupedProductList';
 import ProductList from '../components/ProductList';
-import type { ViewMode } from '../components/ViewOptions';
+import type { ViewMode } from '../components/ViewToggle';
 import ProductListTable from '../components/ProductListTable';
 import GroupedProductListTable from '../components/GroupedProductListTable';
 import CountTag from '../components/CountTag';
@@ -139,10 +139,10 @@ const Home: React.FC = () => {
             setter: setSortOrder,
             options: SORT_OPTIONS,
           },
-          viewMode: {
-            value: viewMode,
-            setter: setViewMode,
-          },
+        }}
+        viewMode={{
+          value: viewMode,
+          setter: setViewMode,
         }}
       />
 

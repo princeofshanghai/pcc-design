@@ -1,12 +1,10 @@
 import React from 'react';
-import { Badge, Button, Dropdown, Segmented, Space, Typography, Divider } from 'antd';
-import { Settings2, Check, LayoutGrid, List } from 'lucide-react';
+import { Badge, Button, Dropdown, Typography, Divider } from 'antd';
+import { Settings2, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { toSentenceCase } from '../utils/formatters';
 
 const { Text } = Typography;
-
-export type ViewMode = 'card' | 'list';
 
 interface ViewOptionsProps {
   groupBy?: string;
@@ -15,8 +13,6 @@ interface ViewOptionsProps {
   sortOrder?: string;
   setSortOrder?: (value: string) => void;
   sortOptions?: string[];
-  viewMode?: ViewMode;
-  setViewMode?: (value: ViewMode) => void;
   isGroupingDisabled?: boolean;
 }
 
@@ -27,8 +23,6 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   setSortOrder,
   groupByOptions,
   sortOptions,
-  viewMode,
-  setViewMode,
   isGroupingDisabled = false,
 }) => {
   const handleClearAll = (e: React.MouseEvent) => {
@@ -42,7 +36,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
   
-  let menuItems: MenuProps['items'] = [];
+  const menuItems: MenuProps['items'] = [];
 
   if (showGroupBy) {
     menuItems.push({
@@ -85,22 +79,30 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     });
   }
 
-  if (showGroupBy || showSortBy) {
+  if ((showGroupBy || showSortBy) && isViewActive) {
     menuItems.push({ type: 'divider' });
     menuItems.push({
       key: 'clear-all',
       label: (
-        <Button size="small" onClick={handleClearAll}>
+        <Button 
+          type="link" 
+          danger
+          size="small" 
+          onClick={handleClearAll}
+          style={{ paddingLeft: 4 }}
+        >
           {toSentenceCase('Clear all')}
         </Button>
       ),
-      style: { padding: '8px 12px', height: 'auto' },
+      style: { padding: '4px 8px', height: 'auto' },
     });
   }
   
-  const showViewMode = viewMode && setViewMode;
+  const isDisabled = menuItems.length === 0;
 
-  const isDisabled = menuItems.length === 0 && !showViewMode;
+  if (isDisabled) {
+    return null;
+  }
 
   return (
     <Dropdown 
@@ -108,30 +110,6 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       trigger={['click']}
       overlayStyle={{ minWidth: 200 }}
       disabled={isDisabled}
-      dropdownRender={(menu) => (
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08)' }}>
-          {showViewMode && (
-            <>
-              <div style={{ padding: '8px 12px' }}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Text type="secondary" style={{ padding: '0 4px', marginBottom: '4px' }}>{toSentenceCase('View as')}</Text>
-                  <Segmented
-                    options={[
-                      { value: 'card', icon: <LayoutGrid size={16} /> },
-                      { value: 'list', icon: <List size={16} /> },
-                    ]}
-                    value={viewMode}
-                    onChange={(value) => setViewMode(value as ViewMode)}
-                    block
-                  />
-                </Space>
-              </div>
-              {menuItems.length > 0 && <Divider style={{ margin: 0 }} />}
-            </>
-          )}
-          {menuItems.length > 0 && React.cloneElement(menu as React.ReactElement<any>, { style: { boxShadow: 'none' } })}
-        </div>
-      )}
     >
       <Button 
         icon={

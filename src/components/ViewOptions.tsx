@@ -1,10 +1,9 @@
 import React from 'react';
-import { Badge, Button, Dropdown, Typography, Divider } from 'antd';
+import { Badge, Button, Dropdown } from 'antd';
 import { Settings2, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { toSentenceCase } from '../utils/formatters';
 
-const { Text } = Typography;
 
 interface ViewOptionsProps {
   groupBy?: string;

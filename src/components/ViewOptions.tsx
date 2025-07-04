@@ -1,5 +1,5 @@
-import React from 'react';
-import { Badge, Button, Dropdown } from 'antd';
+import React, { useState } from 'react';
+import { Badge, Button, Dropdown, theme } from 'antd';
 import { Settings2, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { toSentenceCase } from '../utils/formatters';
@@ -24,10 +24,21 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   sortOptions,
   isGroupingDisabled = false,
 }) => {
+  const { token } = theme.useToken();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpenChange = (flag: boolean, info?: { source?: 'trigger' | 'menu' }) => {
+    if (info?.source === 'menu' && !flag) {
+      return;
+    }
+    setIsOpen(flag);
+  };
+
   const handleClearAll = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (setGroupBy) setGroupBy('None');
     if (setSortOrder) setSortOrder('None');
+    setIsOpen(false);
   };
 
   const isViewActive = (groupBy && groupBy !== 'None') || (sortOrder && sortOrder !== 'None');
@@ -48,10 +59,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {toSentenceCase(opt)}
-            {groupBy === opt && !isGroupingDisabled && <Check size={16} />}
+            {groupBy === opt && !isGroupingDisabled && <Check size={16} color={token.colorPrimary} />}
           </div>
         ),
-        onClick: () => !isGroupingDisabled && setGroupBy(opt),
       })),
     });
   }
@@ -70,24 +80,24 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         label: (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {toSentenceCase(opt)}
-            {sortOrder === opt && <Check size={16} />}
+            {sortOrder === opt && <Check size={16} color={token.colorPrimary} />}
           </div>
         ),
-        onClick: () => setSortOrder(opt),
       })),
     });
   }
 
-  if ((showGroupBy || showSortBy) && isViewActive) {
+  if (showGroupBy || showSortBy) {
     menuItems.push({ type: 'divider' });
     menuItems.push({
       key: 'clear-all',
       label: (
-        <Button 
-          type="link" 
+        <Button
+          type="link"
           danger
-          size="small" 
+          size="small"
           onClick={handleClearAll}
+          disabled={!isViewActive}
           style={{ paddingLeft: 4 }}
         >
           {toSentenceCase('Clear all')}
@@ -103,9 +113,25 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     return null;
   }
 
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key.startsWith('group-')) {
+      const value = key.replace('group-', '');
+      if (!isGroupingDisabled && setGroupBy) {
+        setGroupBy(value);
+      }
+    } else if (key.startsWith('sort-')) {
+      const value = key.replace('sort-', '');
+      if (setSortOrder) {
+        setSortOrder(value);
+      }
+    }
+  };
+
   return (
     <Dropdown 
-      menu={{ items: menuItems }}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      menu={{ items: menuItems, onClick: handleMenuClick }}
       trigger={['click']}
       overlayStyle={{ minWidth: 200 }}
       disabled={isDisabled}

@@ -37,10 +37,10 @@ interface FilterBarProps {
       setter: (order: string) => void;
       options: string[];
     };
-  };
-  viewMode?: {
-    value: ViewMode;
-    setter: (mode: ViewMode) => void;
+    };
+    viewMode?: {
+      value: ViewMode;
+      setter: (mode: ViewMode) => void;
   };
 }
 

@@ -27,7 +27,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
     <div
       className="product-list-item"
       style={{
-        padding: '16px 24px',
+        padding: '20px 32px 20px 24px',
         border: '1px solid #e8e8e8',
         borderRadius: '8px',
         backgroundColor: isHovered ? '#fafafa' : '#ffffff',

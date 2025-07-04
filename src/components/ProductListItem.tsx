@@ -43,9 +43,12 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
       onClick={handleNavigate}
     >
       <Space direction="vertical" size={4} style={{ alignItems: 'flex-start' }}>
-        <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
-          {product.name}
-        </Title>
+        <Space align="center">
+          <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
+            {product.name}
+          </Title>
+          <StatusTag status={product.status} showLabel={false} size={16} />
+        </Space>
         <Space>
           <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'rgba(0, 0, 0, 0.88)' }}>{product.id}</span>
           <CopyableId id={product.id} showId={false} />
@@ -60,7 +63,6 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
 
       <Space size={24} align="center">
         <Text>{skuCount} SKU{skuCount !== 1 ? 's' : ''}</Text>
-        <StatusTag status={product.status} />
       </Space>
     </div>
   );

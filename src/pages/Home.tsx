@@ -56,7 +56,7 @@ const Home: React.FC = () => {
         key: 'All', 
         label: (
           <Space>
-            <span>All LOBs</span>
+            <span>All</span>
             <CountTag count={lobCounts.All} />
           </Space>
         )

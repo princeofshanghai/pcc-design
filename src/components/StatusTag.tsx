@@ -7,6 +7,8 @@ const { Text } = Typography;
 
 interface StatusTagProps {
   status: Status;
+  showLabel?: boolean;
+  size?: number;
 }
 
 type ColorToken = 'colorSuccessText' | 'colorTextSecondary' | 'colorErrorText';
@@ -29,7 +31,7 @@ const statusConfig: Record<Status, { icon: React.FC<any>; description: string; c
   },
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
+const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 14 }) => {
   const { token } = theme.useToken();
   const { icon: Icon, description, colorToken } = statusConfig[status];
   const color = token[colorToken];
@@ -37,8 +39,8 @@ const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
   return (
     <Tooltip title={description}>
       <Space size={4} style={{ alignItems: 'center' }}>
-        <Icon size={14} color={color} />
-        <Text style={{ lineHeight: '1' }}>{status}</Text>
+        <Icon size={size} color={color} />
+        {showLabel && <Text style={{ lineHeight: '1' }}>{status}</Text>}
       </Space>
     </Tooltip>
   );

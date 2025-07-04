@@ -1,5 +1,7 @@
-import React from 'react';
-import { Row, Col, Space } from 'antd';
+import React, { useState } from 'react';
+import { Row, Col, Space, Button, Drawer, Badge } from 'antd';
+import { ListFilter } from 'lucide-react';
+import { zIndex } from '../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions, { type ViewMode } from './ViewOptions';
@@ -21,6 +23,7 @@ interface FilterBarProps {
     style?: React.CSSProperties;
   };
   filters?: FilterConfig[];
+  onClearAll?: () => void;
   viewOptions?: {
     groupBy?: {
       value: string;
@@ -43,56 +46,117 @@ interface FilterBarProps {
 const FilterBar: React.FC<FilterBarProps> = ({
   search,
   filters = [],
+  onClearAll,
   viewOptions,
 }) => {
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.viewMode;
 
+  const activeFilterCount = filters.filter(f => f.value != null).length;
+
+  const showDrawer = () => setDrawerVisible(true);
+  const hideDrawer = () => setDrawerVisible(false);
+
+  const handleClearAll = () => {
+    if (onClearAll) {
+      onClearAll();
+    }
+  };
+
+  const hasFilters = filters.length > 0;
+
   return (
-    <Row gutter={[16, 16]} justify="space-between" align="bottom">
-      <Col>
-        {search && (
-          <SearchBar
-            placeholder={search.placeholder}
-            onChange={search.onChange}
-            style={search.style || { width: 300 }}
-            size="large"
-          />
-        )}
-      </Col>
-      <Col>
-        <Space>
-          {filters.map((filter, index) => (
-            <FilterDropdown
-              key={index}
-              placeholder={filter.placeholder}
-              options={filter.options}
-              value={filter.value}
-              onChange={filter.onChange}
+    <>
+      <Row gutter={[16, 16]} justify="space-between" align="middle">
+        <Col>
+          {search && (
+            <SearchBar
+              placeholder={search.placeholder}
+              onChange={search.onChange}
+              style={search.style || { width: 300 }}
               size="large"
-              style={filter.style || { width: 180 }}
-              dropdownStyle={filter.dropdownStyle}
-              showOptionTooltip={filter.showOptionTooltip}
-            />
-          ))}
-
-          {shouldRenderViewOptions && viewOptions && (
-            <ViewOptions 
-              groupBy={viewOptions.groupBy?.value}
-              setGroupBy={viewOptions.groupBy?.setter}
-              groupByOptions={viewOptions.groupBy?.options}
-              isGroupingDisabled={viewOptions.groupBy?.disabled}
-
-              sortOrder={viewOptions.sortOrder?.value}
-              setSortOrder={viewOptions.sortOrder?.setter}
-              sortOptions={viewOptions.sortOrder?.options}
-
-              viewMode={viewOptions.viewMode?.value}
-              setViewMode={viewOptions.viewMode?.setter}
             />
           )}
+        </Col>
+        <Col>
+          <Space>
+            {hasFilters && (
+               <Badge count={activeFilterCount}>
+                <Button 
+                  icon={<ListFilter size={16} />} 
+                  onClick={showDrawer}
+                  size="large"
+                >
+                  Filters
+                </Button>
+              </Badge>
+            )}
+
+            {shouldRenderViewOptions && viewOptions && (
+              <ViewOptions 
+                groupBy={viewOptions.groupBy?.value}
+                setGroupBy={viewOptions.groupBy?.setter}
+                groupByOptions={viewOptions.groupBy?.options}
+                isGroupingDisabled={viewOptions.groupBy?.disabled}
+
+                sortOrder={viewOptions.sortOrder?.value}
+                setSortOrder={viewOptions.sortOrder?.setter}
+                sortOptions={viewOptions.sortOrder?.options}
+
+                viewMode={viewOptions.viewMode?.value}
+                setViewMode={viewOptions.viewMode?.setter}
+              />
+            )}
+          </Space>
+        </Col>
+      </Row>
+
+      <Drawer
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 500 }}>Filters</span>
+            <Button 
+              type="link" 
+              danger
+              onClick={handleClearAll} 
+              disabled={activeFilterCount === 0}
+              style={{ padding: 0 }}
+            >
+              Clear All
+            </Button>
+          </div>
+        }
+        placement="right"
+        onClose={hideDrawer}
+        open={drawerVisible}
+        zIndex={zIndex.drawer}
+        footer={
+          <div style={{ textAlign: 'right' }}>
+            <Button type="default" onClick={hideDrawer}>
+              Done
+            </Button>
+          </div>
+        }
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {filters.map((filter, index) => (
+            <Space direction="vertical" style={{ width: '100%' }} key={index}>
+              <div style={{ fontWeight: 500 }}>{filter.placeholder.replace('All ', '')}</div>
+              <FilterDropdown
+                placeholder={filter.placeholder}
+                options={filter.options}
+                value={filter.value}
+                onChange={filter.onChange}
+                size="large"
+                style={{ width: '100%', ...(filter.style || {}) }}
+                dropdownStyle={filter.dropdownStyle}
+                showOptionTooltip={filter.showOptionTooltip}
+              />
+            </Space>
+          ))}
         </Space>
-      </Col>
-    </Row>
+      </Drawer>
+    </>
   );
 };
 

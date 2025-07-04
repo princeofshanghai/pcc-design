@@ -141,7 +141,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         } 
         size="large"
       >
-        {toSentenceCase('View')}
+        {toSentenceCase('Display')}
       </Button>
     </Dropdown>
   );

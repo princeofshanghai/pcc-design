@@ -85,6 +85,11 @@ const Home: React.FC = () => {
     setCategoryFilter(null);
   };
 
+  const clearAllProductFilters = () => {
+    setStatusFilter(null);
+    setCategoryFilter(null);
+  };
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
@@ -103,6 +108,7 @@ const Home: React.FC = () => {
           placeholder: "Search by name, ID, or category...",
           onChange: setSearchQuery,
         }}
+        onClearAll={clearAllProductFilters}
         filters={[
           {
             placeholder: "All statuses",

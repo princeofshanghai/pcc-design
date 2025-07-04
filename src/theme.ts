@@ -3,6 +3,7 @@ import type { LOB } from './utils/types';
 
 export const zIndex = {
   header: 1001,
+  drawer: 1020,
   modal: 1050,
 };
 

@@ -61,6 +61,13 @@ const ProductDetail: React.FC = () => {
     skuCount,
   } = useSkuFilters(product?.skus || []);
 
+  const clearAllSkuFilters = () => {
+    setRegionFilter(null);
+    setChannelFilter(null);
+    setStatusFilter(null);
+    setBillingCycleFilter(null);
+  };
+
   useEffect(() => {
     // Set the max-width for this page
     setMaxWidth('1280px');
@@ -135,6 +142,7 @@ const ProductDetail: React.FC = () => {
                   placeholder: "Search by SKU ID...",
                   onChange: setSearchQuery,
                 }}
+                onClearAll={clearAllSkuFilters}
                 filters={[
                   {
                     placeholder: toSentenceCase("All Regions"),

@@ -115,8 +115,6 @@ const Home: React.FC = () => {
             options: STATUS_SELECT_OPTIONS,
             value: statusFilter,
             onChange: (value) => setStatusFilter((value as Status) ?? null),
-            style: { width: 180 },
-            dropdownStyle: { minWidth: 220 },
           },
           {
             placeholder: "All categories",
@@ -124,8 +122,6 @@ const Home: React.FC = () => {
             value: categoryFilter,
             onChange: (value) => setCategoryFilter(value ?? null),
             showOptionTooltip: true,
-            style: { width: 180 },
-            dropdownStyle: { minWidth: 280 },
           },
         ]}
         viewOptions={{

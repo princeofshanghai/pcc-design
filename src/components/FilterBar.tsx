@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions from './ViewOptions';
 import ViewToggle, { type ViewMode } from './ViewToggle';
+import { toSentenceCase } from '../utils/formatters/text';
 
 export interface FilterConfig {
   placeholder: string;
@@ -144,10 +145,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
           </div>
         }
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space direction="vertical" style={{ width: '100%' }} size={32}>
           {filters.map((filter, index) => (
             <Space direction="vertical" style={{ width: '100%' }} key={index}>
-              <div style={{ fontWeight: 500 }}>{filter.placeholder.replace('All ', '')}</div>
+              <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
               <FilterDropdown
                 placeholder={filter.placeholder}
                 options={filter.options}

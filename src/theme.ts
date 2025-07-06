@@ -30,7 +30,7 @@ const themeConfig: ThemeConfig = {
     colorTextQuaternary: 'rgba(0, 0, 0, 0.45)',
     colorBorder: '#d9d9d9',
     colorBorderSecondary: '#e5e5e5',
-    colorBgLayout: '#fafafa',
+    colorBgLayout: '#ffffff',
     colorBgContainer: '#ffffff',
   },
   components: {

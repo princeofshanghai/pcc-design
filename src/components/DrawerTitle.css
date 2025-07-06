@@ -1,0 +1,7 @@
+.drawer-title-text {
+  font-size: 16px; /* Larger than default, adjust as needed */
+  font-weight: 500;
+  color: #222; /* Optional: use your theme's primary text color */
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+} 

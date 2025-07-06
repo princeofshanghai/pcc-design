@@ -7,6 +7,7 @@ import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions from './ViewOptions';
 import ViewToggle, { type ViewMode } from './ViewToggle';
 import { toSentenceCase } from '../utils/formatters/text';
+import './DrawerTitle.css';
 
 export interface FilterConfig {
   placeholder: string;
@@ -121,7 +122,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
       <Drawer
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 500 }}>Filters</span>
+            <span className="drawer-title-text">Filters</span>
             <Button 
               type="link" 
               danger

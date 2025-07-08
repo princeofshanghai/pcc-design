@@ -20,9 +20,10 @@ This document breaks down the work for the third epic: building the dedicated SK
     - [x] 5.2.4: Display the SKU's `Status` using the `StatusTag` component in the page header.
 
 - [ ] **5.3: Display SKU-Level Details**
-    - [ ] 5.3.1: Create sections on the page to display all key SKU attributes, using the `DetailSection` and `AttributeDisplay` components for consistency.
-    - [ ] 5.3.2: Add a section for "Configuration" to show attributes like `Region`, `Sales Channel`, and `Billing Cycle`.
-    - [ ] 5.3.3: Add a dedicated section for "Pricing" that uses the `PriceDetailView.tsx` component to show the full price and tax information (this fulfills AC2).
-    - [ ] 5.3.4: Add a section to list all associated "Digital Goods" (fulfills AC3).
-    - [ ] 5.3.5: Add a section to display any SKU-level attribute overrides if they exist.
-    - [ ] 5.3.6: When an override is displayed, ensure the original product-level default is also shown for comparison. 
+    - [x] 5.3.1: Create sections on the page to display all key SKU attributes, using the `DetailSection` and `AttributeDisplay` components for consistency. For any attribute that differs from the parent Product, add visual indicators (badges/styling) to highlight the override inline.
+    - [x] 5.3.2: Add a section for "Configuration" to show attributes like `Region`, `Sales Channel`, and `Billing Cycle`.
+    - [x] 5.3.3: Add a dedicated section for "Pricing" that uses the `PriceDetailView.tsx` component to show the full price and tax information (this fulfills AC2).
+    - [x] 5.3.4: Add a section to list all associated "Digital Goods" (fulfills AC3). If SKU has custom digital goods, the SKU list completely replaces the Product default list (not combined).
+    - [x] 5.3.5: Add a summary section that lists all SKU-level attribute overrides for quick scanning (e.g., "This SKU overrides: Pricing, Digital Goods, Sales Channel").
+    - [x] 5.3.6: For each override, provide contextual comparison (e.g., "SKU: Annual | Product Default: Monthly") using consistent visual treatment across all attribute types.
+    - [ ] 5.3.7: Ensure override indicators and comparison patterns are consistent across Configuration, Pricing, Digital Goods, and any other attribute sections. 

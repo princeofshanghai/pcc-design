@@ -1,101 +1,89 @@
 import React from 'react';
-import { List, Typography, Space, Descriptions } from 'antd';
-import { ArrowRight } from 'lucide-react';
-import type { Sku, PricePoint, Product } from '../utils/types';
-import { formatCurrency, toSentenceCase } from '../utils/formatters';
+import { List, Typography, Space } from 'antd';
+import type { Sku, PricePoint } from '../utils/types';
+import { formatCurrency, formatEffectiveDateRange } from '../utils/formatters';
+import StatusTag from './StatusTag';
+import CountTag from './CountTag';
+import DetailSection from './DetailSection';
 
 interface PriceDetailViewProps {
   sku: Sku;
-  product: Product;
 }
 
-const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
-  const overrides = [];
+const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku }) => {
+  const { price } = sku;
 
-  if (sku.taxClass && sku.taxClass !== product.taxClass) {
-    overrides.push({
-      label: 'Tax Class',
-      productValue: product.taxClass,
-      skuValue: sku.taxClass,
-    });
-  }
+  // Group core currencies (USD, EUR, GBP, CAD, etc.) vs others
+  const coreCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD'];
+  const corePoints = price.pricePoints.filter(p => coreCurrencies.includes(p.currencyCode));
+  const otherPoints = price.pricePoints.filter(p => !coreCurrencies.includes(p.currencyCode));
 
-  if (sku.paymentFailureFreeToPaidGracePeriod && sku.paymentFailureFreeToPaidGracePeriod !== product.paymentFailureFreeToPaidGracePeriod) {
-    overrides.push({
-      label: 'Grace Period (Free-Paid)',
-      productValue: `${product.paymentFailureFreeToPaidGracePeriod} days`,
-      skuValue: `${sku.paymentFailureFreeToPaidGracePeriod} days`,
-    });
-  }
+  // Build title with inline status
+  const priceTitle = (
+    <Space align="center" size="small">
+      <span>Price</span>
+      {price.status && <StatusTag status={price.status} />}
+    </Space>
+  );
 
-  if (sku.paymentFailurePaidToPaidGracePeriod && sku.paymentFailurePaidToPaidGracePeriod !== product.paymentFailurePaidToPaidGracePeriod) {
-    overrides.push({
-      label: 'Grace Period (Paid-Paid)',
-      productValue: `${product.paymentFailurePaidToPaidGracePeriod} days`,
-      skuValue: `${sku.paymentFailurePaidToPaidGracePeriod} days`,
-    });
-  }
+  // Build subtitle with Price ID and effective dates
+  const priceSubtitle = [
+    price.id && `${price.id}`,
+    (price.startDate || price.endDate) && formatEffectiveDateRange(price.startDate, price.endDate)
+  ].filter(Boolean).join(' • ');
 
-  if (sku.seatMin && sku.seatMin !== product.seatMin) {
-    overrides.push({
-      label: 'Seat Min',
-      productValue: product.seatMin,
-      skuValue: sku.seatMin,
-    });
-  }
-
-  if (sku.seatMax && sku.seatMax !== product.seatMax) {
-    overrides.push({
-      label: 'Seat Max',
-      productValue: product.seatMax,
-      skuValue: sku.seatMax,
-    });
-  }
-
-  // Naive array comparison. For more complex scenarios, a deep equals would be better.
-  if (sku.digitalGoods && JSON.stringify(sku.digitalGoods) !== JSON.stringify(product.digitalGoods)) {
-     overrides.push({
-      label: 'Digital Goods',
-      productValue: product.digitalGoods?.join(', ') || 'None',
-      skuValue: sku.digitalGoods?.join(', ') || 'None',
-    });
-  }
-  
   return (
-    <div style={{ padding: '0 24px 16px 24px', background: '#fafafa' }}>
-      {overrides.length > 0 && (
-        <div style={{ padding: '16px 0' }}>
-          <Typography.Text strong>Overrides</Typography.Text>
-          <Descriptions
-            bordered
-            column={1}
-            size="small"
-            style={{ marginTop: '8px' }}
-            items={overrides.map(o => ({
-              key: o.label,
-              label: toSentenceCase(o.label),
-              children: (
-                <Space align="center">
-                  <Typography.Text delete>{o.productValue}</Typography.Text>
-                  <ArrowRight size={14} color="#888" />
-                  <Typography.Text>{o.skuValue}</Typography.Text>
-                </Space>
-              ),
-            }))}
-          />
-        </div>
-      )}
-      <List
-        header={<Typography.Text strong>Price Points</Typography.Text>}
-        size="small"
-        dataSource={sku.price.pricePoints}
-        renderItem={(pricePoint: PricePoint) => (
-          <List.Item>
-            <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
-          </List.Item>
+    <DetailSection 
+      title={priceTitle}
+      subtitle={priceSubtitle}
+    >
+      {/* Price Points Section */}
+      <div style={{ marginTop: '8px' }}>
+        <Space align="center" style={{ marginBottom: '12px' }}>
+          <Typography.Text strong>Price Points</Typography.Text>
+          <CountTag count={price.pricePoints.length} />
+          <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+            currencies
+          </Typography.Text>
+        </Space>
+
+        {/* Core Currencies */}
+        {corePoints.length > 0 && (
+          <div style={{ marginBottom: '16px' }}>
+            <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+              Core Currencies
+            </Typography.Text>
+            <List
+              size="small"
+              dataSource={corePoints}
+              renderItem={(pricePoint: PricePoint) => (
+                <List.Item style={{ padding: '4px 0', borderBottom: 'none' }}>
+                  <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
+                </List.Item>
+              )}
+            />
+          </div>
         )}
-      />
-    </div>
+
+        {/* Other Currencies */}
+        {otherPoints.length > 0 && (
+          <div>
+            <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+              Other Currencies ({otherPoints.length})
+            </Typography.Text>
+            <List
+              size="small"
+              dataSource={otherPoints}
+              renderItem={(pricePoint: PricePoint) => (
+                                  <List.Item style={{ padding: '2px 0', borderBottom: 'none' }}>
+                    <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
+                  </List.Item>
+              )}
+            />
+          </div>
+        )}
+      </div>
+    </DetailSection>
   );
 };
 

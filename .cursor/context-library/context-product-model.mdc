@@ -62,6 +62,6 @@ The actual currency value (e.g., USD 999.99). Multiple price points live under a
 
 ## Notes
 - A single Product may have many SKUs.
-- Each SKU has one or more Price versions.
+- Each SKU may only have one price.
 - Each Price holds multiple currency-specific Price Points.
 - SKUs are never edited—new versions are created to support safe experimentation.

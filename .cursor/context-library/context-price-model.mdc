@@ -9,10 +9,11 @@ alwaysApply: false
 
 ## 1. Price & Price Point Logic
 
-Each **SKU** can have multiple **Price** versions (e.g., for time-based changes or experiments). Each Price contains one or more **Price Points**—one per currency.
+Each **SKU** has exactly **one Price**. For time-based changes or experiments, create a new SKU rather than versioning the Price. Each Price contains one or more **Price Points**—one per currency.
 
-- **Price** = versioned container with effective dates (start/end).
+- **Price** = container with effective dates (start/end) for when this SKU's pricing is active.
 - **Price Point** = currency + amount (e.g., USD 999.00, EUR 899.00).
+- **SKU** = unit of experimentation and time-based changes.
 
 Prices can be drafted, scheduled, or live. Price Points inherit their parent’s dates by default, but can override them for new currencies.
 

@@ -4,6 +4,7 @@ import type { Sku, Status, SalesChannel, Product } from '../utils/types';
 import CopyableId from './CopyableId';
 import StatusTag from './StatusTag';
 import SalesChannelDisplay from './SalesChannelDisplay';
+import OverrideIndicator from './OverrideIndicator';
 import type { ColumnsType } from 'antd/es/table';
 import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
 import CountTag from './CountTag';
@@ -16,15 +17,36 @@ interface SkuListTableProps {
   product: Product;
 }
 
+// Helper function to check if a SKU has any overrides
+const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
+  // Helper function to check if an attribute is overridden
+  const isOverridden = (skuValue: any) => {
+    return skuValue !== undefined && skuValue !== null;
+  };
+
+  if (isOverridden(sku.taxClass) && sku.taxClass !== product.taxClass) return true;
+  if ((isOverridden(sku.seatMin) && sku.seatMin !== product.seatMin) || 
+      (isOverridden(sku.seatMax) && sku.seatMax !== product.seatMax)) return true;
+  if (isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && 
+      sku.paymentFailureFreeToPaidGracePeriod !== product.paymentFailureFreeToPaidGracePeriod) return true;
+  if (isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && 
+      sku.paymentFailurePaidToPaidGracePeriod !== product.paymentFailurePaidToPaidGracePeriod) return true;
+  if (isOverridden(sku.digitalGoods) && 
+      JSON.stringify(sku.digitalGoods) !== JSON.stringify(product.digitalGoods)) return true;
+
+  return false;
+};
+
 export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
   {
     title: toSentenceCase('SKU ID'),
     dataIndex: 'id',
     key: 'id',
-    render: (id: string) => (
+    render: (id: string, record: Sku) => (
       <Space>
         <Link to={`/product/${product.id}/sku/${id}`}>{id}</Link>
         <CopyableId id={id} showId={false} />
+        {hasSkuOverrides(record, product) && <OverrideIndicator />}
       </Space>
     ),
     className: 'table-col-first',
@@ -112,7 +134,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
         size="small"
         expandable={{
           expandedRowRender: (record) => (
-            <PriceDetailView sku={record} product={product} />
+            <PriceDetailView sku={record} />
           ),
           rowExpandable: (record) => record.id !== 'Not Expandable',
         }}

@@ -146,6 +146,8 @@ export const mockProducts: Product[] = [
         salesChannel: 'Desktop',
         billingCycle: 'Monthly',
         price: { 
+          id: 'price_prem_q4_2024_monthly',
+          status: 'Active',
           startDate: '2024-08-01', 
           endDate: '2024-12-31',
           pricePoints: [
@@ -180,6 +182,8 @@ export const mockProducts: Product[] = [
         salesChannel: 'Desktop',
         billingCycle: 'Monthly',
         price: { 
+          id: 'price_prem_q1_2025_monthly',
+          status: 'Active',
           startDate: '2025-01-01', 
           endDate: '2025-04-30',
           pricePoints: [

@@ -18,7 +18,7 @@ A SKU represents a stable, immutable configuration. To test changes (e.g., new b
 
 Only users bucketed into the treatment will see the new SKU. If no LIX is set, the SKU is generally visible.
 
-✅ Example: To test quarterly billing for a product, create a new SKU with quarterly billing, new price group, and LIX assignment. The entire configuration (description, pricing, digital goods) is versioned and tested as a unit.
+✅ Example: To enable quarterly billing for a product (you are enabling quarterly billing for the product, and thus creating a new SKU), create a new SKU with quarterly billing, new price group, and LIX assignment. The entire configuration (description, pricing, digital goods) is versioned and tested as a unit.
 
 ---
 

@@ -61,6 +61,8 @@ export type PricePoint = {
 };
 
 export type Price = {
+  id?: string;
+  status?: Status;
   startDate?: string;
   endDate?: string;
   pricePoints: PricePoint[];

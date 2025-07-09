@@ -2,10 +2,10 @@ import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
 import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import LinkedInLogo from '../assets/linkedin-logo.svg';
-import { zIndex } from '../theme';
-import { useBreadcrumb } from '../context/BreadcrumbContext';
-import { useLayout } from '../context/LayoutContext';
+import LinkedInLogo from '../../assets/linkedin-logo.svg';
+import { zIndex } from '../../theme';
+import { useBreadcrumb } from '../../context/BreadcrumbContext';
+import { useLayout } from '../../context/LayoutContext';
 
 const { Sider, Header, Content } = Layout;
 

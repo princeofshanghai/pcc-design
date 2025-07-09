@@ -1,7 +1,7 @@
 import React from 'react';
 import { Space } from 'antd';
 import { Monitor, Smartphone, Headset } from 'lucide-react';
-import type { SalesChannel } from '../utils/types';
+import type { SalesChannel } from '../../utils/types';
 
 interface SalesChannelDisplayProps {
   channel: SalesChannel;

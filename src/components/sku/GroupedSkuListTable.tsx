@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table, Typography, Space, theme } from 'antd';
-import type { Sku, Product } from '../utils/types';
+import type { Sku, Product } from '../../utils/types';
 import { getSkuTableColumns } from './SkuListTable';
-import CountTag from './CountTag';
+import CountTag from '../attributes/CountTag';
 import { type ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;

@@ -3,15 +3,16 @@ import { Space, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import type { LOB, Status } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
-import PageHeader from '../components/PageHeader';
-import GroupedProductList from '../components/GroupedProductList';
-import ProductList from '../components/ProductList';
-import type { ViewMode } from '../components/ViewToggle';
-import ProductListTable from '../components/ProductListTable';
-import GroupedProductListTable from '../components/GroupedProductListTable';
-import CountTag from '../components/CountTag';
-import FilterBar from '../components/FilterBar';
-import type { SelectOption } from '../components/FilterDropdown';
+import {
+  PageHeader,
+  GroupedProductList,
+  ProductList,
+  ProductListTable,
+  GroupedProductListTable,
+  CountTag,
+  FilterBar
+} from '../components';
+import type { ViewMode, SelectOption } from '../components';
 
 const LOB_OPTIONS: LOB[] = [...new Set(mockProducts.map(p => p.lob))];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];

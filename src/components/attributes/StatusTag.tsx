@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Tooltip, theme, Space } from 'antd';
-import type { Status } from '../utils/types';
+import type { Status } from '../../utils/types';
 import { CheckCircle2, Archive, XCircle } from 'lucide-react';
 
 const { Text } = Typography;

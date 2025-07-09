@@ -6,20 +6,22 @@ import { useSkuFilters } from '../hooks/useSkuFilters';
 import type { Region, SalesChannel, Status } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
-import PageHeader from '../components/PageHeader';
-import SkuListTable from '../components/SkuListTable';
-import GroupedSkuListTable from '../components/GroupedSkuListTable';
-import DigitalGoodsTable from '../components/DigitalGoodsTable';
-import AttributeDisplay from '../components/AttributeDisplay';
-import PageSection from '../components/PageSection';
-import AttributeGroup from '../components/AttributeGroup';
-import StatusTag from '../components/StatusTag';
+import {
+  PageHeader,
+  SkuListTable,
+  GroupedSkuListTable,
+  DigitalGoodsTable,
+  AttributeDisplay,
+  PageSection,
+  AttributeGroup,
+  StatusTag,
+  BillingModelDisplay,
+  LobTag,
+  CategoryTag,
+  CountTag,
+  FilterBar
+} from '../components';
 import { toSentenceCase } from '../utils/formatters';
-import BillingModelDisplay from '../components/BillingModelDisplay';
-import LobTag from '../components/LobTag';
-import CategoryTag from '../components/CategoryTag';
-import CountTag from '../components/CountTag';
-import FilterBar from '../components/FilterBar';
 import { Box } from 'lucide-react';
 
 const { Title } = Typography;

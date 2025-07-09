@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Product, LOB, Status } from '../utils/types';
-import type { SelectOption } from '../components/FilterDropdown';
+import type { SelectOption } from '../components';
 
 // This function generates the grouped category options from the full product list.
 const getCategoryGroupedOptions = (products: Product[]): SelectOption[] => {

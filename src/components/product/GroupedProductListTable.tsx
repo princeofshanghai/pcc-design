@@ -1,9 +1,9 @@
 import React from 'react';
 import { Table, Typography, Space, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../utils/types';
+import type { Product } from '../../utils/types';
 import { getProductListTableColumns } from './ProductListTable';
-import CountTag from './CountTag';
+import CountTag from '../attributes/CountTag';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;

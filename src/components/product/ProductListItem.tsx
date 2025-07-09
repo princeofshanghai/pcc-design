@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Typography, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../utils/types';
-import StatusTag from './StatusTag';
-import CopyableId from './CopyableId';
-import LobTag from './LobTag';
-import CategoryTag from './CategoryTag';
+import type { Product } from '../../utils/types';
+import StatusTag from '../attributes/StatusTag';
+import CopyableId from '../shared/CopyableId';
+import LobTag from '../attributes/LobTag';
+import CategoryTag from '../attributes/CategoryTag';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Collapse, Typography, theme, Tag, Space } from 'antd';
-import type { Product } from '../utils/types';
+import type { Product } from '../../utils/types';
 import ProductListItem from './ProductListItem';
 
 const { Panel } = Collapse;

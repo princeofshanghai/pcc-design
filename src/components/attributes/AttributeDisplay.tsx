@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Row, Col, Tooltip } from 'antd';
 import { Info } from 'lucide-react';
-import { toSentenceCase } from '../utils/formatters';
+import { toSentenceCase } from '../../utils/formatters';
 
 const { Text } = Typography;
 

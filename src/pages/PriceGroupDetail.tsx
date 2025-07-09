@@ -3,12 +3,14 @@ import { Typography, Space, List } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import PageHeader from '../components/PageHeader';
-import StatusTag from '../components/StatusTag';
-import DetailSection from '../components/DetailSection';
-import AttributeDisplay from '../components/AttributeDisplay';
-import CountTag from '../components/CountTag';
-import SkuListTable from '../components/SkuListTable';
+import {
+  PageHeader,
+  StatusTag,
+  DetailSection,
+  AttributeDisplay,
+  CountTag
+} from '../components';
+import { SkuListTable } from '../components';
 import { formatCurrency, formatEffectiveDateRange } from '../utils/formatters';
 import { DollarSign } from 'lucide-react';
 import type { PricePoint } from '../utils/types';

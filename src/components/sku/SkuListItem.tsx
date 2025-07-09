@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card, Space, Tag, Typography } from 'antd';
-import type { Sku } from '../utils/types';
-import StatusTag from './StatusTag';
-import CopyableId from './CopyableId';
+import type { Sku } from '../../utils/types';
+import StatusTag from '../attributes/StatusTag';
+import CopyableId from '../shared/CopyableId';
 
 const { Text } = Typography;
 

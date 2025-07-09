@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tag } from 'antd';
-import { LOB_COLORS } from '../theme';
-import type { LOB } from '../utils/types';
+import { LOB_COLORS } from '../../theme';
+import type { LOB } from '../../utils/types';
 
 interface CategoryTagProps {
   category: string;

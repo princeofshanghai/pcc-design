@@ -1,14 +1,14 @@
 import React from 'react';
 import { Table, Space, Tooltip } from 'antd';
-import type { Sku, Status, SalesChannel, Product } from '../utils/types';
-import CopyableId from './CopyableId';
-import StatusTag from './StatusTag';
-import SalesChannelDisplay from './SalesChannelDisplay';
-import OverrideIndicator from './OverrideIndicator';
+import type { Sku, Status, SalesChannel, Product } from '../../utils/types';
+import CopyableId from '../shared/CopyableId';
+import StatusTag from '../attributes/StatusTag';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import OverrideIndicator from '../pricing/OverrideIndicator';
 import type { ColumnsType } from 'antd/es/table';
-import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
-import CountTag from './CountTag';
-import PriceDetailView from './PriceDetailView';
+import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
+import CountTag from '../attributes/CountTag';
+import PriceDetailView from '../pricing/PriceDetailView';
 import { FlaskConical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

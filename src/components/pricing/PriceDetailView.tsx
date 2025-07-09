@@ -1,11 +1,11 @@
 import React from 'react';
 import { List, Typography, Space, Button } from 'antd';
-import type { Sku, PricePoint, Product } from '../utils/types';
-import { formatCurrency, formatEffectiveDateRange } from '../utils/formatters';
-import StatusTag from './StatusTag';
-import CountTag from './CountTag';
-import DetailSection from './DetailSection';
-import AttributeDisplay from './AttributeDisplay';
+import type { Sku, PricePoint, Product } from '../../utils/types';
+import { formatCurrency, formatEffectiveDateRange } from '../../utils/formatters';
+import StatusTag from '../attributes/StatusTag';
+import CountTag from '../attributes/CountTag';
+import DetailSection from '../layout/DetailSection';
+import AttributeDisplay from '../attributes/AttributeDisplay';
 import { Link } from 'react-router-dom';
 
 interface PriceDetailViewProps {

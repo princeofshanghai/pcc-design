@@ -3,17 +3,19 @@ import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import PageHeader from '../components/PageHeader';
-import StatusTag from '../components/StatusTag';
-import DetailSection from '../components/DetailSection';
-import AttributeDisplay from '../components/AttributeDisplay';
-import DigitalGoodsTable from '../components/DigitalGoodsTable';
-import PriceDetailView from '../components/PriceDetailView';
-import LobTag from '../components/LobTag';
-import CategoryTag from '../components/CategoryTag';
-import SalesChannelDisplay from '../components/SalesChannelDisplay';
-import OverrideIndicator from '../components/OverrideIndicator';
-import OverrideComparison from '../components/OverrideComparison';
+import {
+  PageHeader,
+  StatusTag,
+  DetailSection,
+  AttributeDisplay,
+  DigitalGoodsTable,
+  PriceDetailView,
+  LobTag,
+  CategoryTag,
+  SalesChannelDisplay,
+  OverrideIndicator,
+  OverrideComparison
+} from '../components';
 import { Tag as SkuIcon, AlertCircle } from 'lucide-react';
 
 const { Title } = Typography;

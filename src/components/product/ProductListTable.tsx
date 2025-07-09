@@ -1,11 +1,11 @@
 import React from 'react';
 import { Table, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../utils/types';
-import LobTag from './LobTag';
-import CategoryTag from './CategoryTag';
-import StatusTag from './StatusTag';
-import CopyableId from './CopyableId';
+import type { Product } from '../../utils/types';
+import LobTag from '../attributes/LobTag';
+import CategoryTag from '../attributes/CategoryTag';
+import StatusTag from '../attributes/StatusTag';
+import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
 
 interface ProductListTableProps {

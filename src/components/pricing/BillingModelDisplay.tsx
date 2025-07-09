@@ -1,7 +1,7 @@
 import React from 'react';
 import { Space } from 'antd';
 import { Repeat2, Tag, ChartNoAxesColumnIncreasing } from 'lucide-react';
-import type { BillingModel } from '../utils/types';
+import type { BillingModel } from '../../utils/types';
 
 interface BillingModelDisplayProps {
   model: BillingModel;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Badge, Button, Dropdown, theme } from 'antd';
 import { Settings2, Check } from 'lucide-react';
 import type { MenuProps } from 'antd';
-import { toSentenceCase } from '../utils/formatters';
+import { toSentenceCase } from '../../utils/formatters';
 
 
 interface ViewOptionsProps {

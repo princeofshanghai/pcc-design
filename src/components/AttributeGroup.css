@@ -1,0 +1,7 @@
+.attribute-group-body {
+  padding: 20px 24px;
+}
+
+.attribute-group-body > *:last-child {
+  padding-bottom: 0 !important;
+} 

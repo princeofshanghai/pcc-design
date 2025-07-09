@@ -24,8 +24,14 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-top: 16px;
 }
 
 .content-panel .ant-table-tbody > tr.ant-table-row:last-child > td {
   border-bottom: none;
+}
+
+/* Increase spacing between tabs and tab content */
+.ant-tabs-content {
+  margin-top: 24px;
 } 

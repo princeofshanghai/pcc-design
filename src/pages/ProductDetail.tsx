@@ -11,7 +11,8 @@ import SkuListTable from '../components/SkuListTable';
 import GroupedSkuListTable from '../components/GroupedSkuListTable';
 import DigitalGoodsTable from '../components/DigitalGoodsTable';
 import AttributeDisplay from '../components/AttributeDisplay';
-import DetailSection from '../components/DetailSection';
+import PageSection from '../components/PageSection';
+import AttributeGroup from '../components/AttributeGroup';
 import StatusTag from '../components/StatusTag';
 import { toSentenceCase } from '../utils/formatters';
 import BillingModelDisplay from '../components/BillingModelDisplay';
@@ -96,7 +97,7 @@ const ProductDetail: React.FC = () => {
 
     // Reset the max-width when the component unmounts
     return () => {
-      setMaxWidth('1280px'); // Or your default width
+      setMaxWidth('1024px'); // Reset to default width
     };
   }, [setMaxWidth]);
 
@@ -127,29 +128,31 @@ const ProductDetail: React.FC = () => {
       key: 'details',
       label: 'Details',
       children: (
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <DetailSection title={toSentenceCase('General')}>
-            <AttributeDisplay
-              layout="horizontal"
-              label="Product Name"
-              tooltip="The public-facing name that appears on invoices."
-            >
-              {product.name}
-            </AttributeDisplay>
-            <AttributeDisplay
-              layout="horizontal"
-              label="Description"
-              tooltip="The public-facing description that appears on invoices."
-            >
-              {product.description}
-            </AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Billing Model">
-              <BillingModelDisplay model={product.billingModel} />
-            </AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
-          </DetailSection>
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection title={toSentenceCase('General')}>
+            <AttributeGroup>
+              <AttributeDisplay
+                layout="horizontal"
+                label="Product Name"
+                tooltip="The public-facing name that appears on invoices."
+              >
+                {product.name}
+              </AttributeDisplay>
+              <AttributeDisplay
+                layout="horizontal"
+                label="Description"
+                tooltip="The public-facing description that appears on invoices."
+              >
+                {product.description}
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelDisplay model={product.billingModel} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
 
-          <DetailSection
+          <PageSection
             title={
               <Space>
                 <span>{toSentenceCase('SKUs')}</span>
@@ -161,66 +164,63 @@ const ProductDetail: React.FC = () => {
                 )}
               </Space>
             }
-            noBodyPadding
           >
-            <div style={{ padding: '16px 24px', marginBottom: '0px' }}>
-              <FilterBar
-                search={{
-                  placeholder: "Search by SKU ID...",
-                  onChange: setSearchQuery,
-                }}
-                onClearAll={clearAllSkuFilters}
-                filters={[
-                  {
-                    placeholder: toSentenceCase("All Regions"),
-                    options: regionOptions,
-                    value: regionFilter,
-                    onChange: (value) => setRegionFilter(value as Region ?? null),
-                  },
-                  {
-                    placeholder: toSentenceCase("All Channels"),
-                    options: channelOptions,
-                    value: channelFilter,
-                    onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
-                  },
-                  {
-                    placeholder: toSentenceCase("All Cycles"),
-                    options: billingCycleOptions,
-                    value: billingCycleFilter,
-                    onChange: (value) => setBillingCycleFilter(value as string ?? null),
-                  },
-                  {
-                    placeholder: toSentenceCase("All Statuses"),
-                    options: statusOptions,
-                    value: statusFilter,
-                    onChange: (value) => setStatusFilter(value as Status ?? null),
-                  },
-                ]}
-                viewOptions={{
-                  sortOrder: {
-                    value: sortOrder,
-                    setter: setSortOrder,
-                    options: SKU_SORT_OPTIONS,
-                  },
-                  groupBy: {
-                    value: groupBy,
-                    setter: setGroupBy,
-                    options: SKU_GROUP_BY_OPTIONS,
-                  },
-                }}
-              />
-            </div>
+            <FilterBar
+              search={{
+                placeholder: "Search by SKU ID...",
+                onChange: setSearchQuery,
+              }}
+              onClearAll={clearAllSkuFilters}
+              filters={[
+                {
+                  placeholder: toSentenceCase("All Regions"),
+                  options: regionOptions,
+                  value: regionFilter,
+                  onChange: (value) => setRegionFilter(value as Region ?? null),
+                },
+                {
+                  placeholder: toSentenceCase("All Channels"),
+                  options: channelOptions,
+                  value: channelFilter,
+                  onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
+                },
+                {
+                  placeholder: toSentenceCase("All Cycles"),
+                  options: billingCycleOptions,
+                  value: billingCycleFilter,
+                  onChange: (value) => setBillingCycleFilter(value as string ?? null),
+                },
+                {
+                  placeholder: toSentenceCase("All Statuses"),
+                  options: statusOptions,
+                  value: statusFilter,
+                  onChange: (value) => setStatusFilter(value as Status ?? null),
+                },
+              ]}
+              viewOptions={{
+                sortOrder: {
+                  value: sortOrder,
+                  setter: setSortOrder,
+                  options: SKU_SORT_OPTIONS,
+                },
+                groupBy: {
+                  value: groupBy,
+                  setter: setGroupBy,
+                  options: SKU_GROUP_BY_OPTIONS,
+                },
+              }}
+            />
             {finalGroupedSkus ? (
               <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />
             ) : (
               <SkuListTable skus={finalSortedSkus} product={product} />
             )}
-          </DetailSection>
+          </PageSection>
 
           {product.digitalGoods && product.digitalGoods.length > 0 && (
-            <DetailSection title={toSentenceCase('Digital Goods')} noBodyPadding>
+            <PageSection title={toSentenceCase('Digital Goods')}>
               <DigitalGoodsTable digitalGoods={product.digitalGoods} />
-            </DetailSection>
+            </PageSection>
           )}
         </Space>
       ),
@@ -239,56 +239,64 @@ const ProductDetail: React.FC = () => {
       key: 'other',
       label: 'Other',
       children: (
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <DetailSection title={toSentenceCase('Configuration')}>
-            <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
-              <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
-                {product.postPurchaseLandingUrl}
-              </a>
-            </AttributeDisplay>
-          </DetailSection>
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection title={toSentenceCase('Configuration')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                  {product.postPurchaseLandingUrl}
+                </a>
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
 
           {product.tags && product.tags.length > 0 && (
-            <DetailSection title={toSentenceCase('Tags')}>
-              {Object.entries(groupedTags).map(([type, values]) => (
-                <AttributeDisplay layout="horizontal" key={type} label={toSentenceCase(type)}>
-                  <Space size={[0, 8]} wrap>
-                    {values.map(value => <Tag key={value}>{value}</Tag>)}
-                  </Space>
-                </AttributeDisplay>
-              ))}
-            </DetailSection>
+            <PageSection title={toSentenceCase('Tags')}>
+              <AttributeGroup>
+                {Object.entries(groupedTags).map(([type, values]) => (
+                  <AttributeDisplay layout="horizontal" key={type} label={toSentenceCase(type)}>
+                    <Space size={[0, 8]} wrap>
+                      {values.map(value => <Tag key={value}>{value}</Tag>)}
+                    </Space>
+                  </AttributeDisplay>
+                ))}
+              </AttributeGroup>
+            </PageSection>
           )}
 
-          <DetailSection title="Links">
-            <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
-          </DetailSection>
+          <PageSection title="Links">
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
 
-          <DetailSection title="Visibility">
-            <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
-            <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
-          </DetailSection>
+          <PageSection title="Visibility">
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
         </Space>
       ),
     },

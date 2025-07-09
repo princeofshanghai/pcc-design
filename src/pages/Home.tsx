@@ -25,7 +25,7 @@ const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ la
 const Home: React.FC = () => {
   const [lobFilter, setLobFilter] = useState<LOB | null>(null);
   const [activeLobTab, setActiveLobTab] = useState('All');
-  const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const {
     setSearchQuery,

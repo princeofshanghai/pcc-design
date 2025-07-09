@@ -19,8 +19,8 @@ const ViewToggle: React.FC<ViewToggleProps> = ({ viewMode, onChange }) => {
     }}>
       <Segmented
         options={[
-          { value: 'card', icon: <LayoutGrid size={16} /> },
           { value: 'list', icon: <List size={16} /> },
+          { value: 'card', icon: <LayoutGrid size={16} /> },
         ]}
         value={viewMode}
         onChange={(value) => onChange(value as ViewMode)}

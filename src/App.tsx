@@ -9,6 +9,7 @@ import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
 import ScrollToTop from './components/ScrollToTop';
 import SkuDetail from './pages/SkuDetail';
+import PriceGroupDetail from './pages/PriceGroupDetail';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
+                <Route path="product/:productId/price-group/:priceGroupId" element={<PriceGroupDetail />} />
               </Route>
             </Routes>
           </LayoutProvider>

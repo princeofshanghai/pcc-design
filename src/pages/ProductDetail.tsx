@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Typography, Space, Tag, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -24,7 +24,7 @@ import { Box } from 'lucide-react';
 const { Title } = Typography;
 
 const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
-const SKU_GROUP_BY_OPTIONS = ['None', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
+const SKU_GROUP_BY_OPTIONS = ['None', 'Price Group', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -44,8 +44,13 @@ const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { setProductName } = useBreadcrumb();
   const { setMaxWidth } = useLayout();
+  const location = useLocation();
   const product = mockProducts.find(p => p.id === productId);
   const navigate = useNavigate();
+
+  // Check for URL query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const priceGroupFilter = searchParams.get('priceGroupFilter');
 
   // New hook for SKU filtering
   const {
@@ -67,6 +72,23 @@ const ProductDetail: React.FC = () => {
     setStatusFilter(null);
     setBillingCycleFilter(null);
   };
+
+  // Apply price group filtering if specified in URL
+  const finalSortedSkus = priceGroupFilter ? 
+    sortedSkus.filter(sku => sku.price.id === priceGroupFilter) : 
+    sortedSkus;
+
+  const finalGroupedSkus = priceGroupFilter ? 
+    (groupedSkus ? Object.entries(groupedSkus).reduce((acc, [key, skus]) => {
+      const filtered = skus.filter(sku => sku.price.id === priceGroupFilter);
+      if (filtered.length > 0) {
+        acc[key] = filtered;
+      }
+      return acc;
+    }, {} as Record<string, any[]>) : null) : 
+    groupedSkus;
+
+  const finalSkuCount = priceGroupFilter ? finalSortedSkus.length : skuCount;
 
   useEffect(() => {
     // Set the max-width for this page
@@ -131,7 +153,12 @@ const ProductDetail: React.FC = () => {
             title={
               <Space>
                 <span>{toSentenceCase('SKUs')}</span>
-                <CountTag count={skuCount} />
+                <CountTag count={finalSkuCount} />
+                {priceGroupFilter && (
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                    (filtered by price group: {priceGroupFilter})
+                  </Typography.Text>
+                )}
               </Space>
             }
             noBodyPadding
@@ -183,10 +210,10 @@ const ProductDetail: React.FC = () => {
                 }}
               />
             </div>
-            {groupedSkus ? (
-              <GroupedSkuListTable groupedSkus={groupedSkus} product={product} />
+            {finalGroupedSkus ? (
+              <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />
             ) : (
-              <SkuListTable skus={sortedSkus} product={product} />
+              <SkuListTable skus={finalSortedSkus} product={product} />
             )}
           </DetailSection>
 

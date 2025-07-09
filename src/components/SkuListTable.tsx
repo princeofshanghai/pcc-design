@@ -74,6 +74,18 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (price: Sku['price']) => formatEffectiveDateRange(price.startDate, price.endDate),
   },
   {
+    title: toSentenceCase('Price Group ID'),
+    key: 'priceGroupId',
+    render: (_: any, sku: Sku) => {
+      if (!sku.price.id) return 'N/A';
+      return (
+        <Link to={`/product/${product.id}/price-group/${sku.price.id}`}>
+          {sku.price.id}
+        </Link>
+      );
+    },
+  },
+  {
     title: toSentenceCase('Price'),
     key: 'amount',
     render: (_: any, sku: Sku) => {
@@ -134,7 +146,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
         size="small"
         expandable={{
           expandedRowRender: (record) => (
-            <PriceDetailView sku={record} />
+            <PriceDetailView sku={record} product={product} />
           ),
           rowExpandable: (record) => record.id !== 'Not Expandable',
         }}

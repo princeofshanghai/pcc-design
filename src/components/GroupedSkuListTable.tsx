@@ -10,12 +10,13 @@ const { Text } = Typography;
 interface GroupedSkuListTableProps {
   groupedSkus: Record<string, Sku[]>;
   product: Product;
+  groupBy?: string;
 }
 
 // A special type to handle rows that can be either a real Sku or a group header
 type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: number };
 
-const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product }) => {
+const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, groupBy }) => {
   const { token } = theme.useToken();
   const columns = getSkuTableColumns(product) as ColumnsType<TableRow>;
 
@@ -47,11 +48,12 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
                 const { title, count } = props.children[0].props.record;
+                const displayTitle = groupBy === 'Price Group' ? `Price Group: ${title}` : title;
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
                       <Space>
-                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{title}</Text>
+                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{displayTitle}</Text>
                         <CountTag count={count} />
                       </Space>
                     </td>

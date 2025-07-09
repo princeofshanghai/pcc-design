@@ -5,6 +5,8 @@ interface BreadcrumbContextType {
   setProductName: (name: string | null) => void;
   skuId: string | null;
   setSkuId: (id: string | null) => void;
+  priceGroupId: string | null;
+  setPriceGroupId: (id: string | null) => void;
 }
 
 const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
@@ -12,9 +14,14 @@ const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undef
 export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [productName, setProductName] = useState<string | null>(null);
   const [skuId, setSkuId] = useState<string | null>(null);
+  const [priceGroupId, setPriceGroupId] = useState<string | null>(null);
 
   return (
-    <BreadcrumbContext.Provider value={{ productName, setProductName, skuId, setSkuId }}>
+    <BreadcrumbContext.Provider value={{ 
+      productName, setProductName, 
+      skuId, setSkuId,
+      priceGroupId, setPriceGroupId 
+    }}>
       {children}
     </BreadcrumbContext.Provider>
   );

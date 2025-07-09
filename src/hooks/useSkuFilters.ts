@@ -53,6 +53,9 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
     return sortedSkus.reduce((acc, sku) => {
       let key: string;
       switch (groupBy) {
+        case 'Price Group':
+          key = sku.price.id || 'No Price Group';
+          break;
         case 'Effective Date':
           key = sku.price.startDate ? formatFullDate(sku.price.startDate) : 'No Date';
           break;

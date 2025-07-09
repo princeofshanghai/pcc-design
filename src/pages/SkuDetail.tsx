@@ -155,8 +155,8 @@ const SkuDetail: React.FC = () => {
         </Space>
       </DetailSection>
 
-      {/* Pricing Section */}
-      <PriceDetailView sku={sku} />
+      {/* Price Group Section */}
+      <PriceDetailView sku={sku} product={product} />
 
       {/* Overridable Attributes Section */}
       <DetailSection title="Attributes">

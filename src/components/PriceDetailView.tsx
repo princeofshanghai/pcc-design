@@ -1,17 +1,24 @@
 import React from 'react';
-import { List, Typography, Space } from 'antd';
-import type { Sku, PricePoint } from '../utils/types';
+import { List, Typography, Space, Button } from 'antd';
+import type { Sku, PricePoint, Product } from '../utils/types';
 import { formatCurrency, formatEffectiveDateRange } from '../utils/formatters';
 import StatusTag from './StatusTag';
 import CountTag from './CountTag';
 import DetailSection from './DetailSection';
+import AttributeDisplay from './AttributeDisplay';
+import { Link } from 'react-router-dom';
 
 interface PriceDetailViewProps {
   sku: Sku;
+  product: Product;
 }
 
-const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku }) => {
+const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
   const { price } = sku;
+
+  // Count how many SKUs in this product use the same price group
+  const skusWithSamePriceGroup = product.skus.filter(s => s.price.id === price.id);
+  const otherSkusCount = skusWithSamePriceGroup.length - 1; // Exclude current SKU
 
   // Group core currencies (USD, EUR, GBP, CAD, etc.) vs others
   const coreCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD'];
@@ -21,12 +28,12 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku }) => {
   // Build title with inline status
   const priceTitle = (
     <Space align="center" size="small">
-      <span>Price</span>
+      <span>Price Group</span>
       {price.status && <StatusTag status={price.status} />}
     </Space>
   );
 
-  // Build subtitle with Price ID and effective dates
+  // Build subtitle with Price Group ID and effective dates
   const priceSubtitle = [
     price.id && `${price.id}`,
     (price.startDate || price.endDate) && formatEffectiveDateRange(price.startDate, price.endDate)
@@ -37,6 +44,28 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku }) => {
       title={priceTitle}
       subtitle={priceSubtitle}
     >
+      {/* Price Group Information */}
+      <div style={{ marginBottom: '24px' }}>
+        <AttributeDisplay label="Price Group ID" layout="horizontal">
+          <Typography.Text code>{price.id}</Typography.Text>
+        </AttributeDisplay>
+        
+        {otherSkusCount > 0 && (
+          <AttributeDisplay label="Other SKUs" layout="horizontal">
+            <Space align="center" size="small">
+              <Typography.Text>
+                {otherSkusCount} other SKU{otherSkusCount !== 1 ? 's' : ''} use{otherSkusCount === 1 ? 's' : ''} this price group
+              </Typography.Text>
+              <Link to={`/product/${product.id}?priceGroupFilter=${price.id}`}>
+                <Button type="link" size="small" style={{ padding: 0, height: 'auto' }}>
+                  View all
+                </Button>
+              </Link>
+            </Space>
+          </AttributeDisplay>
+        )}
+      </div>
+
       {/* Price Points Section */}
       <div style={{ marginTop: '8px' }}>
         <Space align="center" style={{ marginBottom: '12px' }}>

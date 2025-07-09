@@ -26,4 +26,11 @@ This document breaks down the work for the third epic: building the dedicated SK
     - [x] 5.3.4: Add a section to list all associated "Digital Goods" (fulfills AC3). If SKU has custom digital goods, the SKU list completely replaces the Product default list (not combined).
     - [x] 5.3.5: Add a summary section that lists all SKU-level attribute overrides for quick scanning (e.g., "This SKU overrides: Pricing, Digital Goods, Sales Channel").
     - [x] 5.3.6: For each override, provide contextual comparison (e.g., "SKU: Annual | Product Default: Monthly") using consistent visual treatment across all attribute types.
-    - [ ] 5.3.7: Ensure override indicators and comparison patterns are consistent across Configuration, Pricing, Digital Goods, and any other attribute sections. 
+    - [x] 5.3.7: Ensure override indicators and comparison patterns are consistent across Configuration, Pricing, Digital Goods, and any other attribute sections.
+
+- [ ] **5.4: Price Group Enhancements**
+    - [x] 5.4.1: Update Price Terminology - Change "Price" to "Price Group" throughout SKU Detail page and update PriceDetailView component title and labels.
+    - [x] 5.4.2: Enhanced Price Group Display in SKU Detail - Show Price Group ID prominently, add indicator showing count of other SKUs using this price group, and add link to view all SKUs with this price group.
+    - [x] 5.4.3: SKU Table Price Group Features - Add "Group by Price Group" option to ViewOptions component, add optional "Price Group ID" column to table, make Price Group IDs clickable links, and update group headers.
+    - [x] 5.4.4: Price Group Detail Page - Create new route `/product/:productId/price-group/:priceGroupId`, create PriceGroupDetail.tsx page component, display price group metadata and "SKUs Using This Price Group" table section.
+    - [x] 5.4.5: Price Group Navigation Flow - Update breadcrumbs to support Price Group pages and implement navigation between SKU Detail → Price Group Detail → SKU Table (filtered). 

@@ -11,15 +11,26 @@ interface ViewToggleProps {
 
 const ViewToggle: React.FC<ViewToggleProps> = ({ viewMode, onChange }) => {
   return (
-    <Segmented
-      options={[
-        { value: 'card', icon: <LayoutGrid size={16} /> },
-        { value: 'list', icon: <List size={16} /> },
-      ]}
-      value={viewMode}
-      onChange={(value) => onChange(value as ViewMode)}
-      size="large"
-    />
+    <div style={{
+      border: '1px solid #d9d9d9',
+      borderRadius: '8px',
+      display: 'inline-block',
+      backgroundColor: '#ffffff'
+    }}>
+      <Segmented
+        options={[
+          { value: 'card', icon: <LayoutGrid size={16} /> },
+          { value: 'list', icon: <List size={16} /> },
+        ]}
+        value={viewMode}
+        onChange={(value) => onChange(value as ViewMode)}
+        size="large"
+        style={{ 
+          border: 'none',
+          backgroundColor: 'transparent'
+        }}
+      />
+    </div>
   );
 };
 

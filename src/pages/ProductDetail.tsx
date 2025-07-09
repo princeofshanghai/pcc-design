@@ -95,7 +95,7 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     // Set the max-width for this page
-    setMaxWidth('1280px');
+    setMaxWidth('1024px');
 
     // Reset the max-width when the component unmounts
     return () => {

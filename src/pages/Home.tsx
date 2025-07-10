@@ -102,6 +102,7 @@ const Home: React.FC = () => {
         activeKey={activeLobTab}
         onChange={handleLobChange}
         items={lobTabOptions}
+        size="large"
       />
 
       <FilterBar

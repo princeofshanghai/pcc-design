@@ -10,7 +10,8 @@ import {
   ProductListTable,
   GroupedProductListTable,
   CountTag,
-  FilterBar
+  FilterBar,
+  FolderTabs
 } from '../components';
 import type { ViewMode, SelectOption } from '../components';
 
@@ -33,6 +34,8 @@ const Home: React.FC = () => {
     setStatusFilter,
     folderFilter,
     setFolderFilter,
+    folderTabFilter,
+    setFolderTabFilter,
     groupBy,
     setGroupBy,
     sortOrder,
@@ -41,6 +44,7 @@ const Home: React.FC = () => {
     groupedProducts,
     productCount,
     folderOptions,
+    folderTabsData,
   } = useProductFilters(mockProducts, lobFilter);
 
   const lobCounts = useMemo(() => {
@@ -80,10 +84,20 @@ const Home: React.FC = () => {
     }
   }, [viewMode, setGroupBy]);
 
+  useEffect(() => {
+    if (folderTabFilter !== 'All') {
+      setGroupBy('None');
+    }
+  }, [folderTabFilter, setGroupBy]);
+
   const handleLobChange = (key: string) => {
     setActiveLobTab(key);
     setLobFilter(key === 'All' ? null : (key as LOB));
     setFolderFilter(null);
+  };
+
+  const handleFolderTabChange = (folder: string) => {
+    setFolderTabFilter(folder);
   };
 
   const clearAllProductFilters = () => {
@@ -105,6 +119,16 @@ const Home: React.FC = () => {
         size="large"
       />
 
+      {/* Show folder tabs when a specific LOB is selected */}
+      {lobFilter && folderTabsData.length > 0 && (
+        <FolderTabs
+          folders={folderTabsData}
+          activeFolder={folderTabFilter}
+          onFolderChange={handleFolderTabChange}
+          lob={lobFilter}
+        />
+      )}
+
       <FilterBar
         search={{
           placeholder: "Search by name, ID, or folder...",
@@ -118,19 +142,21 @@ const Home: React.FC = () => {
             value: statusFilter,
             onChange: (value) => setStatusFilter((value as Status) ?? null),
           },
-          {
+          // Only show folder dropdown when LOB is "All"
+          ...(lobFilter === null ? [{
             placeholder: "All folders",
             options: folderOptions,
             value: folderFilter,
-            onChange: (value) => setFolderFilter(value ?? null),
+            onChange: (value: string | null) => setFolderFilter(value ?? null),
             showOptionTooltip: true,
-          },
+          }] : []),
         ]}
         viewOptions={{
           groupBy: {
             value: groupBy,
             setter: setGroupBy,
             options: GROUP_BY_OPTIONS,
+            disabled: folderTabFilter !== 'All',
           },
           sortOrder: {
             value: sortOrder,

@@ -3,7 +3,7 @@ import { Table, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
 import LobTag from '../attributes/LobTag';
-import CategoryTag from '../attributes/CategoryTag';
+import FolderTag from '../attributes/FolderTag';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,11 +39,11 @@ export const getProductListTableColumns = (navigate: (path: string) => void): Co
     render: (lob: Product['lob']) => <LobTag lob={lob} />,
   },
   {
-    title: 'Category',
-    dataIndex: 'category',
-    key: 'category',
-    render: (category: string, record: Product) => (
-      <CategoryTag category={category} lob={record.lob} />
+    title: 'Folder',
+    dataIndex: 'folder',
+    key: 'folder',
+    render: (folder: string, record: Product) => (
+      <FolderTag folder={folder} lob={record.lob} />
     ),
   },
   {

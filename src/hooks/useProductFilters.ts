@@ -2,43 +2,43 @@ import { useState, useMemo, useEffect } from 'react';
 import type { Product, LOB, Status } from '../utils/types';
 import type { SelectOption } from '../components';
 
-// This function generates the grouped category options from the full product list.
-const getCategoryGroupedOptions = (products: Product[]): SelectOption[] => {
+// This function generates the grouped folder options from the full product list.
+const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
   const lobs: LOB[] = [...new Set(products.map(p => p.lob))];
   return lobs.map(lob => ({
     label: lob,
-    options: [...new Set(products.filter(p => p.lob === lob).map(p => p.category))]
-      .map(category => ({ label: category, value: category }))
+    options: [...new Set(products.filter(p => p.lob === lob).map(p => p.folder))]
+      .map(folder => ({ label: folder, value: folder }))
   })).filter(group => group.options.length > 0);
 };
 
 export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | null) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [folderFilter, setFolderFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
-  const categoryOptions = useMemo(() => {
+  const folderOptions = useMemo(() => {
     if (lobFilter) {
-      return [...new Set(initialProducts.filter(p => p.lob === lobFilter).map(p => p.category))]
-        .map(category => ({ label: category, value: category }));
+      return [...new Set(initialProducts.filter(p => p.lob === lobFilter).map(p => p.folder))]
+        .map(folder => ({ label: folder, value: folder }));
     }
     // When no LOB is selected, show grouped options
-    return getCategoryGroupedOptions(initialProducts);
+    return getFolderGroupedOptions(initialProducts);
   }, [lobFilter, initialProducts]);
 
   useEffect(() => {
     if (lobFilter) {
-      const validCategories = initialProducts
+      const validFolders = initialProducts
         .filter(p => p.lob === lobFilter)
-        .map(p => p.category);
+        .map(p => p.folder);
       
-      if (categoryFilter && !validCategories.includes(categoryFilter)) {
-        setCategoryFilter(null);
+      if (folderFilter && !validFolders.includes(folderFilter)) {
+        setFolderFilter(null);
       }
     }
-  }, [lobFilter, categoryFilter, initialProducts]);
+  }, [lobFilter, folderFilter, initialProducts]);
 
   const sortedProducts = useMemo(() => {
     let products = initialProducts;
@@ -49,12 +49,12 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
       products = products.filter(p =>
         p.name.toLowerCase().includes(lowercasedQuery) ||
         p.id.toLowerCase().includes(lowercasedQuery) ||
-        p.category.toLowerCase().includes(lowercasedQuery)
+        p.folder.toLowerCase().includes(lowercasedQuery)
       );
     }
     if (lobFilter) { products = products.filter(p => p.lob === lobFilter); }
     if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
-    if (categoryFilter) { products = products.filter(p => p.category === categoryFilter); }
+    if (folderFilter) { products = products.filter(p => p.folder === folderFilter); }
 
     // Sorting
     products.sort((a, b) => {
@@ -64,7 +64,7 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     });
 
     return products;
-  }, [searchQuery, lobFilter, statusFilter, categoryFilter, sortOrder, initialProducts]);
+  }, [searchQuery, lobFilter, statusFilter, folderFilter, sortOrder, initialProducts]);
 
   const groupedProducts = useMemo(() => {
     if (groupBy === 'None') return null;
@@ -84,8 +84,8 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    categoryFilter,
-    setCategoryFilter,
+    folderFilter,
+    setFolderFilter,
     
     // View options states and setters
     groupBy,
@@ -97,6 +97,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     sortedProducts,
     groupedProducts,
     productCount,
-    categoryOptions,
+    folderOptions,
   };
 }; 

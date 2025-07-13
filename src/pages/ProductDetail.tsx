@@ -17,7 +17,7 @@ import {
   StatusTag,
   BillingModelDisplay,
   LobTag,
-  CategoryTag,
+  FolderTag,
   CountTag,
   FilterBar
 } from '../components';
@@ -324,7 +324,7 @@ const ProductDetail: React.FC = () => {
         subtitle={
           <Space>
             <LobTag lob={product.lob} />
-            <CategoryTag category={product.category} lob={product.lob} />
+                            <FolderTag folder={product.folder} lob={product.lob} />
           </Space>
         }
       />

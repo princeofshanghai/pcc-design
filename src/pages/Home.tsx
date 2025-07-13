@@ -16,7 +16,7 @@ import type { ViewMode, SelectOption } from '../components';
 
 const LOB_OPTIONS: LOB[] = [...new Set(mockProducts.map(p => p.lob))];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
-const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Category'];
+const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
 
@@ -31,8 +31,8 @@ const Home: React.FC = () => {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    categoryFilter,
-    setCategoryFilter,
+    folderFilter,
+    setFolderFilter,
     groupBy,
     setGroupBy,
     sortOrder,
@@ -40,7 +40,7 @@ const Home: React.FC = () => {
     sortedProducts,
     groupedProducts,
     productCount,
-    categoryOptions,
+    folderOptions,
   } = useProductFilters(mockProducts, lobFilter);
 
   const lobCounts = useMemo(() => {
@@ -83,12 +83,12 @@ const Home: React.FC = () => {
   const handleLobChange = (key: string) => {
     setActiveLobTab(key);
     setLobFilter(key === 'All' ? null : (key as LOB));
-    setCategoryFilter(null);
+    setFolderFilter(null);
   };
 
   const clearAllProductFilters = () => {
     setStatusFilter(null);
-    setCategoryFilter(null);
+    setFolderFilter(null);
   };
 
   return (
@@ -107,7 +107,7 @@ const Home: React.FC = () => {
 
       <FilterBar
         search={{
-          placeholder: "Search by name, ID, or category...",
+          placeholder: "Search by name, ID, or folder...",
           onChange: setSearchQuery,
         }}
         onClearAll={clearAllProductFilters}
@@ -119,10 +119,10 @@ const Home: React.FC = () => {
             onChange: (value) => setStatusFilter((value as Status) ?? null),
           },
           {
-            placeholder: "All categories",
-            options: categoryOptions,
-            value: categoryFilter,
-            onChange: (value) => setCategoryFilter(value ?? null),
+            placeholder: "All folders",
+            options: folderOptions,
+            value: folderFilter,
+            onChange: (value) => setFolderFilter(value ?? null),
             showOptionTooltip: true,
           },
         ]}

@@ -97,7 +97,7 @@ export type Product = {
   name: string;
   description?: string;
   lob: LOB;
-  category: string;
+  folder: string;
   status: Status;
   billingModel: BillingModel;
   skus: Sku[];

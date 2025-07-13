@@ -32,7 +32,7 @@ export { default as AttributeDisplay } from './attributes/AttributeDisplay';
 export { default as AttributeGroup } from './attributes/AttributeGroup';
 export { default as StatusTag } from './attributes/StatusTag';
 export { default as LobTag } from './attributes/LobTag';
-export { default as CategoryTag } from './attributes/CategoryTag';
+export { default as FolderTag } from './attributes/FolderTag';
 export { default as CountTag } from './attributes/CountTag';
 export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
 

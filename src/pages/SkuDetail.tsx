@@ -11,7 +11,7 @@ import {
   DigitalGoodsTable,
   PriceDetailView,
   LobTag,
-  CategoryTag,
+  FolderTag,
   SalesChannelDisplay,
   OverrideIndicator,
   OverrideComparison
@@ -126,9 +126,9 @@ const SkuDetail: React.FC = () => {
             <LobTag lob={product.lob} />
           </AttributeDisplay>
           
-          <AttributeDisplay label="Category" layout="horizontal">
-            <CategoryTag category={product.category} lob={product.lob} />
-          </AttributeDisplay>
+                      <AttributeDisplay label="Folder" layout="horizontal">
+              <FolderTag folder={product.folder} lob={product.lob} />
+            </AttributeDisplay>
           
           <AttributeDisplay label="Status" layout="horizontal">
             <StatusTag status={sku.status} />

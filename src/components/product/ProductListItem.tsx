@@ -5,7 +5,7 @@ import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import LobTag from '../attributes/LobTag';
-import CategoryTag from '../attributes/CategoryTag';
+import FolderTag from '../attributes/FolderTag';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;
@@ -56,7 +56,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
         <div style={{ marginTop: '8px' }}>
           <Space size={0}>
             <LobTag lob={product.lob} />
-            <CategoryTag category={product.category} lob={product.lob} />
+                            <FolderTag folder={product.folder} lob={product.lob} />
           </Space>
         </div>
       </Space>

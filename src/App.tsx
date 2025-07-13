@@ -20,6 +20,7 @@ function App() {
             <Routes>
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Home />} />
+                <Route path="folder/:folderName" element={<Home />} />
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
                 <Route path="product/:productId/price-group/:priceGroupId" element={<PriceGroupDetail />} />

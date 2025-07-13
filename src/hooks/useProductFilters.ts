@@ -16,7 +16,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [folderFilter, setFolderFilter] = useState<string | null>(null);
-  const [folderTabFilter, setFolderTabFilter] = useState<string>('All');
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
@@ -29,20 +28,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     return getFolderGroupedOptions(initialProducts);
   }, [lobFilter, initialProducts]);
 
-  const folderTabsData = useMemo(() => {
-    if (!lobFilter) return [];
-    
-    const productsInLob = initialProducts.filter(p => p.lob === lobFilter);
-    const folderCounts = productsInLob.reduce((acc, product) => {
-      acc[product.folder] = (acc[product.folder] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    return Object.entries(folderCounts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [lobFilter, initialProducts]);
-
   useEffect(() => {
     if (lobFilter) {
       const validFolders = initialProducts
@@ -52,9 +37,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
       if (folderFilter && !validFolders.includes(folderFilter)) {
         setFolderFilter(null);
       }
-      
-      // Reset folder tab filter when LOB changes
-      setFolderTabFilter('All');
     }
   }, [lobFilter, folderFilter, initialProducts]);
 
@@ -73,7 +55,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     if (lobFilter) { products = products.filter(p => p.lob === lobFilter); }
     if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
     if (folderFilter) { products = products.filter(p => p.folder === folderFilter); }
-    if (folderTabFilter && folderTabFilter !== 'All') { products = products.filter(p => p.folder === folderTabFilter); }
 
     // Sorting
     products.sort((a, b) => {
@@ -83,7 +64,7 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     });
 
     return products;
-  }, [searchQuery, lobFilter, statusFilter, folderFilter, folderTabFilter, sortOrder, initialProducts]);
+  }, [searchQuery, lobFilter, statusFilter, folderFilter, sortOrder, initialProducts]);
 
   const groupedProducts = useMemo(() => {
     if (groupBy === 'None') return null;
@@ -105,8 +86,6 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     setStatusFilter,
     folderFilter,
     setFolderFilter,
-    folderTabFilter,
-    setFolderTabFilter,
     
     // View options states and setters
     groupBy,
@@ -119,6 +98,5 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     groupedProducts,
     productCount,
     folderOptions,
-    folderTabsData,
   };
 }; 

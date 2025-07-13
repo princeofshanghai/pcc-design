@@ -10,14 +10,15 @@ const { Text } = Typography;
 
 interface GroupedProductListTableProps {
   groupedProducts: Record<string, Product[]>;
+  hideRedundantColumns?: boolean;
 }
 
 type TableRow = Product | { isGroupHeader: true; key: string; title: string; count: number };
 
-const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ groupedProducts }) => {
+const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ groupedProducts, hideRedundantColumns }) => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
-  const columns = getProductListTableColumns(navigate) as ColumnsType<TableRow>;
+  const columns = getProductListTableColumns(navigate, hideRedundantColumns) as ColumnsType<TableRow>;
 
   const dataSource: TableRow[] = [];
   for (const groupTitle in groupedProducts) {

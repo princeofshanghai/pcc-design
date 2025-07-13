@@ -12,9 +12,10 @@ const { Title, Text } = Typography;
 
 interface ProductListItemProps {
   product: Product;
+  hideRedundantColumns?: boolean;
 }
 
-const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
+const ProductListItem: React.FC<ProductListItemProps> = ({ product, hideRedundantColumns }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const skuCount = product.skus.length;
@@ -53,12 +54,15 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
           <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'rgba(0, 0, 0, 0.88)' }}>{product.id}</span>
           <CopyableId id={product.id} showId={false} />
         </Space>
-        <div style={{ marginTop: '8px' }}>
-          <Space size={0}>
-            <LobTag lob={product.lob} />
-                            <FolderTag folder={product.folder} lob={product.lob} />
-          </Space>
-        </div>
+        {/* Only show LOB and Folder tags when not on folder pages */}
+        {!hideRedundantColumns && (
+          <div style={{ marginTop: '8px' }}>
+            <Space size={0}>
+              <LobTag lob={product.lob} />
+              <FolderTag folder={product.folder} lob={product.lob} />
+            </Space>
+          </div>
+        )}
       </Space>
 
       <Space size={24} align="center">

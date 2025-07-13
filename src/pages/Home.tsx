@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Space, Tabs } from 'antd';
+import { Space } from 'antd';
+import { useParams } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
-import type { LOB, Status } from '../utils/types';
+import type { Status } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
 import {
   PageHeader,
@@ -9,24 +10,29 @@ import {
   ProductList,
   ProductListTable,
   GroupedProductListTable,
-  CountTag,
   FilterBar,
-  FolderTabs
 } from '../components';
 import type { ViewMode, SelectOption } from '../components';
 
-const LOB_OPTIONS: LOB[] = [...new Set(mockProducts.map(p => p.lob))];
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
 
-
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 
+// Helper function to convert URL folder names back to actual folder names
+const urlToFolderName = (urlFolder: string): string => {
+  return urlFolder.split('-').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+};
+
 const Home: React.FC = () => {
-  const [lobFilter, setLobFilter] = useState<LOB | null>(null);
-  const [activeLobTab, setActiveLobTab] = useState('All');
+  const { folderName } = useParams<{ folderName?: string }>();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+
+  // Convert URL folder name to actual folder name for filtering
+  const currentFolder = folderName ? urlToFolderName(folderName) : null;
 
   const {
     setSearchQuery,
@@ -34,8 +40,6 @@ const Home: React.FC = () => {
     setStatusFilter,
     folderFilter,
     setFolderFilter,
-    folderTabFilter,
-    setFolderTabFilter,
     groupBy,
     setGroupBy,
     sortOrder,
@@ -44,39 +48,25 @@ const Home: React.FC = () => {
     groupedProducts,
     productCount,
     folderOptions,
-    folderTabsData,
-  } = useProductFilters(mockProducts, lobFilter);
+  } = useProductFilters(mockProducts, null); // No LOB filtering - using folder-based navigation
 
-  const lobCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: mockProducts.length };
-    LOB_OPTIONS.forEach(lob => {
-      counts[lob] = mockProducts.filter(p => p.lob === lob).length;
-    });
-    return counts;
-  }, []);
+  // Set folder filter based on URL parameter
+  useEffect(() => {
+    if (currentFolder) {
+      setFolderFilter(currentFolder);
+    } else {
+      setFolderFilter(null);
+    }
+  }, [currentFolder, setFolderFilter]);
 
-  const lobTabOptions = useMemo(() => {
-    return [
-      { 
-        key: 'All', 
-        label: (
-          <Space>
-            <span>All</span>
-            <CountTag count={lobCounts.All} />
-          </Space>
-        )
-      },
-      ...LOB_OPTIONS.map(lob => ({ 
-        key: lob, 
-        label: (
-          <Space>
-            <span>{lob}</span>
-            <CountTag count={lobCounts[lob]} />
-          </Space>
-        )
-      }))
-    ];
-  }, [lobCounts]);
+  // Update group by options based on current context
+  const availableGroupByOptions = useMemo(() => {
+    if (currentFolder) {
+      // On folder pages, remove LOB and Folder grouping since we're already in a specific folder
+      return GROUP_BY_OPTIONS.filter(option => option !== 'LOB' && option !== 'Folder');
+    }
+    return GROUP_BY_OPTIONS;
+  }, [currentFolder]);
 
   useEffect(() => {
     if (viewMode === 'list') {
@@ -84,50 +74,25 @@ const Home: React.FC = () => {
     }
   }, [viewMode, setGroupBy]);
 
-  useEffect(() => {
-    if (folderTabFilter !== 'All') {
-      setGroupBy('None');
-    }
-  }, [folderTabFilter, setGroupBy]);
-
-  const handleLobChange = (key: string) => {
-    setActiveLobTab(key);
-    setLobFilter(key === 'All' ? null : (key as LOB));
-    setFolderFilter(null);
-  };
-
-  const handleFolderTabChange = (folder: string) => {
-    setFolderTabFilter(folder);
-  };
+  // Remove this useEffect since we no longer use folder tabs
 
   const clearAllProductFilters = () => {
     setStatusFilter(null);
-    setFolderFilter(null);
+    if (!currentFolder) {
+      setFolderFilter(null);
+    }
   };
+
+  // Generate page title and subtitle based on current context
+  const pageTitle = currentFolder ? currentFolder : 'Product Catalog';
+  const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''} found`;
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        title="Product Catalog"
-        subtitle={`${productCount} product${productCount !== 1 ? 's' : ''} found`}
+        title={pageTitle}
+        subtitle={pageSubtitle}
       />
-
-      <Tabs
-        activeKey={activeLobTab}
-        onChange={handleLobChange}
-        items={lobTabOptions}
-        size="large"
-      />
-
-      {/* Show folder tabs when a specific LOB is selected */}
-      {lobFilter && folderTabsData.length > 0 && (
-        <FolderTabs
-          folders={folderTabsData}
-          activeFolder={folderTabFilter}
-          onFolderChange={handleFolderTabChange}
-          lob={lobFilter}
-        />
-      )}
 
       <FilterBar
         search={{
@@ -142,8 +107,8 @@ const Home: React.FC = () => {
             value: statusFilter,
             onChange: (value) => setStatusFilter((value as Status) ?? null),
           },
-          // Only show folder dropdown when LOB is "All"
-          ...(lobFilter === null ? [{
+          // Only show folder dropdown when on All Products page
+          ...(!currentFolder ? [{
             placeholder: "All folders",
             options: folderOptions,
             value: folderFilter,
@@ -155,8 +120,8 @@ const Home: React.FC = () => {
           groupBy: {
             value: groupBy,
             setter: setGroupBy,
-            options: GROUP_BY_OPTIONS,
-            disabled: folderTabFilter !== 'All',
+            options: availableGroupByOptions,
+            disabled: false, // No longer disable based on folder tabs
           },
           sortOrder: {
             value: sortOrder,
@@ -172,14 +137,14 @@ const Home: React.FC = () => {
 
       {viewMode === 'list' ? (
         groupedProducts ? (
-          <GroupedProductListTable groupedProducts={groupedProducts} />
+          <GroupedProductListTable groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
         ) : (
-          <ProductListTable products={sortedProducts} />
+          <ProductListTable products={sortedProducts} hideRedundantColumns={!!currentFolder} />
         )
       ) : groupedProducts ? (
-        <GroupedProductList groupedProducts={groupedProducts} />
+        <GroupedProductList groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
       ) : (
-        <ProductList products={sortedProducts} />
+        <ProductList products={sortedProducts} hideRedundantColumns={!!currentFolder} />
       )}
     </Space>
   );

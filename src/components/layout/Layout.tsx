@@ -1,23 +1,71 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space } from 'antd';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
 import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
+import { mockProducts } from '../../utils/mock-data';
+import type { LOB } from '../../utils/types';
+import { toSentenceCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
 
-const menuItems = [
-  { 
-    key: 'home', 
-    label: 'Product Catalog', 
-    path: '/',
-    icon: <Box size={16} />
-  },
-  // Add more menu items here as you add pages
-];
+// Helper function to generate menu structure from mock data
+const generateMenuStructure = (isCollapsed: boolean) => {
+  const lobData = mockProducts.reduce((acc, product) => {
+    if (!acc[product.lob]) {
+      acc[product.lob] = {};
+    }
+    if (!acc[product.lob][product.folder]) {
+      acc[product.lob][product.folder] = 0;
+    }
+    acc[product.lob][product.folder]++;
+    return acc;
+  }, {} as Record<LOB, Record<string, number>>);
+
+  // Create the menu structure - conditionally show tooltips only when not collapsed
+  const menuItems = [
+    {
+      key: 'products',
+      label: 'Products',
+      icon: <Box size={16} />,
+      children: [
+        {
+          key: 'all-products',
+          label: isCollapsed ? (
+            <Link to="/">{toSentenceCase('All Products')}</Link>
+          ) : (
+            <Tooltip title={toSentenceCase('All Products')} placement="right">
+              <Link to="/">{toSentenceCase('All Products')}</Link>
+            </Tooltip>
+          )
+        },
+        ...Object.entries(lobData).map(([lob, folders]) => ({
+          key: lob.toLowerCase(),
+          label: isCollapsed ? <span>{lob}</span> : (
+            <Tooltip title={lob} placement="right">
+              <span>{lob}</span>
+            </Tooltip>
+          ),
+          children: Object.entries(folders).map(([folder]) => ({
+            key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
+            label: isCollapsed ? (
+              <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+            ) : (
+              <Tooltip title={folder} placement="right">
+                <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+              </Tooltip>
+            )
+          }))
+        }))
+      ]
+    }
+  ];
+
+  return menuItems;
+};
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -27,14 +75,26 @@ const AppLayout = () => {
   const { maxWidth } = useLayout();
   const { token } = theme.useToken();
 
+  // Generate menu structure from mock data with collapsed state
+  const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
+
   // Find the current menu item based on the path
-  const currentMenuItem = menuItems.find(item => item.path === location.pathname);
+  const currentMenuItem = location.pathname === '/' ? { key: 'all-products', label: 'Product Catalog', path: '/' } : null;
 
   const breadcrumbItems = [];
   if (currentMenuItem) {
     breadcrumbItems.push(
       <Breadcrumb.Item key={currentMenuItem.key}>
         <Link to={currentMenuItem.path}>{currentMenuItem.label}</Link>
+      </Breadcrumb.Item>
+    );
+  }
+
+  // Handle folder pages - add breadcrumb for folder pages
+  if (location.pathname.startsWith('/folder/')) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="catalog">
+        <Link to="/">Product Catalog</Link>
       </Breadcrumb.Item>
     );
   }
@@ -154,12 +214,10 @@ const AppLayout = () => {
         </div>
         <Menu 
           mode="inline" 
-          defaultSelectedKeys={['home']} 
-          items={menuItems.map(item => ({ 
-            key: item.key, 
-            icon: item.icon,
-            label: <Link to={item.path}>{item.label}</Link> 
-          }))}
+          defaultSelectedKeys={['all-products']}
+          defaultOpenKeys={['products']}
+          items={menuItems}
+          inlineIndent={16}
           style={{ 
             border: 'none',
             padding: '8px',

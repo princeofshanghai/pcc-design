@@ -34,7 +34,7 @@ export { default as StatusTag } from './attributes/StatusTag';
 export { default as LobTag } from './attributes/LobTag';
 export { default as FolderTag } from './attributes/FolderTag';
 export { default as CountTag } from './attributes/CountTag';
-export { default as FolderTabs } from './folders/FolderTabs';
+// FolderTabs component removed - no longer used with new navigation
 export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
 
 // Filter components

@@ -8,9 +8,10 @@ const { Text } = Typography;
 
 interface GroupedProductListProps {
   groupedProducts: Record<string, Product[]>;
+  hideRedundantColumns?: boolean;
 }
 
-const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts }) => {
+const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts, hideRedundantColumns }) => {
   const { token } = theme.useToken();
 
   return (
@@ -37,6 +38,7 @@ const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts
               <ProductListItem 
                 key={product.id}
                 product={product}
+                hideRedundantColumns={hideRedundantColumns}
               />
             ))}
           </div>

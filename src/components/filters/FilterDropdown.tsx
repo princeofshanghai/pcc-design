@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, Tooltip } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
+import { useTruncationDetection } from '../../hooks/useTruncationDetection';
 
 const { OptGroup, Option } = Select;
 
@@ -27,14 +28,44 @@ interface FilterDropdownProps {
   dropdownStyle?: React.CSSProperties;
 }
 
-const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, value, onChange, style, size, showOptionTooltip = false, dropdownStyle }) => {
-  const renderLabel = (label: string) => {
-    if (showOptionTooltip) {
-      return <Tooltip title={label} placement="right">{label}</Tooltip>;
-    }
-    return label;
-  };
+// Component for dropdown options with smart tooltips
+const DropdownOption: React.FC<{ 
+  label: string; 
+  showTooltip?: boolean;
+}> = ({ label, showTooltip = false }) => {
+  const { isTruncated, textRef } = useTruncationDetection(label, 200); // Approximate dropdown width
 
+  if (!showTooltip) {
+    return <span>{label}</span>;
+  }
+
+  const content = (
+    <span ref={textRef} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      {label}
+    </span>
+  );
+
+  if (isTruncated) {
+    return (
+      <Tooltip title={label} placement="right">
+        {content}
+      </Tooltip>
+    );
+  }
+
+  return content;
+};
+
+const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
+  placeholder, 
+  options, 
+  value, 
+  onChange, 
+  style, 
+  size, 
+  showOptionTooltip = false, 
+  dropdownStyle 
+}) => {
   return (
     <Select
       value={value}
@@ -53,7 +84,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, v
             <OptGroup key={opt.label} label={opt.label}>
               {opt.options.map(child => (
                 <Option key={child.value} value={child.value} label={child.label}>
-                  {renderLabel(child.label)}
+                  <DropdownOption label={child.label} showTooltip={showOptionTooltip} />
                 </Option>
               ))}
             </OptGroup>
@@ -61,7 +92,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ placeholder, options, v
         }
         return (
           <Option key={opt.value} value={opt.value} label={opt.label}>
-            {renderLabel(opt.label)}
+            <DropdownOption label={opt.label} showTooltip={showOptionTooltip} />
           </Option>
         );
       })}

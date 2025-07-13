@@ -9,11 +9,48 @@ import { useLayout } from '../../context/LayoutContext';
 import { mockProducts } from '../../utils/mock-data';
 import type { LOB } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
+import { useTruncationDetection } from '../../hooks/useTruncationDetection';
 
 const { Sider, Header, Content } = Layout;
 
+
+
+// Component for sidebar menu items with smart tooltips
+const SidebarMenuItem: React.FC<{
+  children: React.ReactNode;
+  text: string;
+  collapsed: boolean;
+}> = ({ children, text, collapsed }) => {
+  // When collapsed, Ant Design's Menu handles tooltips automatically
+  // Only use our custom logic when expanded
+  const availableWidth = collapsed ? undefined : 180; // Approximate available width when expanded
+  const { isTruncated, textRef } = useTruncationDetection(text, availableWidth);
+
+  if (collapsed) {
+    // When collapsed, let Ant Design handle tooltips
+    return <>{children}</>;
+  }
+
+  // When expanded, use our truncation detection
+  const content = (
+    <span ref={textRef} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      {children}
+    </span>
+  );
+
+  if (isTruncated) {
+    return (
+      <Tooltip title={text} placement="right">
+        {content}
+      </Tooltip>
+    );
+  }
+
+  return content;
+};
+
 // Helper function to generate menu structure from mock data
-const generateMenuStructure = (isCollapsed: boolean) => {
+const generateMenuStructure = (collapsed: boolean) => {
   const lobData = mockProducts.reduce((acc, product) => {
     if (!acc[product.lob]) {
       acc[product.lob] = {};
@@ -25,7 +62,7 @@ const generateMenuStructure = (isCollapsed: boolean) => {
     return acc;
   }, {} as Record<LOB, Record<string, number>>);
 
-  // Create the menu structure - conditionally show tooltips only when not collapsed
+  // Create the menu structure
   const menuItems = [
     {
       key: 'products',
@@ -34,29 +71,25 @@ const generateMenuStructure = (isCollapsed: boolean) => {
       children: [
         {
           key: 'all-products',
-          label: isCollapsed ? (
-            <Link to="/">{toSentenceCase('All Products')}</Link>
-          ) : (
-            <Tooltip title={toSentenceCase('All Products')} placement="right">
+          label: (
+            <SidebarMenuItem text={toSentenceCase('All Products')} collapsed={collapsed}>
               <Link to="/">{toSentenceCase('All Products')}</Link>
-            </Tooltip>
+            </SidebarMenuItem>
           )
         },
         ...Object.entries(lobData).map(([lob, folders]) => ({
           key: lob.toLowerCase(),
-          label: isCollapsed ? <span>{lob}</span> : (
-            <Tooltip title={lob} placement="right">
+          label: (
+            <SidebarMenuItem text={lob} collapsed={collapsed}>
               <span>{lob}</span>
-            </Tooltip>
+            </SidebarMenuItem>
           ),
           children: Object.entries(folders).map(([folder]) => ({
             key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
-            label: isCollapsed ? (
-              <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
-            ) : (
-              <Tooltip title={folder} placement="right">
+            label: (
+              <SidebarMenuItem text={folder} collapsed={collapsed}>
                 <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
-              </Tooltip>
+              </SidebarMenuItem>
             )
           }))
         }))
@@ -75,7 +108,7 @@ const AppLayout = () => {
   const { maxWidth } = useLayout();
   const { token } = theme.useToken();
 
-  // Generate menu structure from mock data with collapsed state
+  // Generate menu structure from mock data
   const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
 
   // Find the current menu item based on the path

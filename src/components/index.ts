@@ -42,11 +42,10 @@ export { default as FilterBar } from './filters/FilterBar';
 export { default as FilterDropdown } from './filters/FilterDropdown';
 export { default as SearchBar } from './filters/SearchBar';
 export { default as ViewOptions } from './filters/ViewOptions';
-export { default as ViewToggle } from './filters/ViewToggle';
 
 // Shared/utility components
 export { default as CopyableId } from './shared/CopyableId';
 
 // Export types that might be imported from components
-export type { ViewMode } from './filters/ViewToggle';
+export type { ViewMode } from './filters/ViewOptions';
 export type { SelectOption } from './filters/FilterDropdown'; 

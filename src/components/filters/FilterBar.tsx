@@ -4,8 +4,7 @@ import { ListFilter } from 'lucide-react';
 import { zIndex } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
-import ViewOptions from './ViewOptions';
-import ViewToggle, { type ViewMode } from './ViewToggle';
+import ViewOptions, { type ViewMode } from './ViewOptions';
 import { toSentenceCase } from '../../utils/formatters/text';
 import './DrawerTitle.css';
 
@@ -44,6 +43,10 @@ interface FilterBarProps {
       value: ViewMode;
       setter: (mode: ViewMode) => void;
   };
+  // New prop to control how filters are displayed
+  displayMode?: 'inline' | 'drawer';
+  // New prop to control filter size
+  filterSize?: 'small' | 'middle' | 'large';
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -52,6 +55,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onClearAll,
   viewOptions,
   viewMode,
+  displayMode = 'drawer', // Default to current behavior
+  filterSize = 'middle', // Default filter size
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder;
@@ -69,6 +74,49 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   const hasFilters = filters.length > 0;
 
+  // Component to render filters (can be used inline or in drawer)
+  const renderFilters = () => (
+    <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
+           style={{ width: '100%' }} 
+           size={displayMode === 'inline' ? 16 : 32}
+           wrap={displayMode === 'inline'}>
+      {filters.map((filter, index) => (
+        <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
+               style={displayMode === 'inline' ? {} : { width: '100%' }} 
+               key={index}
+               size={displayMode === 'inline' ? 8 : 8}>
+          {displayMode === 'drawer' && (
+            <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
+          )}
+          <FilterDropdown
+            placeholder={filter.placeholder}
+            options={filter.options}
+            value={filter.value}
+            onChange={filter.onChange}
+            size={displayMode === 'inline' ? filterSize : 'large'}
+            style={{ 
+              width: displayMode === 'inline' ? 'auto' : '100%', 
+              minWidth: displayMode === 'inline' ? 160 : 140,
+              ...(filter.style || {}) 
+            }}
+            dropdownStyle={filter.dropdownStyle}
+            showOptionTooltip={filter.showOptionTooltip}
+          />
+        </Space>
+      ))}
+      {displayMode === 'inline' && hasFilters && activeFilterCount > 0 && (
+        <Button 
+          type="link" 
+          danger
+          onClick={handleClearAll} 
+          style={{ padding: '0 8px' }}
+        >
+          Clear All
+        </Button>
+      )}
+    </Space>
+  );
+
   return (
     <>
       <Row gutter={[16, 16]} justify="space-between" align="middle">
@@ -84,7 +132,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </Col>
         <Col>
           <Space>
-            {hasFilters && (
+            {hasFilters && displayMode === 'drawer' && (
                <Badge count={activeFilterCount}>
                 <Button 
                   icon={<ListFilter size={16} />} 
@@ -96,74 +144,65 @@ const FilterBar: React.FC<FilterBarProps> = ({
               </Badge>
             )}
 
-            {shouldRenderViewOptions && viewOptions && (
+            {(shouldRenderViewOptions || viewMode) && (
               <ViewOptions 
-                groupBy={viewOptions.groupBy?.value}
-                setGroupBy={viewOptions.groupBy?.setter}
-                groupByOptions={viewOptions.groupBy?.options}
-                isGroupingDisabled={viewOptions.groupBy?.disabled}
+                viewMode={viewMode?.value}
+                setViewMode={viewMode?.setter}
+                groupBy={viewOptions?.groupBy?.value}
+                setGroupBy={viewOptions?.groupBy?.setter}
+                groupByOptions={viewOptions?.groupBy?.options}
+                isGroupingDisabled={viewOptions?.groupBy?.disabled}
 
-                sortOrder={viewOptions.sortOrder?.value}
-                setSortOrder={viewOptions.sortOrder?.setter}
-                sortOptions={viewOptions.sortOrder?.options}
-              />
-            )}
-
-            {viewMode && (
-              <ViewToggle
-                viewMode={viewMode.value}
-                onChange={viewMode.setter}
+                sortOrder={viewOptions?.sortOrder?.value}
+                setSortOrder={viewOptions?.sortOrder?.setter}
+                sortOptions={viewOptions?.sortOrder?.options}
               />
             )}
           </Space>
         </Col>
       </Row>
 
-      <Drawer
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="drawer-title-text">Filters</span>
-            <Button 
-              type="link" 
-              danger
-              onClick={handleClearAll} 
-              disabled={activeFilterCount === 0}
-              style={{ padding: 0 }}
-            >
-              Clear All
-            </Button>
-          </div>
-        }
-        placement="right"
-        onClose={hideDrawer}
-        open={drawerVisible}
-        zIndex={zIndex.drawer}
-        footer={
-          <div style={{ textAlign: 'right' }}>
-            <Button type="default" onClick={hideDrawer}>
-              Done
-            </Button>
-          </div>
-        }
-      >
-        <Space direction="vertical" style={{ width: '100%' }} size={32}>
-          {filters.map((filter, index) => (
-            <Space direction="vertical" style={{ width: '100%' }} key={index}>
-              <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
-              <FilterDropdown
-                placeholder={filter.placeholder}
-                options={filter.options}
-                value={filter.value}
-                onChange={filter.onChange}
-                size="large"
-                style={{ width: '100%', ...(filter.style || {}) }}
-                dropdownStyle={filter.dropdownStyle}
-                showOptionTooltip={filter.showOptionTooltip}
-              />
-            </Space>
-          ))}
-        </Space>
-      </Drawer>
+      {/* Inline filters row */}
+      {displayMode === 'inline' && hasFilters && (
+        <Row style={{ marginTop: 32 }}>
+          <Col span={24}>
+            {renderFilters()}
+          </Col>
+        </Row>
+      )}
+
+      {/* Drawer for drawer mode */}
+      {displayMode === 'drawer' && (
+        <Drawer
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="drawer-title-text">Filters</span>
+              <Button 
+                type="link" 
+                danger
+                onClick={handleClearAll} 
+                disabled={activeFilterCount === 0}
+                style={{ padding: 0 }}
+              >
+                Clear All
+              </Button>
+            </div>
+          }
+          placement="right"
+          onClose={hideDrawer}
+          open={drawerVisible}
+          zIndex={zIndex.drawer}
+          footer={
+            <div style={{ textAlign: 'right' }}>
+              <Button type="default" onClick={hideDrawer}>
+                Done
+              </Button>
+            </div>
+          }
+        >
+          {renderFilters()}
+        </Drawer>
+      )}
     </>
   );
 };

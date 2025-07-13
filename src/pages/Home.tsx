@@ -88,65 +88,75 @@ const Home: React.FC = () => {
   const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''} found`;
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
-      <PageHeader
-        title={pageTitle}
-        subtitle={pageSubtitle}
-      />
+    <div style={{ width: '100%' }}>
+      {/* Header and Search Area */}
+      <div style={{ marginBottom: 24 }}>
+        <Space direction="vertical" style={{ width: '100%' }} size="large">
+          <PageHeader
+            title={pageTitle}
+            subtitle={pageSubtitle}
+          />
 
-      <FilterBar
-        search={{
-          placeholder: "Search by name, ID, or folder...",
-          onChange: setSearchQuery,
-        }}
-        onClearAll={clearAllProductFilters}
-        filters={[
-          {
-            placeholder: "All statuses",
-            options: STATUS_SELECT_OPTIONS,
-            value: statusFilter,
-            onChange: (value) => setStatusFilter((value as Status) ?? null),
-          },
-          // Only show folder dropdown when on All Products page
-          ...(!currentFolder ? [{
-            placeholder: "All folders",
-            options: folderOptions,
-            value: folderFilter,
-            onChange: (value: string | null) => setFolderFilter(value ?? null),
-            showOptionTooltip: true,
-          }] : []),
-        ]}
-        viewOptions={{
-          groupBy: {
-            value: groupBy,
-            setter: setGroupBy,
-            options: availableGroupByOptions,
-            disabled: false, // No longer disable based on folder tabs
-          },
-          sortOrder: {
-            value: sortOrder,
-            setter: setSortOrder,
-            options: SORT_OPTIONS,
-          },
-        }}
-        viewMode={{
-          value: viewMode,
-          setter: setViewMode,
-        }}
-      />
+          <FilterBar
+            displayMode="inline"
+            filterSize="large"
+            search={{
+              placeholder: "Search by name, ID, or folder...",
+              onChange: setSearchQuery,
+            }}
+            onClearAll={clearAllProductFilters}
+            filters={[
+              {
+                placeholder: "All statuses",
+                options: STATUS_SELECT_OPTIONS,
+                value: statusFilter,
+                onChange: (value) => setStatusFilter((value as Status) ?? null),
+              },
+              // Only show folder dropdown when on All Products page
+              ...(!currentFolder ? [{
+                placeholder: "All folders",
+                options: folderOptions,
+                value: folderFilter,
+                onChange: (value: string | null) => setFolderFilter(value ?? null),
+                showOptionTooltip: true,
+              }] : []),
+            ]}
+            viewOptions={{
+              groupBy: {
+                value: groupBy,
+                setter: setGroupBy,
+                options: availableGroupByOptions,
+                disabled: false, // No longer disable based on folder tabs
+              },
+              sortOrder: {
+                value: sortOrder,
+                setter: setSortOrder,
+                options: SORT_OPTIONS,
+              },
+            }}
+            viewMode={{
+              value: viewMode,
+              setter: setViewMode,
+            }}
+          />
+        </Space>
+      </div>
 
-      {viewMode === 'list' ? (
-        groupedProducts ? (
-          <GroupedProductListTable groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
+      {/* Content Area - closer to filters */}
+      <div>
+        {viewMode === 'list' ? (
+          groupedProducts ? (
+            <GroupedProductListTable groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
+          ) : (
+            <ProductListTable products={sortedProducts} hideRedundantColumns={!!currentFolder} />
+          )
+        ) : groupedProducts ? (
+          <GroupedProductList groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
         ) : (
-          <ProductListTable products={sortedProducts} hideRedundantColumns={!!currentFolder} />
-        )
-      ) : groupedProducts ? (
-        <GroupedProductList groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
-      ) : (
-        <ProductList products={sortedProducts} hideRedundantColumns={!!currentFolder} />
-      )}
-    </Space>
+          <ProductList products={sortedProducts} hideRedundantColumns={!!currentFolder} />
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -5,11 +5,11 @@ alwaysApply: true
 ---
 # Rule: `design-rules`
 
-1.  **Icon Source of Truth**: For any and all icons, I will exclusively use the `lucide-react` library. I will not introduce or use any other icon libraries (such as `@ant-design/icons` or `react-icons`) or inline SVGs.
+**Icon Library**: Use `lucide-react` exclusively for all icons. Do not use other icon libraries (`@ant-design/icons`, `react-icons`) or inline SVGs.
 
-2.  **Component Icon Policy**: When I add new components, especially from libraries like Ant Design which may come with their own default icons, I will immediately swap them with the appropriate `lucide-react` equivalents.
+**Implementation**:
+- Import icons directly: `import { Search, User, Check } from 'lucide-react';`
+- Use as React components with props: `<Search size={16} color="#999" />`
+- Replace default icons from UI libraries (like Ant Design) with `lucide-react` equivalents
 
-3.  **Implementation Approach**: To ensure a smooth and consistent integration that works well with your Ant Design setup, I will follow this process:
-    *   **Direct Import**: I'll import each icon by name directly from `lucide-react`, like this: `import { Search, User, Check } from 'lucide-react';`
-    *   **Component Usage**: I will use the imported icons as React components, passing props directly for customization.
-    *   **Styling**: I will use the `size` and `color` props on the `lucide-react` icon component itself (e.g., `<Search size={16} color="#999" />`). This is the standard way to style Lucide icons and integrates cleanly with React component props, avoiding potential conflicts with Ant Design's styling. 
+**Styling**: Use `size` and `color` props on the icon component itself to avoid conflicts with other styling systems. 

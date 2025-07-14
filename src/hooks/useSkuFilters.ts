@@ -1,26 +1,31 @@
 import { useState, useMemo } from 'react';
-import type { Sku, Region, SalesChannel, Status } from '../utils/types';
+import type { Sku, SalesChannel, Status, Product } from '../utils/types';
 import { toSentenceCase, formatFullDate } from '../utils/formatters';
 
-export const useSkuFilters = (initialSkus: Sku[]) => {
+export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [regionFilter, setRegionFilter] = useState<Region | null>(null);
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
+  const [lixKeyFilter, setLixKeyFilter] = useState<string | null>(null);
+  const [featuresFilter, setFeaturesFilter] = useState<'Standard' | 'Overrides' | null>(null);
   const [sortOrder, setSortOrder] = useState<string>('None');
   const [groupBy, setGroupBy] = useState<string>('None');
 
   const filteredSkus = useMemo(() => {
     let skus = initialSkus;
 
-    // Filtering
-    if (regionFilter) skus = skus.filter(s => s.region === regionFilter);
     if (channelFilter) skus = skus.filter(s => s.salesChannel === channelFilter);
     if (statusFilter) skus = skus.filter(s => s.status === statusFilter);
     if (billingCycleFilter) skus = skus.filter(s => s.billingCycle === billingCycleFilter);
+    if (lixKeyFilter) skus = skus.filter(s => (s.lix?.key ?? 'No LIX') === lixKeyFilter);
+    if (featuresFilter && product) {
+      skus = skus.filter(sku => {
+        const isStandard = JSON.stringify(sku.features ?? product.features) === JSON.stringify(product.features);
+        return featuresFilter === 'Standard' ? isStandard : !isStandard;
+      });
+    }
 
-    // Searching
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       skus = skus.filter(s =>
@@ -29,15 +34,15 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
     }
 
     return skus;
-  }, [initialSkus, searchQuery, regionFilter, channelFilter, statusFilter, billingCycleFilter]);
+  }, [initialSkus, searchQuery, channelFilter, statusFilter, billingCycleFilter, lixKeyFilter, featuresFilter, product]);
 
   const sortedSkus = useMemo(() => {
     const sorted = [...filteredSkus]; // Create a new array to avoid mutating the original
     sorted.sort((a, b) => {
       if (sortOrder === 'Effective Date') {
-        // Use price.startDate for sorting by date, handle undefined cases
-        const dateA = a.price.startDate ? new Date(a.price.startDate).getTime() : 0;
-        const dateB = b.price.startDate ? new Date(b.price.startDate).getTime() : 0;
+        // Use priceGroup.startDate for sorting by date, handle undefined cases
+        const dateA = a.priceGroup.startDate ? new Date(a.priceGroup.startDate).getTime() : 0;
+        const dateB = b.priceGroup.startDate ? new Date(b.priceGroup.startDate).getTime() : 0;
         return dateA - dateB;
       }
       // Since SKU has no name, we remove name sorting for now.
@@ -54,19 +59,16 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
       let key: string;
       switch (groupBy) {
         case 'Price Group':
-          key = sku.price.id || 'No Price Group';
+          key = sku.priceGroup.id || 'No Price Group';
           break;
         case 'Effective Date':
-          key = sku.price.startDate ? formatFullDate(sku.price.startDate) : 'No Date';
+          key = sku.priceGroup.startDate ? formatFullDate(sku.priceGroup.startDate) : 'No Date';
           break;
         case 'LIX':
           key = sku.lix ? sku.lix.key : 'No LIX';
           break;
         case 'Status':
           key = sku.status;
-          break;
-        case 'Region':
-          key = sku.region;
           break;
         case 'Sales Channel':
           key = sku.salesChannel;
@@ -89,18 +91,26 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
   const skuCount = sortedSkus.length;
 
   // Generate dynamic options for filters based on the *initial* list
-  const regionOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.region))].map(r => ({ value: r, label: toSentenceCase(r) })), [initialSkus]);
   const channelOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.salesChannel))].map(c => ({ value: c, label: toSentenceCase(c) })), [initialSkus]);
   const statusOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.status))].map(s => ({ value: s, label: toSentenceCase(s) })), [initialSkus]);
   const billingCycleOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.billingCycle))].map(bc => ({ value: bc, label: toSentenceCase(bc) })), [initialSkus]);
-  
+  const lixKeyOptions = useMemo(() => {
+    const keys = initialSkus.map(sku => sku.lix?.key ?? 'No LIX');
+    return [...new Set(keys)].map(key => ({ value: key, label: key }));
+  }, [initialSkus]);
+  const featuresOptions = [
+    { value: 'Standard', label: 'Standard' },
+    { value: 'Overrides', label: 'Overrides' },
+  ];
+
   return {
     // States and Setters
     searchQuery, setSearchQuery,
-    regionFilter, setRegionFilter,
     channelFilter, setChannelFilter,
     statusFilter, setStatusFilter,
     billingCycleFilter, setBillingCycleFilter,
+    lixKeyFilter, setLixKeyFilter,
+    featuresFilter, setFeaturesFilter,
     sortOrder, setSortOrder,
     groupBy, setGroupBy,
 
@@ -110,9 +120,10 @@ export const useSkuFilters = (initialSkus: Sku[]) => {
     skuCount,
 
     // Filter Options
-    regionOptions,
     channelOptions,
     statusOptions,
     billingCycleOptions,
+    lixKeyOptions,
+    featuresOptions,
   };
 }; 

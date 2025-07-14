@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs } from 'antd';
+import { Typography, Space, Tag, Tabs, Table } from 'antd';
 import { mockProducts } from '../utils/mock-data';
+import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
-import type { Region, SalesChannel, Status } from '../utils/types';
+import type { SalesChannel, Status } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import {
@@ -57,32 +58,34 @@ const ProductDetail: React.FC = () => {
   // New hook for SKU filtering
   const {
     setSearchQuery,
-    regionFilter, setRegionFilter, regionOptions,
     channelFilter, setChannelFilter, channelOptions,
     statusFilter, setStatusFilter, statusOptions,
     billingCycleFilter, setBillingCycleFilter, billingCycleOptions,
+    lixKeyFilter, setLixKeyFilter, lixKeyOptions,
+    featuresFilter, setFeaturesFilter, featuresOptions,
     sortOrder, setSortOrder,
     groupBy, setGroupBy,
     sortedSkus,
     groupedSkus,
     skuCount,
-  } = useSkuFilters(product?.skus || []);
+  } = useSkuFilters(product?.skus || [], product);
 
   const clearAllSkuFilters = () => {
-    setRegionFilter(null);
     setChannelFilter(null);
     setStatusFilter(null);
     setBillingCycleFilter(null);
+    setLixKeyFilter(null);
+    setFeaturesFilter(null);
   };
 
   // Apply price group filtering if specified in URL
   const finalSortedSkus = priceGroupFilter ? 
-    sortedSkus.filter(sku => sku.price.id === priceGroupFilter) : 
+    sortedSkus.filter(sku => sku.priceGroup.id === priceGroupFilter) : 
     sortedSkus;
 
   const finalGroupedSkus = priceGroupFilter ? 
     (groupedSkus ? Object.entries(groupedSkus).reduce((acc, [key, skus]) => {
-      const filtered = skus.filter(sku => sku.price.id === priceGroupFilter);
+      const filtered = skus.filter(sku => sku.priceGroup.id === priceGroupFilter);
       if (filtered.length > 0) {
         acc[key] = filtered;
       }
@@ -152,51 +155,15 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-        </Space>
-      ),
-    },
-    {
-      key: 'features',
-      label: 'Features',
-      children: (
-        product.features && product.features.length > 0 ? (
-          <PageSection title={toSentenceCase('Features')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="vertical" label="Features">
-                <ul style={{ margin: 0, paddingLeft: 20 }}>
-                  {product.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-              </AttributeDisplay>
-            </AttributeGroup>
+          {/* New Bundled in section */}
+          <PageSection title={toSentenceCase('Bundled in')}>
+            <span style={{ color: '#888' }}>NOTE* This shows bundles that this product is a part of</span>
           </PageSection>
-        ) : (
-          <PageSection title={toSentenceCase('Features')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="vertical" label="Features">
-                <span style={{ color: '#888' }}>No features listed for this product.</span>
-              </AttributeDisplay>
-            </AttributeGroup>
+          {/* New Offers section */}
+          <PageSection title={toSentenceCase('Offers')}>
+            <span style={{ color: '#888' }}>NOTE* This should show offers applicable to this product</span>
           </PageSection>
-        )
-      ),
-    },
-    {
-      key: 'offers',
-      label: 'Offers',
-      children: <div>NOTE* This should show offers applicable to this product</div>,
-    },
-    {
-      key: 'bundles',
-      label: 'Bundles',
-      children: <div>NOTE* This shows bundles that this product is a part of</div>,
-    },
-    {
-      key: 'other',
-      label: 'Other',
-      children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* Moved Configuration section from Other tab */}
           <PageSection title={toSentenceCase('Configuration')}>
             <AttributeGroup>
               <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
@@ -205,14 +172,9 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
-                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
-                  {product.postPurchaseLandingUrl}
-                </a>
-              </AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-
+          {/* Moved Tags section from Other tab */}
           {product.tags && product.tags.length > 0 && (
             <PageSection title={toSentenceCase('Tags')}>
               <AttributeGroup>
@@ -226,9 +188,14 @@ const ProductDetail: React.FC = () => {
               </AttributeGroup>
             </PageSection>
           )}
-
+          {/* Moved Links section from Other tab */}
           <PageSection title="Links">
             <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                  {product.postPurchaseLandingUrl}
+                </a>
+              </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
@@ -241,7 +208,7 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-
+          {/* Moved Visibility section from Other tab */}
           <PageSection title="Visibility">
             <AttributeGroup>
               <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
@@ -255,6 +222,38 @@ const ProductDetail: React.FC = () => {
             </AttributeGroup>
           </PageSection>
         </Space>
+      ),
+    },
+    // New Pricing tab
+    {
+      key: 'pricing',
+      label: 'Pricing',
+      children: (
+        <PageSection title={<Space><span>Price groups</span></Space>}>
+          <PriceGroupTable skus={product.skus} />
+        </PageSection>
+      ),
+    },
+    {
+      key: 'features',
+      label: 'Features',
+      children: (
+        <PageSection title={toSentenceCase('Features')}>
+          {product.features && product.features.length > 0 ? (
+            <div className="content-panel">
+              <Table
+                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
+                pagination={false}
+                size="small"
+                rowKey="key"
+                showHeader={false}
+              />
+            </div>
+          ) : (
+            <span style={{ color: '#888' }}>No features listed for this product.</span>
+          )}
+        </PageSection>
       ),
     },
     // New SKUs tab (second to last)
@@ -283,12 +282,6 @@ const ProductDetail: React.FC = () => {
             onClearAll={clearAllSkuFilters}
             filters={[
               {
-                placeholder: toSentenceCase("All Regions"),
-                options: regionOptions,
-                value: regionFilter,
-                onChange: (value) => setRegionFilter(value as Region ?? null),
-              },
-              {
                 placeholder: toSentenceCase("All Channels"),
                 options: channelOptions,
                 value: channelFilter,
@@ -299,6 +292,18 @@ const ProductDetail: React.FC = () => {
                 options: billingCycleOptions,
                 value: billingCycleFilter,
                 onChange: (value) => setBillingCycleFilter(value as string ?? null),
+              },
+              {
+                placeholder: toSentenceCase("All Lix Keys"),
+                options: lixKeyOptions,
+                value: lixKeyFilter,
+                onChange: (value) => setLixKeyFilter(value as string ?? null),
+              },
+              {
+                placeholder: toSentenceCase("All Features"),
+                options: featuresOptions,
+                value: featuresFilter,
+                onChange: (value) => setFeaturesFilter(value as 'Standard' | 'Overrides' ?? null),
               },
               {
                 placeholder: toSentenceCase("All Statuses"),

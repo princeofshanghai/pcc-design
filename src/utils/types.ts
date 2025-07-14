@@ -5,8 +5,6 @@ export type Status = 'Active' | 'Legacy' | 'Retired';
 
 export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium';
 
-export type Region = 'NAMER' | 'EMEA' | 'APAC' | 'LATAM' | 'OTHER';
-
 export type SalesChannel = 'Desktop' | 'Field' | 'Mobile';
 
 export type BillingCycle = 'Monthly' | 'Quarterly' | 'Annual';
@@ -60,8 +58,9 @@ export type PricePoint = {
   amount: number;
 };
 
-export type Price = {
+export type PriceGroup = {
   id?: string;
+  name: string;
   status?: Status;
   startDate?: string;
   endDate?: string;
@@ -70,11 +69,11 @@ export type Price = {
 
 export type Sku = {
   id: string;
+  name: string;
   status: Status;
-  region: Region;
   salesChannel: SalesChannel;
   billingCycle: BillingCycle;
-  price: Price;
+  priceGroup: PriceGroup;
   revenueRecognition: RevenueRecognition;
   switcherLogic: SwitcherPath[];
   refundPolicy: RefundPolicy;

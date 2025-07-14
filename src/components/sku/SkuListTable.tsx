@@ -51,15 +51,16 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     className: 'table-col-first',
   },
   {
-    title: toSentenceCase('Region'),
-    dataIndex: 'region',
-    key: 'region',
+    title: toSentenceCase('Name'),
+    dataIndex: 'name',
+    key: 'name',
+    render: (name: string) => name,
   },
   {
-    title: toSentenceCase('Sales Channel'),
+    title: toSentenceCase('Channel'),
     dataIndex: 'salesChannel',
     key: 'salesChannel',
-    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />,
+    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />, 
   },
   {
     title: toSentenceCase('Billing Cycle'),
@@ -68,58 +69,41 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
   },
   {
     title: toSentenceCase('Effective Date'),
-    dataIndex: 'price',
     key: 'effectiveDates',
-    render: (price: Sku['price']) => formatEffectiveDateRange(price.startDate, price.endDate),
+    render: (_: any, sku: Sku) => formatEffectiveDateRange(sku.priceGroup.startDate, sku.priceGroup.endDate),
   },
   {
     title: toSentenceCase('Price Group ID'),
     key: 'priceGroupId',
     render: (_: any, sku: Sku) => {
-      if (!sku.price.id) return 'N/A';
+      if (!sku.priceGroup.id) return 'N/A';
       return (
-        <Link to={`/product/${product.id}/price-group/${sku.price.id}`}>
-          {sku.price.id}
+        <Link to={`/product/${product.id}/price-group/${sku.priceGroup.id}`}>
+          {sku.priceGroup.id}
         </Link>
       );
     },
   },
   {
-    title: toSentenceCase('Price'),
-    key: 'amount',
-    render: (_: any, sku: Sku) => {
-      const usdPrice = sku.price.pricePoints.find(p => p.currencyCode === 'USD');
-
-      if (!usdPrice) {
-        return 'N/A';
-      }
-
-      const otherPricePointsCount = sku.price.pricePoints.length - 1;
-
-      return (
-        <Space>
-          <span>{formatCurrency(usdPrice)}</span>
-          {otherPricePointsCount > 0 && (
-            <CountTag count={otherPricePointsCount} />
-          )}
-        </Space>
-      );
-    },
+    title: toSentenceCase('Lix key'),
+    key: 'lixKey',
+    render: (_: any, sku: Sku) => sku.lix ? sku.lix.key : null,
   },
   {
-    title: toSentenceCase('LIX'),
-    key: 'lix',
+    title: toSentenceCase('Lix treatment'),
+    key: 'lixTreatment',
+    render: (_: any, sku: Sku) => sku.lix ? sku.lix.treatment : null,
+  },
+  {
+    title: toSentenceCase('Features'),
+    key: 'features',
     render: (_: any, sku: Sku) => {
-      if (!sku.lix) {
-        return null;
-      }
-
+      const isStandard = JSON.stringify(sku.features ?? product.features) === JSON.stringify(product.features);
       return (
-        <Tooltip title={`Treatment: ${sku.lix.treatment}`}>
-          <Space>
-            <FlaskConical size={14} />
-            <span>{sku.lix.key}</span>
-          </Space>
+        <Tooltip title={
+          'Standard: Features are the same as the product. Overrides: Features are different from the product.'
+        }>
+          <span>{isStandard ? 'Standard' : 'Overrides'}</span>
         </Tooltip>
       );
     },
@@ -128,7 +112,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     title: toSentenceCase('Status'),
     dataIndex: 'status',
     key: 'status',
-    render: (status: Status) => <StatusTag status={status} />,
+    render: (status: Status) => <StatusTag status={status} />, 
   },
 ];
 

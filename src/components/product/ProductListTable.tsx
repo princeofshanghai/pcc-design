@@ -16,14 +16,6 @@ interface ProductListTableProps {
 export const getProductListTableColumns = (_navigate: (path: string) => void, hideRedundantColumns?: boolean): ColumnsType<Product> => {
   const allColumns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => (
-        <span>{text}</span>
-      ),
-    },
-    {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
@@ -35,18 +27,24 @@ export const getProductListTableColumns = (_navigate: (path: string) => void, hi
       ),
     },
     {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string) => (
+        <span>{text}</span>
+      ),
+    },
+    {
       title: 'LOB',
       dataIndex: 'lob',
       key: 'lob',
-      render: (lob: Product['lob']) => <LobTag lob={lob} />,
+      render: (lob: Product['lob']) => <span>{lob}</span>,
     },
     {
       title: 'Folder',
       dataIndex: 'folder',
       key: 'folder',
-      render: (folder: string, record: Product) => (
-        <FolderTag folder={folder} lob={record.lob} />
-      ),
+      render: (folder: string) => <span>{folder}</span>,
     },
     {
       title: 'SKUs',

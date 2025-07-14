@@ -14,16 +14,16 @@ interface PriceDetailViewProps {
 }
 
 const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
-  const { price } = sku;
+  const price = sku.priceGroup;
 
   // Count how many SKUs in this product use the same price group
-  const skusWithSamePriceGroup = product.skus.filter(s => s.price.id === price.id);
+  const skusWithSamePriceGroup = product.skus.filter(s => s.priceGroup.id === price.id);
   const otherSkusCount = skusWithSamePriceGroup.length - 1; // Exclude current SKU
 
   // Group core currencies (USD, EUR, GBP, CAD, etc.) vs others
   const coreCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD'];
-  const corePoints = price.pricePoints.filter(p => coreCurrencies.includes(p.currencyCode));
-  const otherPoints = price.pricePoints.filter(p => !coreCurrencies.includes(p.currencyCode));
+  const corePoints = price.pricePoints.filter((p: PricePoint) => coreCurrencies.includes(p.currencyCode));
+  const otherPoints = price.pricePoints.filter((p: PricePoint) => !coreCurrencies.includes(p.currencyCode));
 
   // Build title with inline status
   const priceTitle = (

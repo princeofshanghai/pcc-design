@@ -1,7 +1,7 @@
 // This file will contain all the mock data for the PCC prototype.
 // It will serve as our single source of truth for products, SKUs, etc. 
 
-import type { Product } from './types';
+import type { Product, PriceGroup } from './types';
 
 // Define the folder structure independently of products
 // This allows us to show empty folders in the sidebar
@@ -47,7 +47,17 @@ export const mockProducts: Product[] = [
     paymentFailurePaidToPaidGracePeriod: 7,
     seatMin: 1,
     seatMax: 1,
-    features: ['Applicant Insights', '5 InMail Messages/month', 'Resume Insights'],
+    features: [
+      'Unlimited access to LinkedIn Learning',
+      'Private browsing',
+      'Applicant insights',
+      'Direct messaging',
+      'Who viewed your profile',
+      'Who\'s viewed your profile insights availability (365)',
+      'InMail credits (5)',
+      'AI tools',
+      'Top choice job',
+    ],
     tags: [{ type: 'Customer Type', value: 'Individual member' }, { type: 'Sales Top of Funnel', value: 'Premium Chooser' }],
     isVisibleOnBillingEmails: true,
     isVisibleOnRenewalEmails: true,
@@ -312,3 +322,95 @@ export const mockProducts: Product[] = [
     skus: [],
   }
 ]; 
+
+// Add price groups for Premium Career
+const pcFy25Monthly: PriceGroup = {
+  id: "9" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+  name: "PC_FY25_MONTHLY",
+  status: 'Active',
+  startDate: "2025-05-01",
+  pricePoints: [
+    { currencyCode: "USD", amount: 39.99 },
+    { currencyCode: "EUR", amount: 29.99 },
+    { currencyCode: "CAD", amount: 49.99 },
+    { currencyCode: "AUD", amount: 54.99 },
+    { currencyCode: "CHF", amount: 39.99 },
+    { currencyCode: "DKK", amount: 189.99 },
+    { currencyCode: "NOK", amount: 274.99 },
+    { currencyCode: "SEK", amount: 349.99 },
+    { currencyCode: "GBP", amount: 29.99 },
+    { currencyCode: "HKD", amount: 274.99 },
+    { currencyCode: "SGD", amount: 49.99 },
+    { currencyCode: "BRL", amount: 69.99 },
+    { currencyCode: "NZD", amount: 39.99 },
+    { currencyCode: "JPY", amount: 3999.00 },
+    { currencyCode: "INR", amount: 999.00 },
+    { currencyCode: "ZAR", amount: 249.00 },
+    { currencyCode: "AED", amount: 94.99 },
+    { currencyCode: "PLN", amount: 89.99 },
+    { currencyCode: "SAR", amount: 99.99 },
+    { currencyCode: "MXN", amount: 599.99 },
+    { currencyCode: "EGP", amount: 499.99 },
+    { currencyCode: "TRY", amount: 109.99 },
+  ]
+};
+
+const pcFy25Annual: PriceGroup = {
+  id: "9" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+  name: "PC_FY25_ANNUAL",
+  status: 'Active',
+  startDate: "2025-05-01",
+  pricePoints: [
+    { currencyCode: "USD", amount: 239.88 },
+    { currencyCode: "EUR", amount: 179.88 },
+    { currencyCode: "CAD", amount: 299.88 },
+    { currencyCode: "AUD", amount: 323.88 },
+    { currencyCode: "CHF", amount: 239.88 },
+    { currencyCode: "DKK", amount: 1139.88 },
+    { currencyCode: "NOK", amount: 1679.88 },
+    { currencyCode: "SEK", amount: 2099.88 },
+    { currencyCode: "GBP", amount: 179.88 },
+    { currencyCode: "HKD", amount: 1679.88 },
+    { currencyCode: "SGD", amount: 299.88 },
+    { currencyCode: "BRL", amount: 419.88 },
+    { currencyCode: "NZD", amount: 239.88 },
+    { currencyCode: "JPY", amount: 23988.00 },
+    { currencyCode: "INR", amount: 5988.00 },
+    { currencyCode: "ZAR", amount: 1499.88 },
+    { currencyCode: "AED", amount: 575.88 },
+    { currencyCode: "PLN", amount: 539.88 },
+    { currencyCode: "SAR", amount: 599.88 },
+    { currencyCode: "MXN", amount: 3599.88 },
+    { currencyCode: "EGP", amount: 2999.88 },
+    { currencyCode: "TRY", amount: 659.88 },
+  ]
+};
+
+// Add SKUs to Premium Career product
+const premiumCareerProduct = mockProducts.find(p => p.id === '5095285');
+if (premiumCareerProduct) {
+  premiumCareerProduct.skus = [
+    {
+      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      name: "Premium Career FY25 Desktop Monthly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: pcFy25Monthly,
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" }
+    },
+    {
+      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      name: "Premium Career FY25 Desktop Annual",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: pcFy25Annual,
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" }
+    }
+  ];
+} 

@@ -67,6 +67,23 @@ export type PriceGroup = {
   pricePoints: PricePoint[];
 };
 
+export type ChangeRequestStatus = 'Pending Review' | 'In Staging' | 'Live' | 'Failed';
+
+export type ConfigurationRequest = {
+  id: string;
+  targetProductId: string;
+  salesChannel: SalesChannel;
+  billingCycle: BillingCycle;
+  priceAmount: number;
+  lixKey?: string;
+  lixTreatment?: string;
+  status: ChangeRequestStatus;
+  createdBy: string;
+  createdDate: string;
+  generatedSkuId?: string;
+  generatedPriceGroupId?: string;
+};
+
 export type Sku = {
   id: string;
   name: string;
@@ -133,4 +150,5 @@ export type Product = {
   contactUsUrl?: string;
   accountLink?: string;
   tags?: Tag[];
+  configurationRequests?: ConfigurationRequest[];
 }; 

@@ -1,7 +1,7 @@
 // This file will contain all the mock data for the PCC prototype.
 // It will serve as our single source of truth for products, SKUs, etc. 
 
-import type { Product, PriceGroup } from './types';
+import type { Product, PriceGroup, ConfigurationRequest } from './types';
 
 // Define the folder structure independently of products
 // This allows us to show empty folders in the sidebar
@@ -32,6 +32,67 @@ export const folderStructure = {
     "All Other Products"
   ]
 };
+
+export const mockConfigurationRequests: ConfigurationRequest[] = [
+  {
+    id: 'config-001',
+    targetProductId: '5095285', // Premium Career
+    salesChannel: 'Desktop',
+    billingCycle: 'Quarterly',
+    priceAmount: 89.99,
+    status: 'Live',
+    createdBy: 'Priya Sharma (PM)',
+    createdDate: '2024-03-15T10:30:00Z',
+    generatedSkuId: 'sku-quarterly-001',
+    generatedPriceGroupId: 'pg-quarterly-001',
+  },
+  {
+    id: 'config-002',
+    targetProductId: '5095295', // Sales Navigator Core
+    salesChannel: 'Mobile',
+    billingCycle: 'Monthly',
+    priceAmount: 79.99,
+    status: 'In Staging',
+    createdBy: 'Anand Patel (Pricing)',
+    createdDate: '2024-03-20T14:15:00Z',
+  },
+  {
+    id: 'config-003',
+    targetProductId: '5095285', // Premium Career
+    salesChannel: 'Desktop',
+    billingCycle: 'Quarterly',
+    priceAmount: 85.99,
+    lixKey: 'quarterly_pricing_test',
+    lixTreatment: 'lower_price',
+    status: 'Pending Review',
+    createdBy: 'Priya Sharma (PM)',
+    createdDate: '2024-03-22T09:45:00Z',
+  },
+  {
+    id: 'config-004',
+    targetProductId: '5095310', // Learning Hub Pro
+    salesChannel: 'Field',
+    billingCycle: 'Annual',
+    priceAmount: 1199.99,
+    status: 'Failed',
+    createdBy: 'Sam Chen (Business)',
+    createdDate: '2024-03-18T16:20:00Z',
+  },
+  {
+    id: 'config-005',
+    targetProductId: '5095295', // Sales Navigator Core
+    salesChannel: 'Desktop',
+    billingCycle: 'Quarterly',
+    priceAmount: 239.99,
+    lixKey: 'quarterly_nav_test',
+    lixTreatment: 'standard_price',
+    status: 'Live',
+    createdBy: 'Anand Patel (Pricing)',
+    createdDate: '2024-03-12T11:10:00Z',
+    generatedSkuId: 'sku-nav-quarterly-001',
+    generatedPriceGroupId: 'pg-nav-quarterly-001',
+  },
+];
 
 export const mockProducts: Product[] = [
   {

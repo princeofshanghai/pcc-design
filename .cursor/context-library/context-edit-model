@@ -24,9 +24,8 @@ Product appears in catalog but shows **"0 configurations"**
 **Entry:** Product Detail Page → Pricing Tab → "Add Configuration"
 
 **What User Does:**
-- Choose channel (Desktop, Mobile, API)
+- Choose channel (Desktop, Mobile, Field)
 - Choose billing frequency (Monthly, Annual, Quarterly)
-- Choose region (NAMER, EMEA, APAC)
 - Set pricing (starting with primary currency like USD)
 - *(Optional)* Add LIX Key + Treatment for experimentation
 

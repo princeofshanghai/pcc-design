@@ -356,6 +356,15 @@ const ProductDetail: React.FC = () => {
       ),
     },
     {
+      key: 'experiments',
+      label: 'Experiments',
+      children: (
+        <PageSection title="Experiments">
+          <span style={{ color: '#888' }}>NOTE* This should show experiments related to this product</span>
+        </PageSection>
+      ),
+    },
+    {
       key: 'activity',
       label: 'Activity',
       children: <div>NOTE* This should show activity for this product. List of activities with link to change request</div>,

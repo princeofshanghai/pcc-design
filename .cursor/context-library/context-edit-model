@@ -1,0 +1,183 @@
+# Product Creation Workflow
+
+## Step 1: Create Product (Minimal Viable Product)
+
+**Entry:** Products page → "Create New Product"
+
+**What User Does:**
+- Enter product name, description, LOB, and folder
+- Select base digital goods bundle (features/entitlements)
+- Submit
+
+**What Gets Created:**
+- Product record only
+- Default digital goods bundle
+- No SKUs — product exists but isn't sellable yet
+
+**Result:**  
+Product appears in catalog but shows **"0 configurations"**
+
+---
+
+## Step 2: Make Product Sellable
+
+**Entry:** Product Detail Page → Pricing Tab → "Add Configuration"
+
+**What User Does:**
+- Choose channel (Desktop, Mobile, API)
+- Choose billing frequency (Monthly, Annual, Quarterly)
+- Choose region (NAMER, EMEA, APAC)
+- Set pricing (starting with primary currency like USD)
+- *(Optional)* Add LIX Key + Treatment for experimentation
+
+**What Gets Created (Auto-generated):**
+- Price Group with specified pricing
+- SKU with the exact configuration (channel + billing + region)
+- SKU inherits product’s digital goods bundle
+- SKU gets assigned to the Price Group
+
+**Result:**  
+Product becomes sellable for this specific combination
+
+---
+
+# Product Detail Page Structure
+
+## Tab Design Philosophy
+Different users have different information needs for the same product. Rather than one overwhelming interface, we provide focused views that match actual workflows.
+
+## Tab Breakdown
+
+### Overview Tab — *"What Is This Product?"*
+- **Users:** Executives, new team members, cross-functional stakeholders  
+- **Content:** Product description, high-level metrics, bundle/offer relationships, available channels/billing summary  
+- **Job:** Quick context and orientation  
+
+### Pricing Tab — *"How Do We Price This Product?"*
+- **Users:** Pricing teams, finance, revenue analysts  
+- **Content:** Price group strategies, currency coverage, pricing performance  
+- **Job:** Understanding and managing pricing strategies  
+
+### Features Tab — *"What Does This Product Include?"*
+- **Users:** Product managers, feature teams  
+- **Content:** Base digital goods bundle, SKU-specific feature overrides  
+- **Job:** Managing product capabilities and feature sets  
+
+### Configuration Tab — *"What Can Customers Buy?"*
+- **Users:** Operations teams, technical support, sales  
+- **Content:** Complete SKU inventory with all attributes and status  
+- **Job:** Understanding all sellable combinations  
+
+### Experiments Tab — *"What Are We Learning?"*
+- **Users:** Product managers, data analysts  
+- **Content:** Active experiments, performance data, TREX integration  
+- **Job:** Managing tests and measuring outcomes  
+
+---
+
+# Change Management & SKU Creation
+
+## The SKU Creation Pattern
+
+Most product changes create new SKUs (immutable versioning):
+
+✅ Change product description → Duplicate all SKUs with new description  
+✅ Add/modify features → New SKUs with updated digital goods  
+✅ Add new configuration → New SKU for that channel/billing/region combo  
+✅ Experiment with pricing → New SKU with experimental price group  
+❌ Modify price points in existing price group → Updates price group only  
+
+---
+
+## Change Workflow: Preview → Create → Change Request
+
+1. User fills form (any type of change)  
+2. **Preview** → Shows what entities will be created (no database writes)  
+3. **Create** → Creates entities and enters change request workflow  
+4. **Change Request** → EI Staging → Production → Live  
+
+> No draft state — clean one-shot workflow
+
+---
+
+# Experimentation Integration
+
+## PCC + TREX Division of Labor
+
+- **PCC Role:** Product configuration and LIX tagging  
+- **TREX Role:** Experiment execution and traffic control  
+
+## How It Works
+
+- **Standard Configuration:** Leave LIX fields blank → Available to everyone when live  
+- **Experimental Configuration:** Add LIX Key + Treatment → TREX controls who sees it  
+
+**Example:**
+- User creates: Quarterly/Desktop/NAMER with  
+  - `LIX Key`: `"quarterly_test"`  
+  - `Treatment`: `"treatment_a"`
+- TREX sees: `"quarterly_test"` experiment with `treatment_a` option  
+- TREX decides: Show to 20% of eligible users, track performance  
+
+## Experiment Types Supported
+
+- **New Configuration Experiments:** "Should we offer quarterly billing?"  
+- **Pricing Experiments:** "Should quarterly cost $89 vs $129?"  
+- **Feature Experiments:** "Should we add premium analytics?"
+
+---
+
+# User Entry Points & Workflows
+
+## Multiple Entry Points for Different Intents
+
+- **"Edit Product"** → Change what the product is  
+  - Product description, core features, base digital goods  
+  - Creates new SKUs for all existing configurations  
+
+- **"Add Configuration"** → Expand how product is sold  
+  - New channel/billing/region combinations  
+  - Creates new SKU for specific configuration  
+
+- **"Edit Pricing"** → Modify pricing strategy  
+  - Update price points within existing price groups  
+  - Usually doesn’t create new SKUs  
+
+---
+
+## Example Scenario: Enable Quarterly Billing
+
+**Current State:**  
+Premium Career with Monthly ($29) and Annual ($299) Desktop options
+
+**User Flow:**
+1. Premium Career → Pricing Tab → "Add Configuration"  
+2. Channel: Desktop  
+3. Billing: Quarterly  
+4. Region: NAMER  
+5. Price: $89  
+6. *(Optional)* LIX fields if testing vs full launch  
+7. Preview → Create → Change Request → Live  
+
+**Result:**
+- **Standard:** Everyone sees quarterly option  
+- **Experiment:** Subset sees quarterly based on TREX rules  
+
+---
+
+# Key Design Principles
+
+## Progressive Disclosure
+Show complexity only when needed — each tab reveals appropriate detail level for its use case.
+
+## Intent-Based Design
+Users focus on business goals ("add quarterly billing") not technical implementation ("create SKUs").
+
+## Abstracted Complexity
+SKU creation happens automatically based on business decisions, but technical details are available for advanced users.
+
+## Scalable Architecture
+Easy to add new product attributes, channels, billing frequencies without redesigning core workflows.
+
+## Role-Based Optimization
+Each interface element serves specific user types effectively rather than trying to serve all use cases.

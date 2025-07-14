@@ -58,10 +58,11 @@ const SidebarMenuItem: React.FC<{
 const generateMenuStructure = (collapsed: boolean) => {
   // Create the menu structure
   const menuItems = [
+    // Products section at the top (no icon)
     {
       key: 'products',
       label: 'Products',
-      icon: <Box size={16} />,
+      // icon: <Box size={16} />, // removed
       children: [
         {
           key: 'all-products',
@@ -71,23 +72,76 @@ const generateMenuStructure = (collapsed: boolean) => {
             </SidebarMenuItem>
           )
         },
-        ...Object.entries(folderStructure).map(([lob, folders]) => ({
-          key: lob.toLowerCase(),
-          label: (
-            <SidebarMenuItem text={lob} collapsed={collapsed}>
-              <span>{lob}</span>
-            </SidebarMenuItem>
-          ),
-          children: folders.map((folder) => ({
-            key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
+        // Sort LOBs alphabetically
+        ...Object.entries(folderStructure)
+          .sort(([lobA], [lobB]) => lobA.localeCompare(lobB))
+          .map(([lob, folders]) => ({
+            key: lob.toLowerCase(),
             label: (
-              <SidebarMenuItem text={folder} collapsed={collapsed}>
-                <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+              <SidebarMenuItem text={lob} collapsed={collapsed}>
+                <span>{lob}</span>
               </SidebarMenuItem>
-            )
+            ),
+            // Sort folders alphabetically
+            children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
+              key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
+              label: (
+                <SidebarMenuItem text={folder} collapsed={collapsed}>
+                  <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+                </SidebarMenuItem>
+              )
+            }))
           }))
-        }))
       ]
+    },
+    // New top-level pages in specified order (no icons)
+    {
+      key: 'offers',
+      label: (
+        <SidebarMenuItem text="Offers" collapsed={collapsed}>
+          <Link to="/offers">Offers</Link>
+        </SidebarMenuItem>
+      )
+    },
+    {
+      key: 'offer-groups',
+      label: (
+        <SidebarMenuItem text="Offer Groups" collapsed={collapsed}>
+          <Link to="/offer-groups">Offer Groups</Link>
+        </SidebarMenuItem>
+      )
+    },
+    {
+      key: 'rulesets',
+      label: (
+        <SidebarMenuItem text="Rulesets" collapsed={collapsed}>
+          <Link to="/rulesets">Rulesets</Link>
+        </SidebarMenuItem>
+      )
+    },
+    {
+      key: 'calculation-schemes',
+      label: (
+        <SidebarMenuItem text="Calculation Schemes" collapsed={collapsed}>
+          <Link to="/calculation-schemes">Calculation Schemes</Link>
+        </SidebarMenuItem>
+      )
+    },
+    {
+      key: 'change-requests',
+      label: (
+        <SidebarMenuItem text="Change Requests" collapsed={collapsed}>
+          <Link to="/change-requests">Change Requests</Link>
+        </SidebarMenuItem>
+      )
+    },
+    {
+      key: 'picasso-npi',
+      label: (
+        <SidebarMenuItem text="Picasso NPI" collapsed={collapsed}>
+          <Link to="/picasso-npi">Picasso NPI</Link>
+        </SidebarMenuItem>
+      )
     }
   ];
 

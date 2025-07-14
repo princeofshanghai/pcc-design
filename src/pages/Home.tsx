@@ -24,14 +24,14 @@ const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ la
 const urlToFolderName = (urlFolder: string): string => {
   // Handle special cases where folder names have specific capitalization
   const specialCases: Record<string, string> = {
-    'rlite': 'RLite',
-    'sales-navigator': 'Sales Navigator',
+    'premium-core-products': 'Premium Core Products',
+    'premium-multiseat-products': 'Premium Multiseat Products',
     'premium-company-page': 'Premium Company Page',
-    'premium-generic-products': 'Premium Generic Products',
-    'learning': 'Learning',
-    'ads': 'Ads',
-    'glint': 'Glint',
-    'jobs': 'Jobs'
+    'premium-small-business': 'Premium Small Business',
+    'premium-entitlements': 'Premium Entitlements',
+    'career-page': 'Career Page',
+    'all-lss-products': 'All LSS Products',
+    'all-lms-products': 'All LMS Products'
   };
   
   // Check if it's a special case first

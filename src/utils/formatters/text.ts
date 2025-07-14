@@ -1,4 +1,4 @@
-const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX']);
+const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API']);
 
 /**
  * Converts a string to sentence case while preserving specified acronyms.

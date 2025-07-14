@@ -6,9 +6,7 @@ import StatusTag from '../attributes/StatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import type { ColumnsType } from 'antd/es/table';
-import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
-import CountTag from '../attributes/CountTag';
-import { FlaskConical } from 'lucide-react';
+import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import { Link } from 'react-router-dom';
 
 interface SkuListTableProps {

@@ -2,8 +2,6 @@ import React from 'react';
 import { Table, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
-import LobTag from '../attributes/LobTag';
-import FolderTag from '../attributes/FolderTag';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';

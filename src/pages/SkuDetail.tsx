@@ -138,10 +138,6 @@ const SkuDetail: React.FC = () => {
       {/* Configuration Section */}
       <DetailSection title="Configuration">
         <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <AttributeDisplay label="Region" layout="horizontal">
-            {sku.region}
-          </AttributeDisplay>
-          
           <AttributeDisplay label="Sales Channel" layout="horizontal">
             <SalesChannelDisplay channel={sku.salesChannel} />
           </AttributeDisplay>

@@ -25,10 +25,10 @@ const PriceGroupDetail: React.FC = () => {
   const product = mockProducts.find(p => p.id === productId);
   
   // Find all SKUs that use this price group
-  const skusWithPriceGroup = product?.skus.filter(sku => sku.price.id === priceGroupId) || [];
+  const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
   
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
-  const priceGroup = skusWithPriceGroup[0]?.price;
+  const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
   useEffect(() => {
     if (product) {
@@ -64,8 +64,8 @@ const PriceGroupDetail: React.FC = () => {
 
   // Group core currencies vs others
   const coreCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD'];
-  const corePoints = priceGroup.pricePoints.filter(p => coreCurrencies.includes(p.currencyCode));
-  const otherPoints = priceGroup.pricePoints.filter(p => !coreCurrencies.includes(p.currencyCode));
+  const corePoints = priceGroup.pricePoints.filter((p: PricePoint) => coreCurrencies.includes(p.currencyCode));
+  const otherPoints = priceGroup.pricePoints.filter((p: PricePoint) => !coreCurrencies.includes(p.currencyCode));
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">

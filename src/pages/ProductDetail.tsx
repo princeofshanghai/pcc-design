@@ -298,7 +298,7 @@ const ProductDetail: React.FC = () => {
         >
           <FilterBar
             search={{
-              placeholder: "Search by SKU ID...",
+              placeholder: "Search by SKU ID or Name...",
               onChange: setSearchQuery,
             }}
             onClearAll={clearAllSkuFilters}

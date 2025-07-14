@@ -36,7 +36,7 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
 
 export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
   {
-    title: toSentenceCase('SKU ID'),
+    title: toSentenceCase('ID'),
     dataIndex: 'id',
     key: 'id',
     render: (id: string, record: Sku) => (
@@ -71,7 +71,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (_: any, sku: Sku) => formatEffectiveDateRange(sku.priceGroup.startDate, sku.priceGroup.endDate),
   },
   {
-    title: toSentenceCase('Price Group ID'),
+    title: toSentenceCase('Price group'),
     key: 'priceGroupId',
     render: (_: any, sku: Sku) => {
       if (!sku.priceGroup.id) return 'N/A';

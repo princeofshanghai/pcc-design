@@ -13,14 +13,14 @@ interface ProductListTableProps {
   hideRedundantColumns?: boolean;
 }
 
-export const getProductListTableColumns = (navigate: (path: string) => void, hideRedundantColumns?: boolean): ColumnsType<Product> => {
+export const getProductListTableColumns = (_navigate: (path: string) => void, hideRedundantColumns?: boolean): ColumnsType<Product> => {
   const allColumns = [
     {
-      title: 'Product Name',
+      title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: Product) => (
-        <a onClick={(e) => { e.stopPropagation(); navigate(`/product/${record.id}`); }}>{text}</a>
+      render: (text: string) => (
+        <span>{text}</span>
       ),
     },
     {

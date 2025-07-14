@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -78,9 +78,13 @@ const generateMenuStructure = (collapsed: boolean) => {
           .sort(([lobA], [lobB]) => lobA.localeCompare(lobB))
           .map(([lob, folders]) => ({
             key: lob.toLowerCase(),
+            className: 'sidebar-lob-menu-item', // Add this line for custom styling
             label: (
               <SidebarMenuItem text={lob} collapsed={collapsed}>
-                <span>{lob}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Folder size={16} color="#999" />
+                  <span>{lob}</span>
+                </span>
               </SidebarMenuItem>
             ),
             // Sort folders alphabetically
@@ -88,7 +92,10 @@ const generateMenuStructure = (collapsed: boolean) => {
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: (
                 <SidebarMenuItem text={folder} collapsed={collapsed}>
-                  <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Folder size={16} color="#999" />
+                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+                  </span>
                 </SidebarMenuItem>
               )
             }))
@@ -362,6 +369,12 @@ const AppLayout = () => {
             .ant-menu-title-content .sidebar-label {
               transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
               will-change: opacity, transform;
+            }
+            /* Custom style for LOB expandable sections only (not child folders) */
+            .sidebar-lob-menu-item > .ant-menu-title-content {
+              font-size: 13px;
+              font-weight: 500;
+              color: var(--ant-color-text-secondary);
             }
           `}
         </style>

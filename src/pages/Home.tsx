@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
+import { Folder } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import type { Status } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
@@ -111,6 +112,12 @@ const Home: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <PageHeader
+            preTitle={currentFolder ? (
+              <Space size="small">
+                <Folder size={14} />
+                <span>Folder</span>
+              </Space>
+            ) : undefined}
             title={pageTitle}
             subtitle={pageSubtitle}
           />

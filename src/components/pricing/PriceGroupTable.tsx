@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Table, Space } from 'antd';
-import type { PriceGroup, Sku, SalesChannel, BillingCycle, Status } from '../../utils/types';
-import FilterBar from '../filters/FilterBar';
-import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
+import type { PriceGroup, Sku } from '../../utils/types';
+import { formatCurrency, formatEffectiveDateRange } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import CopyableId from '../shared/CopyableId';
 
@@ -26,49 +25,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
 
   const priceGroups = useMemo(() => Object.values(priceGroupMap), [priceGroupMap]);
 
-  // Filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
-  const [billingCycleFilter, setBillingCycleFilter] = useState<BillingCycle | null>(null);
-  const [statusFilter, setStatusFilter] = useState<Status | null>(null);
-  const [sortOrder, setSortOrder] = useState<string>('None');
-  const [groupBy, setGroupBy] = useState<string>('None');
-
-  // Filter options
-  const channelOptions = useMemo(() => {
-    const set = new Set<SalesChannel>();
-    priceGroups.forEach(pg => pg.skus.forEach(sku => set.add(sku.salesChannel)));
-    return Array.from(set).map(c => ({ value: c, label: toSentenceCase(c) }));
-  }, [priceGroups]);
-  const billingCycleOptions = useMemo(() => {
-    const set = new Set<BillingCycle>();
-    priceGroups.forEach(pg => pg.skus.forEach(sku => set.add(sku.billingCycle)));
-    return Array.from(set).map(bc => ({ value: bc, label: toSentenceCase(bc) }));
-  }, [priceGroups]);
-  const statusOptions = useMemo(() => {
-    const set = new Set<Status>();
-    priceGroups.forEach(pg => pg.priceGroup.status && set.add(pg.priceGroup.status));
-    return Array.from(set).map(s => ({ value: s, label: toSentenceCase(s) }));
-  }, [priceGroups]);
-
-  // Filtering logic
-  const filteredPriceGroups = useMemo(() => {
-    return priceGroups.filter(pg => {
-      const sku = pg.skus[0]; // All SKUs for a price group have the same channel/cycle
-      if (channelFilter && sku.salesChannel !== channelFilter) return false;
-      if (billingCycleFilter && sku.billingCycle !== billingCycleFilter) return false;
-      if (statusFilter && pg.priceGroup.status !== statusFilter) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        if (!pg.priceGroup.id?.toLowerCase().includes(q) &&
-            !pg.priceGroup.name.toLowerCase().includes(q)) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, [priceGroups, channelFilter, billingCycleFilter, statusFilter, searchQuery]);
-
   // Table columns
   const columns = [
     {
@@ -76,7 +32,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
       dataIndex: 'id',
       key: 'id',
       render: (_: any, record: typeof priceGroups[0]) => (
-        <Space onClick={e => e.stopPropagation()}>
+        <Space onClick={(e: React.MouseEvent) => e.stopPropagation()}>
           <span>{record.priceGroup.id}</span>
           <CopyableId id={record.priceGroup.id || ''} showId={false} />
         </Space>
@@ -130,54 +86,15 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
   ];
 
   return (
-    <Space direction="vertical" size={32} style={{ width: '100%' }}>
-      <FilterBar
-        search={{
-          placeholder: 'Search by ID or Name...',
-          onChange: setSearchQuery,
-        }}
-        filters={[
-          {
-            placeholder: 'All Channels',
-            options: channelOptions,
-            value: channelFilter,
-            onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
-          },
-          {
-            placeholder: 'All Cycles',
-            options: billingCycleOptions,
-            value: billingCycleFilter,
-            onChange: (value) => setBillingCycleFilter(value as BillingCycle ?? null),
-          },
-          {
-            placeholder: 'All Statuses',
-            options: statusOptions,
-            value: statusFilter,
-            onChange: (value) => setStatusFilter(value as Status ?? null),
-          },
-        ]}
-        viewOptions={{
-          sortOrder: {
-            value: sortOrder,
-            setter: setSortOrder,
-            options: ['None'],
-          },
-          groupBy: {
-            value: groupBy,
-            setter: setGroupBy,
-            options: ['None'],
-          },
-        }}
-        displayMode="drawer"
-      />
+    <div className="content-panel">
       <Table
         columns={columns}
-        dataSource={filteredPriceGroups}
+        dataSource={priceGroups}
         rowKey={record => record.priceGroup.id || Math.random().toString()}
         pagination={false}
         size="small"
       />
-    </Space>
+    </div>
   );
 };
 

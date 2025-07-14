@@ -3,6 +3,7 @@ import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { useLayout } from '../context/LayoutContext';
 import {
   PageHeader,
   StatusTag,
@@ -22,10 +23,20 @@ const { Title } = Typography;
 const SkuDetail: React.FC = () => {
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
   const { setProductName, setSkuId } = useBreadcrumb();
+  const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
   const sku = product?.skus.find(s => s.id === skuId);
+
+  useEffect(() => {
+    // Set wider max-width for detail pages to accommodate data tables
+    setMaxWidth('1200px');
+
+    return () => {
+      setMaxWidth('1024px'); // Reset to default width
+    };
+  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {

@@ -96,10 +96,10 @@ const ProductDetail: React.FC = () => {
   const finalSkuCount = priceGroupFilter ? finalSortedSkus.length : skuCount;
 
   useEffect(() => {
-    // Set the max-width for this page
-    setMaxWidth('1024px');
+    // Set a wider max-width for product detail pages to accommodate data tables
+    setMaxWidth('1200px');
 
-    // Reset the max-width when the component unmounts
+    // Reset to default width when component unmounts
     return () => {
       setMaxWidth('1024px'); // Reset to default width
     };
@@ -230,6 +230,28 @@ const ProductDetail: React.FC = () => {
       label: 'Pricing',
       children: (
         <PageSection title={<Space><span>Price groups</span></Space>}>
+          <FilterBar
+            search={{
+              placeholder: "Search by ID or Name...",
+              onChange: () => {}, // TODO: Add price group filtering
+            }}
+            filters={[
+              // TODO: Add price group filters
+            ]}
+            viewOptions={{
+              sortOrder: {
+                value: 'None',
+                setter: () => {},
+                options: ['None'],
+              },
+              groupBy: {
+                value: 'None',
+                setter: () => {},
+                options: ['None'],
+              },
+            }}
+            displayMode="drawer"
+          />
           <PriceGroupTable skus={product.skus} />
         </PageSection>
       ),

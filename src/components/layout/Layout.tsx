@@ -169,8 +169,18 @@ const AppLayout = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName, skuId, priceGroupId } = useBreadcrumb();
-  const { maxWidth } = useLayout();
+  const { maxWidth, setMaxWidth } = useLayout();
   const { token } = theme.useToken();
+
+  // Calculate dynamic max width based on sidebar state and current page width
+  // Add 140px (sidebar width difference) when collapsed
+  const calculateDynamicWidth = (baseWidth: string) => {
+    const widthValue = parseInt(baseWidth);
+    return collapsed ? `${widthValue + 140}px` : baseWidth;
+  };
+
+  // Get the current max width from context (set by individual pages)
+  const dynamicMaxWidth = calculateDynamicWidth(maxWidth);
 
   // Animate label hiding after collapse
   useEffect(() => {
@@ -181,6 +191,8 @@ const AppLayout = () => {
       setShowLabels(true);
     }
   }, [collapsed]);
+
+  // Note: We don't need to update maxWidth here since pages set their own base width
 
   // Generate menu structure from mock data
   const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
@@ -440,7 +452,7 @@ const AppLayout = () => {
           minHeight: 280, 
           background: 'transparent',
         }}>
-          <div style={{ maxWidth, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
+          <div style={{ maxWidth: dynamicMaxWidth, margin: '0 auto' }}>
             <Outlet />
           </div>
         </Content>

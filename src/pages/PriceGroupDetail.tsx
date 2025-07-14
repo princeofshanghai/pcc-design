@@ -3,6 +3,7 @@ import { Typography, Space, List } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { useLayout } from '../context/LayoutContext';
 import {
   PageHeader,
   StatusTag,
@@ -20,6 +21,7 @@ const { Title } = Typography;
 const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId } = useBreadcrumb();
+  const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
@@ -29,6 +31,15 @@ const PriceGroupDetail: React.FC = () => {
   
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
+
+  useEffect(() => {
+    // Set wider max-width for detail pages to accommodate data tables
+    setMaxWidth('1200px');
+
+    return () => {
+      setMaxWidth('1024px'); // Reset to default width
+    };
+  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {

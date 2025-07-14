@@ -16,17 +16,17 @@ type ColorToken = 'colorSuccessText' | 'colorTextSecondary' | 'colorErrorText';
 const statusConfig: Record<Status, { icon: React.FC<any>; description: string; colorToken: ColorToken }> = {
   Active: {
     icon: CheckCircle2,
-    description: 'Currently live and being offered/used.',
+    description: 'Product is actively being sold.',
     colorToken: 'colorSuccessText',
   },
   Legacy: {
     icon: Archive,
-    description: 'No longer offered to new customers, but still used by existing customers.',
+    description: 'Product is no longer being sold, but still has grandfathered customers.',
     colorToken: 'colorTextSecondary',
   },
   Retired: {
     icon: XCircle,
-    description: 'Completely shut off and no longer in use.',
+    description: 'Product is no longer being sold and has no grandfathered customers.',
     colorToken: 'colorErrorText',
   },
 };

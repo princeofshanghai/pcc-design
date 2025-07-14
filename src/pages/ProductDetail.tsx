@@ -10,7 +10,6 @@ import {
   PageHeader,
   SkuListTable,
   GroupedSkuListTable,
-  DigitalGoodsTable,
   AttributeDisplay,
   PageSection,
   AttributeGroup,
@@ -127,8 +126,8 @@ const ProductDetail: React.FC = () => {
 
   const tabItems = [
     {
-      key: 'details',
-      label: 'Details',
+      key: 'overview',
+      label: 'Overview',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection title={toSentenceCase('General')}>
@@ -153,78 +152,34 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-
-          <PageSection
-            title={
-              <Space>
-                <span>{toSentenceCase('SKUs')}</span>
-                <CountTag count={finalSkuCount} />
-                {priceGroupFilter && (
-                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-                    (filtered by price group: {priceGroupFilter})
-                  </Typography.Text>
-                )}
-              </Space>
-            }
-          >
-            <FilterBar
-              search={{
-                placeholder: "Search by SKU ID...",
-                onChange: setSearchQuery,
-              }}
-              onClearAll={clearAllSkuFilters}
-              filters={[
-                {
-                  placeholder: toSentenceCase("All Regions"),
-                  options: regionOptions,
-                  value: regionFilter,
-                  onChange: (value) => setRegionFilter(value as Region ?? null),
-                },
-                {
-                  placeholder: toSentenceCase("All Channels"),
-                  options: channelOptions,
-                  value: channelFilter,
-                  onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
-                },
-                {
-                  placeholder: toSentenceCase("All Cycles"),
-                  options: billingCycleOptions,
-                  value: billingCycleFilter,
-                  onChange: (value) => setBillingCycleFilter(value as string ?? null),
-                },
-                {
-                  placeholder: toSentenceCase("All Statuses"),
-                  options: statusOptions,
-                  value: statusFilter,
-                  onChange: (value) => setStatusFilter(value as Status ?? null),
-                },
-              ]}
-              viewOptions={{
-                sortOrder: {
-                  value: sortOrder,
-                  setter: setSortOrder,
-                  options: SKU_SORT_OPTIONS,
-                },
-                groupBy: {
-                  value: groupBy,
-                  setter: setGroupBy,
-                  options: SKU_GROUP_BY_OPTIONS,
-                },
-              }}
-            />
-            {finalGroupedSkus ? (
-              <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />
-            ) : (
-              <SkuListTable skus={finalSortedSkus} product={product} />
-            )}
-          </PageSection>
-
-          {product.digitalGoods && product.digitalGoods.length > 0 && (
-            <PageSection title={toSentenceCase('Digital Goods')}>
-              <DigitalGoodsTable digitalGoods={product.digitalGoods} />
-            </PageSection>
-          )}
         </Space>
+      ),
+    },
+    {
+      key: 'features',
+      label: 'Features',
+      children: (
+        product.features && product.features.length > 0 ? (
+          <PageSection title={toSentenceCase('Features')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="vertical" label="Features">
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {product.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+        ) : (
+          <PageSection title={toSentenceCase('Features')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="vertical" label="Features">
+                <span style={{ color: '#888' }}>No features listed for this product.</span>
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+        )
       ),
     },
     {
@@ -300,6 +255,77 @@ const ProductDetail: React.FC = () => {
             </AttributeGroup>
           </PageSection>
         </Space>
+      ),
+    },
+    // New SKUs tab (second to last)
+    {
+      key: 'skus',
+      label: 'SKUs',
+      children: (
+        <PageSection
+          title={
+            <Space>
+              <span>{toSentenceCase('SKUs')}</span>
+              <CountTag count={finalSkuCount} />
+              {priceGroupFilter && (
+                <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                  (filtered by price group: {priceGroupFilter})
+                </Typography.Text>
+              )}
+            </Space>
+          }
+        >
+          <FilterBar
+            search={{
+              placeholder: "Search by SKU ID...",
+              onChange: setSearchQuery,
+            }}
+            onClearAll={clearAllSkuFilters}
+            filters={[
+              {
+                placeholder: toSentenceCase("All Regions"),
+                options: regionOptions,
+                value: regionFilter,
+                onChange: (value) => setRegionFilter(value as Region ?? null),
+              },
+              {
+                placeholder: toSentenceCase("All Channels"),
+                options: channelOptions,
+                value: channelFilter,
+                onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
+              },
+              {
+                placeholder: toSentenceCase("All Cycles"),
+                options: billingCycleOptions,
+                value: billingCycleFilter,
+                onChange: (value) => setBillingCycleFilter(value as string ?? null),
+              },
+              {
+                placeholder: toSentenceCase("All Statuses"),
+                options: statusOptions,
+                value: statusFilter,
+                onChange: (value) => setStatusFilter(value as Status ?? null),
+              },
+            ]}
+            viewOptions={{
+              sortOrder: {
+                value: sortOrder,
+                setter: setSortOrder,
+                options: SKU_SORT_OPTIONS,
+              },
+              groupBy: {
+                value: groupBy,
+                setter: setGroupBy,
+                options: SKU_GROUP_BY_OPTIONS,
+              },
+            }}
+          />
+          {finalGroupedSkus ? (
+            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />
+          ) : (
+            <SkuListTable skus={finalSortedSkus} product={product} />
+          )}
+        </PageSection>
       ),
     },
     {

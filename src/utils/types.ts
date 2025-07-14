@@ -84,7 +84,7 @@ export type Sku = {
   paymentFailurePaidToPaidGracePeriod?: GracePeriod;
   seatMin?: number;
   seatMax?: number;
-  digitalGoods?: string[];
+  features?: string[];
   tags?: Tag[];
   lix?: {
     key: string;
@@ -111,7 +111,7 @@ export type Product = {
   paymentFailurePaidToPaidGracePeriod: GracePeriod;
   seatMin: number;
   seatMax: number;
-  digitalGoods: string[];
+  features: string[];
   // Optional miscellaneous attributes
   isVisibleOnBillingEmails?: boolean;
   isVisibleOnRenewalEmails?: boolean;

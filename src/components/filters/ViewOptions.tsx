@@ -58,11 +58,18 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   const menuItems: MenuProps['items'] = [];
 
   if (showGroupBy) {
+    // Ensure 'None' is first, rest alphabetical
+    const sortedGroupByOptions = groupByOptions
+      ? [
+          ...groupByOptions.filter(opt => opt === 'None'),
+          ...groupByOptions.filter(opt => opt !== 'None').sort((a, b) => a.localeCompare(b))
+        ]
+      : [];
     menuItems.push({
       key: 'group-by-group',
       label: toSentenceCase('Group by'),
       type: 'group',
-      children: groupByOptions.map(opt => ({
+      children: sortedGroupByOptions.map(opt => ({
         key: `group-${opt}`,
         disabled: isGroupingDisabled,
         label: (

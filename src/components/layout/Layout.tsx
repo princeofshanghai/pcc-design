@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -62,7 +62,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'products',
       label: 'Products',
-      // icon: <Box size={16} />, // removed
+      icon: <Box size={16} />, // add the cube icon back for Products only
+      className: 'sidebar-products-menu-item', // custom class for CSS targeting
       children: [
         {
           key: 'all-products',
@@ -101,7 +102,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Offers" collapsed={collapsed}>
           <Link to="/offers">Offers</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     },
     {
       key: 'offer-groups',
@@ -109,7 +111,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Offer Groups" collapsed={collapsed}>
           <Link to="/offer-groups">Offer Groups</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     },
     {
       key: 'rulesets',
@@ -117,7 +120,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Rulesets" collapsed={collapsed}>
           <Link to="/rulesets">Rulesets</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     },
     {
       key: 'calculation-schemes',
@@ -125,7 +129,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Calculation Schemes" collapsed={collapsed}>
           <Link to="/calculation-schemes">Calculation Schemes</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     },
     {
       key: 'change-requests',
@@ -133,7 +138,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Change Requests" collapsed={collapsed}>
           <Link to="/change-requests">Change Requests</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     },
     {
       key: 'picasso-npi',
@@ -141,7 +147,8 @@ const generateMenuStructure = (collapsed: boolean) => {
         <SidebarMenuItem text="Picasso NPI" collapsed={collapsed}>
           <Link to="/picasso-npi">Picasso NPI</Link>
         </SidebarMenuItem>
-      )
+      ),
+      icon: <SquareSlash size={16} />
     }
   ];
 
@@ -150,11 +157,22 @@ const generateMenuStructure = (collapsed: boolean) => {
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName, skuId, priceGroupId } = useBreadcrumb();
   const { maxWidth } = useLayout();
   const { token } = theme.useToken();
+
+  // Animate label hiding after collapse
+  useEffect(() => {
+    if (collapsed) {
+      const timeout = setTimeout(() => setShowLabels(false), 180); // match transition duration
+      return () => clearTimeout(timeout);
+    } else {
+      setShowLabels(true);
+    }
+  }, [collapsed]);
 
   // Generate menu structure from mock data
   const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
@@ -260,7 +278,9 @@ const AppLayout = () => {
           borderRight: '1px solid #f0f0f0',
           position: 'fixed',
           height: '100vh',
-          zIndex: 1000
+          zIndex: 1000,
+          transition: 'width 180ms cubic-bezier(0.4,0,0.2,1)',
+          willChange: 'width',
         }}
       >
         <div style={{ 
@@ -278,7 +298,7 @@ const AppLayout = () => {
                 alt="LinkedIn Logo" 
                 style={{ width: 24, height: 24 }} 
               />
-              <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: 0.1 }}>
+              <span className="sidebar-label" style={{ fontWeight: 600, fontSize: 18, letterSpacing: 0.1, transition: 'opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1)', opacity: showLabels ? 1 : 0, transform: showLabels ? 'translateX(0)' : 'translateX(-8px)' }}>
                 PCC
               </span>
             </div>
@@ -321,6 +341,27 @@ const AppLayout = () => {
               display: flex !important;
               justify-content: center !important;
               align-items: center !important;
+            }
+            /* Center the Products icon perfectly when collapsed */
+            .collapsed-menu .sidebar-products-menu-item .ant-menu-item-icon {
+              margin-left: 0 !important;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              position: absolute;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+            /* Animate sidebar label text for smooth expand/collapse */
+            .sidebar-label {
+              display: inline-block;
+              transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+              will-change: opacity, transform;
+            }
+            .ant-menu-title-content .sidebar-label {
+              transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+              will-change: opacity, transform;
             }
           `}
         </style>

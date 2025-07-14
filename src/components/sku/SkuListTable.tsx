@@ -8,7 +8,6 @@ import OverrideIndicator from '../pricing/OverrideIndicator';
 import type { ColumnsType } from 'antd/es/table';
 import { formatCurrency, toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
-import PriceDetailView from '../pricing/PriceDetailView';
 import { FlaskConical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -31,8 +30,8 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
       sku.paymentFailureFreeToPaidGracePeriod !== product.paymentFailureFreeToPaidGracePeriod) return true;
   if (isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && 
       sku.paymentFailurePaidToPaidGracePeriod !== product.paymentFailurePaidToPaidGracePeriod) return true;
-  if (isOverridden(sku.digitalGoods) && 
-      JSON.stringify(sku.digitalGoods) !== JSON.stringify(product.digitalGoods)) return true;
+  if (isOverridden(sku.features) && 
+      JSON.stringify(sku.features) !== JSON.stringify(product.features)) return true;
 
   return false;
 };
@@ -144,12 +143,6 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
         rowKey="id"
         pagination={false}
         size="small"
-        expandable={{
-          expandedRowRender: (record) => (
-            <PriceDetailView sku={record} product={product} />
-          ),
-          rowExpandable: (record) => record.id !== 'Not Expandable',
-        }}
       />
     </div>
   );

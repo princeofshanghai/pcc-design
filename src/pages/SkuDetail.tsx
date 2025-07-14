@@ -8,7 +8,6 @@ import {
   StatusTag,
   DetailSection,
   AttributeDisplay,
-  DigitalGoodsTable,
   PriceDetailView,
   LobTag,
   FolderTag,
@@ -76,8 +75,8 @@ const SkuDetail: React.FC = () => {
       overrides.push("Paid-to-Paid Grace Period");
     }
     
-    if (isOverridden(sku.digitalGoods)) {
-      overrides.push("Digital Goods");
+    if (isOverridden(sku.features)) {
+      overrides.push("Features");
     }
     
     return overrides;
@@ -214,29 +213,41 @@ const SkuDetail: React.FC = () => {
         </Space>
       </DetailSection>
 
-      {/* Digital Goods Section */}
-      {((sku.digitalGoods && sku.digitalGoods.length > 0) || (product.digitalGoods && product.digitalGoods.length > 0)) && (
+      {/* Features Section */}
+      {((sku.features && sku.features.length > 0) || (product.features && product.features.length > 0)) && (
         <DetailSection 
           title={
             <Space size="small">
-              <span>Digital Goods</span>
-              {isOverridden(sku.digitalGoods) && <OverrideIndicator />}
+              <span>Features</span>
+              {isOverridden(sku.features) && <OverrideIndicator />}
             </Space>
           } 
           noBodyPadding
         >
-          <DigitalGoodsTable digitalGoods={sku.digitalGoods || product.digitalGoods} />
-          {isOverridden(sku.digitalGoods) && (
+          <div style={{ padding: '16px 24px' }}>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              {(sku.features && sku.features.length > 0
+                ? sku.features
+                : product.features || []).map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+            </ul>
+          </div>
+          {isOverridden(sku.features) && (
             <div style={{ padding: '16px 24px', backgroundColor: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
               <OverrideComparison 
-                skuValue={`${sku.digitalGoods?.length || 0} features`} 
-                productValue={`${product.digitalGoods?.length || 0} features`} 
+                skuValue={`${sku.features?.length || 0} features`} 
+                productValue={`${product.features?.length || 0} features`} 
               />
               <div style={{ marginTop: '12px' }}>
                 <Typography.Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
                   Product Default Features:
                 </Typography.Text>
-                <DigitalGoodsTable digitalGoods={product.digitalGoods} />
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {(product.features || []).map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}

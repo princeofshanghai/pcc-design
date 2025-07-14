@@ -29,18 +29,19 @@ const SidebarMenuItem: React.FC<{
 
   // When expanded, use our truncation detection
   const content = (
-    <span 
-      ref={textRef as React.RefObject<HTMLSpanElement>}
+    <div 
+      ref={textRef as React.RefObject<HTMLDivElement>}
       style={{ 
-        display: 'block', 
         overflow: 'hidden', 
         textOverflow: 'ellipsis', 
         whiteSpace: 'nowrap',
-        maxWidth: '100%'
+        maxWidth: '100%',
+        minWidth: 0, // Important for flex children to shrink
+        width: '100%'
       }}
     >
       {children}
-    </span>
+    </div>
   );
 
   if (isTruncated) {
@@ -371,10 +372,41 @@ const AppLayout = () => {
               will-change: opacity, transform;
             }
             /* Custom style for LOB expandable sections only (not child folders) */
-            .sidebar-lob-menu-item > .ant-menu-title-content {
-              font-size: 13px;
-              font-weight: 500;
+            /* Target the LOB menu items that are direct children of Products submenu */
+            li.sidebar-lob-menu-item > .ant-menu-title-content span span:last-child {
+              font-size: 13px !important;
+              font-weight: 500 !important;
               color: var(--ant-color-text-secondary);
+            }
+            
+            /* Ensure child folders don't inherit this styling */
+            li.sidebar-lob-menu-item .ant-menu-sub .ant-menu-item span {
+              font-size: inherit !important;
+              font-weight: inherit !important;
+              color: inherit !important;
+            }
+
+            /* Fix text truncation in sidebar menu items */
+            .ant-menu-title-content {
+              overflow: hidden !important;
+              min-width: 0 !important;
+              flex: 1 !important;
+            }
+            
+            /* Ensure flex containers in menu items allow truncation */
+            .ant-menu-item span[style*="display: flex"] {
+              min-width: 0 !important;
+              overflow: hidden !important;
+            }
+            
+            /* Make sure links and text within flex containers can truncate */
+            .ant-menu-item span[style*="display: flex"] > span:last-child,
+            .ant-menu-item span[style*="display: flex"] > a {
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+              white-space: nowrap !important;
+              min-width: 0 !important;
+              flex: 1 !important;
             }
           `}
         </style>

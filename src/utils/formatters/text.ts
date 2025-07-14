@@ -1,4 +1,8 @@
-const ACRONYMS = new Set(['ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API']);
+const ACRONYMS = new Set([
+  'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API',
+  // Common currency codes
+  'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SEK', 'KRW', 'SGD', 'INR', 'MXN', 'BRL', 'ZAR'
+]);
 
 /**
  * Converts a string to sentence case while preserving specified acronyms.

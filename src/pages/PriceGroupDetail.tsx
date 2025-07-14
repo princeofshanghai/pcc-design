@@ -20,7 +20,7 @@ const { Title } = Typography;
 
 const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
-  const { setProductName, setPriceGroupId } = useBreadcrumb();
+  const { setProductName, setPriceGroupId, setPriceGroupName } = useBreadcrumb();
   const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
@@ -48,12 +48,16 @@ const PriceGroupDetail: React.FC = () => {
     if (priceGroupId) {
       setPriceGroupId(priceGroupId);
     }
+    if (priceGroup) {
+      setPriceGroupName(priceGroup.name);
+    }
 
     return () => {
       setProductName(null);
       setPriceGroupId(null);
+      setPriceGroupName(null);
     };
-  }, [product, priceGroupId, setProductName, setPriceGroupId]);
+  }, [product, priceGroupId, setProductName, setPriceGroupId, priceGroup, setPriceGroupName]);
 
   if (!product) {
     return (

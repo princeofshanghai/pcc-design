@@ -27,6 +27,9 @@ export const folderStructure = {
   ],
   "LMS": [
     "All LMS Products"
+  ],
+  "Other": [
+    "All Other Products"
   ]
 };
 

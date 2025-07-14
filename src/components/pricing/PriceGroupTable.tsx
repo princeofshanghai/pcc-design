@@ -1,15 +1,18 @@
 import React, { useMemo } from 'react';
 import { Table, Space } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku } from '../../utils/types';
-import { formatCurrency, formatEffectiveDateRange } from '../../utils/formatters';
+import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import CopyableId from '../shared/CopyableId';
 
 interface PriceGroupTableProps {
   skus: Sku[];
+  productId: string;
 }
 
-const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
+const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus, productId }) => {
+  const navigate = useNavigate();
   // Derive unique price groups and their associated SKUs
   const priceGroupMap = useMemo(() => {
     const map: Record<string, { priceGroup: PriceGroup; skus: Sku[] }> = {};
@@ -28,7 +31,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
   // Table columns
   const columns = [
     {
-      title: 'ID',
+      title: toSentenceCase('ID'),
       dataIndex: 'id',
       key: 'id',
       render: (_: any, record: typeof priceGroups[0]) => (
@@ -39,25 +42,25 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
       ),
     },
     {
-      title: 'Name',
+      title: toSentenceCase('Name'),
       dataIndex: 'name',
       key: 'name',
       render: (_: any, record: typeof priceGroups[0]) => record.priceGroup.name,
     },
     {
-      title: 'Channel',
+      title: toSentenceCase('Channel'),
       dataIndex: 'channel',
       key: 'channel',
       render: (_: any, record: typeof priceGroups[0]) => record.skus[0].salesChannel,
     },
     {
-      title: 'Billing Cycle',
+      title: toSentenceCase('Billing Cycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
       render: (_: any, record: typeof priceGroups[0]) => record.skus[0].billingCycle,
     },
     {
-      title: 'USD Price',
+      title: toSentenceCase('USD Price'),
       dataIndex: 'usdPrice',
       key: 'usdPrice',
       render: (_: any, record: typeof priceGroups[0]) => {
@@ -66,19 +69,19 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
       },
     },
     {
-      title: 'Currencies',
+      title: toSentenceCase('Currencies'),
       dataIndex: 'currencies',
       key: 'currencies',
       render: (_: any, record: typeof priceGroups[0]) => <CountTag count={record.priceGroup.pricePoints.length} />,
     },
     {
-      title: 'SKU',
+      title: toSentenceCase('SKU'),
       dataIndex: 'sku',
       key: 'sku',
       render: (_: any, record: typeof priceGroups[0]) => `${record.skus.length} SKU${record.skus.length > 1 ? 's' : ''}`,
     },
     {
-      title: 'Effective Date',
+      title: toSentenceCase('Effective Date'),
       dataIndex: 'effectiveDate',
       key: 'effectiveDate',
       render: (_: any, record: typeof priceGroups[0]) => formatEffectiveDateRange(record.priceGroup.startDate, record.priceGroup.endDate),
@@ -93,6 +96,18 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ skus }) => {
         rowKey={record => record.priceGroup.id || Math.random().toString()}
         pagination={false}
         size="small"
+        onRow={(record) => ({
+          onClick: () => {
+            navigate(`/product/${productId}/price-group/${record.priceGroup.id}`);
+          },
+          style: { cursor: 'pointer' },
+          onMouseEnter: (e) => {
+            e.currentTarget.style.backgroundColor = '#f5f5f5';
+          },
+          onMouseLeave: (e) => {
+            e.currentTarget.style.backgroundColor = '';
+          },
+        })}
       />
     </div>
   );

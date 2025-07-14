@@ -138,14 +138,12 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay
                 layout="horizontal"
                 label="Product Name"
-                tooltip="The public-facing name that appears on invoices."
               >
                 {product.name}
               </AttributeDisplay>
               <AttributeDisplay
                 layout="horizontal"
                 label="Description"
-                tooltip="The public-facing description that appears on invoices."
               >
                 {product.description}
               </AttributeDisplay>
@@ -252,7 +250,7 @@ const ProductDetail: React.FC = () => {
             }}
             displayMode="drawer"
           />
-          <PriceGroupTable skus={product.skus} />
+          <PriceGroupTable skus={product.skus} productId={product.id} />
         </PageSection>
       ),
     },
@@ -383,12 +381,6 @@ const ProductDetail: React.FC = () => {
         title={product.name}
         onBack={() => navigate('/')}
         tagContent={<StatusTag status={product.status} />}
-        subtitle={
-          <Space>
-            <LobTag lob={product.lob} />
-                            <FolderTag folder={product.folder} lob={product.lob} />
-          </Space>
-        }
       />
 
       <Tabs defaultActiveKey="details" items={tabItems} />

@@ -3,7 +3,7 @@
 
 export type Status = 'Active' | 'Legacy' | 'Retired';
 
-export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium';
+export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium' | 'Other';
 
 export type SalesChannel = 'Desktop' | 'Field' | 'Mobile';
 

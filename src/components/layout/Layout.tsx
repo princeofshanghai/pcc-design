@@ -74,9 +74,13 @@ const generateMenuStructure = (collapsed: boolean) => {
             </SidebarMenuItem>
           )
         },
-        // Sort LOBs alphabetically
+        // Sort LOBs with "Other" always last
         ...Object.entries(folderStructure)
-          .sort(([lobA], [lobB]) => lobA.localeCompare(lobB))
+          .sort(([lobA], [lobB]) => {
+            if (lobA === 'Other') return 1; // Other goes to end
+            if (lobB === 'Other') return -1; // Other goes to end
+            return lobA.localeCompare(lobB); // Alphabetical for others
+          })
           .map(([lob, folders]) => ({
             key: lob.toLowerCase(),
             className: 'sidebar-lob-menu-item', // Add this line for custom styling
@@ -168,7 +172,7 @@ const AppLayout = () => {
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const { productName, skuId, priceGroupId } = useBreadcrumb();
+  const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { maxWidth, setMaxWidth } = useLayout();
   const { token } = theme.useToken();
 
@@ -270,7 +274,7 @@ const AppLayout = () => {
         <Breadcrumb.Item key="priceGroup">
           <Space size={4}>
             <DollarSign size={14} />
-            <span>Price Group: {priceGroupId}</span>
+            <span>{priceGroupName || priceGroupId}</span>
           </Space>
         </Breadcrumb.Item>
       );

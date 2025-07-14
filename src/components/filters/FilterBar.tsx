@@ -164,7 +164,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Inline filters row */}
       {displayMode === 'inline' && hasFilters && (
-        <Row style={{ marginTop: 32 }}>
+        <Row style={{ marginTop: 32, marginBottom: 0 }}>
           <Col span={24}>
             {renderFilters()}
           </Col>

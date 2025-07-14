@@ -6,8 +6,7 @@ import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
-import { mockProducts } from '../../utils/mock-data';
-import type { LOB } from '../../utils/types';
+import { folderStructure } from '../../utils/mock-data';
 import { toSentenceCase } from '../../utils/formatters/text';
 import { useTruncationDetection } from '../../hooks/useTruncationDetection';
 
@@ -21,19 +20,25 @@ const SidebarMenuItem: React.FC<{
   text: string;
   collapsed: boolean;
 }> = ({ children, text, collapsed }) => {
-  // When collapsed, Ant Design's Menu handles tooltips automatically
-  // Only use our custom logic when expanded
-  const availableWidth = collapsed ? undefined : 180; // Approximate available width when expanded
-  const { isTruncated, textRef } = useTruncationDetection(text, availableWidth);
+  const { isTruncated, textRef } = useTruncationDetection(text);
 
   if (collapsed) {
-    // When collapsed, let Ant Design handle tooltips
+    // When collapsed, let Ant Design handle tooltips automatically
     return <>{children}</>;
   }
 
   // When expanded, use our truncation detection
   const content = (
-    <span ref={textRef} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+    <span 
+      ref={textRef as React.RefObject<HTMLSpanElement>}
+      style={{ 
+        display: 'block', 
+        overflow: 'hidden', 
+        textOverflow: 'ellipsis', 
+        whiteSpace: 'nowrap',
+        maxWidth: '100%'
+      }}
+    >
       {children}
     </span>
   );
@@ -49,19 +54,8 @@ const SidebarMenuItem: React.FC<{
   return content;
 };
 
-// Helper function to generate menu structure from mock data
+// Helper function to generate menu structure from predefined folder structure
 const generateMenuStructure = (collapsed: boolean) => {
-  const lobData = mockProducts.reduce((acc, product) => {
-    if (!acc[product.lob]) {
-      acc[product.lob] = {};
-    }
-    if (!acc[product.lob][product.folder]) {
-      acc[product.lob][product.folder] = 0;
-    }
-    acc[product.lob][product.folder]++;
-    return acc;
-  }, {} as Record<LOB, Record<string, number>>);
-
   // Create the menu structure
   const menuItems = [
     {
@@ -77,14 +71,14 @@ const generateMenuStructure = (collapsed: boolean) => {
             </SidebarMenuItem>
           )
         },
-        ...Object.entries(lobData).map(([lob, folders]) => ({
+        ...Object.entries(folderStructure).map(([lob, folders]) => ({
           key: lob.toLowerCase(),
           label: (
             <SidebarMenuItem text={lob} collapsed={collapsed}>
               <span>{lob}</span>
             </SidebarMenuItem>
           ),
-          children: Object.entries(folders).map(([folder]) => ({
+          children: folders.map((folder) => ({
             key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
             label: (
               <SidebarMenuItem text={folder} collapsed={collapsed}>
@@ -112,7 +106,7 @@ const AppLayout = () => {
   const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
 
   // Find the current menu item based on the path
-  const currentMenuItem = location.pathname === '/' ? { key: 'all-products', label: 'Product Catalog', path: '/' } : null;
+  const currentMenuItem = location.pathname === '/' ? { key: 'all-products', label: 'Products', path: '/' } : null;
 
   const breadcrumbItems = [];
   if (currentMenuItem) {
@@ -127,7 +121,7 @@ const AppLayout = () => {
   if (location.pathname.startsWith('/folder/')) {
     breadcrumbItems.push(
       <Breadcrumb.Item key="catalog">
-        <Link to="/">Product Catalog</Link>
+        <Link to="/">Products</Link>
       </Breadcrumb.Item>
     );
   }
@@ -137,7 +131,7 @@ const AppLayout = () => {
     if (!currentMenuItem) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="home">
-          <Link to="/">Product Catalog</Link>
+          <Link to="/">Products</Link>
         </Breadcrumb.Item>
       );
     }

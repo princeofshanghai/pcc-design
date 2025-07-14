@@ -3,6 +3,27 @@
 
 import type { Product } from './types';
 
+// Define the folder structure independently of products
+// This allows us to show empty folders in the sidebar
+export const folderStructure = {
+  "Premium": [
+    "Premium Company Page",
+    "Premium Generic Products"
+  ],
+  "LTS": [
+    "RLite",
+    "Learning",
+    "Glint",
+    "Jobs"
+  ],
+  "LSS": [
+    "Sales Navigator"
+  ],
+  "LMS": [
+    "Ads"
+  ]
+};
+
 export const mockProducts: Product[] = [
   {
     id: '5124922',

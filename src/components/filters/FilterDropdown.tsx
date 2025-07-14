@@ -33,14 +33,23 @@ const DropdownOption: React.FC<{
   label: string; 
   showTooltip?: boolean;
 }> = ({ label, showTooltip = false }) => {
-  const { isTruncated, textRef } = useTruncationDetection(label, 200); // Approximate dropdown width
+  const { isTruncated, textRef } = useTruncationDetection(label);
 
   if (!showTooltip) {
     return <span>{label}</span>;
   }
 
   const content = (
-    <span ref={textRef} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+    <span 
+      ref={textRef as React.RefObject<HTMLSpanElement>}
+      style={{ 
+        display: 'block', 
+        overflow: 'hidden', 
+        textOverflow: 'ellipsis', 
+        whiteSpace: 'nowrap',
+        maxWidth: '100%'
+      }}
+    >
       {label}
     </span>
   );

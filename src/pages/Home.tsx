@@ -22,6 +22,24 @@ const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ la
 
 // Helper function to convert URL folder names back to actual folder names
 const urlToFolderName = (urlFolder: string): string => {
+  // Handle special cases where folder names have specific capitalization
+  const specialCases: Record<string, string> = {
+    'rlite': 'RLite',
+    'sales-navigator': 'Sales Navigator',
+    'premium-company-page': 'Premium Company Page',
+    'premium-generic-products': 'Premium Generic Products',
+    'learning': 'Learning',
+    'ads': 'Ads',
+    'glint': 'Glint',
+    'jobs': 'Jobs'
+  };
+  
+  // Check if it's a special case first
+  if (specialCases[urlFolder]) {
+    return specialCases[urlFolder];
+  }
+  
+  // Default behavior for other cases
   return urlFolder.split('-').map(word => 
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
@@ -84,7 +102,7 @@ const Home: React.FC = () => {
   };
 
   // Generate page title and subtitle based on current context
-  const pageTitle = currentFolder ? currentFolder : 'Product Catalog';
+  const pageTitle = currentFolder ? currentFolder : 'All products';
   const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''} found`;
 
   return (

@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, Table } from 'antd';
+import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
-import type { SalesChannel, Status } from '../utils/types';
+import type { SalesChannel, Status, ConfigurationRequest } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import {
@@ -16,15 +16,17 @@ import {
   AttributeGroup,
   StatusTag,
   BillingModelDisplay,
-  LobTag,
-  FolderTag,
   CountTag,
-  FilterBar
+  FilterBar,
+  ConfigurationForm,
+  ConfigurationPreview,
+  RequestHistoryItem
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
-import { Box } from 'lucide-react';
+import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
 
 const { Title } = Typography;
+const { Step } = Steps;
 
 const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
 const SKU_GROUP_BY_OPTIONS = ['None', 'Price Group', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
@@ -50,6 +52,11 @@ const ProductDetail: React.FC = () => {
   const location = useLocation();
   const product = mockProducts.find(p => p.id === productId);
   const navigate = useNavigate();
+  
+  // Configuration workflow state
+  const [isConfigurationModalOpen, setIsConfigurationModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [configurationData, setConfigurationData] = useState<Partial<ConfigurationRequest> | null>(null);
 
   // Check for URL query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -227,31 +234,107 @@ const ProductDetail: React.FC = () => {
       key: 'pricing',
       label: 'Pricing',
       children: (
-        <PageSection title={<Space><span>Price groups</span></Space>}>
-          <FilterBar
-            search={{
-              placeholder: "Search by ID or Name...",
-              onChange: () => {}, // TODO: Add price group filtering
-            }}
-            filters={[
-              // TODO: Add price group filters
-            ]}
-            viewOptions={{
-              sortOrder: {
-                value: 'None',
-                setter: () => {},
-                options: ['None'],
-              },
-              groupBy: {
-                value: 'None',
-                setter: () => {},
-                options: ['None'],
-              },
-            }}
-            displayMode="drawer"
-          />
-          <PriceGroupTable skus={product.skus} productId={product.id} />
-        </PageSection>
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection 
+            title="Price groups"
+            actions={
+              <Button 
+                icon={<Plus size={16} />}
+                onClick={() => setIsConfigurationModalOpen(true)}
+              >
+                Add price group
+              </Button>
+            }
+          >
+            <FilterBar
+              search={{
+                placeholder: "Search by ID or Name...",
+                onChange: () => {}, // TODO: Add price group filtering
+              }}
+              filters={[
+                // TODO: Add price group filters
+              ]}
+              viewOptions={{
+                sortOrder: {
+                  value: 'None',
+                  setter: () => {},
+                  options: ['None'],
+                },
+                groupBy: {
+                  value: 'None',
+                  setter: () => {},
+                  options: ['None'],
+                },
+              }}
+              displayMode="drawer"
+            />
+            <PriceGroupTable skus={product.skus} productId={product.id} />
+          </PageSection>
+          
+          {/* Pending Configurations Section */}
+          <PageSection title="Pending Configurations">
+            {(() => {
+              const pendingRequests = product.configurationRequests?.filter(request => 
+                ['Draft', 'Pending Review', 'In Staging'].includes(request.status)
+              ) || [];
+              
+              return pendingRequests.length > 0 ? (
+                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                  {pendingRequests.map((request) => (
+                    <RequestHistoryItem
+                      key={request.id}
+                      request={request}
+                      showTimeline={true}
+                      compact={true}
+                      onViewDetails={(requestId) => {
+                        navigate(`/product/${product.id}/configuration/${requestId}`);
+                      }}
+                      onCopyId={(requestId) => {
+                        navigator.clipboard.writeText(requestId);
+                        // TODO: Show success toast
+                        console.log('Copied ID:', requestId);
+                      }}
+                      onViewSku={(skuId) => {
+                        navigate(`/product/${product.id}/sku/${skuId}`);
+                      }}
+                    />
+                  ))}
+                </Space>
+              ) : (
+                <span style={{ color: '#888' }}>No pending configurations for this product.</span>
+              );
+            })()}
+          </PageSection>
+          
+          {/* Configuration Requests Section */}
+          <PageSection title="Configuration Requests">
+            {product.configurationRequests && product.configurationRequests.length > 0 ? (
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {product.configurationRequests.map((request) => (
+                  <RequestHistoryItem
+                    key={request.id}
+                    request={request}
+                    showTimeline={false}
+                    compact={true}
+                    onViewDetails={(requestId) => {
+                      navigate(`/product/${product.id}/configuration/${requestId}`);
+                    }}
+                    onCopyId={(requestId) => {
+                      navigator.clipboard.writeText(requestId);
+                      // TODO: Show success toast
+                      console.log('Copied ID:', requestId);
+                    }}
+                    onViewSku={(skuId) => {
+                      navigate(`/product/${product.id}/sku/${skuId}`);
+                    }}
+                  />
+                ))}
+              </Space>
+            ) : (
+              <span style={{ color: '#888' }}>No configuration requests found for this product.</span>
+            )}
+          </PageSection>
+        </Space>
       ),
     },
     {
@@ -369,6 +452,30 @@ const ProductDetail: React.FC = () => {
     },
   ];
 
+  // Handle configuration workflow steps
+  const handleFormSubmit = (formData: Partial<ConfigurationRequest>) => {
+    setConfigurationData(formData);
+    setCurrentStep(1); // Move to preview step
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(0);
+  };
+
+  const handleConfirmConfiguration = () => {
+    // TODO: In a real app, this would save the configuration
+    console.log('Configuration confirmed:', configurationData);
+    setIsConfigurationModalOpen(false);
+    setCurrentStep(0);
+    setConfigurationData(null);
+  };
+
+  const handleModalClose = () => {
+    setIsConfigurationModalOpen(false);
+    setCurrentStep(0);
+    setConfigurationData(null);
+  };
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
@@ -384,6 +491,63 @@ const ProductDetail: React.FC = () => {
       />
 
       <Tabs defaultActiveKey="details" items={tabItems} />
+      
+      {/* Configuration Creation Modal */}
+      <Modal
+        title={
+          <div>
+            <div style={{ marginBottom: '16px' }}>Add price group</div>
+            <Steps current={currentStep} size="small">
+              <Step title="Configure" />
+              <Step title="Preview" />
+            </Steps>
+          </div>
+        }
+        open={isConfigurationModalOpen}
+        onCancel={handleModalClose}
+        footer={null}
+        width={800}
+        zIndex={1100}
+        destroyOnClose={true}
+      >
+        {currentStep === 0 && (
+          <ConfigurationForm 
+            product={product}
+            onCancel={handleModalClose}
+            onSubmit={handleFormSubmit}
+          />
+        )}
+        
+        {currentStep === 1 && configurationData && (
+          <div>
+            <ConfigurationPreview 
+              product={product}
+              configurationData={configurationData}
+            />
+            <div style={{ 
+              marginTop: '24px', 
+              paddingTop: '16px', 
+              borderTop: '1px solid #f0f0f0',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              <Button 
+                icon={<ArrowLeft size={16} />}
+                onClick={handlePrevious}
+              >
+                Previous
+              </Button>
+              <Button 
+                type="primary"
+                icon={<Check size={16} />}
+                onClick={handleConfirmConfiguration}
+              >
+                Create Configuration
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </Space>
   );
 };

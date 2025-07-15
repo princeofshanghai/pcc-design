@@ -106,6 +106,11 @@ export type Sku = {
     key: string;
     treatment: string;
   };
+  // Origin information for audit trail
+  origin?: 'manual' | 'configuration_request';
+  createdBy?: string;
+  createdDate?: string;
+  configurationRequestId?: string;
 };
 
 export type Product = {

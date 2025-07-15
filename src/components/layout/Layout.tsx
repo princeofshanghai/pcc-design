@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, Settings } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -154,6 +154,15 @@ const generateMenuStructure = (collapsed: boolean) => {
       icon: <SquareSlash size={16} />
     },
     {
+      key: 'configuration-dashboard',
+      label: (
+        <SidebarMenuItem text="Configuration Dashboard" collapsed={collapsed}>
+          <Link to="/configuration-dashboard">Configuration Dashboard</Link>
+        </SidebarMenuItem>
+      ),
+      icon: <Settings size={16} />
+    },
+    {
       key: 'picasso-npi',
       label: (
         <SidebarMenuItem text="Picasso NPI" collapsed={collapsed}>
@@ -173,7 +182,7 @@ const AppLayout = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
-  const { maxWidth, setMaxWidth } = useLayout();
+  const { maxWidth } = useLayout();
   const { token } = theme.useToken();
 
   // Calculate dynamic max width based on sidebar state and current page width

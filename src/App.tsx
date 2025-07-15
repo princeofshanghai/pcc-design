@@ -9,6 +9,8 @@ import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
 import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
+import ConfigurationRequestDetail from './pages/ConfigurationRequestDetail';
+import ConfigurationDashboard from './pages/ConfigurationDashboard';
 
 // The following placeholder pages are missing. 
 // To prevent import errors and keep the app running, 
@@ -37,11 +39,13 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
                 <Route path="product/:productId/price-group/:priceGroupId" element={<PriceGroupDetail />} />
+                <Route path="product/:productId/configuration/:requestId" element={<ConfigurationRequestDetail />} />
                 <Route path="/offers" element={<OffersPlaceholder />} />
                 <Route path="/offer-groups" element={<OfferGroupsPlaceholder />} />
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
                 <Route path="/change-requests" element={<ChangeRequestsPlaceholder />} />
+                <Route path="/configuration-dashboard" element={<ConfigurationDashboard />} />
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
               </Route>
             </Routes>

@@ -132,6 +132,10 @@ export const mockProducts: Product[] = [
     productUrl: 'https://www.linkedin.com/premium/career',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
+    configurationRequests: [
+      mockConfigurationRequests[0], // config-001: Priya's successful quarterly billing
+      mockConfigurationRequests[2], // config-003: Priya's experimental pricing test
+    ],
   },
   {
     id: '5255644',
@@ -300,6 +304,10 @@ export const mockProducts: Product[] = [
     productUrl: 'https://www.linkedin.com/premium/business',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
+    configurationRequests: [
+      mockConfigurationRequests[1], // config-002: Anand's mobile channel addition
+      mockConfigurationRequests[4], // config-005: Anand's successful quarterly experiment
+    ],
   },
   {
     id: '5116529',
@@ -463,7 +471,10 @@ if (premiumCareerProduct) {
       priceGroup: pcFy25Monthly,
       revenueRecognition: "Accrual",
       switcherLogic: [],
-      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" }
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Sarah Johnson (PM)",
+      createdDate: "2024-02-15T10:00:00Z"
     },
     {
       id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
@@ -474,7 +485,95 @@ if (premiumCareerProduct) {
       priceGroup: pcFy25Annual,
       revenueRecognition: "Accrual",
       switcherLogic: [],
-      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" }
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Sarah Johnson (PM)",
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "sku-quarterly-001",
+      name: "Premium Career FY25 Desktop Quarterly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: "pg-quarterly-001",
+        name: "PC_FY25_QUARTERLY",
+        status: "Active",
+        startDate: "2024-03-15",
+        pricePoints: [
+          { currencyCode: "USD", amount: 89.99 },
+          { currencyCode: "EUR", amount: 69.99 },
+          { currencyCode: "GBP", amount: 59.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Priya Sharma (PM)",
+      createdDate: "2024-03-15T10:30:00Z",
+      configurationRequestId: "config-001"
+    }
+  ];
+}
+
+// Add SKUs to Premium Business product
+const premiumBusinessProduct = mockProducts.find(p => p.id === '5095295');
+if (premiumBusinessProduct) {
+  premiumBusinessProduct.skus = [
+    {
+      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      name: "Premium Business FY25 Desktop Monthly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "pg-business-monthly-001",
+        name: "PB_FY25_MONTHLY",
+        status: "Active",
+        startDate: "2024-02-01",
+        pricePoints: [
+          { currencyCode: "USD", amount: 59.99 },
+          { currencyCode: "EUR", amount: 49.99 },
+          { currencyCode: "GBP", amount: 39.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Mike Chen (Pricing)",
+      createdDate: "2024-02-01T14:00:00Z"
+    },
+    {
+      id: "sku-nav-quarterly-001",
+      name: "Premium Business FY25 Desktop Quarterly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: "pg-nav-quarterly-001",
+        name: "PB_FY25_QUARTERLY",
+        status: "Active",
+        startDate: "2024-03-12",
+        pricePoints: [
+          { currencyCode: "USD", amount: 239.99 },
+          { currencyCode: "EUR", amount: 199.99 },
+          { currencyCode: "GBP", amount: 179.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Anand Patel (Pricing)",
+      createdDate: "2024-03-12T11:10:00Z",
+      configurationRequestId: "config-005",
+      lix: {
+        key: "quarterly_nav_test",
+        treatment: "standard_price"
+      }
     }
   ];
 } 

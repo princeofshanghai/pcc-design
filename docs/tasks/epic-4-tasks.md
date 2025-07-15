@@ -12,13 +12,13 @@ This document breaks down the work for Epic 4 into small, concrete, and ordered 
     - [x] 1.1.1: In `src/utils/types.ts`, define and export a `ConfigurationRequest` type with fields for `id`, `targetProductId`, `salesChannel`, `billingCycle`, `priceAmount`, `lixKey?`, `lixTreatment?`, `status`, `createdBy`, `createdDate`, `generatedSkuId?`, `generatedPriceGroupId?`.
     - [x] 1.1.2: In `src/utils/types.ts`, define a `ChangeRequestStatus` type with values `'Draft' | 'Pending Review' | 'In Staging' | 'Live' | 'Failed'`.
     - [x] 1.1.3: In `src/utils/types.ts`, extend the `Product` type to include an optional `configurationRequests?: ConfigurationRequest[]` array.
-    - [ ] 1.1.4: In `src/utils/mock-data.ts`, add a `mockConfigurationRequests` array with 3-5 example configuration requests in various states (Draft, Pending Review, Live) for different products.
-    - [ ] 1.1.5: In `src/utils/mock-data.ts`, add configuration request arrays to select products in the `mockProducts` array to simulate request history.
+    - [x] 1.1.4: In `src/utils/mock-data.ts`, add a `mockConfigurationRequests` array with 3-5 example configuration requests in various states (Draft, Pending Review, Live) for different products.
+    - [x] 1.1.5: In `src/utils/mock-data.ts`, add configuration request arrays to select products in the `mockProducts` array to simulate request history.
 
-- [ ] **1.2: Create Configuration Utilities**
-    - [ ] 1.2.1: In `src/utils`, create a new file `configurationUtils.ts` with functions for generating SKU IDs, price group IDs, and validating configuration uniqueness.
-    - [ ] 1.2.2: In `configurationUtils.ts`, create a function `generatePreviewSku(product: Product, configRequest: ConfigurationRequest): Sku` that shows what SKU would be created.
-    - [ ] 1.2.3: In `configurationUtils.ts`, create a function `checkConfigurationConflicts(product: Product, configRequest: ConfigurationRequest): string[]` that returns any conflict warnings.
+- [x] **1.2: Create Configuration Utilities**
+    - [x] 1.2.1: In `src/utils`, create a new file `configurationUtils.ts` with functions for generating SKU IDs, price group IDs, and validating configuration uniqueness.
+    - [x] 1.2.2: In `configurationUtils.ts`, create a function `generatePreviewSku(product: Product, configRequest: ConfigurationRequest): Sku` that shows what SKU would be created.
+    - [x] 1.2.3: In `configurationUtils.ts`, create a function `checkConfigurationConflicts(product: Product, configRequest: ConfigurationRequest): string[]` that returns any conflict warnings.
 
 ---
 
@@ -27,27 +27,27 @@ This document breaks down the work for Epic 4 into small, concrete, and ordered 
 **Goal:** Create all the small, reusable UI components needed for configuration management.
 
 - [ ] **2.1: Configuration Form Components**
-    - [ ] 2.1.1: Create a new component `ConfigurationForm.tsx` in `src/components/configuration/` that accepts a `product` prop and renders the configuration creation form.
-    - [ ] 2.1.2: The form should include `SalesChannel` dropdown (Desktop, Mobile, Field), `BillingCycle` dropdown (Monthly, Quarterly, Annual), and USD pricing input field.
-    - [ ] 2.1.3: Add optional LIX fields section with `LIX Key` and `LIX Treatment` text inputs, clearly labeled as "Experimental Configuration (Optional)".
-    - [ ] 2.1.4: Include form validation with real-time feedback for required fields and price format validation.
+    - [x] 2.1.1: Create a new component `ConfigurationForm.tsx` in `src/components/configuration/` that accepts a `product` prop and renders the configuration creation form.
+    - [x] 2.1.2: The form should include `SalesChannel` dropdown (Desktop, Mobile, Field), `BillingCycle` dropdown (Monthly, Quarterly, Annual), and USD pricing input field.
+    - [x] 2.1.3: Add optional LIX fields section with `LIX Key` and `LIX Treatment` text inputs, clearly labeled as "Experimental Configuration (Optional)".
+    - [x] 2.1.4: Include form validation with real-time feedback for required fields and price format validation.
 
 - [ ] **2.2: Preview Components**
-    - [ ] 2.2.1: Create a `ConfigurationPreview.tsx` component that shows a preview of what will be created when the configuration is submitted.
-    - [ ] 2.2.2: The preview should display the generated SKU ID, price group information, and all inherited product attributes.
-    - [ ] 2.2.3: Add a `PriceGroupImpact.tsx` component that shows whether a new price group will be created or an existing one will be used.
-    - [ ] 2.2.4: Create a `ConflictWarning.tsx` component that displays any configuration conflicts or warnings in a clear, actionable format.
+    - [x] 2.2.1: Create a `ConfigurationPreview.tsx` component that shows a preview of what will be created when the configuration is submitted.
+    - [x] 2.2.2: The preview should display the generated SKU ID, price group information, and all inherited product attributes.
+    - [x] 2.2.3: Add a `PriceGroupImpact.tsx` component that shows whether a new price group will be created or an existing one will be used.
+    - [x] 2.2.4: Create a `ConflictWarning.tsx` component that displays any configuration conflicts or warnings in a clear, actionable format.
 
 - [ ] **2.3: Status and Request Tracking Components**
-    - [ ] 2.3.1: Create a `ChangeRequestStatus.tsx` component that displays the current status of a configuration request with appropriate colors and icons.
-    - [ ] 2.3.2: Create a `ConfigurationTimeline.tsx` component that shows the progression stages (Draft → Pending Review → In Staging → Live).
-    - [ ] 2.3.3: Create a `RequestHistoryItem.tsx` component that displays a single configuration request in a list format with key details and status.
-    - [ ] 2.3.4: Create an `ExperimentalBadge.tsx` component that clearly marks experimental configurations with LIX key information.
+    - [x] 2.3.1: Create a `ChangeRequestStatus.tsx` component that displays the current status of a configuration request with appropriate colors and icons.
+    - [x] 2.3.2: Create a `ConfigurationTimeline.tsx` component that shows the progression stages (Draft → Pending Review → In Staging → Live).
+    - [x] 2.3.3: Create a `RequestHistoryItem.tsx` component that displays a single configuration request in a list format with key details and status.
+    - [x] 2.3.4: Create an `ExperimentalBadge.tsx` component that clearly marks experimental configurations with LIX key information.
 
-- [ ] **2.4: Enhanced SKU Display Components**
-    - [ ] 2.4.1: Update the existing `SkuListTable.tsx` to support displaying experimental configurations with the new `ExperimentalBadge` component.
-    - [ ] 2.4.2: Add a `ConfigurationOrigin.tsx` component that shows how a SKU was created (manual vs configuration request) for audit trail purposes.
-    - [ ] 2.4.3: Create a `PriceGroupLink.tsx` component that shows price group relationships with clickable links to view all SKUs sharing the same price group.
+- [x] **2.4: Enhanced SKU Display Components**
+    - [x] 2.4.1: Update the existing `SkuListTable.tsx` to support displaying experimental configurations with the new `ExperimentalBadge` component.
+    - [x] 2.4.2: Add a `ConfigurationOrigin.tsx` component that shows how a SKU was created (manual vs configuration request) for audit trail purposes.
+    - [x] 2.4.3: Create a `PriceGroupLink.tsx` component that shows price group relationships with clickable links to view all SKUs sharing the same price group.
 
 ---
 
@@ -56,20 +56,20 @@ This document breaks down the work for Epic 4 into small, concrete, and ordered 
 **Goal:** Integrate the configuration components into the existing page structure.
 
 - [ ] **3.1: Enhance Product Detail Page**
-    - [ ] 3.1.1: In `src/pages/ProductDetail.tsx`, add an "Add Configuration" button to the Pricing tab that opens the configuration creation workflow.
-    - [ ] 3.1.2: Implement the configuration creation workflow as a multi-step modal or drawer that includes the `ConfigurationForm` and `ConfigurationPreview` components.
-    - [ ] 3.1.3: Add a "Configuration Requests" section to the Pricing tab that displays recent configuration requests using the `RequestHistoryItem` component.
-    - [ ] 3.1.4: Update the SKU table to show experimental configurations with the `ExperimentalBadge` and `ConfigurationOrigin` components.
+    - [x] 3.1.1: In `src/pages/ProductDetail.tsx`, add an "Add Configuration" button to the Pricing tab that opens the configuration creation workflow.
+    - [x] 3.1.2: Implement the configuration creation workflow as a multi-step modal or drawer that includes the `ConfigurationForm` and `ConfigurationPreview` components.
+    - [x] 3.1.3: Add a "Configuration Requests" section to the Pricing tab that displays recent configuration requests using the `RequestHistoryItem` component.
+    - [x] 3.1.4: Update the SKU table to show experimental configurations with the `ExperimentalBadge` and `ConfigurationOrigin` components.
 
 - [ ] **3.2: Configuration Request Detail View**
-    - [ ] 3.2.1: Create a new page `ConfigurationRequestDetail.tsx` in `src/pages/` that displays detailed information about a single configuration request.
-    - [ ] 3.2.2: Add routing for the configuration request detail page with path `/product/:productId/configuration/:requestId`.
-    - [ ] 3.2.3: The page should show the request timeline, current status, configuration details, and preview of what will be created.
-    - [ ] 3.2.4: Include breadcrumbs and navigation back to the parent product with the `ConfigurationTimeline` component prominently displayed.
+    - [x] 3.2.1: Create a new page `ConfigurationRequestDetail.tsx` in `src/pages/` that displays detailed information about a single configuration request.
+    - [x] 3.2.2: Add routing for the configuration request detail page with path `/product/:productId/configuration/:requestId`.
+    - [x] 3.2.3: The page should show the request timeline, current status, configuration details, and preview of what will be created.
+    - [x] 3.2.4: Include breadcrumbs and navigation back to the parent product with the `ConfigurationTimeline` component prominently displayed.
 
 - [ ] **3.3: Configuration Management Interface**
-    - [ ] 3.3.1: Add a "Pending Configurations" section to the Product Detail page that shows all configuration requests in progress.
-    - [ ] 3.3.2: Create a simple dashboard view that lists all configuration requests across products (could be a new tab or section).
+    - [x] 3.3.1: Add a "Pending Configurations" section to the Product Detail page that shows all configuration requests in progress.
+    - [x] 3.3.2: Create a simple dashboard view that lists all configuration requests across products (could be a new tab or section).
     - [ ] 3.3.3: Implement filtering and sorting for configuration requests by status, date, and product.
 
 ---

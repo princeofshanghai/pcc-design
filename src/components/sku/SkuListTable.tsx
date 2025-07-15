@@ -5,6 +5,9 @@ import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
+import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
+import { PriceGroupTableCell } from '../configuration/PriceGroupLink';
+import { ConfigurationOrigin } from '../configuration/ConfigurationOrigin';
 import type { ColumnsType } from 'antd/es/table';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import { Link } from 'react-router-dom';
@@ -40,11 +43,13 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     dataIndex: 'id',
     key: 'id',
     render: (id: string, record: Sku) => (
-      <Space>
-        <Link to={`/product/${product.id}/sku/${id}`}>{id}</Link>
-        <CopyableId id={id} showId={false} />
-        {hasSkuOverrides(record, product) && <OverrideIndicator />}
-      </Space>
+      <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
+        <Space>
+          <Link to={`/product/${product.id}/sku/${id}`}>{id}</Link>
+          <CopyableId id={id} showId={false} />
+          {hasSkuOverrides(record, product) && <OverrideIndicator />}
+        </Space>
+      </ExperimentalTableCell>
     ),
     className: 'table-col-first',
   },
@@ -52,7 +57,11 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     title: toSentenceCase('Name'),
     dataIndex: 'name',
     key: 'name',
-    render: (name: string) => name,
+    render: (name: string, record: Sku) => (
+      <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
+        {name}
+      </ExperimentalTableCell>
+    ),
   },
   {
     title: toSentenceCase('Channel'),
@@ -76,21 +85,50 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (_: any, sku: Sku) => {
       if (!sku.priceGroup.id) return 'N/A';
       return (
-        <Link to={`/product/${product.id}/price-group/${sku.priceGroup.id}`}>
-          {sku.priceGroup.id}
-        </Link>
+        <PriceGroupTableCell
+          priceGroup={sku.priceGroup}
+          product={product}
+          onViewPriceGroup={(priceGroupId) => {
+            // Navigate to price group detail page
+            window.location.href = `/product/${product.id}/price-group/${priceGroupId}`;
+          }}
+        />
       );
     },
   },
   {
-    title: toSentenceCase('Lix key'),
-    key: 'lixKey',
-    render: (_: any, sku: Sku) => sku.lix ? sku.lix.key : null,
+    title: toSentenceCase('Origin'),
+    key: 'origin',
+    render: (_: any, sku: Sku) => {
+      if (!sku.origin) return null;
+      return (
+        <ConfigurationOrigin
+          origin={sku.origin}
+          createdBy={sku.createdBy}
+          createdDate={sku.createdDate}
+          requestId={sku.configurationRequestId}
+          variant="compact"
+          onViewRequest={(requestId: string) => {
+            // TODO: Navigate to configuration request detail page
+            console.log('View request:', requestId);
+          }}
+        />
+      );
+    },
   },
   {
-    title: toSentenceCase('Lix treatment'),
-    key: 'lixTreatment',
-    render: (_: any, sku: Sku) => sku.lix ? sku.lix.treatment : null,
+    title: toSentenceCase('Experimental'),
+    key: 'experimental',
+    render: (_: any, sku: Sku) => {
+      if (!sku.lix?.key) return null;
+      return (
+        <ExperimentalBadge 
+          lixKey={sku.lix.key} 
+          lixTreatment={sku.lix.treatment}
+          variant="default"
+        />
+      );
+    },
   },
   {
     title: toSentenceCase('Features'),

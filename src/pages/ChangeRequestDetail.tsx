@@ -147,29 +147,29 @@ const ChangeRequestDetail: React.FC = () => {
         tagContent={<ChangeRequestStatus status={configRequest.status} />}
         subtitle={`for ${product.name}`}
         actions={(() => {
-          const nextOptions = getNextStatusOptions(configRequest.status);
-          
-          if (nextOptions.length === 0) {
-            return null; // No actions available for this status
-          }
-          
-          return (
-            <Space wrap>
-              {nextOptions.map((option) => (
-                <Button
-                  key={option.status}
-                  type={option.buttonType === 'danger' ? 'default' : option.buttonType}
-                  danger={option.buttonType === 'danger'}
-                  icon={getStatusIcon(option.icon)}
-                  loading={isUpdatingStatus}
-                  onClick={() => handleStatusUpdate(option.status)}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </Space>
-          );
-        })()}
+        const nextOptions = getNextStatusOptions(configRequest.status);
+        
+        if (nextOptions.length === 0) {
+          return null; // No actions available for this status
+        }
+        
+        return (
+                <Space wrap>
+                  {nextOptions.map((option) => (
+                    <Button
+                      key={option.status}
+                      type={option.buttonType === 'danger' ? 'default' : option.buttonType}
+                      danger={option.buttonType === 'danger'}
+                      icon={getStatusIcon(option.icon)}
+                      loading={isUpdatingStatus}
+                      onClick={() => handleStatusUpdate(option.status)}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </Space>
+        );
+      })()}
       />
 
       {/* Status Timeline */}

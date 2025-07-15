@@ -15,9 +15,11 @@ interface ActivityFeedItemProps {
 // Helper function to generate business-focused activity descriptions
 const getActivityDescription = (request: ConfigurationRequest): string => {
   // For now, all requests are pricing changes - future extensible for other types
-  return `Add ${request.salesChannel} + ${request.billingCycle} pricing ($${request.priceAmount})`;
+  const { salesChannel, billingCycle, priceAmount } = request;
+  return `Add ${salesChannel} + ${billingCycle} pricing ($${priceAmount})`;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getActivityIcon = (): React.ReactElement => {
   // Future: determine activity type based on request properties
   // For now, all requests are pricing changes
@@ -39,11 +41,8 @@ const getActivityIcon = (): React.ReactElement => {
   // }
 };
 
-export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
-  request,
-  onViewDetails
-}) => {
-
+export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = (props) => {
+  const { request, onViewDetails } = props;
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();

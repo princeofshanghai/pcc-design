@@ -7,8 +7,9 @@ import { useLayout } from '../context/LayoutContext';
 import {
   PageHeader,
   StatusTag,
-  DetailSection,
+  PageSection,
   AttributeDisplay,
+  AttributeGroup,
   CountTag
 } from '../components';
 import { SkuListTable } from '../components';
@@ -94,8 +95,8 @@ const PriceGroupDetail: React.FC = () => {
       />
 
       {/* Price Group Information */}
-      <DetailSection title="Price Group Details">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
+      <PageSection title="Price Group Details">
+        <AttributeGroup>
           <AttributeDisplay label="Price Group ID" layout="horizontal">
             <Typography.Text code>{priceGroup.id}</Typography.Text>
           </AttributeDisplay>
@@ -111,11 +112,11 @@ const PriceGroupDetail: React.FC = () => {
               {formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
             </AttributeDisplay>
           )}
-        </Space>
-      </DetailSection>
+        </AttributeGroup>
+      </PageSection>
 
       {/* Price Points */}
-      <DetailSection 
+      <PageSection 
         title={
           <Space align="center" size="small">
             <span>Price Points</span>
@@ -126,55 +127,56 @@ const PriceGroupDetail: React.FC = () => {
           </Space>
         }
       >
-        {/* Core Currencies */}
-        {corePoints.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-              Core Currencies
-            </Typography.Text>
-            <List
-              size="small"
-              dataSource={corePoints}
-              renderItem={(pricePoint: PricePoint) => (
-                <List.Item style={{ padding: '4px 0', borderBottom: 'none' }}>
-                  <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
-                </List.Item>
-              )}
-            />
-          </div>
-        )}
+        <div className="content-panel">
+          {/* Core Currencies */}
+          {corePoints.length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
+              <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+                Core Currencies
+              </Typography.Text>
+              <List
+                size="small"
+                dataSource={corePoints}
+                renderItem={(pricePoint: PricePoint) => (
+                  <List.Item style={{ padding: '4px 0', borderBottom: 'none' }}>
+                    <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
+                  </List.Item>
+                )}
+              />
+            </div>
+          )}
 
-        {/* Other Currencies */}
-        {otherPoints.length > 0 && (
-          <div>
-            <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-              Other Currencies ({otherPoints.length})
-            </Typography.Text>
-            <List
-              size="small"
-              dataSource={otherPoints}
-              renderItem={(pricePoint: PricePoint) => (
-                <List.Item style={{ padding: '2px 0', borderBottom: 'none' }}>
-                  <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
-                </List.Item>
-              )}
-            />
-          </div>
-        )}
-      </DetailSection>
+          {/* Other Currencies */}
+          {otherPoints.length > 0 && (
+            <div>
+              <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+                Other Currencies ({otherPoints.length})
+              </Typography.Text>
+              <List
+                size="small"
+                dataSource={otherPoints}
+                renderItem={(pricePoint: PricePoint) => (
+                  <List.Item style={{ padding: '2px 0', borderBottom: 'none' }}>
+                    <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
+                  </List.Item>
+                )}
+              />
+            </div>
+          )}
+        </div>
+      </PageSection>
 
       {/* SKUs Using This Price Group */}
-      <DetailSection 
+      <PageSection 
         title={
           <Space>
             <span>SKUs Using This Price Group</span>
             <CountTag count={skusWithPriceGroup.length} />
           </Space>
-        } 
-        noBodyPadding
+        }
       >
         <SkuListTable skus={skusWithPriceGroup} product={product} />
-      </DetailSection>
+      </PageSection>
     </Space>
   );
 };

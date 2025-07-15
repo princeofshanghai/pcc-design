@@ -16,7 +16,7 @@ import {
 } from '../components';
 import { SkuListTable } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
-import { formatEffectiveDateRange } from '../utils/formatters';
+import { formatEffectiveDateRange, toSentenceCase } from '../utils/formatters';
 import { DollarSign } from 'lucide-react';
 
 const { Title } = Typography;
@@ -101,7 +101,7 @@ const PriceGroupDetail: React.FC = () => {
   };
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
         icon={<DollarSign />}
         iconSize={24}
@@ -112,7 +112,7 @@ const PriceGroupDetail: React.FC = () => {
       />
 
       {/* Price Group Information */}
-      <PageSection title="Price Group Details">
+      <PageSection title={toSentenceCase("Price Group Details")}>
         <AttributeGroup>
           <AttributeDisplay label="Price Group ID" layout="horizontal">
             <Typography.Text code>{priceGroup.id}</Typography.Text>
@@ -132,16 +132,28 @@ const PriceGroupDetail: React.FC = () => {
         </AttributeGroup>
       </PageSection>
 
+      {/* SKUs Using This Price Group */}
+      <PageSection 
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>{toSentenceCase("SKUs Using This Price Group")}</span>
+            <CountTag count={skusWithPriceGroup.length} />
+          </div>
+        }
+      >
+        <SkuListTable skus={skusWithPriceGroup} product={product} hidePriceGroupColumn={true} />
+      </PageSection>
+
       {/* Price Points */}
       <PageSection 
         title={
-          <Space align="center" size="small">
-            <span>Price Points</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>{toSentenceCase("Price Points")}</span>
             <CountTag count={pricePointCount} />
             <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
               currencies
             </Typography.Text>
-          </Space>
+          </div>
         }
       >
         <FilterBar
@@ -178,18 +190,6 @@ const PriceGroupDetail: React.FC = () => {
           pricePoints={filteredPricePoints} 
           groupedPricePoints={groupedPricePointsData}
         />
-      </PageSection>
-
-      {/* SKUs Using This Price Group */}
-      <PageSection 
-        title={
-          <Space>
-            <span>SKUs Using This Price Group</span>
-            <CountTag count={skusWithPriceGroup.length} />
-          </Space>
-        }
-      >
-        <SkuListTable skus={skusWithPriceGroup} product={product} />
       </PageSection>
     </Space>
   );

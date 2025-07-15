@@ -15,6 +15,7 @@ const { Text } = Typography;
 interface SkuListTableProps {
   skus: Sku[];
   product: Product;
+  hidePriceGroupColumn?: boolean;
 }
 
 // Helper function to check if a SKU has any overrides
@@ -37,7 +38,7 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
   return false;
 };
 
-export const getSkuTableColumns = (product: Product, navigate: (path: string) => void): ColumnsType<Sku> => [
+export const getSkuTableColumns = (product: Product, navigate: (path: string) => void, hidePriceGroupColumn: boolean = false): ColumnsType<Sku> => [
   {
     title: toSentenceCase('Name'),
     dataIndex: 'name',
@@ -72,7 +73,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     key: 'effectiveDates',
     render: (_: any, sku: Sku) => formatEffectiveDateRange(sku.priceGroup.startDate, sku.priceGroup.endDate),
   },
-  {
+  ...(hidePriceGroupColumn ? [] : [{
     title: toSentenceCase('Price group'),
     key: 'priceGroupId',
     render: (_: any, sku: Sku) => {
@@ -89,7 +90,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
         </div>
       );
     },
-  },
+  }]),
 
   {
     title: toSentenceCase('LIX'),
@@ -120,9 +121,9 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   },
 ];
 
-const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
+const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGroupColumn = false }) => {
   const navigate = useNavigate();
-  const columns = getSkuTableColumns(product, navigate);
+  const columns = getSkuTableColumns(product, navigate, hidePriceGroupColumn);
 
   return (
     <div className="content-panel">

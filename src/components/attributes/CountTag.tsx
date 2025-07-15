@@ -7,7 +7,7 @@ interface CountTagProps {
 
 const CountTag: React.FC<CountTagProps> = ({ count }) => {
   return (
-    <Tag style={{ borderRadius: '12px', margin: '0 0 0 4px' }}>{count}</Tag>
+    <Tag style={{ borderRadius: '12px', margin: 0 }}>{count}</Tag>
   );
 };
 

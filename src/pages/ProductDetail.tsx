@@ -259,7 +259,12 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title="Price groups"
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Price groups</span>
+                <CountTag count={filteredPriceGroups.length} />
+              </div>
+            }
             actions={
               <Button 
                 icon={<Plus size={16} />}
@@ -402,18 +407,18 @@ const ProductDetail: React.FC = () => {
       key: 'skus',
       label: 'SKUs',
       children: (
-        <PageSection
-          title={
-            <Space>
-              <span>{toSentenceCase('SKUs')}</span>
-              <CountTag count={finalSkuCount} />
-              {priceGroupFilter && (
-                <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-                  (filtered by price group: {priceGroupFilter})
-                </Typography.Text>
-              )}
-            </Space>
-          }
+                  <PageSection
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{toSentenceCase('SKUs')}</span>
+                <CountTag count={finalSkuCount} />
+                {priceGroupFilter && (
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                    (filtered by price group: {priceGroupFilter})
+                  </Typography.Text>
+                )}
+              </div>
+            }
         >
           <FilterBar
             search={{

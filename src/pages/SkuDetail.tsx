@@ -1,21 +1,25 @@
 import React, { useEffect } from 'react';
-import { Typography, Space } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Typography, Space, Table, Tabs } from 'antd';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
+import { usePricePointFilters } from '../hooks/usePricePointFilters';
+import { toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
 import {
   PageHeader,
   StatusTag,
-  DetailSection,
+  PageSection,
   AttributeDisplay,
-  PriceDetailView,
-  LobTag,
-  FolderTag,
+  AttributeGroup,
   SalesChannelDisplay,
   OverrideIndicator,
-  OverrideComparison
+  OverrideComparison,
+  CountTag,
+  FilterBar
 } from '../components';
+import PricePointTable from '../components/pricing/PricePointTable';
+import CopyableId from '../components/shared/CopyableId';
 import { Tag as SkuIcon, AlertCircle } from 'lucide-react';
 
 const { Title } = Typography;
@@ -95,6 +99,312 @@ const SkuDetail: React.FC = () => {
 
   const skuOverrides = getSkuOverrides();
 
+  const tabItems = [
+    {
+      key: 'overview',
+      label: 'Overview',
+      children: (
+        <Space direction="vertical" style={{ width: '100%' }} size={48}>
+          {/* SKU Overrides Summary */}
+          <PageSection title={toSentenceCase("SKU Overrides")}>
+            {skuOverrides.length > 0 ? (
+              <Space align="center" size="small">
+                <AlertCircle size={16} color="#fa8c16" />
+                <Typography.Text>
+                  This SKU overrides: <Typography.Text strong>{skuOverrides.join(', ')}</Typography.Text>
+                </Typography.Text>
+              </Space>
+            ) : (
+              <Typography.Text type="secondary">
+                This SKU uses all product defaults with no overrides.
+              </Typography.Text>
+            )}
+          </PageSection>
+
+          {/* Basic SKU Information */}
+          <PageSection title={toSentenceCase("SKU Information")}>
+            <AttributeGroup>
+              <AttributeDisplay label="Product" layout="horizontal">
+                {product.name}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="LOB" layout="horizontal">
+                {product.lob}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Folder" layout="horizontal">
+                {product.folder}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Status" layout="horizontal">
+                <StatusTag status={sku.status} />
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+
+          {/* Configuration Section */}
+          <PageSection title={toSentenceCase("Configuration")}>
+            <AttributeGroup>
+              <AttributeDisplay label="Sales Channel" layout="horizontal">
+                <SalesChannelDisplay channel={sku.salesChannel} />
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Billing Cycle" layout="horizontal">
+                {sku.billingCycle}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Revenue Recognition" layout="horizontal">
+                {sku.revenueRecognition}
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+
+          {/* Overridable Attributes Section */}
+          <PageSection title={toSentenceCase("Attributes")}>
+            <AttributeGroup>
+              <AttributeDisplay label="Tax Class" layout="horizontal">
+                <Space size="small">
+                  <span>{sku.taxClass || product.taxClass}</span>
+                  {isOverridden(sku.taxClass) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku.taxClass) && (
+                  <OverrideComparison skuValue={sku.taxClass} productValue={product.taxClass} />
+                )}
+              </AttributeDisplay>
+
+              <AttributeDisplay label="Seat Range" layout="horizontal">
+                <Space size="small">
+                  <span>{(sku.seatMin ?? product.seatMin)} - {(sku.seatMax ?? product.seatMax)} seats</span>
+                  {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && <OverrideIndicator />}
+                </Space>
+                {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && (
+                  <OverrideComparison 
+                    skuValue={`${(sku.seatMin ?? product.seatMin)} - ${(sku.seatMax ?? product.seatMax)} seats`} 
+                    productValue={`${product.seatMin} - ${product.seatMax} seats`} 
+                  />
+                )}
+              </AttributeDisplay>
+
+              <AttributeDisplay label="Free-to-Paid Grace Period" layout="horizontal">
+                <Space size="small">
+                  <span>{(sku.paymentFailureFreeToPaidGracePeriod ?? product.paymentFailureFreeToPaidGracePeriod)} days</span>
+                  {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && (
+                  <OverrideComparison 
+                    skuValue={`${sku.paymentFailureFreeToPaidGracePeriod} days`} 
+                    productValue={`${product.paymentFailureFreeToPaidGracePeriod} days`} 
+                  />
+                )}
+              </AttributeDisplay>
+
+              <AttributeDisplay label="Paid-to-Paid Grace Period" layout="horizontal">
+                <Space size="small">
+                  <span>{(sku.paymentFailurePaidToPaidGracePeriod ?? product.paymentFailurePaidToPaidGracePeriod)} days</span>
+                  {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && (
+                  <OverrideComparison 
+                    skuValue={`${sku.paymentFailurePaidToPaidGracePeriod} days`} 
+                    productValue={`${product.paymentFailurePaidToPaidGracePeriod} days`} 
+                  />
+                )}
+              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+        </Space>
+      ),
+    },
+    {
+      key: 'pricing',
+      label: 'Pricing',
+      children: (() => {
+        const priceGroup = sku.priceGroup;
+        
+        // Count how many SKUs in this product use the same price group
+        const skusWithSamePriceGroup = product.skus.filter(s => s.priceGroup.id === priceGroup.id);
+        const otherSkusCount = skusWithSamePriceGroup.length - 1; // Exclude current SKU
+
+        // Use the same filtering logic as PriceGroupDetail
+        const {
+          setSearchQuery: setPricePointSearchQuery,
+          currencyFilter, 
+          setCurrencyFilter,
+          currencyOptions,
+          sortOrder, 
+          setSortOrder,
+          groupBy: pricePointGroupBy, 
+          setGroupBy: setPricePointGroupBy,
+          filteredPricePoints,
+          groupedPricePoints: groupedPricePointsData,
+          pricePointCount,
+        } = usePricePointFilters(priceGroup.pricePoints);
+
+        const clearAllPricePointFilters = () => {
+          setPricePointSearchQuery('');
+          setCurrencyFilter(null);
+        };
+
+        return (
+          <Space direction="vertical" style={{ width: '100%' }} size={48}>
+            {/* Price Group Information */}
+            <PageSection 
+              title={toSentenceCase("Price Group")}
+            >
+              <AttributeGroup>
+                <AttributeDisplay label="Price Group Name" layout="horizontal">
+                  {priceGroup.name}
+                </AttributeDisplay>
+
+                <AttributeDisplay label="Price Group ID" layout="horizontal">
+                  <Space size="small">
+                    <Typography.Text code>{priceGroup.id}</Typography.Text>
+                    <CopyableId id={priceGroup.id || ''} showId={false} />
+                  </Space>
+                </AttributeDisplay>
+                
+                {priceGroup.status && (
+                  <AttributeDisplay label="Status" layout="horizontal">
+                    <StatusTag status={priceGroup.status} />
+                  </AttributeDisplay>
+                )}
+                
+                {(priceGroup.startDate || priceGroup.endDate) && (
+                  <AttributeDisplay label="Effective Period" layout="horizontal">
+                    {formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
+                  </AttributeDisplay>
+                )}
+
+                {otherSkusCount > 0 && (
+                  <AttributeDisplay label="Other SKUs" layout="horizontal">
+                    <Space align="center" size="small">
+                      <Typography.Text>
+                        {otherSkusCount} other SKU{otherSkusCount !== 1 ? 's' : ''} use{otherSkusCount === 1 ? 's' : ''} this price group
+                      </Typography.Text>
+                      <Link to={`/product/${product.id}/price-group/${priceGroup.id}`}>
+                        View all
+                      </Link>
+                    </Space>
+                  </AttributeDisplay>
+                )}
+              </AttributeGroup>
+            </PageSection>
+
+            {/* Price Points */}
+            <PageSection 
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{toSentenceCase("Price Points")}</span>
+                  <CountTag count={pricePointCount} />
+                </div>
+              }
+            >
+              <FilterBar
+                search={{
+                  placeholder: "Search by currency...",
+                  onChange: setPricePointSearchQuery,
+                }}
+                filters={[
+                  {
+                    placeholder: "All Currencies",
+                    options: currencyOptions,
+                    value: currencyFilter,
+                    onChange: setCurrencyFilter,
+                  },
+                ]}
+                onClearAll={clearAllPricePointFilters}
+                viewOptions={{
+                  sortOrder: {
+                    value: sortOrder,
+                    setter: setSortOrder,
+                    options: ['None', 'Amount (High to Low)', 'Amount (Low to High)', 'Alphabetical A-Z'],
+                  },
+                  groupBy: {
+                    value: pricePointGroupBy,
+                    setter: setPricePointGroupBy,
+                    options: ['None', 'Core / Long Tail'],
+                  },
+                }}
+                displayMode="drawer"
+                filterSize="middle"
+                searchAndViewSize="large"
+              />
+              <PricePointTable 
+                pricePoints={filteredPricePoints} 
+                groupedPricePoints={groupedPricePointsData}
+              />
+            </PageSection>
+          </Space>
+        );
+      })(),
+    },
+    {
+      key: 'features',
+      label: 'Features',
+      children: (
+        <Space direction="vertical" style={{ width: '100%' }} size={48}>
+          {/* Features Section */}
+          {((sku.features && sku.features.length > 0) || (product.features && product.features.length > 0)) ? (
+            <PageSection 
+              title={
+                <Space size="small">
+                  <span>{toSentenceCase("Features")}</span>
+                  {isOverridden(sku.features) && <OverrideIndicator />}
+                </Space>
+              }
+            >
+              {(sku.features && sku.features.length > 0
+                ? sku.features
+                : product.features || []).length > 0 ? (
+                <div className="content-panel">
+                  <Table
+                    columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                    dataSource={(sku.features && sku.features.length > 0
+                      ? sku.features
+                      : product.features || []).map((feature, idx) => ({ key: idx, feature }))}
+                    pagination={false}
+                    size="small"
+                    rowKey="key"
+                    showHeader={false}
+                  />
+                </div>
+              ) : (
+                <span style={{ color: '#888' }}>No features listed for this SKU.</span>
+              )}
+              {isOverridden(sku.features) && (
+                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
+                  <OverrideComparison 
+                    skuValue={`${sku.features?.length || 0} features`} 
+                    productValue={`${product.features?.length || 0} features`} 
+                  />
+                  <div style={{ marginTop: '12px' }}>
+                    <Typography.Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+                      Product Default Features:
+                    </Typography.Text>
+                    <div className="content-panel" style={{ marginTop: '8px' }}>
+                      <Table
+                        columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                        dataSource={(product.features || []).map((feature, idx) => ({ key: idx, feature }))}
+                        pagination={false}
+                        size="small"
+                        rowKey="key"
+                        showHeader={false}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </PageSection>
+          ) : (
+            <PageSection title={toSentenceCase("Features")}>
+              <span style={{ color: '#888' }}>No features listed for this SKU.</span>
+            </PageSection>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
@@ -105,157 +415,7 @@ const SkuDetail: React.FC = () => {
         tagContent={<StatusTag status={sku.status} />}
       />
 
-      {/* SKU Overrides Summary */}
-      <DetailSection title="SKU Overrides">
-        {skuOverrides.length > 0 ? (
-          <Space align="center" size="small">
-            <AlertCircle size={16} color="#fa8c16" />
-            <Typography.Text>
-              This SKU overrides: <Typography.Text strong>{skuOverrides.join(', ')}</Typography.Text>
-            </Typography.Text>
-          </Space>
-        ) : (
-          <Typography.Text type="secondary">
-            This SKU uses all product defaults with no overrides.
-          </Typography.Text>
-        )}
-      </DetailSection>
-
-      {/* Basic SKU Information */}
-      <DetailSection title="SKU Information">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <AttributeDisplay label="Product" layout="horizontal">
-            {product.name}
-          </AttributeDisplay>
-          
-          <AttributeDisplay label="Line of Business" layout="horizontal">
-            <LobTag lob={product.lob} />
-          </AttributeDisplay>
-          
-                      <AttributeDisplay label="Folder" layout="horizontal">
-              <FolderTag folder={product.folder} lob={product.lob} />
-            </AttributeDisplay>
-          
-          <AttributeDisplay label="Status" layout="horizontal">
-            <StatusTag status={sku.status} />
-          </AttributeDisplay>
-                </Space>
-      </DetailSection>
-
-      {/* Configuration Section */}
-      <DetailSection title="Configuration">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <AttributeDisplay label="Sales Channel" layout="horizontal">
-            <SalesChannelDisplay channel={sku.salesChannel} />
-          </AttributeDisplay>
-          
-          <AttributeDisplay label="Billing Cycle" layout="horizontal">
-            {sku.billingCycle}
-          </AttributeDisplay>
-          
-          <AttributeDisplay label="Revenue Recognition" layout="horizontal">
-            {sku.revenueRecognition}
-          </AttributeDisplay>
-        </Space>
-      </DetailSection>
-
-      {/* Price Group Section */}
-      <PriceDetailView sku={sku} product={product} />
-
-      {/* Overridable Attributes Section */}
-      <DetailSection title="Attributes">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <AttributeDisplay label="Tax Class" layout="horizontal">
-            <Space size="small">
-              <span>{sku.taxClass || product.taxClass}</span>
-              {isOverridden(sku.taxClass) && <OverrideIndicator />}
-            </Space>
-            {isOverridden(sku.taxClass) && (
-              <OverrideComparison skuValue={sku.taxClass} productValue={product.taxClass} />
-            )}
-          </AttributeDisplay>
-
-          <AttributeDisplay label="Seat Range" layout="horizontal">
-            <Space size="small">
-              <span>{(sku.seatMin ?? product.seatMin)} - {(sku.seatMax ?? product.seatMax)} seats</span>
-              {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && <OverrideIndicator />}
-            </Space>
-            {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && (
-              <OverrideComparison 
-                skuValue={`${(sku.seatMin ?? product.seatMin)} - ${(sku.seatMax ?? product.seatMax)} seats`} 
-                productValue={`${product.seatMin} - ${product.seatMax} seats`} 
-              />
-            )}
-          </AttributeDisplay>
-
-          <AttributeDisplay label="Free-to-Paid Grace Period" layout="horizontal">
-            <Space size="small">
-              <span>{(sku.paymentFailureFreeToPaidGracePeriod ?? product.paymentFailureFreeToPaidGracePeriod)} days</span>
-              {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && <OverrideIndicator />}
-            </Space>
-            {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && (
-              <OverrideComparison 
-                skuValue={`${sku.paymentFailureFreeToPaidGracePeriod} days`} 
-                productValue={`${product.paymentFailureFreeToPaidGracePeriod} days`} 
-              />
-            )}
-          </AttributeDisplay>
-
-          <AttributeDisplay label="Paid-to-Paid Grace Period" layout="horizontal">
-            <Space size="small">
-              <span>{(sku.paymentFailurePaidToPaidGracePeriod ?? product.paymentFailurePaidToPaidGracePeriod)} days</span>
-              {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && <OverrideIndicator />}
-            </Space>
-            {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && (
-              <OverrideComparison 
-                skuValue={`${sku.paymentFailurePaidToPaidGracePeriod} days`} 
-                productValue={`${product.paymentFailurePaidToPaidGracePeriod} days`} 
-              />
-            )}
-          </AttributeDisplay>
-        </Space>
-      </DetailSection>
-
-      {/* Features Section */}
-      {((sku.features && sku.features.length > 0) || (product.features && product.features.length > 0)) && (
-        <DetailSection 
-          title={
-            <Space size="small">
-              <span>Features</span>
-              {isOverridden(sku.features) && <OverrideIndicator />}
-            </Space>
-          } 
-          noBodyPadding
-        >
-          <div style={{ padding: '16px 24px' }}>
-            <ul style={{ margin: 0, paddingLeft: 20 }}>
-              {(sku.features && sku.features.length > 0
-                ? sku.features
-                : product.features || []).map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-            </ul>
-          </div>
-          {isOverridden(sku.features) && (
-            <div style={{ padding: '16px 24px', backgroundColor: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
-              <OverrideComparison 
-                skuValue={`${sku.features?.length || 0} features`} 
-                productValue={`${product.features?.length || 0} features`} 
-              />
-              <div style={{ marginTop: '12px' }}>
-                <Typography.Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-                  Product Default Features:
-                </Typography.Text>
-                <ul style={{ margin: 0, paddingLeft: 20 }}>
-                  {(product.features || []).map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </DetailSection>
-      )}
+      <Tabs defaultActiveKey="overview" items={tabItems} />
     </Space>
   );
 };

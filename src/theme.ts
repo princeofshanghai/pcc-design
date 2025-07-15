@@ -16,7 +16,7 @@ const themeConfig: ThemeConfig = {
     fontSize: 14,
     fontSizeLG: 14,
     fontSizeHeading1: 24,
-    fontSizeHeading2: 18,
+    fontSizeHeading2: 20,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,
     lineHeight: 1.5715,

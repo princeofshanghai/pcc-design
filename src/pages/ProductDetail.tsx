@@ -264,6 +264,7 @@ const ProductDetail: React.FC = () => {
               <Button 
                 icon={<Plus size={16} />}
                 onClick={() => setIsConfigurationModalOpen(true)}
+                size="large"
               >
                 Add price group
               </Button>
@@ -296,8 +297,9 @@ const ProductDetail: React.FC = () => {
                   options: ['None', 'Channel', 'Billing Cycle'],
                 },
               }}
-              displayMode="inline"
-              filterSize="large"
+              displayMode="drawer"
+              filterSize="middle"
+              searchAndViewSize="large"
             />
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 
@@ -463,6 +465,9 @@ const ProductDetail: React.FC = () => {
                 options: SKU_GROUP_BY_OPTIONS,
               },
             }}
+            displayMode="drawer"
+            filterSize="middle"
+            searchAndViewSize="large"
           />
           {finalGroupedSkus ? (
             <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />

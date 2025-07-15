@@ -1,5 +1,6 @@
 import React from 'react';
-import { Table, Space, Tooltip } from 'antd';
+import { Table, Space, Tooltip, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import type { Sku, Status, SalesChannel, Product } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
@@ -10,7 +11,8 @@ import { PriceGroupTableCell } from '../configuration/PriceGroupLink';
 import { ChangeRequestOrigin } from '../configuration/ChangeRequestOrigin';
 import type { ColumnsType } from 'antd/es/table';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
-import { Link } from 'react-router-dom';
+
+const { Text } = Typography;
 
 interface SkuListTableProps {
   skus: Sku[];
@@ -39,40 +41,24 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
 
 export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
   {
-    title: toSentenceCase('ID'),
-    dataIndex: 'id',
-    key: 'id',
-    render: (id: string, record: Sku) => (
-      <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
-        <Space>
-          <Link to={`/product/${product.id}/sku/${id}`}>{id}</Link>
-          <CopyableId id={id} showId={false} />
-          {hasSkuOverrides(record, product) && <OverrideIndicator />}
-        </Space>
-      </ExperimentalTableCell>
-    ),
-    className: 'table-col-first',
-  },
-  {
     title: toSentenceCase('Name'),
     dataIndex: 'name',
     key: 'name',
     render: (name: string, record: Sku) => (
       <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
-        {name}
+        <div>
+          <div style={{ fontWeight: 500 }}>{name}</div>
+          <div>
+            <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <Text type="secondary" style={{ fontSize: '13px' }}>{record.id}</Text>
+              <CopyableId id={record.id} showId={false} />
+              {hasSkuOverrides(record, product) && <OverrideIndicator />}
+            </Space>
+          </div>
+        </div>
       </ExperimentalTableCell>
     ),
-  },
-  {
-    title: toSentenceCase('Channel'),
-    dataIndex: 'salesChannel',
-    key: 'salesChannel',
-    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />, 
-  },
-  {
-    title: toSentenceCase('Billing Cycle'),
-    dataIndex: 'billingCycle',
-    key: 'billingCycle',
+    className: 'table-col-first',
   },
   {
     title: toSentenceCase('Effective Date'),
@@ -85,14 +71,16 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (_: any, sku: Sku) => {
       if (!sku.priceGroup.id) return 'N/A';
       return (
-        <PriceGroupTableCell
-          priceGroup={sku.priceGroup}
-          product={product}
-          onViewPriceGroup={(priceGroupId) => {
-            // Navigate to price group detail page
-            window.location.href = `/product/${product.id}/price-group/${priceGroupId}`;
-          }}
-        />
+        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <PriceGroupTableCell
+            priceGroup={sku.priceGroup}
+            product={product}
+            onViewPriceGroup={(priceGroupId) => {
+              // Navigate to price group detail page
+              window.location.href = `/product/${product.id}/price-group/${priceGroupId}`;
+            }}
+          />
+        </div>
       );
     },
   },
@@ -102,17 +90,19 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (_: any, sku: Sku) => {
       if (!sku.origin) return null;
       return (
-        <ChangeRequestOrigin
-          origin={sku.origin}
-          createdBy={sku.createdBy}
-          createdDate={sku.createdDate}
-          requestId={sku.configurationRequestId}
-          variant="compact"
-          onViewRequest={(requestId: string) => {
-            // TODO: Navigate to change request detail page
-            console.log('View request:', requestId);
-          }}
-        />
+        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <ChangeRequestOrigin
+            origin={sku.origin}
+            createdBy={sku.createdBy}
+            createdDate={sku.createdDate}
+            requestId={sku.configurationRequestId}
+            variant="compact"
+            onViewRequest={(requestId: string) => {
+              // TODO: Navigate to change request detail page
+              console.log('View request:', requestId);
+            }}
+          />
+        </div>
       );
     },
   },
@@ -153,6 +143,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
 ];
 
 const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
+  const navigate = useNavigate();
   const columns = getSkuTableColumns(product);
 
   return (
@@ -163,6 +154,18 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
         rowKey="id"
         pagination={false}
         size="small"
+        onRow={(record) => ({
+          onClick: () => {
+            navigate(`/product/${product.id}/sku/${record.id}`);
+          },
+          style: { cursor: 'pointer' },
+          onMouseEnter: (e) => {
+            e.currentTarget.style.backgroundColor = '#f5f5f5';
+          },
+          onMouseLeave: (e) => {
+            e.currentTarget.style.backgroundColor = '';
+          },
+        })}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table, Typography, Space, theme } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import type { Sku, Product } from '../../utils/types';
 import { getSkuTableColumns } from './SkuListTable';
 import CountTag from '../attributes/CountTag';
@@ -17,6 +18,7 @@ interface GroupedSkuListTableProps {
 type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: number };
 
 const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, groupBy }) => {
+  const navigate = useNavigate();
   const { token } = theme.useToken();
   const columns = getSkuTableColumns(product) as ColumnsType<TableRow>;
 
@@ -43,6 +45,23 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
         pagination={false}
         size="small"
         rowClassName={(record) => ('isGroupHeader'in record ? 'ant-table-row-group-header' : '')}
+        onRow={(record) => ({
+          onClick: () => {
+            if ('isGroupHeader' in record) return;
+            navigate(`/product/${product.id}/sku/${record.id}`);
+          },
+          style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
+          onMouseEnter: (e) => {
+            if (!('isGroupHeader' in record)) {
+              e.currentTarget.style.backgroundColor = '#f5f5f5';
+            }
+          },
+          onMouseLeave: (e) => {
+            if (!('isGroupHeader' in record)) {
+              e.currentTarget.style.backgroundColor = '';
+            }
+          },
+        })}
         components={{
           body: {
             row: (props: any) => {

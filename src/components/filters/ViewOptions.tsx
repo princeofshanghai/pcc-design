@@ -17,6 +17,7 @@ interface ViewOptionsProps {
   setSortOrder?: (value: string) => void;
   sortOptions?: string[];
   isGroupingDisabled?: boolean;
+  size?: 'small' | 'middle' | 'large';
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -29,6 +30,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   groupByOptions,
   sortOptions,
   isGroupingDisabled = false,
+  size = 'large',
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -224,7 +226,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
             <Settings2 size={16} />
           </Badge>
         } 
-        size="large"
+        size={size}
       >
         {toSentenceCase('Display')}
       </Button>

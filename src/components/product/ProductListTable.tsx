@@ -1,10 +1,12 @@
 import React from 'react';
-import { Table, Space } from 'antd';
+import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
+
+const { Text } = Typography;
 
 interface ProductListTableProps {
   products: Product[];
@@ -14,23 +16,21 @@ interface ProductListTableProps {
 export const getProductListTableColumns = (_navigate: (path: string) => void, hideRedundantColumns?: boolean): ColumnsType<Product> => {
   const allColumns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      render: (id: string) => (
-        <Space onClick={(e) => e.stopPropagation()}>
-          <span>{id}</span>
-          <CopyableId id={id} showId={false} />
-        </Space>
-      ),
-    },
-    {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => (
-        <span>{text}</span>
+      render: (name: string, record: Product) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{name}</div>
+          <div>
+            <Space size="small" onClick={(e) => e.stopPropagation()}>
+              <Text type="secondary" style={{ fontSize: '13px' }}>{record.id}</Text>
+              <CopyableId id={record.id} showId={false} />
+            </Space>
+          </div>
+        </div>
       ),
+      className: 'table-col-first',
     },
     {
       title: 'LOB',

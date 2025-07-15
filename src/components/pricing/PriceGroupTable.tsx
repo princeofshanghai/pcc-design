@@ -38,28 +38,24 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   // Table columns
   const columns: ColumnsType<any> = [
     {
-      title: toSentenceCase('ID'),
-      dataIndex: 'id',
-      key: 'id',
-      render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
-        return (
-          <Space onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <span>{record.priceGroup.id}</span>
-            <CopyableId id={record.priceGroup.id || ''} showId={false} />
-          </Space>
-        );
-      },
-      className: 'table-col-first',
-    },
-    {
       title: toSentenceCase('Name'),
       dataIndex: 'name',
       key: 'name',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return record.priceGroup.name;
+        return (
+          <div>
+            <div style={{ fontWeight: 500 }}>{record.priceGroup.name}</div>
+            <div>
+              <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                <Text type="secondary" style={{ fontSize: '13px' }}>{record.priceGroup.id}</Text>
+                <CopyableId id={record.priceGroup.id || ''} showId={false} />
+              </Space>
+            </div>
+          </div>
+        );
       },
+      className: 'table-col-first',
     },
     {
       title: toSentenceCase('Channel'),
@@ -95,7 +91,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'currencies',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return <CountTag count={record.priceGroup.pricePoints.length} />;
+        return record.priceGroup.pricePoints.length;
       },
     },
     {
@@ -104,7 +100,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'sku',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return `${record.skus.length} SKU${record.skus.length > 1 ? 's' : ''}`;
+        return record.skus.length;
       },
     },
     {

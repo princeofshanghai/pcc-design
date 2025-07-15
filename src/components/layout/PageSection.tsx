@@ -25,7 +25,7 @@ const PageSection: React.FC<PageSectionProps> = ({
         marginBottom: '16px'
       }}>
         <div>
-          <Title level={5} style={{ margin: 0 }}>
+          <Title level={2} style={{ margin: 0 }}>
             {title}
           </Title>
           {subtitle && (

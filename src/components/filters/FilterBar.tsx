@@ -47,6 +47,8 @@ interface FilterBarProps {
   displayMode?: 'inline' | 'drawer';
   // New prop to control filter size
   filterSize?: 'small' | 'middle' | 'large';
+  // New prop to control search bar and view options size
+  searchAndViewSize?: 'small' | 'middle' | 'large';
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -57,6 +59,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   viewMode,
   displayMode = 'drawer', // Default to current behavior
   filterSize = 'middle', // Default filter size
+  searchAndViewSize = 'large', // Default search and view options size
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder;
@@ -126,7 +129,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
               placeholder={search.placeholder}
               onChange={search.onChange}
               style={{ ...search.style, width: '100%' }}
-              size="large"
+              size={searchAndViewSize}
             />
           )}
         </Col>
@@ -137,7 +140,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 <Button 
                   icon={<ListFilter size={16} />} 
                   onClick={showDrawer}
-                  size="large"
+                  size={searchAndViewSize}
                 >
                   Filters
                 </Button>
@@ -156,6 +159,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 sortOrder={viewOptions?.sortOrder?.value}
                 setSortOrder={viewOptions?.sortOrder?.setter}
                 sortOptions={viewOptions?.sortOrder?.options}
+                size={searchAndViewSize}
               />
             )}
           </Space>

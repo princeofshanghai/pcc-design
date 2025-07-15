@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Typography, Space, Button, Row, Col } from 'antd';
-import { ExternalLink, DollarSign, FileText, Grid2x2Check } from 'lucide-react';
+import { ExternalLink, DollarSign } from 'lucide-react';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from '../configuration/ChangeRequestStatus';
 import { getUserLdap } from '../../utils/users';
@@ -18,7 +18,7 @@ const getActivityDescription = (request: ConfigurationRequest): string => {
   return `Add ${request.salesChannel} + ${request.billingCycle} pricing ($${request.priceAmount})`;
 };
 
-const getActivityIcon = (request: ConfigurationRequest): React.ReactElement => {
+const getActivityIcon = (): React.ReactElement => {
   // Future: determine activity type based on request properties
   // For now, all requests are pricing changes
   // TODO: derive from request.type or request.category when those fields exist
@@ -43,15 +43,6 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
   request,
   onViewDetails
 }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -70,7 +61,7 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
     }
   };
 
-  const icon = getActivityIcon(request);
+  const icon = getActivityIcon();
   const description = getActivityDescription(request);
 
   return (

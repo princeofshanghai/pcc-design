@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus, ExperimentalBadge } from '../index';
-import { ExternalLink, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 
 const { Text } = Typography;
 
@@ -64,7 +64,6 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
         <Button
           type="link"
           size="small"
-          icon={<ExternalLink size={12} />}
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/product/${record.targetProductId}`);

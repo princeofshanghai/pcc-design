@@ -40,7 +40,7 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
         return '#f6ffed';
       case 'Failed':
         return '#fff2f0';
-      case 'In Staging':
+      case 'In EI':
         return '#f0f5ff';
       case 'Pending Review':
         return '#fff7e6';
@@ -55,7 +55,7 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
         return '#b7eb8f';
       case 'Failed':
         return '#ffccc7';
-      case 'In Staging':
+      case 'In EI':
         return '#91d5ff';
       case 'Pending Review':
         return '#ffd591';

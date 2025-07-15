@@ -40,7 +40,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     salesChannel: 'Mobile',
     billingCycle: 'Monthly',
     priceAmount: 79.99,
-    status: 'In Staging',
+    status: 'In EI',
     createdBy: 'Anand Patel (Pricing)',
     createdDate: '2024-03-20T14:15:00Z',
   },
@@ -87,7 +87,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     priceAmount: 199.99,
     lixKey: 'mobile_annual_test',
     lixTreatment: 'discounted_price',
-    status: 'In Staging',
+    status: 'In EI',
     createdBy: 'Sarah Demo (Pricing)',
     createdDate: '2024-03-24T15:30:00Z',
   },
@@ -526,7 +526,7 @@ export const mockProducts: Product[] = [
     skus: [],
          configurationRequests: [
        mockConfigurationRequests[3], // Alex's monthly billing (Pending Review)
-       mockConfigurationRequests[4], // Sarah's annual mobile test (In Staging)
+       mockConfigurationRequests[4], // Sarah's annual mobile test (In EI)
        mockConfigurationRequests[5], // Sarah's mobile monthly (Live)
        mockConfigurationRequests[6], // Chris's field monthly premium (Live)
        mockConfigurationRequests[7], // Jordan's mobile quarterly control (Live)

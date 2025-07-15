@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tag, Typography, Space, Tooltip } from 'antd';
-import { Clock, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, Wrench, CheckCircle, XCircle } from 'lucide-react';
 import type { ChangeRequestStatus as ChangeRequestStatusType } from '../../utils/types';
 
 const { Text } = Typography;
@@ -19,11 +19,11 @@ const STATUS_CONFIG = {
     label: 'Pending Review',
     description: 'Change request is waiting for review and approval'
   },
-  'In Staging': {
+  'In EI': {
     color: 'blue',
-    icon: <Eye size={14} />,
-    label: 'In Staging',
-    description: 'Change request is being tested in the staging environment'
+    icon: <Wrench size={14} />,
+    label: 'In EI',
+    description: 'Change request is being tested in the EI environment'
   },
   'Live': {
     color: 'green',
@@ -103,7 +103,7 @@ export const DetailedChangeRequestStatus: React.FC<DetailedChangeRequestStatusPr
 
   // Progress indicators
   const getProgressSteps = () => {
-    const steps = ['Pending Review', 'In Staging', 'Live'] as const;
+    const steps = ['Pending Review', 'In EI', 'Live'] as const;
     const currentIndex = steps.indexOf(status as any);
     const failedStatus = status === 'Failed';
 

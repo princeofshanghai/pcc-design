@@ -67,7 +67,7 @@ export type PriceGroup = {
   pricePoints: PricePoint[];
 };
 
-export type ChangeRequestStatus = 'Pending Review' | 'In Staging' | 'Live' | 'Failed';
+export type ChangeRequestStatus = 'Pending Review' | 'In EI' | 'Live' | 'Failed';
 
 export type ChangeRequest = {
   id: string;

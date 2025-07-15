@@ -82,7 +82,7 @@ const ChangeRequestDetail: React.FC = () => {
     console.log('Copied to clipboard:', text);
   };
 
-  const handleStatusUpdate = (newStatus: 'Pending Review' | 'In Staging' | 'Live' | 'Failed') => {
+  const handleStatusUpdate = (newStatus: 'Pending Review' | 'In EI' | 'Live' | 'Failed') => {
     if (!productId || !requestId) return;
 
     Modal.confirm({

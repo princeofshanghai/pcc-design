@@ -28,8 +28,8 @@ const TIMELINE_STAGES = [
   },
   {
     key: 'in_staging',
-    title: 'In Staging',
-    description: 'Testing in staging environment',
+    title: 'In EI',
+    description: 'Testing in EI environment',
     icon: <Eye size={16} />,
     color: '#1677ff'
   },
@@ -52,7 +52,7 @@ export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
     switch (status) {
       case 'Pending Review':
         return 1;
-      case 'In Staging':
+      case 'In EI':
         return 2;
       case 'Live':
         return 3;
@@ -208,7 +208,7 @@ export const CompactTimeline: React.FC<CompactTimelineProps> = ({
     switch (status) {
       case 'Pending Review':
         return 1;
-      case 'In Staging':
+      case 'In EI':
         return 2;
       case 'Live':
         return 3;

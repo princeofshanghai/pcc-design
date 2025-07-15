@@ -57,6 +57,7 @@ export { ConflictWarning } from './configuration/ConflictWarning';
 export { ChangeRequestStatus, DetailedChangeRequestStatus } from './configuration/ChangeRequestStatus';
 export { ChangeRequestTimeline, CompactTimeline } from './configuration/ChangeRequestTimeline';
 export { RequestHistoryItem } from './configuration/RequestHistoryItem';
+export { ActivityFeedItem } from './activity/ActivityFeedItem';
 export { ExperimentalBadge, ExperimentalSkuIndicator, ExperimentalTableCell } from './configuration/ExperimentalBadge';
 export { ChangeRequestOrigin, OriginTableCell, InlineOrigin } from './configuration/ChangeRequestOrigin';
 export { PriceGroupLink, PriceGroupTableCell, InlinePriceGroup, PriceGroupRelationship } from './configuration/PriceGroupLink';

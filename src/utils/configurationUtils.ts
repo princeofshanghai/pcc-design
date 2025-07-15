@@ -179,7 +179,7 @@ export function checkDetailedChangeRequestConflicts(product: Product, changeRequ
     req.salesChannel === changeRequest.salesChannel && 
     req.billingCycle === changeRequest.billingCycle &&
     req.id !== changeRequest.id &&
-    ['Draft', 'Pending Review', 'In Staging'].includes(req.status)
+    ['Draft', 'Pending Review', 'In EI'].includes(req.status)
   );
   
   if (pendingRequest) {
@@ -534,7 +534,7 @@ export function getSubmissionNextSteps(result: ChangeRequestSubmissionResult): s
 export function updateChangeRequestStatus(
   productId: string, 
   requestId: string, 
-  newStatus: 'Pending Review' | 'In Staging' | 'Live' | 'Failed'
+  newStatus: 'Pending Review' | 'In EI' | 'Live' | 'Failed'
 ): boolean {
   // Find the product
   const product = mockProducts.find((p: Product) => p.id === productId);
@@ -575,8 +575,8 @@ export function updateChangeRequestStatus(
  * Gets the next possible status transitions for a change request
  * This defines the allowed workflow progression
  */
-export function getNextStatusOptions(currentStatus: 'Pending Review' | 'In Staging' | 'Live' | 'Failed'): Array<{
-  status: 'Pending Review' | 'In Staging' | 'Live' | 'Failed';
+export function getNextStatusOptions(currentStatus: 'Pending Review' | 'In EI' | 'Live' | 'Failed'): Array<{
+  status: 'Pending Review' | 'In EI' | 'Live' | 'Failed';
   label: string;
   description: string;
   buttonType: 'primary' | 'default' | 'danger';
@@ -586,9 +586,9 @@ export function getNextStatusOptions(currentStatus: 'Pending Review' | 'In Stagi
     case 'Pending Review':
       return [
         {
-          status: 'In Staging',
-          label: 'Approve & Move to Staging',
-          description: 'Approve this change request and deploy to staging environment',
+          status: 'In EI',
+          label: 'Approve & Move to EI',
+          description: 'Approve this change request and deploy to EI environment',
           buttonType: 'primary',
           icon: 'eye'
         },
@@ -601,7 +601,7 @@ export function getNextStatusOptions(currentStatus: 'Pending Review' | 'In Stagi
         }
       ];
     
-    case 'In Staging':
+    case 'In EI':
       return [
         {
           status: 'Live',

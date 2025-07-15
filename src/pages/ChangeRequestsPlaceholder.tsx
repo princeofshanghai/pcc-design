@@ -67,7 +67,7 @@ const ChangeRequestsPlaceholder: React.FC = () => {
   // Status filter options
   const statusOptions = [
     { label: 'Pending Review', value: 'Pending Review' },
-    { label: 'In Staging', value: 'In Staging' },
+    { label: 'In EI', value: 'In EI' },
     { label: 'Live', value: 'Live' },
     { label: 'Failed', value: 'Failed' },
     { label: 'Draft', value: 'Draft' }

@@ -22,7 +22,7 @@ import {
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
-  RequestHistoryItem
+  ActivityFeedItem
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
@@ -313,70 +313,6 @@ const ProductDetail: React.FC = () => {
               productId={product.id} 
             />
           </PageSection>
-          
-          {/* Pending Change Requests Section */}
-          <PageSection title="Pending Change Requests">
-            {(() => {
-              const pendingRequests = product.configurationRequests?.filter(request => 
-                ['Draft', 'Pending Review', 'In Staging'].includes(request.status)
-              ) || [];
-              
-              return pendingRequests.length > 0 ? (
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  {pendingRequests.map((request) => (
-                    <RequestHistoryItem
-                      key={request.id}
-                      request={request}
-                      showTimeline={true}
-                      compact={true}
-                      onViewDetails={(requestId) => {
-                        navigate(`/product/${product.id}/configuration/${requestId}`);
-                      }}
-                      onCopyId={(requestId) => {
-                        navigator.clipboard.writeText(requestId);
-                        // TODO: Show success toast
-                        console.log('Copied ID:', requestId);
-                      }}
-                      onViewSku={(skuId) => {
-                        navigate(`/product/${product.id}/sku/${skuId}`);
-                      }}
-                    />
-                  ))}
-                </Space>
-              ) : (
-                <span style={{ color: '#888' }}>No pending change requests for this product.</span>
-              );
-            })()}
-          </PageSection>
-          
-          {/* Change Requests Section */}
-          <PageSection title="Change Requests">
-            {product.configurationRequests && product.configurationRequests.length > 0 ? (
-              <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {product.configurationRequests.map((request) => (
-                  <RequestHistoryItem
-                    key={request.id}
-                    request={request}
-                    showTimeline={false}
-                    compact={true}
-                    onViewDetails={(requestId) => {
-                      navigate(`/product/${product.id}/configuration/${requestId}`);
-                    }}
-                    onCopyId={(requestId) => {
-                      navigator.clipboard.writeText(requestId);
-                      // TODO: Show success toast
-                      console.log('Copied ID:', requestId);
-                    }}
-                    onViewSku={(skuId) => {
-                      navigate(`/product/${product.id}/sku/${skuId}`);
-                    }}
-                  />
-                ))}
-              </Space>
-            ) : (
-              <span style={{ color: '#888' }}>No change requests found for this product.</span>
-            )}
-          </PageSection>
         </Space>
       ),
     },
@@ -494,7 +430,67 @@ const ProductDetail: React.FC = () => {
     {
       key: 'activity',
       label: 'Activity',
-      children: <div>NOTE* This should show activity for this product. List of activities with link to change request</div>,
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* Needs Attention Section */}
+          <PageSection 
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>🔥 {toSentenceCase('Needs Attention')}</span>
+                {(() => {
+                  const pendingRequests = product.configurationRequests?.filter(request => 
+                    ['Draft', 'Pending Review', 'In EI'].includes(request.status)
+                  ) || [];
+                  return pendingRequests.length > 0 && (
+                    <CountTag count={pendingRequests.length} />
+                  );
+                })()}
+              </div>
+            }
+          >
+            {(() => {
+              const pendingRequests = product.configurationRequests?.filter(request => 
+                ['Draft', 'Pending Review', 'In EI'].includes(request.status)
+              ) || [];
+              
+              return pendingRequests.length > 0 ? (
+                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                  {pendingRequests.map((request) => (
+                    <ActivityFeedItem
+                      key={request.id}
+                      request={request}
+                      onViewDetails={(requestId) => {
+                        navigate(`/product/${product.id}/configuration/${requestId}`);
+                      }}
+                    />
+                  ))}
+                </Space>
+              ) : (
+                <span style={{ color: '#888' }}>No pending change requests for this product.</span>
+              );
+            })()}
+          </PageSection>
+          
+          {/* Recent Activity Section */}
+          <PageSection title={`📅 ${toSentenceCase('Recent Activity')}`}>
+            {product.configurationRequests && product.configurationRequests.length > 0 ? (
+              <Space direction="vertical" style={{ width: '100%' }} size="small">
+                {product.configurationRequests.map((request) => (
+                  <ActivityFeedItem
+                    key={request.id}
+                    request={request}
+                    onViewDetails={(requestId) => {
+                      navigate(`/product/${product.id}/configuration/${requestId}`);
+                    }}
+                  />
+                ))}
+              </Space>
+            ) : (
+              <span style={{ color: '#888' }}>No activity found for this product.</span>
+            )}
+          </PageSection>
+        </Space>
+      ),
     },
   ];
 

@@ -13,7 +13,7 @@ import {
   CountTag
 } from '../components';
 import { SkuListTable } from '../components';
-import { formatCurrency, formatEffectiveDateRange } from '../utils/formatters';
+import { formatCurrency, formatEffectiveDateRange, categorizePricePoints } from '../utils/formatters';
 import { DollarSign } from 'lucide-react';
 import type { PricePoint } from '../utils/types';
 
@@ -79,9 +79,7 @@ const PriceGroupDetail: React.FC = () => {
   }
 
   // Group core currencies vs others
-  const coreCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD'];
-  const corePoints = priceGroup.pricePoints.filter((p: PricePoint) => coreCurrencies.includes(p.currencyCode));
-  const otherPoints = priceGroup.pricePoints.filter((p: PricePoint) => !coreCurrencies.includes(p.currencyCode));
+  const { core: corePoints, longTail: longTailPoints } = categorizePricePoints(priceGroup.pricePoints);
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -146,15 +144,15 @@ const PriceGroupDetail: React.FC = () => {
             </div>
           )}
 
-          {/* Other Currencies */}
-          {otherPoints.length > 0 && (
+          {/* Long Tail Currencies */}
+          {longTailPoints.length > 0 && (
             <div>
               <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-                Other Currencies ({otherPoints.length})
+                Long Tail Currencies ({longTailPoints.length})
               </Typography.Text>
               <List
                 size="small"
-                dataSource={otherPoints}
+                dataSource={longTailPoints}
                 renderItem={(pricePoint: PricePoint) => (
                   <List.Item style={{ padding: '2px 0', borderBottom: 'none' }}>
                     <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>

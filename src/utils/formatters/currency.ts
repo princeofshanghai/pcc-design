@@ -1,6 +1,28 @@
 import type { PricePoint } from '../types';
 
 /**
+ * Core currencies used across LinkedIn products.
+ * These are the primary currencies that get prominent display.
+ */
+export const CORE_CURRENCIES = [
+  'USD', 'EUR', 'CAD', 'AUD', 'CHF', 'DKK', 'NOK', 'SEK', 
+  'GBP', 'HKD', 'SGD', 'BRL', 'NZD', 'JPY', 'INR', 'ZAR', 
+  'AED', 'PLN', 'SAR', 'MXN', 'EGP', 'TRY'
+] as const;
+
+/**
+ * Long tail currencies with lower usage.
+ * These are shown in a separate, condensed section.
+ */
+export const LONG_TAIL_CURRENCIES = [
+  'ARS', 'BDT', 'BGN', 'CLP', 'COP', 'CRC', 'CZK', 'GTQ', 
+  'HNL', 'HUF', 'IDR', 'ILS', 'JOD', 'KES', 'KRW', 'KWD', 
+  'LBP', 'LKR', 'MAD', 'MYR', 'NGN', 'PEN', 'PHP', 'PKR', 
+  'QAR', 'RON', 'RSD', 'THB', 'TWD', 'TZS', 'UAH', 'UYU', 
+  'VND', 'XOF'
+] as const;
+
+/**
  * A list of currencies that should not have decimal places in their display.
  * Based on business context and ISO 4217 currency standards.
  * 
@@ -26,6 +48,44 @@ const zeroDecimalCurrencies = new Set([
   'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
   'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
 ]);
+
+/**
+ * Check if a currency is in the core currencies list.
+ * @param currencyCode - The currency code to check
+ * @returns True if the currency is a core currency
+ */
+export const isCoreCurrency = (currencyCode: string): boolean => {
+  return CORE_CURRENCIES.includes(currencyCode as any);
+};
+
+/**
+ * Check if a currency is in the long tail currencies list.
+ * @param currencyCode - The currency code to check
+ * @returns True if the currency is a long tail currency
+ */
+export const isLongTailCurrency = (currencyCode: string): boolean => {
+  return LONG_TAIL_CURRENCIES.includes(currencyCode as any);
+};
+
+/**
+ * Categorize an array of price points into core and long tail currencies.
+ * @param pricePoints - Array of price points to categorize
+ * @returns Object with core and longTail arrays
+ */
+export const categorizePricePoints = (pricePoints: PricePoint[]) => {
+  const core: PricePoint[] = [];
+  const longTail: PricePoint[] = [];
+  
+  pricePoints.forEach(pricePoint => {
+    if (isCoreCurrency(pricePoint.currencyCode)) {
+      core.push(pricePoint);
+    } else {
+      longTail.push(pricePoint);
+    }
+  });
+  
+  return { core, longTail };
+};
 
 /**
  * Formats a PricePoint object into a consistent string based on business rules.

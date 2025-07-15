@@ -1,13 +1,12 @@
 import React from 'react';
-import { Table, Space, Tooltip, Typography } from 'antd';
+import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { FlaskConical } from 'lucide-react';
 import type { Sku, Status, Product } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
-import { PriceGroupTableCell } from '../configuration/PriceGroupLink';
-import { ChangeRequestOrigin } from '../configuration/ChangeRequestOrigin';
 import type { ColumnsType } from 'antd/es/table';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 
@@ -38,7 +37,7 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
   return false;
 };
 
-export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
+export const getSkuTableColumns = (product: Product, navigate: (path: string) => void): ColumnsType<Sku> => [
   {
     title: toSentenceCase('Name'),
     dataIndex: 'name',
@@ -46,10 +45,19 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (name: string, record: Sku) => (
       <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
         <div>
-          <div style={{ fontWeight: 500 }}>{name}</div>
+          <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {name}
+            {record.lix?.key && (
+              <ExperimentalBadge 
+                lixKey={record.lix.key} 
+                lixTreatment={record.lix.treatment} 
+                variant="compact" 
+              />
+            )}
+          </div>
           <div>
             <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <Text type="secondary" style={{ fontSize: '13px' }}>{record.id}</Text>
+              <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.id}</Text>
               <CopyableId id={record.id} showId={false} />
               {hasSkuOverrides(record, product) && <OverrideIndicator />}
             </Space>
@@ -71,68 +79,39 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
       if (!sku.priceGroup.id) return 'N/A';
       return (
         <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <PriceGroupTableCell
-            priceGroup={sku.priceGroup}
-            product={product}
-            onViewPriceGroup={(priceGroupId) => {
-              // Navigate to price group detail page
-              window.location.href = `/product/${product.id}/price-group/${priceGroupId}`;
+          <Typography.Link
+            onClick={() => {
+              navigate(`/product/${product.id}/price-group/${sku.priceGroup.id}`);
             }}
-          />
+          >
+            {sku.priceGroup.name}
+          </Typography.Link>
         </div>
       );
     },
   },
+
   {
-    title: toSentenceCase('Origin'),
-    key: 'origin',
-    render: (_: any, sku: Sku) => {
-      if (!sku.origin) return null;
-      return (
-        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <ChangeRequestOrigin
-            origin={sku.origin}
-            createdBy={sku.createdBy}
-            createdDate={sku.createdDate}
-            requestId={sku.configurationRequestId}
-            variant="compact"
-            onViewRequest={(requestId: string) => {
-              // TODO: Navigate to change request detail page
-              console.log('View request:', requestId);
-            }}
-          />
-        </div>
-      );
-    },
-  },
-  {
-    title: toSentenceCase('Experimental'),
+    title: toSentenceCase('LIX'),
     key: 'experimental',
     render: (_: any, sku: Sku) => {
       if (!sku.lix?.key) return null;
       return (
-        <ExperimentalBadge 
-          lixKey={sku.lix.key} 
-          lixTreatment={sku.lix.treatment}
-          variant="default"
-        />
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+            <FlaskConical size={12} color="#fa8c16" />
+            <Text style={{ fontFamily: 'monospace', letterSpacing: '-0.02em' }}>{sku.lix.key}</Text>
+          </div>
+          {sku.lix.treatment && (
+            <div>
+              <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace', letterSpacing: '-0.02em' }}>{sku.lix.treatment}</Text>
+            </div>
+          )}
+        </div>
       );
     },
   },
-  {
-    title: toSentenceCase('Features'),
-    key: 'features',
-    render: (_: any, sku: Sku) => {
-      const isStandard = JSON.stringify(sku.features ?? product.features) === JSON.stringify(product.features);
-      return (
-        <Tooltip title={
-          'Standard: Features are the same as the product. Overrides: Features are different from the product.'
-        }>
-          <span>{isStandard ? 'Standard' : 'Overrides'}</span>
-        </Tooltip>
-      );
-    },
-  },
+
   {
     title: toSentenceCase('Status'),
     dataIndex: 'status',
@@ -143,7 +122,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
 
 const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product }) => {
   const navigate = useNavigate();
-  const columns = getSkuTableColumns(product);
+  const columns = getSkuTableColumns(product, navigate);
 
   return (
     <div className="content-panel">

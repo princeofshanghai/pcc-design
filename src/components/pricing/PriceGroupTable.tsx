@@ -5,6 +5,7 @@ import type { PriceGroup, Sku } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import CopyableId from '../shared/CopyableId';
+import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -43,12 +44,63 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'name',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
+        
+        // Find experimental SKUs in this price group
+        const experimentalSkus = record.skus.filter((sku: Sku) => sku.lix?.key);
+        const firstExperimentalSku = experimentalSkus[0];
+        
+        const getPriceGroupTooltipContent = () => {
+          if (!firstExperimentalSku) return null;
+          
+          return (
+            <div style={{ maxWidth: 300 }}>
+              <Space direction="vertical" size={4}>
+                <Text strong style={{ color: 'white' }}>This price group is part of a SKU experiment</Text>
+                <div style={{ marginTop: 8 }}>
+                  <Text style={{ color: 'white', fontSize: '13px' }}>
+                    <strong>SKU:</strong> {firstExperimentalSku.name}
+                  </Text>
+                  <div>
+                    <Text style={{ color: 'white', fontSize: '13px' }}>
+                      <strong>LIX Key:</strong> {firstExperimentalSku.lix.key}
+                    </Text>
+                  </div>
+                  {firstExperimentalSku.lix.treatment && (
+                    <div>
+                      <Text style={{ color: 'white', fontSize: '13px' }}>
+                        <strong>Treatment:</strong> {firstExperimentalSku.lix.treatment}
+                      </Text>
+                    </div>
+                  )}
+                  {experimentalSkus.length > 1 && (
+                    <div style={{ marginTop: 4 }}>
+                      <Text style={{ color: 'white', fontSize: '13px' }}>
+                        +{experimentalSkus.length - 1} more experimental SKU{experimentalSkus.length - 1 > 1 ? 's' : ''}
+                      </Text>
+                    </div>
+                  )}
+                </div>
+              </Space>
+            </div>
+          );
+        };
+        
         return (
           <div>
-            <div style={{ fontWeight: 500 }}>{record.priceGroup.name}</div>
+            <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {record.priceGroup.name}
+              {firstExperimentalSku && (
+                <ExperimentalBadge 
+                  lixKey={firstExperimentalSku.lix.key} 
+                  lixTreatment={firstExperimentalSku.lix.treatment} 
+                  variant="compact"
+                  customTooltipContent={getPriceGroupTooltipContent()}
+                />
+              )}
+            </div>
             <div>
               <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                <Text type="secondary" style={{ fontSize: '13px' }}>{record.priceGroup.id}</Text>
+                <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.priceGroup.id}</Text>
                 <CopyableId id={record.priceGroup.id || ''} showId={false} />
               </Space>
             </div>

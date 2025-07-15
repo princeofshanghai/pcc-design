@@ -24,7 +24,7 @@ export const getProductListTableColumns = (_navigate: (path: string) => void, hi
           <div style={{ fontWeight: 500 }}>{name}</div>
           <div>
             <Space size="small" onClick={(e) => e.stopPropagation()}>
-              <Text type="secondary" style={{ fontSize: '13px' }}>{record.id}</Text>
+              <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.id}</Text>
               <CopyableId id={record.id} showId={false} />
             </Space>
           </div>

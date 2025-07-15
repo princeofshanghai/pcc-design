@@ -20,7 +20,7 @@ type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: 
 const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, groupBy }) => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
-  const columns = getSkuTableColumns(product) as ColumnsType<TableRow>;
+  const columns = getSkuTableColumns(product, navigate) as ColumnsType<TableRow>;
 
   // We need to flatten the grouped data into a single array for the table,
   // inserting header objects along the way.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Typography, Space, Tooltip, Badge } from 'antd';
+import { Tag, Typography, Space, Tooltip } from 'antd';
 import { FlaskConical, Info, ExternalLink } from 'lucide-react';
 
 const { Text } = Typography;
@@ -10,6 +10,7 @@ interface ExperimentalBadgeProps {
   variant?: 'default' | 'compact' | 'detailed';
   showTooltip?: boolean;
   onLearnMore?: () => void;
+  customTooltipContent?: React.ReactNode;
 }
 
 export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
@@ -17,58 +18,49 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
   lixTreatment,
   variant = 'default',
   showTooltip = true,
-  onLearnMore
+  onLearnMore,
+  customTooltipContent
 }) => {
-  const getTooltipContent = () => (
-    <div style={{ maxWidth: 300 }}>
-      <Space direction="vertical" size={4}>
-        <Text strong style={{ color: 'white' }}>Experimental Change Request</Text>
-        <Text style={{ color: 'white', fontSize: '12px' }}>
-          This change request is part of a LinkedIn experiment (LIX) for A/B testing and feature validation.
-        </Text>
-        <div style={{ marginTop: 8 }}>
-          <Text style={{ color: 'white', fontSize: '11px' }}>
-            <strong>LIX Key:</strong> {lixKey}
-          </Text>
-          {lixTreatment && (
-            <div>
-              <Text style={{ color: 'white', fontSize: '11px' }}>
-                <strong>Treatment:</strong> {lixTreatment}
+  const getTooltipContent = () => {
+    if (customTooltipContent) {
+      return customTooltipContent;
+    }
+
+    return (
+      <div style={{ maxWidth: 300 }}>
+        <Space direction="vertical" size={4}>
+          <Text strong style={{ color: 'white' }}>This SKU is part of an experiment</Text>
+          <div style={{ marginTop: 8 }}>
+            <Text style={{ color: 'white', fontSize: '13px' }}>
+              <strong>LIX Key:</strong> {lixKey}
+            </Text>
+            {lixTreatment && (
+              <div>
+                <Text style={{ color: 'white', fontSize: '13px' }}>
+                  <strong>Treatment:</strong> {lixTreatment}
+                </Text>
+              </div>
+            )}
+          </div>
+          {onLearnMore && (
+            <div style={{ marginTop: 8, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 8 }}>
+              <Text 
+                style={{ color: 'white', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                onClick={onLearnMore}
+              >
+                Learn more about LIX experiments
               </Text>
             </div>
           )}
-        </div>
-        {onLearnMore && (
-          <div style={{ marginTop: 8, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 8 }}>
-            <Text 
-              style={{ color: 'white', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
-              onClick={onLearnMore}
-            >
-              Learn more about LIX experiments
-            </Text>
-          </div>
-        )}
-      </Space>
-    </div>
-  );
+        </Space>
+      </div>
+    );
+  };
 
-  // Compact variant - just an icon badge
+  // Compact variant - just an orange icon
   if (variant === 'compact') {
     const badge = (
-      <Badge 
-        count={<FlaskConical size={10} color="white" />}
-        style={{ 
-          backgroundColor: '#fa8c16',
-          border: '1px solid #fff',
-          borderRadius: '50%',
-          width: 16,
-          height: 16,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: 16
-        }}
-      />
+      <FlaskConical size={16} color="#fa8c16" />
     );
 
     return showTooltip ? (
@@ -236,7 +228,6 @@ interface ExperimentalTableCellProps {
 
 export const ExperimentalTableCell: React.FC<ExperimentalTableCellProps> = ({
   lixKey,
-  lixTreatment,
   children
 }) => {
   if (!lixKey) {
@@ -244,22 +235,8 @@ export const ExperimentalTableCell: React.FC<ExperimentalTableCellProps> = ({
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <div style={{ 
-        position: 'absolute',
-        top: -2,
-        right: -2,
-        zIndex: 1
-      }}>
-        <ExperimentalBadge 
-          lixKey={lixKey} 
-          lixTreatment={lixTreatment} 
-          variant="compact"
-        />
-      </div>
-      <div style={{ paddingRight: 20 }}>
-        {children}
-      </div>
+    <div>
+      {children}
     </div>
   );
 }; 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Typography, Space, Tag, Button, Card, Row, Col } from 'antd';
 import { AlertTriangle, Info, ExternalLink, Clock, RefreshCw } from 'lucide-react';
 import type { Product, ConfigurationRequest } from '../../utils/types';
-import { checkDetailedConfigurationConflicts, getConflictResolutionSuggestions, type ConflictDetail } from '../../utils/configurationUtils';
+import { checkDetailedChangeRequestConflicts, getConflictResolutionSuggestions, type ConflictDetail } from '../../utils/configurationUtils';
 
 const { Text } = Typography;
 
@@ -44,7 +44,7 @@ export const ConflictResolutionPanel: React.FC<ConflictResolutionPanelProps> = (
       createdDate: new Date().toISOString()
     };
 
-    return checkDetailedConfigurationConflicts(product, mockConfigRequest);
+    return checkDetailedChangeRequestConflicts(product, mockConfigRequest);
   }, [product, salesChannel, billingCycle, priceAmount, lixKey, lixTreatment]);
 
   // Get overall resolution suggestions

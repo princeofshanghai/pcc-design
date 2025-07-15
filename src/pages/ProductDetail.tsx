@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import type { SalesChannel, Status, ConfigurationRequest } from '../utils/types';
-import type { ConfigurationSubmissionResult } from '../utils/configurationUtils';
+import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import {
@@ -19,8 +19,8 @@ import {
   BillingModelDisplay,
   CountTag,
   FilterBar,
-  ConfigurationForm,
-  ConfigurationPreview,
+  ChangeRequestForm,
+  ChangeRequestPreview,
   RequestHistoryItem
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
@@ -459,7 +459,7 @@ const ProductDetail: React.FC = () => {
     setCurrentStep(1); // Move to preview step
   };
 
-  const handleConfigurationSuccess = (result: ConfigurationSubmissionResult) => {
+  const handleConfigurationSuccess = (result: ChangeRequestSubmissionResult) => {
     // Just log the success - let the form's success modal handle the user interaction
     console.log('Configuration created successfully:', result);
     
@@ -522,16 +522,16 @@ const ProductDetail: React.FC = () => {
         {currentStep === 0 && (
           <Row gutter={24}>
             <Col span={14}>
-                             <ConfigurationForm 
+                             <ChangeRequestForm 
                  product={product}
                  onCancel={handleModalClose}
                  onSubmit={handleFormSubmit}
-                 onFieldChange={(formData) => setConfigurationData(formData)}
+                 onFieldChange={(formData: any) => setConfigurationData(formData)}
                  onSuccess={handleConfigurationSuccess}
                />
             </Col>
             <Col span={10}>
-              <ConfigurationPreview 
+              <ChangeRequestPreview 
                 product={product}
                 configurationData={configurationData || {}}
                 isRealTimeUpdate={true}
@@ -542,7 +542,7 @@ const ProductDetail: React.FC = () => {
         
         {currentStep === 1 && configurationData && (
           <div>
-            <ConfigurationPreview 
+            <ChangeRequestPreview 
               product={product}
               configurationData={configurationData}
             />

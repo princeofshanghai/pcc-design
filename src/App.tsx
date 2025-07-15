@@ -9,8 +9,9 @@ import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
 import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
-import ConfigurationRequestDetail from './pages/ConfigurationRequestDetail';
-import ConfigurationDashboard from './pages/ConfigurationDashboard';
+import ChangeRequestDetail from './pages/ChangeRequestDetail';
+import ChangeRequestsPlaceholder from './pages/ChangeRequestsPlaceholder';
+
 
 // The following placeholder pages are missing. 
 // To prevent import errors and keep the app running, 
@@ -20,7 +21,6 @@ const OffersPlaceholder = () => <div>Offers Placeholder</div>;
 const OfferGroupsPlaceholder = () => <div>Offer Groups Placeholder</div>;
 const RulesetsPlaceholder = () => <div>Rulesets Placeholder</div>;
 const CalculationSchemesPlaceholder = () => <div>Calculation Schemes Placeholder</div>;
-const ChangeRequestsPlaceholder = () => <div>Change Requests Placeholder</div>;
 // The PicassoNPIPlaceholder import was causing an error because the file doesn't exist.
 // We'll use a simple mock component for now to keep the app running.
 const PicassoNPIPlaceholder = () => <div>Picasso NPI Placeholder</div>;
@@ -39,13 +39,13 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
                 <Route path="product/:productId/price-group/:priceGroupId" element={<PriceGroupDetail />} />
-                <Route path="product/:productId/configuration/:requestId" element={<ConfigurationRequestDetail />} />
+                <Route path="product/:productId/configuration/:requestId" element={<ChangeRequestDetail />} />
                 <Route path="/offers" element={<OffersPlaceholder />} />
                 <Route path="/offer-groups" element={<OfferGroupsPlaceholder />} />
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
                 <Route path="/change-requests" element={<ChangeRequestsPlaceholder />} />
-                <Route path="/configuration-dashboard" element={<ConfigurationDashboard />} />
+        
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
               </Route>
             </Routes>

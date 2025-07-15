@@ -6,7 +6,7 @@ import { generatePreviewSku, generateSkuName, generatePriceGroupName } from '../
 
 const { Title, Text } = Typography;
 
-interface ConfigurationPreviewProps {
+interface ChangeRequestPreviewProps {
   product: Product;
   configurationData: {
     salesChannel?: string;
@@ -18,7 +18,7 @@ interface ConfigurationPreviewProps {
   isRealTimeUpdate?: boolean;
 }
 
-export const ConfigurationPreview: React.FC<ConfigurationPreviewProps> = ({
+export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
   product,
   configurationData,
   isRealTimeUpdate = false

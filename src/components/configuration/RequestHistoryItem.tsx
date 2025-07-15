@@ -3,7 +3,7 @@ import { Card, Typography, Space, Tag, Button, Row, Col, Divider } from 'antd';
 import { ExternalLink, Copy, MoreHorizontal } from 'lucide-react';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from './ChangeRequestStatus';
-import { CompactTimeline } from './ConfigurationTimeline';
+import { CompactTimeline } from './ChangeRequestTimeline';
 
 const { Text, Title } = Typography;
 

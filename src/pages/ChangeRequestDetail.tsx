@@ -9,17 +9,17 @@ import {
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  ConfigurationTimeline,
+  ChangeRequestTimeline,
   ChangeRequestStatus,
-  ConfigurationPreview,
+  ChangeRequestPreview,
   ExperimentalBadge
 } from '../components';
-import { updateConfigurationRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
+import { updateChangeRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
 import { Settings, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
-const ConfigurationRequestDetail: React.FC = () => {
+const ChangeRequestDetail: React.FC = () => {
   const { productId, requestId } = useParams<{ productId: string; requestId: string }>();
   const { setProductName } = useBreadcrumb();
   const { setMaxWidth } = useLayout();
@@ -94,7 +94,7 @@ const ConfigurationRequestDetail: React.FC = () => {
         
         try {
           // Update the status in mock data
-          const success = updateConfigurationRequestStatus(productId, requestId, newStatus);
+          const success = updateChangeRequestStatus(productId, requestId, newStatus);
           
           if (success) {
             // Update the local state to reflect the change
@@ -152,7 +152,7 @@ const ConfigurationRequestDetail: React.FC = () => {
 
       {/* Status Timeline */}
       <PageSection title="Progress Timeline">
-        <ConfigurationTimeline request={configRequest} showDetails />
+        <ChangeRequestTimeline request={configRequest} showDetails />
       </PageSection>
 
       {/* Status Actions */}
@@ -341,7 +341,7 @@ const ConfigurationRequestDetail: React.FC = () => {
 
       {/* Configuration Preview */}
       <PageSection title="Configuration Preview">
-        <ConfigurationPreview 
+        <ChangeRequestPreview 
           product={product}
           configurationData={configRequest}
         />
@@ -390,4 +390,4 @@ const ConfigurationRequestDetail: React.FC = () => {
   );
 };
 
-export default ConfigurationRequestDetail; 
+export default ChangeRequestDetail; 

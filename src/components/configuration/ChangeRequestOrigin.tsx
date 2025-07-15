@@ -13,7 +13,7 @@ const formatDate = (dateString?: string) => {
   });
 };
 
-interface ConfigurationOriginProps {
+interface ChangeRequestOriginProps {
   origin: 'manual' | 'configuration_request';
   createdBy?: string;
   createdDate?: string;
@@ -22,7 +22,7 @@ interface ConfigurationOriginProps {
   onViewRequest?: (requestId: string) => void;
 }
 
-export const ConfigurationOrigin: React.FC<ConfigurationOriginProps> = ({
+export const ChangeRequestOrigin: React.FC<ChangeRequestOriginProps> = ({
   origin,
   createdBy,
   createdDate,
@@ -225,7 +225,7 @@ export const OriginTableCell: React.FC<OriginTableCellProps> = ({
         left: -2,
         zIndex: 1
       }}>
-        <ConfigurationOrigin 
+        <ChangeRequestOrigin 
           origin={origin}
           createdBy={createdBy}
           createdDate={createdDate}
@@ -261,7 +261,7 @@ export const InlineOrigin: React.FC<InlineOriginProps> = ({
 }) => {
   return (
     <Space size={8}>
-      <ConfigurationOrigin 
+      <ChangeRequestOrigin 
         origin={origin}
         createdBy={createdBy}
         createdDate={createdDate}

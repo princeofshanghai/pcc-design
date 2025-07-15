@@ -7,7 +7,7 @@ import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import { PriceGroupTableCell } from '../configuration/PriceGroupLink';
-import { ConfigurationOrigin } from '../configuration/ConfigurationOrigin';
+import { ChangeRequestOrigin } from '../configuration/ChangeRequestOrigin';
 import type { ColumnsType } from 'antd/es/table';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import { Link } from 'react-router-dom';
@@ -102,7 +102,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
     render: (_: any, sku: Sku) => {
       if (!sku.origin) return null;
       return (
-        <ConfigurationOrigin
+        <ChangeRequestOrigin
           origin={sku.origin}
           createdBy={sku.createdBy}
           createdDate={sku.createdDate}

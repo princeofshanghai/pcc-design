@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Form, Select, InputNumber, Button, Space, Typography, Card, Divider, Input, Collapse, Alert, Modal, Result } from 'antd';
 import { Beaker, AlertCircle, Check, ExternalLink } from 'lucide-react';
 import type { Product, ConfigurationRequest, SalesChannel, BillingCycle, ChangeRequestStatus } from '../../utils/types';
-import { validateConfigurationRequest, checkDetailedConfigurationConflicts, type ConflictDetail, submitConfigurationRequest, getSubmissionSuccessMessage, getSubmissionNextSteps, type ConfigurationSubmissionResult } from '../../utils/configurationUtils';
+import { validateChangeRequest, checkDetailedChangeRequestConflicts, type ConflictDetail, submitChangeRequest, getSubmissionSuccessMessage, getSubmissionNextSteps, type ChangeRequestSubmissionResult } from '../../utils/configurationUtils';
 import { ConflictResolutionPanel } from './ConflictWarning';
 
 const { Title, Text } = Typography;
 
-interface ConfigurationFormProps {
+interface ChangeRequestFormProps {
   product: Product;
   onSubmit?: (configData: any) => void;
   onCancel?: () => void;
   onFieldChange?: (formData: Partial<FormData>) => void;
-  onSuccess?: (result: ConfigurationSubmissionResult) => void;
+  onSuccess?: (result: ChangeRequestSubmissionResult) => void;
 }
 
 interface FormData {
@@ -30,7 +30,7 @@ interface ValidationState {
   fieldErrors: Record<string, string>;
 }
 
-export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ 
+export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({ 
   product, 
   onSubmit,
   onCancel,
@@ -48,7 +48,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   });
   const [detailedConflicts, setDetailedConflicts] = useState<ConflictDetail[]>([]);
   const [conflictOverrides, setConflictOverrides] = useState<Set<string>>(new Set());
-  const [submissionResult, setSubmissionResult] = useState<ConfigurationSubmissionResult | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<ChangeRequestSubmissionResult | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Real-time validation whenever form data changes
@@ -80,11 +80,11 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
     };
 
     // Get detailed conflicts
-    const conflicts = checkDetailedConfigurationConflicts(product, tempRequest);
+    const conflicts = checkDetailedChangeRequestConflicts(product, tempRequest);
     setDetailedConflicts(conflicts);
 
     // Standard validation
-    const validation = validateConfigurationRequest(product, tempRequest);
+    const validation = validateChangeRequest(product, tempRequest);
     setValidationState({
       ...validation,
       fieldErrors: {}
@@ -149,7 +149,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
     
     try {
       // Use the new submission service
-      const result = submitConfigurationRequest(product, {
+      const result = submitChangeRequest(product, {
         salesChannel: values.salesChannel,
         billingCycle: values.billingCycle,
         priceAmount: values.priceAmount,
@@ -169,7 +169,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         
         // Also call the original onSubmit callback for backward compatibility
         if (onSubmit) {
-          onSubmit(result.configurationRequest);
+          onSubmit(result.changeRequest);
         }
       } else {
         // Handle submission failure
@@ -199,8 +199,8 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   };
 
   const handleViewGeneratedAssets = () => {
-    if (submissionResult?.configurationRequest) {
-      const request = submissionResult.configurationRequest;
+    if (submissionResult?.changeRequest) {
+      const request = submissionResult.changeRequest;
       
       // Navigate to the configuration request detail page
       window.location.href = `/product/${product.id}/configuration/${request.id}`;

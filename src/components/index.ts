@@ -47,15 +47,15 @@ export { default as ViewOptions } from './filters/ViewOptions';
 export { default as CopyableId } from './shared/CopyableId';
 
 // Configuration components
-export { ConfigurationForm } from './configuration/ConfigurationForm';
-export { ConfigurationPreview } from './configuration/ConfigurationPreview';
+export { ChangeRequestForm } from './configuration/ChangeRequestForm';
+export { ChangeRequestPreview } from './configuration/ChangeRequestPreview';
 export { PriceGroupImpact } from './configuration/PriceGroupImpact';
 export { ConflictWarning } from './configuration/ConflictWarning';
 export { ChangeRequestStatus, DetailedChangeRequestStatus } from './configuration/ChangeRequestStatus';
-export { ConfigurationTimeline, CompactTimeline } from './configuration/ConfigurationTimeline';
+export { ChangeRequestTimeline, CompactTimeline } from './configuration/ChangeRequestTimeline';
 export { RequestHistoryItem } from './configuration/RequestHistoryItem';
 export { ExperimentalBadge, ExperimentalSkuIndicator, ExperimentalTableCell } from './configuration/ExperimentalBadge';
-export { ConfigurationOrigin, OriginTableCell, InlineOrigin } from './configuration/ConfigurationOrigin';
+export { ChangeRequestOrigin, OriginTableCell, InlineOrigin } from './configuration/ChangeRequestOrigin';
 export { PriceGroupLink, PriceGroupTableCell, InlinePriceGroup, PriceGroupRelationship } from './configuration/PriceGroupLink';
 
 // Export types that might be imported from components

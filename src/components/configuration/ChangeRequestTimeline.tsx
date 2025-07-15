@@ -5,7 +5,7 @@ import type { ChangeRequestStatus as ChangeRequestStatusType, ConfigurationReque
 
 const { Text, Title } = Typography;
 
-interface ConfigurationTimelineProps {
+interface ChangeRequestTimelineProps {
   request: ConfigurationRequest;
   showDetails?: boolean;
   vertical?: boolean;
@@ -42,7 +42,7 @@ const TIMELINE_STAGES = [
   }
 ] as const;
 
-export const ConfigurationTimeline: React.FC<ConfigurationTimelineProps> = ({
+export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
   request,
   showDetails = true,
   vertical = false

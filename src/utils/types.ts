@@ -69,7 +69,7 @@ export type PriceGroup = {
 
 export type ChangeRequestStatus = 'Pending Review' | 'In Staging' | 'Live' | 'Failed';
 
-export type ConfigurationRequest = {
+export type ChangeRequest = {
   id: string;
   targetProductId: string;
   salesChannel: SalesChannel;
@@ -83,6 +83,9 @@ export type ConfigurationRequest = {
   generatedSkuId?: string;
   generatedPriceGroupId?: string;
 };
+
+// Legacy type alias for backward compatibility during migration
+export type ConfigurationRequest = ChangeRequest;
 
 export type Sku = {
   id: string;
@@ -155,5 +158,7 @@ export type Product = {
   contactUsUrl?: string;
   accountLink?: string;
   tags?: Tag[];
+  changeRequests?: ChangeRequest[];
+  // Legacy field for backward compatibility during migration
   configurationRequests?: ConfigurationRequest[];
 }; 

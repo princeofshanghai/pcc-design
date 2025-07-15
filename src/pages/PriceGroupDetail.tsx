@@ -85,12 +85,7 @@ const PriceGroupDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        preTitle={
-          <Space size="small">
-            <DollarSign size={14} />
-            <span>Price Group</span>
-          </Space>
-        }
+        icon={<DollarSign size={14} />}
         title={priceGroupId!}
         onBack={() => navigate(`/product/${product.id}`)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}

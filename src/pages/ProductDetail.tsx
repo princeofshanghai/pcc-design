@@ -488,12 +488,7 @@ const ProductDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        preTitle={
-          <Space size="small">
-            <Box size={14} />
-            <span>Product</span>
-          </Space>
-        }
+        icon={<Box size={14} />}
         title={product.name}
         onBack={() => navigate('/')}
         tagContent={<StatusTag status={product.status} />}

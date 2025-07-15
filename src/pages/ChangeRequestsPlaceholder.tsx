@@ -79,12 +79,7 @@ const ChangeRequestsPlaceholder: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <PageHeader
-            preTitle={
-              <Space size="small">
-                <GitPullRequestArrow size={14} />
-                <span>Change Requests</span>
-              </Space>
-            }
+            icon={<GitPullRequestArrow size={14} />}
             title="Change Requests"
             subtitle={`${filteredRequests.length} change request${filteredRequests.length !== 1 ? 's' : ''} found`}
           />

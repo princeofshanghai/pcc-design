@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
-  preTitle?: React.ReactNode;
+  icon?: React.ReactNode;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   tagContent?: React.ReactNode;
@@ -13,7 +13,7 @@ interface PageHeaderProps {
   actions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, tagContent, onBack, actions }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, tagContent, onBack, actions }) => {
   const { token } = theme.useToken();
 
   return (
@@ -34,12 +34,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ preTitle, title, subtitle, tagC
           />
         )}
         <Space direction="vertical" size={2}>
-          {preTitle && (
-            <div style={{ color: token.colorTextSecondary, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px', fontWeight: 500 }}>
-              {preTitle}
-            </div>
-          )}
           <Space align="center" size="middle">
+            {icon && (
+              <div style={{ color: token.colorTextSecondary }}>
+                {icon}
+              </div>
+            )}
             <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
               {title}
             </Title>

@@ -39,15 +39,9 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
       dataIndex: 'id',
       key: 'id',
       width: 150,
-      render: (id: string, record) => (
+      render: (id: string) => (
         <Space onClick={(e) => e.stopPropagation()}>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => navigate(`/product/${record.targetProductId}/configuration/${id}`)}
-          >
-            {id}
-          </Button>
+          <Text>{id}</Text>
           <Button
             type="text"
             size="small"
@@ -56,6 +50,12 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
           />
         </Space>
       ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => <ChangeRequestStatus status={status} />,
     },
     {
       title: 'Product',
@@ -74,38 +74,13 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
         </Button>
       ),
     },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => <ChangeRequestStatus status={status} />,
-    },
-    {
-      title: 'Change Request',
-      key: 'configuration',
-      render: (_, record) => (
-        <Space direction="vertical" size={4}>
-          <Space wrap>
-            <Tag color="blue">{record.salesChannel}</Tag>
-            <Tag color="purple">{record.billingCycle}</Tag>
-            <Tag color="green">${record.priceAmount.toFixed(2)}</Tag>
-          </Space>
-          {record.lixKey && (
-            <ExperimentalBadge
-              lixKey={record.lixKey}
-              lixTreatment={record.lixTreatment}
-              variant="compact"
-            />
-          )}
-        </Space>
-      ),
-    },
+
     {
       title: 'Created By',
       dataIndex: 'createdBy',
       key: 'createdBy',
       render: (createdBy: string) => (
-        <Text style={{ fontSize: '13px' }}>{getUserLdap(createdBy)}</Text>
+        <Text>{getUserLdap(createdBy)}</Text>
       ),
     },
     {
@@ -113,7 +88,7 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
       dataIndex: 'createdDate',
       key: 'createdDate',
       render: (createdDate: string) => (
-        <Text style={{ fontSize: '13px' }}>{formatDate(createdDate)}</Text>
+        <Text>{formatDate(createdDate)}</Text>
       ),
     },
   ];

@@ -1,10 +1,9 @@
 import React from 'react';
 import { Table, Space, Tooltip, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Sku, Status, SalesChannel, Product } from '../../utils/types';
+import type { Sku, Status, Product } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import { PriceGroupTableCell } from '../configuration/PriceGroupLink';

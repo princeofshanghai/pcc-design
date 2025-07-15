@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Sku, SalesChannel, Status, Product } from '../utils/types';
-import { toSentenceCase, formatFullDate } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 
 export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,7 +62,7 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
           key = sku.priceGroup.id || 'No Price Group';
           break;
         case 'Effective Date':
-          key = sku.priceGroup.startDate ? formatFullDate(sku.priceGroup.startDate) : 'No Date';
+          key = sku.priceGroup.startDate ? new Date(sku.priceGroup.startDate).toISOString().split('T')[0] : 'No Date';
           break;
         case 'LIX':
           key = sku.lix ? sku.lix.key : 'No LIX';

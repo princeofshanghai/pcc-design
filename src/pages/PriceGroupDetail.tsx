@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react';
-import { Typography, Space, List } from 'antd';
+import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
+import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import {
   PageHeader,
   StatusTag,
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  CountTag
+  CountTag,
+  FilterBar
 } from '../components';
 import { SkuListTable } from '../components';
-import { formatCurrency, formatEffectiveDateRange, categorizePricePoints } from '../utils/formatters';
+import PricePointTable from '../components/pricing/PricePointTable';
+import { formatEffectiveDateRange } from '../utils/formatters';
 import { DollarSign } from 'lucide-react';
-import type { PricePoint } from '../utils/types';
 
 const { Title } = Typography;
 
@@ -79,14 +81,31 @@ const PriceGroupDetail: React.FC = () => {
   }
 
   // Group core currencies vs others
-  const { core: corePoints, longTail: longTailPoints } = categorizePricePoints(priceGroup.pricePoints);
+  const {
+    setSearchQuery: setPricePointSearchQuery,
+    currencyFilter, 
+    setCurrencyFilter,
+    currencyOptions,
+    sortOrder, 
+    setSortOrder,
+    groupBy: pricePointGroupBy, 
+    setGroupBy: setPricePointGroupBy,
+    filteredPricePoints,
+    groupedPricePoints: groupedPricePointsData,
+    pricePointCount,
+  } = usePricePointFilters(priceGroup.pricePoints);
+
+  const clearAllPricePointFilters = () => {
+    setPricePointSearchQuery('');
+    setCurrencyFilter(null);
+  };
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
         icon={<DollarSign />}
         iconSize={24}
-        title={priceGroupId!}
+        title={priceGroup.name}
         onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
         subtitle={formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
@@ -118,50 +137,47 @@ const PriceGroupDetail: React.FC = () => {
         title={
           <Space align="center" size="small">
             <span>Price Points</span>
-            <CountTag count={priceGroup.pricePoints.length} />
+            <CountTag count={pricePointCount} />
             <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
               currencies
             </Typography.Text>
           </Space>
         }
       >
-        <div className="content-panel">
-          {/* Core Currencies */}
-          {corePoints.length > 0 && (
-            <div style={{ marginBottom: '16px' }}>
-              <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-                Core Currencies
-              </Typography.Text>
-              <List
-                size="small"
-                dataSource={corePoints}
-                renderItem={(pricePoint: PricePoint) => (
-                  <List.Item style={{ padding: '4px 0', borderBottom: 'none' }}>
-                    <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
-                  </List.Item>
-                )}
-              />
-            </div>
-          )}
-
-          {/* Long Tail Currencies */}
-          {longTailPoints.length > 0 && (
-            <div>
-              <Typography.Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-                Long Tail Currencies ({longTailPoints.length})
-              </Typography.Text>
-              <List
-                size="small"
-                dataSource={longTailPoints}
-                renderItem={(pricePoint: PricePoint) => (
-                  <List.Item style={{ padding: '2px 0', borderBottom: 'none' }}>
-                    <Typography.Text>{formatCurrency(pricePoint)}</Typography.Text>
-                  </List.Item>
-                )}
-              />
-            </div>
-          )}
-        </div>
+        <FilterBar
+          search={{
+            placeholder: "Search by currency...",
+            onChange: setPricePointSearchQuery,
+          }}
+          filters={[
+            {
+              placeholder: "All Currencies",
+              options: currencyOptions,
+              value: currencyFilter,
+              onChange: setCurrencyFilter,
+            },
+          ]}
+          onClearAll={clearAllPricePointFilters}
+          viewOptions={{
+            sortOrder: {
+              value: sortOrder,
+              setter: setSortOrder,
+              options: ['None', 'Amount (High to Low)', 'Amount (Low to High)', 'Alphabetical A-Z'],
+            },
+            groupBy: {
+              value: pricePointGroupBy,
+              setter: setPricePointGroupBy,
+              options: ['None', 'Core / Long Tail'],
+            },
+          }}
+          displayMode="drawer"
+          filterSize="middle"
+          searchAndViewSize="large"
+        />
+        <PricePointTable 
+          pricePoints={filteredPricePoints} 
+          groupedPricePoints={groupedPricePointsData}
+        />
       </PageSection>
 
       {/* SKUs Using This Price Group */}

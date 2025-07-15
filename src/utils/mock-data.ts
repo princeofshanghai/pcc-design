@@ -538,7 +538,7 @@ export const mockProducts: Product[] = [
 
 // Add price groups for Premium Career
 const pcFy25Monthly: PriceGroup = {
-  id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+  id: "9214968", // Fixed ID instead of random
   name: "PC_FY25_MONTHLY",
   status: 'Active',
   startDate: "2025-05-01",
@@ -604,7 +604,7 @@ const pcFy25Monthly: PriceGroup = {
 };
 
 const pcFy25Annual: PriceGroup = {
-  id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+  id: "9315847", // Fixed ID instead of random
   name: "PC_FY25_ANNUAL",
   status: 'Active',
   startDate: "2025-05-01",
@@ -674,7 +674,7 @@ const premiumCareerProduct = mockProducts.find(p => p.id === '5095285');
 if (premiumCareerProduct) {
   premiumCareerProduct.skus = [
     {
-      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
+      id: "8735294", // Fixed ID instead of random
       name: "Premium Career FY25 Desktop Monthly",
       status: "Active",
       salesChannel: "Desktop",
@@ -688,7 +688,7 @@ if (premiumCareerProduct) {
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
-      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
+      id: "8846157", // Fixed ID instead of random
       name: "Premium Career FY25 Desktop Annual",
       status: "Active",
       salesChannel: "Desktop",

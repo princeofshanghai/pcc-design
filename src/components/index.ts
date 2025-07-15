@@ -22,10 +22,12 @@ export { default as GroupedSkuListTable } from './sku/GroupedSkuListTable';
 export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
 // Pricing components
-export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
-export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as OverrideComparison } from './pricing/OverrideComparison';
+export { default as OverrideIndicator } from './pricing/OverrideIndicator';
+export { default as PriceDetailView } from './pricing/PriceDetailView';
+export { default as PriceGroupTable } from './pricing/PriceGroupTable';
+export { default as PricePointTable } from './pricing/PricePointTable';
 
 // Attribute components
 export { default as AttributeDisplay } from './attributes/AttributeDisplay';

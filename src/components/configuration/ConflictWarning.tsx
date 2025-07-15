@@ -1,12 +1,12 @@
 import React from 'react';
-import { Alert, Typography, Space, Tag, Button, Divider } from 'antd';
-import { AlertTriangle, X, Info } from 'lucide-react';
+import { Alert, Typography, Space, Tag, Button, Card, Row, Col } from 'antd';
+import { AlertTriangle, Info, ExternalLink, Clock, RefreshCw } from 'lucide-react';
 import type { Product, ConfigurationRequest } from '../../utils/types';
-import { checkConfigurationConflicts } from '../../utils/configurationUtils';
+import { checkDetailedConfigurationConflicts, getConflictResolutionSuggestions, type ConflictDetail } from '../../utils/configurationUtils';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
-interface ConflictWarningProps {
+interface ConflictResolutionPanelProps {
   product: Product;
   configurationData: {
     salesChannel?: string;
@@ -15,158 +15,214 @@ interface ConflictWarningProps {
     lixKey?: string;
     lixTreatment?: string;
   };
-  onResolveConflict?: (action: string) => void;
+  onResolveConflict?: (action: string, conflictId?: string) => void;
+  onViewConflictingItem?: (type: string, id: string) => void;
 }
 
-export const ConflictWarning: React.FC<ConflictWarningProps> = ({
+export const ConflictResolutionPanel: React.FC<ConflictResolutionPanelProps> = ({
   product,
   configurationData,
-  onResolveConflict
+  onResolveConflict,
+  onViewConflictingItem
 }) => {
   const { salesChannel, billingCycle, priceAmount, lixKey, lixTreatment } = configurationData;
 
-  // Generate conflicts using the utility function
+  // Generate detailed conflicts using the enhanced utility function
   const conflicts = React.useMemo(() => {
-    if (!salesChannel || !billingCycle || !priceAmount) return [];
+    if (!salesChannel || !billingCycle) return [];
 
     const mockConfigRequest: ConfigurationRequest = {
       id: 'temp-validation',
       targetProductId: product.id,
       salesChannel: salesChannel as any,
       billingCycle: billingCycle as any,
-      priceAmount,
+      priceAmount: priceAmount || 0,
       lixKey,
       lixTreatment,
-      status: 'Pending Review',
+      status: 'Draft' as any,
       createdBy: 'Current User',
       createdDate: new Date().toISOString()
     };
 
-    return checkConfigurationConflicts(product, mockConfigRequest);
+    return checkDetailedConfigurationConflicts(product, mockConfigRequest);
   }, [product, salesChannel, billingCycle, priceAmount, lixKey, lixTreatment]);
 
-  // Additional validation checks
-  const additionalWarnings = React.useMemo(() => {
-    const warnings: string[] = [];
+  // Get overall resolution suggestions
+  const resolutionSuggestions = React.useMemo(() => {
+    return getConflictResolutionSuggestions(conflicts);
+  }, [conflicts]);
 
-    // Check for LIX configuration warnings
-    if (lixKey && !lixTreatment) {
-      warnings.push('LIX key provided but no treatment specified. Both fields are recommended for proper experimentation.');
-    }
-
-    if (lixTreatment && !lixKey) {
-      warnings.push('LIX treatment provided but no key specified. Both fields are recommended for proper experimentation.');
-    }
-
-    // Check for pricing tier consistency
-    if (priceAmount && priceAmount > 500) {
-      warnings.push('High price point detected. Consider if this aligns with product positioning and market expectations.');
-    }
-
-    if (priceAmount && priceAmount < 10) {
-      warnings.push('Low price point detected. Verify this meets minimum pricing requirements and business objectives.');
-    }
-
-    return warnings;
-  }, [lixKey, lixTreatment, priceAmount]);
-
-  const allIssues = [...conflicts, ...additionalWarnings];
-
-  if (allIssues.length === 0) {
+  if (conflicts.length === 0) {
     return null;
   }
 
-  const hasErrors = conflicts.length > 0;
-  const hasWarnings = additionalWarnings.length > 0;
+  // Separate conflicts by severity
+  const errors = conflicts.filter(c => c.severity === 'error');
+  const warnings = conflicts.filter(c => c.severity === 'warning');
+  const info = conflicts.filter(c => c.severity === 'info');
+
+  const getAlertIcon = (severity: ConflictDetail['severity']) => {
+    switch (severity) {
+      case 'error': return <AlertTriangle size={16} />;
+      case 'warning': return <Clock size={16} />;
+      case 'info': return <Info size={16} />;
+      default: return <Info size={16} />;
+    }
+  };
+
+
+  const renderConflictCard = (conflict: ConflictDetail) => (
+    <Card key={conflict.conflictingId} size="small" style={{ marginBottom: '16px' }}>
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Space>
+            {getAlertIcon(conflict.severity)}
+            <Text strong>{conflict.title}</Text>
+            <Tag color={
+              conflict.severity === 'error' ? 'red' : 
+              conflict.severity === 'warning' ? 'orange' : 'blue'
+            }>
+              {conflict.severity.toUpperCase()}
+            </Tag>
+          </Space>
+          {conflict.conflictingId && (
+            <Button
+              type="text"
+              size="small"
+              icon={<ExternalLink size={12} />}
+              onClick={() => onViewConflictingItem?.(conflict.type, conflict.conflictingId!)}
+            >
+              View
+            </Button>
+          )}
+        </div>
+        
+        <Text type="secondary">{conflict.description}</Text>
+        
+        {conflict.conflictingId && (
+          <div>
+            <Text type="secondary">Conflicting {conflict.type.replace('_', ' ')}: </Text>
+            <Text code>{conflict.conflictingId}</Text>
+          </div>
+        )}
+        
+        <div>
+          <Text strong style={{ fontSize: '12px' }}>Suggestions:</Text>
+          <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+            {conflict.suggestions.map((suggestion, index) => (
+              <li key={index} style={{ fontSize: '13px', marginBottom: '2px' }}>
+                <Text type="secondary">{suggestion}</Text>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <Space>
+          {conflict.canOverride && (
+            <Button
+              size="small"
+              type="primary"
+              ghost
+              onClick={() => onResolveConflict?.('override', conflict.conflictingId)}
+            >
+              Override
+            </Button>
+          )}
+          <Button
+            size="small"
+            onClick={() => onResolveConflict?.('acknowledge', conflict.conflictingId)}
+          >
+            Acknowledge
+          </Button>
+        </Space>
+      </Space>
+    </Card>
+  );
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
-      {/* Critical Conflicts */}
-      {hasErrors && (
+      {/* Critical Errors */}
+      {errors.length > 0 && (
         <Alert
           type="error"
           showIcon
           icon={<AlertTriangle size={16} />}
-          message="Configuration Conflicts Detected"
-          description={
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Text>
-                The following conflicts must be resolved before this configuration can be created:
-              </Text>
-              <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                {conflicts.map((conflict, index) => (
-                  <li key={index} style={{ marginBottom: '4px' }}>
-                    <Text>{conflict}</Text>
-                  </li>
-                ))}
-              </ul>
-              <Divider style={{ margin: '12px 0' }} />
-              <Space>
-                <Button 
-                  size="small" 
-                  onClick={() => onResolveConflict?.('modify')}
-                >
-                  Modify Configuration
-                </Button>
-                <Button 
-                  size="small" 
-                  type="link"
-                  onClick={() => onResolveConflict?.('override')}
-                >
-                  Override Conflicts
-                </Button>
-              </Space>
-            </Space>
-          }
+          message={`${errors.length} Critical Conflict${errors.length > 1 ? 's' : ''} Detected`}
+          description="The following conflicts must be resolved before proceeding:"
         />
       )}
 
       {/* Warnings */}
-      {hasWarnings && (
+      {warnings.length > 0 && (
         <Alert
           type="warning"
           showIcon
-          message="Configuration Warnings"
-          description={
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Text>
-                Please review the following recommendations:
-              </Text>
-              <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                {additionalWarnings.map((warning, index) => (
-                  <li key={index} style={{ marginBottom: '4px' }}>
-                    <Text>{warning}</Text>
-                  </li>
-                ))}
-              </ul>
-              <Divider style={{ margin: '12px 0' }} />
-              <Space>
-                <Button 
-                  size="small" 
-                  onClick={() => onResolveConflict?.('acknowledge')}
-                >
-                  Acknowledge & Continue
-                </Button>
-                <Button 
-                  size="small" 
-                  type="link"
-                  onClick={() => onResolveConflict?.('review')}
-                >
-                  Review Configuration
-                </Button>
-              </Space>
-            </Space>
-          }
+          icon={<Clock size={16} />}
+          message={`${warnings.length} Warning${warnings.length > 1 ? 's' : ''} Found`}
+          description="Please review these potential issues:"
         />
       )}
 
-      {/* Configuration Summary for Context */}
-      <div style={{ 
-        background: '#f8f9fa', 
-        padding: '12px', 
-        borderRadius: '6px', 
-        border: '1px solid #e9ecef' 
-      }}>
+      {/* Info */}
+      {info.length > 0 && (
+        <Alert
+          type="info"
+          showIcon
+          icon={<Info size={16} />}
+          message={`${info.length} Item${info.length > 1 ? 's' : ''} for Review`}
+          description="Consider these recommendations:"
+        />
+      )}
+
+      {/* Conflict Details */}
+      <Space direction="vertical" style={{ width: '100%' }}>
+        {[...errors, ...warnings, ...info].map(renderConflictCard)}
+      </Space>
+
+      {/* Resolution Suggestions */}
+      {resolutionSuggestions.length > 0 && (
+        <Card size="small" style={{ backgroundColor: '#f6f8fa', border: '1px solid #d1d9e0' }}>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Space>
+              <RefreshCw size={16} />
+              <Text strong>Recommended Actions:</Text>
+            </Space>
+            <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+              {resolutionSuggestions.map((suggestion, index) => (
+                <li key={index} style={{ marginBottom: '4px' }}>
+                  <Text type="secondary">{suggestion}</Text>
+                </li>
+              ))}
+            </ul>
+          </Space>
+        </Card>
+      )}
+
+      {/* Global Actions */}
+      <Row gutter={16}>
+        <Col span={12}>
+          <Button
+            block
+            type="primary"
+            danger={errors.length > 0}
+            disabled={errors.length > 0}
+            onClick={() => onResolveConflict?.('proceed')}
+          >
+            {errors.length > 0 ? 'Resolve Conflicts First' : 'Proceed Anyway'}
+          </Button>
+        </Col>
+        <Col span={12}>
+          <Button
+            block
+            onClick={() => onResolveConflict?.('cancel')}
+          >
+            Cancel & Review
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Current Configuration Summary */}
+      <Card size="small" style={{ backgroundColor: '#fafafa', border: '1px solid #d9d9d9' }}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space>
             <Info size={16} />
@@ -179,7 +235,10 @@ export const ConflictWarning: React.FC<ConflictWarningProps> = ({
             {lixKey && <Tag color="orange">LIX: {lixKey}</Tag>}
           </Space>
         </Space>
-      </div>
+      </Card>
     </Space>
   );
-}; 
+};
+
+// Legacy component for backwards compatibility
+export const ConflictWarning: React.FC<ConflictResolutionPanelProps> = ConflictResolutionPanel; 

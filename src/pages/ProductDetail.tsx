@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps } from 'antd';
+import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps, Row, Col } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import type { SalesChannel, Status, ConfigurationRequest } from '../utils/types';
+import type { ConfigurationSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import {
@@ -458,6 +459,14 @@ const ProductDetail: React.FC = () => {
     setCurrentStep(1); // Move to preview step
   };
 
+  const handleConfigurationSuccess = (result: ConfigurationSubmissionResult) => {
+    // Just log the success - let the form's success modal handle the user interaction
+    console.log('Configuration created successfully:', result);
+    
+    // The form's success modal will handle navigation and modal closure
+    // Don't close the modal here - let the user interact with the success modal first
+  };
+
   const handlePrevious = () => {
     setCurrentStep(0);
   };
@@ -506,16 +515,29 @@ const ProductDetail: React.FC = () => {
         open={isConfigurationModalOpen}
         onCancel={handleModalClose}
         footer={null}
-        width={800}
+        width={1200}
         zIndex={1100}
         destroyOnClose={true}
       >
         {currentStep === 0 && (
-          <ConfigurationForm 
-            product={product}
-            onCancel={handleModalClose}
-            onSubmit={handleFormSubmit}
-          />
+          <Row gutter={24}>
+            <Col span={14}>
+                             <ConfigurationForm 
+                 product={product}
+                 onCancel={handleModalClose}
+                 onSubmit={handleFormSubmit}
+                 onFieldChange={(formData) => setConfigurationData(formData)}
+                 onSuccess={handleConfigurationSuccess}
+               />
+            </Col>
+            <Col span={10}>
+              <ConfigurationPreview 
+                product={product}
+                configurationData={configurationData || {}}
+                isRealTimeUpdate={true}
+              />
+            </Col>
+          </Row>
         )}
         
         {currentStep === 1 && configurationData && (

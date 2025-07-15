@@ -79,20 +79,20 @@ This document breaks down the work for Epic 4 into small, concrete, and ordered 
 **Goal:** Make the configuration workflow fully functional with proper state management and user interactions.
 
 - [ ] **4.1: Configuration Creation Workflow**
-    - [ ] 4.1.1: Implement form state management for the `ConfigurationForm` component with proper validation and error handling.
-    - [ ] 4.1.2: Add real-time preview generation that updates as users change form fields, showing the generated SKU and price group information.
-    - [ ] 4.1.3: Implement configuration conflict detection that warns users if they're creating a duplicate configuration.
-    - [ ] 4.1.4: Add form submission logic that creates a new configuration request and adds it to the mock data.
+    - [x] 4.1.1: Implement form state management for the `ConfigurationForm` component with proper validation and error handling.
+    - [x] 4.1.2: Add real-time preview generation that updates as users change form fields, showing the generated SKU and price group information.
+    - [x] 4.1.3: Implement configuration conflict detection that warns users if they're creating a duplicate configuration.
+    - [x] 4.1.4: Add form submission logic that creates a new configuration request and adds it to the mock data.
 
-- [ ] **4.2: Preview and Validation Logic**
-    - [ ] 4.2.1: Connect the `ConfigurationPreview` component to show real-time updates based on form inputs.
-    - [ ] 4.2.2: Implement the price group impact logic that determines whether to create a new price group or use an existing one.
-    - [ ] 4.2.3: Add pricing validation rules (e.g., minimum price, pricing tier consistency) with clear error messages.
-    - [ ] 4.2.4: Implement the conflict warning system that checks for existing SKUs with the same configuration.
+- [x] **4.2: Preview and Validation Logic**
+    - [x] 4.2.1: Connect the `ConfigurationPreview` component to show real-time updates based on form inputs.
+    - [x] 4.2.2: Implement the price group impact logic that determines whether to create a new price group or use an existing one.
+    - [x] 4.2.3: Add pricing validation rules (e.g., minimum price, pricing tier consistency) with clear error messages.
+    - [x] 4.2.4: Implement the conflict warning system that checks for existing SKUs with the same configuration.
 
 - [ ] **4.3: Status Tracking and Change Request Workflow**
     - [ ] 4.3.1: Implement a mock change request workflow that simulates the progression from Draft → Pending Review → In Staging → Live.
-    - [ ] 4.3.2: Add status update functionality that allows advancing configuration requests through different stages.
+    - [x] 4.3.2: Add status update functionality that allows advancing configuration requests through different stages.
     - [ ] 4.3.3: Implement the timeline component to show progress and estimated completion times for each stage.
     - [ ] 4.3.4: Add the ability to view and share links to configuration requests for cross-team collaboration.
 

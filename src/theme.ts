@@ -54,6 +54,7 @@ export const LOB_COLORS: Record<LOB, string> = {
   LTS: 'purple',
   LMS: 'geekblue',
   LSS: 'cyan',
+  Other: 'default',
 };
 
 export default themeConfig;

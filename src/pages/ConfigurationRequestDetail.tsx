@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Typography, Space, Card, Row, Col, Button, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Typography, Space, Card, Row, Col, Button, Tag, Modal, message } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts, mockConfigurationRequests } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
@@ -14,7 +14,8 @@ import {
   ConfigurationPreview,
   ExperimentalBadge
 } from '../components';
-import { Settings, Copy, ExternalLink, Clock, User } from 'lucide-react';
+import { updateConfigurationRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
+import { Settings, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
@@ -25,7 +26,15 @@ const ConfigurationRequestDetail: React.FC = () => {
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
-  const configRequest = mockConfigurationRequests.find(r => r.id === requestId);
+  
+  // First try to find the configuration request in the product's requests (for newly created ones)
+  // Then fall back to the global mock requests array (for existing mock data)
+  const initialConfigRequest = product?.configurationRequests?.find(r => r.id === requestId) || 
+                              mockConfigurationRequests.find(r => r.id === requestId);
+  
+  // State to track the current configuration request (can be updated)
+  const [configRequest, setConfigRequest] = useState(initialConfigRequest);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   useEffect(() => {
     // Set wider max-width for detail pages
@@ -72,6 +81,60 @@ const ConfigurationRequestDetail: React.FC = () => {
     console.log('Copied to clipboard:', text);
   };
 
+  const handleStatusUpdate = (newStatus: 'Pending Review' | 'In Staging' | 'Live' | 'Failed') => {
+    if (!productId || !requestId) return;
+
+    Modal.confirm({
+      title: `Update Status to ${newStatus}`,
+      content: `Are you sure you want to update this configuration request status to "${newStatus}"?`,
+      okText: 'Yes, Update',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        setIsUpdatingStatus(true);
+        
+        try {
+          // Update the status in mock data
+          const success = updateConfigurationRequestStatus(productId, requestId, newStatus);
+          
+          if (success) {
+            // Update the local state to reflect the change
+            setConfigRequest(prev => prev ? { ...prev, status: newStatus } : undefined);
+            
+            // Show success message
+            message.success(`Configuration request status updated to ${newStatus}`);
+            
+            // Small delay to show the change
+            setTimeout(() => {
+              setIsUpdatingStatus(false);
+            }, 500);
+          } else {
+            message.error('Failed to update configuration request status');
+            setIsUpdatingStatus(false);
+          }
+        } catch (error) {
+          console.error('Error updating status:', error);
+          message.error('An error occurred while updating the status');
+          setIsUpdatingStatus(false);
+        }
+      }
+    });
+  };
+
+  const getStatusIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'eye':
+        return <Eye size={16} />;
+      case 'check-circle':
+        return <CheckCircle size={16} />;
+      case 'x-circle':
+        return <XCircle size={16} />;
+      case 'refresh-cw':
+        return <RefreshCw size={16} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
@@ -91,6 +154,61 @@ const ConfigurationRequestDetail: React.FC = () => {
       <PageSection title="Progress Timeline">
         <ConfigurationTimeline request={configRequest} showDetails />
       </PageSection>
+
+      {/* Status Actions */}
+      {(() => {
+        const nextOptions = getNextStatusOptions(configRequest.status);
+        
+        if (nextOptions.length === 0) {
+          return null; // No actions available for this status
+        }
+        
+        return (
+          <PageSection title="Actions">
+            <Card>
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <div>
+                  <Text strong>Available Actions:</Text>
+                  <br />
+                  <Text type="secondary">
+                    Choose an action to progress this configuration request through the workflow.
+                  </Text>
+                </div>
+                
+                <Space wrap>
+                  {nextOptions.map((option) => (
+                    <Button
+                      key={option.status}
+                      type={option.buttonType === 'danger' ? 'default' : option.buttonType}
+                      danger={option.buttonType === 'danger'}
+                      size="large"
+                      icon={getStatusIcon(option.icon)}
+                      loading={isUpdatingStatus}
+                      onClick={() => handleStatusUpdate(option.status)}
+                      style={{ minWidth: 180 }}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </Space>
+                
+                <div style={{ 
+                  backgroundColor: '#fafafa', 
+                  padding: '12px', 
+                  borderRadius: '6px',
+                  border: '1px solid #f0f0f0',
+                  marginTop: '8px'
+                }}>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    <strong>Note:</strong> Status changes are permanent and will immediately affect the configuration workflow. 
+                    Make sure you're ready to proceed before confirming any action.
+                  </Text>
+                </div>
+              </Space>
+            </Card>
+          </PageSection>
+        );
+      })()}
 
       {/* Configuration Details */}
       <PageSection title="Configuration Details">

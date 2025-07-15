@@ -48,6 +48,7 @@ export { default as CopyableId } from './shared/CopyableId';
 
 // Configuration components
 export { ChangeRequestForm } from './configuration/ChangeRequestForm';
+export { default as ChangeRequestListTable } from './configuration/ChangeRequestListTable';
 export { ChangeRequestPreview } from './configuration/ChangeRequestPreview';
 export { PriceGroupImpact } from './configuration/PriceGroupImpact';
 export { ConflictWarning } from './configuration/ConflictWarning';

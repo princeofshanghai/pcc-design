@@ -109,7 +109,7 @@ export const getSkuTableColumns = (product: Product): ColumnsType<Sku> => [
           requestId={sku.configurationRequestId}
           variant="compact"
           onViewRequest={(requestId: string) => {
-            // TODO: Navigate to configuration request detail page
+            // TODO: Navigate to change request detail page
             console.log('View request:', requestId);
           }}
         />

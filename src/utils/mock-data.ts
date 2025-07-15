@@ -35,19 +35,7 @@ export const folderStructure = {
 
 export const mockConfigurationRequests: ConfigurationRequest[] = [
   {
-    id: 'config-001',
-    targetProductId: '5095285', // Premium Career
-    salesChannel: 'Desktop',
-    billingCycle: 'Quarterly',
-    priceAmount: 89.99,
-    status: 'Live',
-    createdBy: 'Priya Sharma (PM)',
-    createdDate: '2024-03-15T10:30:00Z',
-    generatedSkuId: 'sku-quarterly-001',
-    generatedPriceGroupId: 'pg-quarterly-001',
-  },
-  {
-    id: 'config-002',
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '5095295', // Sales Navigator Core
     salesChannel: 'Mobile',
     billingCycle: 'Monthly',
@@ -57,19 +45,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     createdDate: '2024-03-20T14:15:00Z',
   },
   {
-    id: 'config-003',
-    targetProductId: '5095285', // Premium Career
-    salesChannel: 'Desktop',
-    billingCycle: 'Quarterly',
-    priceAmount: 85.99,
-    lixKey: 'quarterly_pricing_test',
-    lixTreatment: 'lower_price',
-    status: 'Pending Review',
-    createdBy: 'Priya Sharma (PM)',
-    createdDate: '2024-03-22T09:45:00Z',
-  },
-  {
-    id: 'config-004',
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '5095310', // Learning Hub Pro
     salesChannel: 'Field',
     billingCycle: 'Annual',
@@ -79,7 +55,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     createdDate: '2024-03-18T16:20:00Z',
   },
   {
-    id: 'config-005',
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '5095295', // Sales Navigator Core
     salesChannel: 'Desktop',
     billingCycle: 'Quarterly',
@@ -89,8 +65,53 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     status: 'Live',
     createdBy: 'Anand Patel (Pricing)',
     createdDate: '2024-03-12T11:10:00Z',
-    generatedSkuId: 'sku-nav-quarterly-001',
-    generatedPriceGroupId: 'pg-nav-quarterly-001',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
+  // DEMO Product change requests
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Desktop',
+    billingCycle: 'Monthly',
+    priceAmount: 24.99,
+    status: 'Pending Review',
+    createdBy: 'Alex Demo (PM)',
+    createdDate: '2024-03-25T10:00:00Z',
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Mobile',
+    billingCycle: 'Annual',
+    priceAmount: 199.99,
+    lixKey: 'mobile_annual_test',
+    lixTreatment: 'discounted_price',
+    status: 'In Staging',
+    createdBy: 'Sarah Demo (Pricing)',
+    createdDate: '2024-03-24T15:30:00Z',
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Field',
+    billingCycle: 'Quarterly',
+    priceAmount: 74.99,
+    status: 'Pending Review',
+    createdBy: 'Mike Demo (Business)',
+    createdDate: '2024-03-26T08:45:00Z',
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Desktop',
+    billingCycle: 'Annual',
+    priceAmount: 249.99,
+    lixKey: 'annual_pricing_experiment',
+    lixTreatment: 'premium_price',
+    status: 'Failed',
+    createdBy: 'Chris Demo (Engineering)',
+    createdDate: '2024-03-23T12:20:00Z',
   },
 ];
 
@@ -132,10 +153,6 @@ export const mockProducts: Product[] = [
     productUrl: 'https://www.linkedin.com/premium/career',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
-    configurationRequests: [
-      mockConfigurationRequests[0], // config-001: Priya's successful quarterly billing
-      mockConfigurationRequests[2], // config-003: Priya's experimental pricing test
-    ],
   },
   {
     id: '5255644',
@@ -305,8 +322,8 @@ export const mockProducts: Product[] = [
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
     configurationRequests: [
-      mockConfigurationRequests[1], // config-002: Anand's mobile channel addition
-      mockConfigurationRequests[4], // config-005: Anand's successful quarterly experiment
+      mockConfigurationRequests[0], // Anand's mobile channel addition
+      mockConfigurationRequests[2], // Anand's successful quarterly experiment
     ],
   },
   {
@@ -392,12 +409,65 @@ export const mockProducts: Product[] = [
     productUrl: 'https://www.linkedin.com/premium/page-entitlements',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
+  },
+  {
+    id: '9999999', // DEMO Product
+    name: 'DEMO Product',
+    description: 'A placeholder product for demonstration purposes.',
+    lob: 'Other',
+    folder: 'All Other Products',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/demo/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'Unlimited access to LinkedIn Learning',
+      'Private browsing',
+      'Applicant insights',
+      'Direct messaging',
+      'Who viewed your profile',
+      'Who\'s viewed your profile insights availability (365)',
+      'InMail credits (5)',
+      'AI tools',
+      'Top choice job',
+      'Advanced Search',
+      'InMail Messages',
+      'Business Insights',
+      'Page Analytics',
+      'Sponsored Content',
+      'Company Insights',
+      'Page Entitlements',
+      'Feature Access',
+    ],
+    tags: [{ type: 'Customer Type', value: 'Individual member' }, { type: 'Sales Top of Funnel', value: 'Premium Chooser' }],
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/demo',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+         configurationRequests: [
+       mockConfigurationRequests[1], // Sam's annual pricing experiment
+       mockConfigurationRequests[3], // Alex's monthly billing
+       mockConfigurationRequests[4], // Sarah's annual mobile test
+       mockConfigurationRequests[5], // Mike's quarterly billing
+       mockConfigurationRequests[6], // Chris's annual pricing experiment
+     ],
   }
 ]; 
 
 // Add price groups for Premium Career
 const pcFy25Monthly: PriceGroup = {
-  id: "9" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+  id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
   name: "PC_FY25_MONTHLY",
   status: 'Active',
   startDate: "2025-05-01",
@@ -428,7 +498,7 @@ const pcFy25Monthly: PriceGroup = {
 };
 
 const pcFy25Annual: PriceGroup = {
-  id: "9" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+  id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
   name: "PC_FY25_ANNUAL",
   status: 'Active',
   startDate: "2025-05-01",
@@ -463,7 +533,7 @@ const premiumCareerProduct = mockProducts.find(p => p.id === '5095285');
 if (premiumCareerProduct) {
   premiumCareerProduct.skus = [
     {
-      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "Premium Career FY25 Desktop Monthly",
       status: "Active",
       salesChannel: "Desktop",
@@ -477,7 +547,7 @@ if (premiumCareerProduct) {
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
-      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "Premium Career FY25 Desktop Annual",
       status: "Active",
       salesChannel: "Desktop",
@@ -490,31 +560,7 @@ if (premiumCareerProduct) {
       createdBy: "Sarah Johnson (PM)",
       createdDate: "2024-02-15T10:00:00Z"
     },
-    {
-      id: "sku-quarterly-001",
-      name: "Premium Career FY25 Desktop Quarterly",
-      status: "Active",
-      salesChannel: "Desktop",
-      billingCycle: "Quarterly",
-      priceGroup: {
-        id: "pg-quarterly-001",
-        name: "PC_FY25_QUARTERLY",
-        status: "Active",
-        startDate: "2024-03-15",
-        pricePoints: [
-          { currencyCode: "USD", amount: 89.99 },
-          { currencyCode: "EUR", amount: 69.99 },
-          { currencyCode: "GBP", amount: 59.99 }
-        ]
-      },
-      revenueRecognition: "Accrual",
-      switcherLogic: [],
-      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
-      origin: "configuration_request",
-      createdBy: "Priya Sharma (PM)",
-      createdDate: "2024-03-15T10:30:00Z",
-      configurationRequestId: "config-001"
-    }
+
   ];
 }
 
@@ -523,13 +569,13 @@ const premiumBusinessProduct = mockProducts.find(p => p.id === '5095295');
 if (premiumBusinessProduct) {
   premiumBusinessProduct.skus = [
     {
-      id: "8" + Math.floor(1000000 + Math.random() * 9000000).toString(),
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "Premium Business FY25 Desktop Monthly",
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Monthly",
       priceGroup: {
-        id: "pg-business-monthly-001",
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
         name: "PB_FY25_MONTHLY",
         status: "Active",
         startDate: "2024-02-01",
@@ -547,13 +593,13 @@ if (premiumBusinessProduct) {
       createdDate: "2024-02-01T14:00:00Z"
     },
     {
-      id: "sku-nav-quarterly-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "Premium Business FY25 Desktop Quarterly",
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Quarterly",
       priceGroup: {
-        id: "pg-nav-quarterly-001",
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
         name: "PB_FY25_QUARTERLY",
         status: "Active",
         startDate: "2024-03-12",
@@ -569,11 +615,139 @@ if (premiumBusinessProduct) {
       origin: "configuration_request",
       createdBy: "Anand Patel (Pricing)",
       createdDate: "2024-03-12T11:10:00Z",
-      configurationRequestId: "config-005",
+      configurationRequestId: mockConfigurationRequests[2].id,
       lix: {
         key: "quarterly_nav_test",
         treatment: "standard_price"
       }
     }
+  ];
+} 
+
+// Add SKUs for the DEMO Product
+const demoProduct = mockProducts.find(p => p.id === '9999999');
+if (demoProduct) {
+  demoProduct.skus = [
+    {
+      id: "sku-demo-monthly-001",
+      name: "DEMO Product FY25 Desktop Monthly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_FY25_MONTHLY",
+        status: "Active",
+        startDate: "2024-02-01",
+        pricePoints: [
+          { currencyCode: "USD", amount: 24.99 },
+          { currencyCode: "EUR", amount: 19.99 },
+          { currencyCode: "GBP", amount: 16.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Alex Demo (PM)",
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "sku-demo-annual-001",
+      name: "DEMO Product FY25 Desktop Annual",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_FY25_ANNUAL",
+        status: "Active",
+        startDate: "2024-02-01",
+        pricePoints: [
+          { currencyCode: "USD", amount: 249.99 },
+          { currencyCode: "EUR", amount: 199.99 },
+          { currencyCode: "GBP", amount: 174.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Alex Demo (PM)",
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "sku-demo-quarterly-001",
+      name: "DEMO Product FY25 Desktop Quarterly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_FY25_QUARTERLY",
+        status: "Active",
+        startDate: "2024-03-15",
+        pricePoints: [
+          { currencyCode: "USD", amount: 24.99 },
+          { currencyCode: "EUR", amount: 19.99 },
+          { currencyCode: "GBP", amount: 16.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Alex Demo (PM)",
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "sku-demo-mobile-001",
+      name: "DEMO Product FY25 Mobile Annual",
+      status: "Active",
+      salesChannel: "Mobile",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_FY25_ANNUAL",
+        status: "Active",
+        startDate: "2024-02-01",
+        pricePoints: [
+          { currencyCode: "USD", amount: 199.99 },
+          { currencyCode: "EUR", amount: 159.99 },
+          { currencyCode: "GBP", amount: 139.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Alex Demo (PM)",
+      createdDate: "2024-02-01T14:00:00Z"
+    },
+    {
+      id: "sku-demo-field-001",
+      name: "DEMO Product FY25 Field Quarterly",
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_FY25_QUARTERLY",
+        status: "Active",
+        startDate: "2024-03-15",
+        pricePoints: [
+          { currencyCode: "USD", amount: 74.99 },
+          { currencyCode: "EUR", amount: 59.99 },
+          { currencyCode: "GBP", amount: 51.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Alex Demo (PM)",
+      createdDate: "2024-03-15T10:00:00Z"
+    },
+
   ];
 } 

@@ -272,8 +272,8 @@ const ProductDetail: React.FC = () => {
             <PriceGroupTable skus={product.skus} productId={product.id} />
           </PageSection>
           
-          {/* Pending Configurations Section */}
-          <PageSection title="Pending Configurations">
+          {/* Pending Change Requests Section */}
+          <PageSection title="Pending Change Requests">
             {(() => {
               const pendingRequests = product.configurationRequests?.filter(request => 
                 ['Draft', 'Pending Review', 'In Staging'].includes(request.status)
@@ -302,13 +302,13 @@ const ProductDetail: React.FC = () => {
                   ))}
                 </Space>
               ) : (
-                <span style={{ color: '#888' }}>No pending configurations for this product.</span>
+                <span style={{ color: '#888' }}>No pending change requests for this product.</span>
               );
             })()}
           </PageSection>
           
-          {/* Configuration Requests Section */}
-          <PageSection title="Configuration Requests">
+          {/* Change Requests Section */}
+          <PageSection title="Change Requests">
             {product.configurationRequests && product.configurationRequests.length > 0 ? (
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {product.configurationRequests.map((request) => (
@@ -332,7 +332,7 @@ const ProductDetail: React.FC = () => {
                 ))}
               </Space>
             ) : (
-              <span style={{ color: '#888' }}>No configuration requests found for this product.</span>
+              <span style={{ color: '#888' }}>No change requests found for this product.</span>
             )}
           </PageSection>
         </Space>
@@ -564,7 +564,7 @@ const ProductDetail: React.FC = () => {
                 icon={<Check size={16} />}
                 onClick={handleConfirmConfiguration}
               >
-                Create Configuration
+                                  Create Change Request
               </Button>
             </div>
           </div>

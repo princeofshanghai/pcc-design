@@ -43,8 +43,8 @@ export const ChangeRequestOrigin: React.FC<ChangeRequestOriginProps> = ({
         return {
           color: 'green',
           icon: <Settings size={12} />,
-          label: 'Configuration',
-          description: 'Generated from configuration request'
+                  label: 'Change Request',
+        description: 'Generated from change request'
         };
       default:
         return {

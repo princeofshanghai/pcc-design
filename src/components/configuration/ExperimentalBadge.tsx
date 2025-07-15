@@ -22,9 +22,9 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
   const getTooltipContent = () => (
     <div style={{ maxWidth: 300 }}>
       <Space direction="vertical" size={4}>
-        <Text strong style={{ color: 'white' }}>Experimental Configuration</Text>
+        <Text strong style={{ color: 'white' }}>Experimental Change Request</Text>
         <Text style={{ color: 'white', fontSize: '12px' }}>
-          This configuration is part of a LinkedIn experiment (LIX) for A/B testing and feature validation.
+          This change request is part of a LinkedIn experiment (LIX) for A/B testing and feature validation.
         </Text>
         <div style={{ marginTop: 8 }}>
           <Text style={{ color: 'white', fontSize: '11px' }}>
@@ -105,12 +105,12 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
           <Space>
             <Beaker size={16} color="#d46b08" />
             <Text strong style={{ color: '#d46b08' }}>
-              Experimental Configuration
+              Experimental Change Request
             </Text>
           </Space>
           
           <Text style={{ fontSize: '13px', color: '#8c8c8c' }}>
-            This configuration is part of a LinkedIn experiment for A/B testing and feature validation.
+            This change request is part of a LinkedIn experiment for A/B testing and feature validation.
           </Text>
           
           <Space direction="vertical" size={4}>

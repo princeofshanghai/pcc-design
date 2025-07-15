@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -151,7 +151,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/change-requests">Change Requests</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <GitPullRequestArrow size={16} />
     },
 
     {
@@ -224,11 +224,16 @@ const AppLayout = () => {
   }
 
   if (location.pathname.startsWith('/product/') && productName) {
+    // Check if this is a change request page
+    const isChangeRequestPage = location.pathname.includes('/configuration/');
+    
     // Add Home link first for product pages
     if (!currentMenuItem) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="home">
-          <Link to="/">Products</Link>
+          <Link to={isChangeRequestPage ? "/change-requests" : "/"}>
+            {isChangeRequestPage ? "Change requests" : "Products"}
+          </Link>
         </Breadcrumb.Item>
       );
     }
@@ -236,28 +241,31 @@ const AppLayout = () => {
     const isSkuPage = location.pathname.includes('/sku/');
     const isPriceGroupPage = location.pathname.includes('/price-group/');
     
-    // Determine product path for linking back
-    let productPath = location.pathname;
-    if (isSkuPage) {
-      productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
-    } else if (isPriceGroupPage) {
-      productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
-    }
+    // Don't show product breadcrumb for change request pages
+    if (!isChangeRequestPage) {
+      // Determine product path for linking back
+      let productPath = location.pathname;
+      if (isSkuPage) {
+        productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
+      } else if (isPriceGroupPage) {
+        productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
+      }
 
-    breadcrumbItems.push(
-      <Breadcrumb.Item key="product">
-        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
-          <Box size={14} />
-          {(isSkuPage || isPriceGroupPage) ? (
-            <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
-              {productName}
-            </Link>
-          ) : (
-            <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
-          )}
-        </Space>
-      </Breadcrumb.Item>
-    );
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="product">
+          <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
+            <Box size={14} />
+            {(isSkuPage || isPriceGroupPage) ? (
+              <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
+                {productName}
+              </Link>
+            ) : (
+              <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+            )}
+          </Space>
+        </Breadcrumb.Item>
+      );
+    }
 
     if (isSkuPage && skuId) {
       breadcrumbItems.push(
@@ -276,6 +284,17 @@ const AppLayout = () => {
           <Space size={4}>
             <DollarSign size={14} />
             <span>{priceGroupName || priceGroupId}</span>
+          </Space>
+        </Breadcrumb.Item>
+      );
+    }
+
+    if (isChangeRequestPage && productName) {
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="changeRequest">
+          <Space size={4}>
+            <GitPullRequestArrow size={14} />
+            <span>{productName}</span>
           </Space>
         </Breadcrumb.Item>
       );

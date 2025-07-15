@@ -3,18 +3,26 @@ import { mockProducts } from './mock-data';
 
 /**
  * Generates a unique SKU ID based on existing app patterns
- * Format: "8" + 7-digit random number (matches existing SKU pattern)
+ * Format: "8" + 6-digit random number (matches existing SKU pattern)
  */
 export function generateSkuId(_product: Product, _changeRequest: ConfigurationRequest): string {
-  return "8" + Math.floor(1000000 + Math.random() * 9000000).toString();
+  return "8" + Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 /**
  * Generates a unique price group ID based on existing app patterns
- * Format: "9" + 7-digit random number (matches existing price group pattern)
+ * Format: "9" + 6-digit random number (matches existing price group pattern)
  */
 export function generatePriceGroupId(_changeRequest: ConfigurationRequest): string {
-  return "9" + Math.floor(1000000 + Math.random() * 9000000).toString();
+  return "9" + Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+/**
+ * Generates a unique change request ID based on existing app patterns
+ * Format: "3" + 5-digit random number (matches existing change request pattern)
+ */
+export function generateChangeRequestId(): string {
+  return "3" + Math.floor(10000 + Math.random() * 90000).toString();
 }
 
 /**
@@ -374,7 +382,7 @@ export function submitChangeRequest(
 ): ChangeRequestSubmissionResult {
   try {
     // Generate unique change request ID
-    const requestId = `config-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    const requestId = generateChangeRequestId();
     
     // Create the change request
     const changeRequest: ConfigurationRequest = {

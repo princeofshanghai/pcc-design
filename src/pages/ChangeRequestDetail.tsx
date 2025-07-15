@@ -15,7 +15,7 @@ import {
   ExperimentalBadge
 } from '../components';
 import { updateChangeRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
-import { Settings, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { GitPullRequestArrow, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
@@ -46,20 +46,21 @@ const ChangeRequestDetail: React.FC = () => {
   }, [setMaxWidth]);
 
   useEffect(() => {
-    if (product) {
-      setProductName(product.name);
+    // Set breadcrumb to show change request icon + ID
+    if (configRequest) {
+      setProductName(configRequest.id);
     }
 
     return () => {
       setProductName(null);
     };
-  }, [product, setProductName]);
+  }, [configRequest, setProductName]);
 
   if (!product || !configRequest) {
     return (
       <div>
-        <Title level={2}>Configuration Request Not Found</Title>
-        <p>The requested configuration request could not be found.</p>
+        <Title level={2}>Change Request Not Found</Title>
+        <p>The requested change request could not be found.</p>
       </div>
     );
   }
@@ -86,7 +87,7 @@ const ChangeRequestDetail: React.FC = () => {
 
     Modal.confirm({
       title: `Update Status to ${newStatus}`,
-      content: `Are you sure you want to update this configuration request status to "${newStatus}"?`,
+                  content: `Are you sure you want to update this change request status to "${newStatus}"?`,
       okText: 'Yes, Update',
       cancelText: 'Cancel',
       onOk: async () => {
@@ -101,14 +102,14 @@ const ChangeRequestDetail: React.FC = () => {
             setConfigRequest(prev => prev ? { ...prev, status: newStatus } : undefined);
             
             // Show success message
-            message.success(`Configuration request status updated to ${newStatus}`);
+            message.success(`Change request status updated to ${newStatus}`);
             
             // Small delay to show the change
             setTimeout(() => {
               setIsUpdatingStatus(false);
             }, 500);
           } else {
-            message.error('Failed to update configuration request status');
+            message.error('Failed to update change request status');
             setIsUpdatingStatus(false);
           }
         } catch (error) {
@@ -140,12 +141,12 @@ const ChangeRequestDetail: React.FC = () => {
       <PageHeader
         preTitle={
           <Space size="small">
-            <Settings size={14} />
-            <span>Configuration Request</span>
+            <GitPullRequestArrow size={14} />
+            <span>Change Request</span>
           </Space>
         }
         title={configRequest.id}
-        onBack={() => navigate(`/product/${product.id}`)}
+        onBack={() => navigate('/change-requests')}
         tagContent={<ChangeRequestStatus status={configRequest.status} />}
         subtitle={`for ${product.name}`}
       />
@@ -171,7 +172,7 @@ const ChangeRequestDetail: React.FC = () => {
                   <Text strong>Available Actions:</Text>
                   <br />
                   <Text type="secondary">
-                    Choose an action to progress this configuration request through the workflow.
+                    Choose an action to progress this change request through the workflow.
                   </Text>
                 </div>
                 
@@ -200,7 +201,7 @@ const ChangeRequestDetail: React.FC = () => {
                   marginTop: '8px'
                 }}>
                   <Text type="secondary" style={{ fontSize: '12px' }}>
-                    <strong>Note:</strong> Status changes are permanent and will immediately affect the configuration workflow. 
+                    <strong>Note:</strong> Status changes are permanent and will immediately affect the change request workflow. 
                     Make sure you're ready to proceed before confirming any action.
                   </Text>
                 </div>
@@ -210,8 +211,8 @@ const ChangeRequestDetail: React.FC = () => {
         );
       })()}
 
-      {/* Configuration Details */}
-      <PageSection title="Configuration Details">
+              {/* Change Request Details */}
+        <PageSection title="Change Request Details">
         <Row gutter={[32, 24]}>
           <Col span={12}>
             <Card size="small" title="Request Information">
@@ -256,7 +257,7 @@ const ChangeRequestDetail: React.FC = () => {
             </Card>
           </Col>
           <Col span={12}>
-            <Card size="small" title="Configuration Settings">
+                            <Card size="small" title="Change Request Settings">
               <AttributeGroup>
                 <AttributeDisplay layout="horizontal" label="Sales Channel">
                   <Tag color="blue">{configRequest.salesChannel}</Tag>
@@ -296,7 +297,7 @@ const ChangeRequestDetail: React.FC = () => {
           <Card size="small">
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
               <Text type="secondary">
-                This configuration request has generated the following assets:
+                                  This change request has generated the following assets:
               </Text>
               <Row gutter={[16, 16]}>
                 {configRequest.generatedSkuId && (
@@ -339,17 +340,17 @@ const ChangeRequestDetail: React.FC = () => {
         </PageSection>
       )}
 
-      {/* Configuration Preview */}
-      <PageSection title="Configuration Preview">
+              {/* Change Request Preview */}
+        <PageSection title="Change Request Preview">
         <ChangeRequestPreview 
           product={product}
           configurationData={configRequest}
         />
       </PageSection>
 
-      {/* Experimental Configuration Notice */}
+      {/* Experimental Change Request Notice */}
       {configRequest.lixKey && (
-        <PageSection title="Experimental Configuration Notice">
+        <PageSection title="Experimental Change Request Notice">
           <Card 
             size="small" 
             style={{ 
@@ -365,12 +366,12 @@ const ChangeRequestDetail: React.FC = () => {
                   variant="default"
                 />
                 <Text strong style={{ color: '#d46b08' }}>
-                  This is an experimental configuration
+                                      This is an experimental change request
                 </Text>
               </Space>
               <Text style={{ color: '#8c5600' }}>
-                This configuration is part of a LinkedIn Experiment (LIX) and will be used for A/B testing. 
-                The configuration includes experimental parameters and should be monitored closely for performance metrics.
+                                    This change request is part of a LinkedIn Experiment (LIX) and will be used for A/B testing. 
+                                    The change request includes experimental parameters and should be monitored closely for performance metrics.
               </Text>
               <div>
                 <Text strong style={{ color: '#8c5600', fontSize: '12px' }}>
@@ -379,7 +380,7 @@ const ChangeRequestDetail: React.FC = () => {
                 <ul style={{ margin: '8px 0', paddingLeft: '20px', color: '#8c5600' }}>
                   <li>LIX Key: <Text code>{configRequest.lixKey}</Text></li>
                   <li>Treatment: <Text code>{configRequest.lixTreatment}</Text></li>
-                  <li>This configuration will be applied to users in the specified treatment group</li>
+                                      <li>This change request will be applied to users in the specified treatment group</li>
                 </ul>
               </div>
             </Space>

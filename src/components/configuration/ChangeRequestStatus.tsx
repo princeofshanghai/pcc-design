@@ -17,25 +17,25 @@ const STATUS_CONFIG = {
     color: 'orange',
     icon: <Clock size={14} />,
     label: 'Pending Review',
-    description: 'Configuration request is waiting for review and approval'
+    description: 'Change request is waiting for review and approval'
   },
   'In Staging': {
     color: 'blue',
     icon: <Eye size={14} />,
     label: 'In Staging',
-    description: 'Configuration is being tested in the staging environment'
+    description: 'Change request is being tested in the staging environment'
   },
   'Live': {
     color: 'green',
     icon: <CheckCircle size={14} />,
     label: 'Live',
-    description: 'Configuration has been successfully deployed to production'
+    description: 'Change request has been successfully deployed to production'
   },
   'Failed': {
     color: 'red',
     icon: <XCircle size={14} />,
     label: 'Failed',
-    description: 'Configuration deployment encountered errors and failed'
+    description: 'Change request deployment encountered errors and failed'
   }
 } as const;
 

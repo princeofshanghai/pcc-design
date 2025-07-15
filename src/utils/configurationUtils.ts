@@ -426,9 +426,8 @@ export function submitChangeRequest(
     changeRequest.generatedSkuId = generatedSku.id;
     changeRequest.generatedPriceGroupId = generatedPriceGroup.id;
 
-    // For demo purposes, all change requests start as "Pending Review"
-    // This allows demonstrating the workflow progression through the status buttons
-    changeRequest.status = 'Pending Review' as any;
+    // Change requests start as Draft and need to be manually progressed through workflow
+    // Status remains as 'Draft' as set during creation
     
     // Don't automatically add SKUs to the product - this should only happen when 
     // the change request is manually progressed to "Live" status through the UI

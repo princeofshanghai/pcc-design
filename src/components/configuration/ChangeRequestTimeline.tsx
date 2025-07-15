@@ -2,6 +2,7 @@ import React from 'react';
 import { Steps, Typography, Space, Tag, Card } from 'antd';
 import { Clock, Eye, CheckCircle, XCircle, FileText } from 'lucide-react';
 import type { ChangeRequestStatus as ChangeRequestStatusType, ConfigurationRequest } from '../../utils/types';
+import { getUserLdap } from '../../utils/users';
 
 const { Text, Title } = Typography;
 
@@ -155,7 +156,7 @@ export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
                 <Text>{new Date(request.createdDate).toLocaleString()}</Text>
                 <Text type="secondary">•</Text>
                 <Text type="secondary">By:</Text>
-                <Text>{request.createdBy}</Text>
+                <Text>{getUserLdap(request.createdBy)}</Text>
               </Space>
               <Space wrap>
                 <Text type="secondary">Configuration:</Text>

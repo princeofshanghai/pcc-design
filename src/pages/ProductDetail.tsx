@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps, Row, Col } from 'antd';
+import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps, Row, Col, Badge } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -429,7 +429,21 @@ const ProductDetail: React.FC = () => {
     },
     {
       key: 'activity',
-      label: 'Activity',
+      label: (() => {
+        const pendingRequests = product.configurationRequests?.filter(request => 
+          ['Draft', 'Pending Review', 'In EI'].includes(request.status)
+        ) || [];
+        
+        return pendingRequests.length > 0 ? (
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Badge count={pendingRequests.length} size="small" offset={[4, 0]}>
+              Activity
+            </Badge>
+          </div>
+        ) : (
+          'Activity'
+        );
+      })(),
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           {/* Needs Attention Section */}

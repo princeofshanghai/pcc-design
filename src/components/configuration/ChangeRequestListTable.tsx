@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus, ExperimentalBadge } from '../index';
+import { getUserLdap } from '../../utils/users';
 import { Copy } from 'lucide-react';
 
 const { Text } = Typography;
@@ -104,7 +105,7 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
       dataIndex: 'createdBy',
       key: 'createdBy',
       render: (createdBy: string) => (
-        <Text style={{ fontSize: '13px' }}>{createdBy}</Text>
+        <Text style={{ fontSize: '13px' }}>{getUserLdap(createdBy)}</Text>
       ),
     },
     {

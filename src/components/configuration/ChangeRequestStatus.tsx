@@ -2,6 +2,7 @@ import React from 'react';
 import { Tag, Typography, Space, Tooltip } from 'antd';
 import { Clock, Wrench, CheckCircle, XCircle } from 'lucide-react';
 import type { ChangeRequestStatus as ChangeRequestStatusType } from '../../utils/types';
+import { toSentenceCase } from '../../utils/formatters/text';
 
 const { Text } = Typography;
 
@@ -16,25 +17,25 @@ const STATUS_CONFIG = {
   'Pending Review': {
     color: 'orange',
     icon: <Clock size={14} />,
-    label: 'Pending Review',
+    label: toSentenceCase('Pending Review'),
     description: 'Change request is waiting for review and approval'
   },
   'In EI': {
     color: 'blue',
     icon: <Wrench size={14} />,
-    label: 'In EI',
+    label: toSentenceCase('In EI'),
     description: 'Change request is being tested in the EI environment'
   },
   'Live': {
     color: 'green',
     icon: <CheckCircle size={14} />,
-    label: 'Live',
+    label: toSentenceCase('Live'),
     description: 'Change request has been successfully deployed to production'
   },
   'Failed': {
     color: 'red',
     icon: <XCircle size={14} />,
-    label: 'Failed',
+    label: toSentenceCase('Failed'),
     description: 'Change request deployment encountered errors and failed'
   }
 } as const;

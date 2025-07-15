@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tag, Typography, Space, Tooltip, Button } from 'antd';
 import { User, Settings, ExternalLink, Calendar } from 'lucide-react';
+import { getUserLdap } from '../../utils/users';
 
 const { Text } = Typography;
 
@@ -67,7 +68,7 @@ export const ChangeRequestOrigin: React.FC<ChangeRequestOriginProps> = ({
         </Text>
         {createdBy && (
           <Text style={{ color: 'white', fontSize: '11px' }}>
-            <strong>Created by:</strong> {createdBy}
+            <strong>Created by:</strong> {getUserLdap(createdBy)}
           </Text>
         )}
         {createdDate && (
@@ -133,7 +134,7 @@ export const ChangeRequestOrigin: React.FC<ChangeRequestOriginProps> = ({
           <Space direction="vertical" size={2}>
             {createdBy && (
               <Text style={{ fontSize: '12px' }}>
-                <Text type="secondary">Created by:</Text> {createdBy}
+                <Text type="secondary">Created by:</Text> {getUserLdap(createdBy)}
               </Text>
             )}
             {createdDate && (
@@ -227,7 +228,7 @@ export const OriginTableCell: React.FC<OriginTableCellProps> = ({
       }}>
         <ChangeRequestOrigin 
           origin={origin}
-          createdBy={createdBy}
+          createdBy={createdBy ? getUserLdap(createdBy) : undefined}
           createdDate={createdDate}
           requestId={requestId}
           variant="compact"
@@ -263,7 +264,7 @@ export const InlineOrigin: React.FC<InlineOriginProps> = ({
     <Space size={8}>
       <ChangeRequestOrigin 
         origin={origin}
-        createdBy={createdBy}
+        createdBy={createdBy ? getUserLdap(createdBy) : undefined}
         createdDate={createdDate}
         requestId={requestId}
         variant="default"
@@ -273,7 +274,7 @@ export const InlineOrigin: React.FC<InlineOriginProps> = ({
         <Space size={4}>
           {createdBy && (
             <Text type="secondary" style={{ fontSize: '11px' }}>
-              by {createdBy}
+              by {getUserLdap(createdBy)}
             </Text>
           )}
           {createdDate && (

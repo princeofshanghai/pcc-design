@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, Typography, Space, Button, Row, Col } from 'antd';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, DollarSign, FileText, Grid2x2Check } from 'lucide-react';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from '../configuration/ChangeRequestStatus';
+import { getUserLdap } from '../../utils/users';
 
 const { Text } = Typography;
 
@@ -17,9 +18,25 @@ const getActivityDescription = (request: ConfigurationRequest): string => {
   return `Add ${request.salesChannel} + ${request.billingCycle} pricing ($${request.priceAmount})`;
 };
 
-const getActivityIcon = (request: ConfigurationRequest): string => {
-  // For now, all requests are pricing changes - future extensible for other types
-  return '💰';
+const getActivityIcon = (request: ConfigurationRequest): React.ReactElement => {
+  // Future: determine activity type based on request properties
+  // For now, all requests are pricing changes
+  // TODO: derive from request.type or request.category when those fields exist
+  
+  // Currently all requests are pricing, but future-ready for other types
+  return <DollarSign size={16} />;
+  
+  // Future implementation when request.type exists:
+  // switch (request.type) {
+  //   case 'pricing':
+  //     return <DollarSign size={16} />;
+  //   case 'metadata':
+  //     return <FileText size={16} />;
+  //   case 'features':
+  //     return <Grid2x2Check size={16} />;
+  //   default:
+  //     return <DollarSign size={16} />;
+  // }
 };
 
 export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
@@ -70,8 +87,8 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
           <Space direction="vertical" size={4}>
             {/* Main activity line */}
             <Space>
-              <span style={{ fontSize: '16px' }}>{icon}</span>
-              <Text strong style={{ fontSize: '14px' }}>
+              {icon}
+              <Text style={{ fontSize: '14px', fontWeight: 500 }}>
                 {description}
               </Text>
               <ChangeRequestStatus status={request.status} />
@@ -91,21 +108,21 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({
             
             {/* Details line */}
             <Space wrap>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
-                {request.createdBy}
+              <Text type="secondary" style={{ fontSize: '13px' }}>
+                {getUserLdap(request.createdBy)}
               </Text>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '13px' }}>
                 •
               </Text>
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: '13px' }}>
                 {formatTimeAgo(request.createdDate)}
               </Text>
               {request.generatedSkuId && (
                 <>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                  <Text type="secondary" style={{ fontSize: '13px' }}>
                     •
                   </Text>
-                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
                     Created {request.generatedPriceGroupId?.slice(0, 7)}..., {request.generatedSkuId?.slice(0, 7)}...
                   </Text>
                 </>

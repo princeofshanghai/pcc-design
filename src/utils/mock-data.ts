@@ -2,6 +2,7 @@
 // It will serve as our single source of truth for products, SKUs, etc. 
 
 import type { Product, PriceGroup, ConfigurationRequest } from './types';
+import { TEAM_MEMBERS } from './users';
 
 // Define the folder structure independently of products
 // This allows us to show empty folders in the sidebar
@@ -41,7 +42,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     billingCycle: 'Monthly',
     priceAmount: 79.99,
     status: 'In EI',
-    createdBy: 'Anand Patel (Pricing)',
+    createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
     createdDate: '2024-03-20T14:15:00Z',
   },
   {
@@ -51,7 +52,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     billingCycle: 'Annual',
     priceAmount: 1199.99,
     status: 'Failed',
-    createdBy: 'Sam Chen (Business)',
+    createdBy: TEAM_MEMBERS.TANMAY_KHEMKA.fullName,
     createdDate: '2024-03-18T16:20:00Z',
   },
   {
@@ -63,7 +64,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'quarterly_nav_test',
     lixTreatment: 'standard_price',
     status: 'Live',
-    createdBy: 'Anand Patel (Pricing)',
+    createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
     createdDate: '2024-03-12T11:10:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -76,7 +77,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     billingCycle: 'Monthly',
     priceAmount: 24.99,
     status: 'Pending Review',
-    createdBy: 'Alex Demo (PM)',
+    createdBy: TEAM_MEMBERS.ANTHONY_HOMAN.fullName,
     createdDate: '2024-03-25T10:00:00Z',
   },
   {
@@ -88,7 +89,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'mobile_annual_test',
     lixTreatment: 'discounted_price',
     status: 'In EI',
-    createdBy: 'Sarah Demo (Pricing)',
+    createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
     createdDate: '2024-03-24T15:30:00Z',
   },
   // Successful DEMO Product change requests (Live status)
@@ -101,7 +102,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'mobile_pricing_test_2024',
     lixTreatment: 'discount_treatment',
     status: 'Live',
-    createdBy: 'Sarah Demo (Pricing)',
+    createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
     createdDate: '2024-03-20T09:30:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -115,7 +116,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'premium_features_upsell',
     lixTreatment: 'enhanced_package',
     status: 'Live',
-    createdBy: 'Chris Demo (Product)',
+    createdBy: TEAM_MEMBERS.JORDAN_BADER.fullName,
     createdDate: '2024-03-18T11:45:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -129,7 +130,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'mobile_pricing_test_2024',
     lixTreatment: 'control',
     status: 'Live',
-    createdBy: 'Jordan Demo (Analytics)',
+    createdBy: TEAM_MEMBERS.JORDAN_BADER.fullName,
     createdDate: '2024-03-22T16:20:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -141,7 +142,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     billingCycle: 'Annual',
     priceAmount: 899.99,
     status: 'Live',
-    createdBy: 'Taylor Demo (Enterprise)',
+    createdBy: TEAM_MEMBERS.TANMAY_KHEMKA.fullName,
     createdDate: '2024-02-20T13:30:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -155,7 +156,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'extended_billing_cycle_test',
     lixTreatment: 'biannual_option',
     status: 'Live',
-    createdBy: 'Mike Demo (Growth)',
+    createdBy: TEAM_MEMBERS.ANTHONY_HOMAN.fullName,
     createdDate: '2024-03-25T14:15:00Z',
     generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
     generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -167,7 +168,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     billingCycle: 'Quarterly',
     priceAmount: 74.99,
     status: 'Pending Review',
-    createdBy: 'Mike Demo (Business)',
+    createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
     createdDate: '2024-03-26T08:45:00Z',
   },
   {
@@ -179,7 +180,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     lixKey: 'annual_pricing_experiment',
     lixTreatment: 'premium_price',
     status: 'Failed',
-    createdBy: 'Chris Demo (Engineering)',
+    createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
     createdDate: '2024-03-23T12:20:00Z',
   },
 ];
@@ -684,7 +685,7 @@ if (premiumCareerProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       origin: "manual",
-      createdBy: "Sarah Johnson (PM)",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
@@ -698,7 +699,7 @@ if (premiumCareerProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       origin: "manual",
-      createdBy: "Sarah Johnson (PM)",
+      createdBy: TEAM_MEMBERS.JORDAN_BADER.fullName,
       createdDate: "2024-02-15T10:00:00Z"
     },
 
@@ -730,7 +731,7 @@ if (premiumBusinessProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       origin: "manual",
-      createdBy: "Mike Chen (Pricing)",
+      createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
       createdDate: "2024-02-01T14:00:00Z"
     },
     {
@@ -754,7 +755,7 @@ if (premiumBusinessProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       origin: "configuration_request",
-      createdBy: "Anand Patel (Pricing)",
+      createdBy: TEAM_MEMBERS.TANMAY_KHEMKA.fullName,
       createdDate: "2024-03-12T11:10:00Z",
       configurationRequestId: mockConfigurationRequests[2].id,
       lix: {

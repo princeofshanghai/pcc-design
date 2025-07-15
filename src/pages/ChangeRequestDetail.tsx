@@ -15,6 +15,7 @@ import {
   ExperimentalBadge
 } from '../components';
 import { updateChangeRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
+import { getUserLdap } from '../utils/users';
 import { GitPullRequestArrow, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 const { Title, Text } = Typography;
@@ -145,6 +146,30 @@ const ChangeRequestDetail: React.FC = () => {
         onBack={() => navigate(-1)}
         tagContent={<ChangeRequestStatus status={configRequest.status} />}
         subtitle={`for ${product.name}`}
+        actions={(() => {
+          const nextOptions = getNextStatusOptions(configRequest.status);
+          
+          if (nextOptions.length === 0) {
+            return null; // No actions available for this status
+          }
+          
+          return (
+            <Space wrap>
+              {nextOptions.map((option) => (
+                <Button
+                  key={option.status}
+                  type={option.buttonType === 'danger' ? 'default' : option.buttonType}
+                  danger={option.buttonType === 'danger'}
+                  icon={getStatusIcon(option.icon)}
+                  loading={isUpdatingStatus}
+                  onClick={() => handleStatusUpdate(option.status)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </Space>
+          );
+        })()}
       />
 
       {/* Status Timeline */}
@@ -152,60 +177,7 @@ const ChangeRequestDetail: React.FC = () => {
         <ChangeRequestTimeline request={configRequest} showDetails />
       </PageSection>
 
-      {/* Status Actions */}
-      {(() => {
-        const nextOptions = getNextStatusOptions(configRequest.status);
-        
-        if (nextOptions.length === 0) {
-          return null; // No actions available for this status
-        }
-        
-        return (
-          <PageSection title="Actions">
-            <Card>
-              <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                <div>
-                  <Text strong>Available Actions:</Text>
-                  <br />
-                  <Text type="secondary">
-                    Choose an action to progress this change request through the workflow.
-                  </Text>
-                </div>
-                
-                <Space wrap>
-                  {nextOptions.map((option) => (
-                    <Button
-                      key={option.status}
-                      type={option.buttonType === 'danger' ? 'default' : option.buttonType}
-                      danger={option.buttonType === 'danger'}
-                      size="large"
-                      icon={getStatusIcon(option.icon)}
-                      loading={isUpdatingStatus}
-                      onClick={() => handleStatusUpdate(option.status)}
-                      style={{ minWidth: 180 }}
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </Space>
-                
-                <div style={{ 
-                  backgroundColor: '#fafafa', 
-                  padding: '12px', 
-                  borderRadius: '6px',
-                  border: '1px solid #f0f0f0',
-                  marginTop: '8px'
-                }}>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    <strong>Note:</strong> Status changes are permanent and will immediately affect the change request workflow. 
-                    Make sure you're ready to proceed before confirming any action.
-                  </Text>
-                </div>
-              </Space>
-            </Card>
-          </PageSection>
-        );
-      })()}
+
 
               {/* Change Request Details */}
         <PageSection title="Change Request Details">
@@ -240,7 +212,7 @@ const ChangeRequestDetail: React.FC = () => {
                 <AttributeDisplay layout="horizontal" label="Created By">
                   <Space>
                     <User size={12} />
-                    <Text>{configRequest.createdBy}</Text>
+                    <Text>{getUserLdap(configRequest.createdBy)}</Text>
                   </Space>
                 </AttributeDisplay>
                 <AttributeDisplay layout="horizontal" label="Created Date">

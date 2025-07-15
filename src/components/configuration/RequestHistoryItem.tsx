@@ -4,6 +4,7 @@ import { ExternalLink, Copy, MoreHorizontal } from 'lucide-react';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from './ChangeRequestStatus';
 import { CompactTimeline } from './ChangeRequestTimeline';
+import { getUserLdap } from '../../utils/users';
 
 const { Text, Title } = Typography;
 
@@ -178,7 +179,7 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
                   <Text type="secondary">Created:</Text> {formatDate(request.createdDate)}
                 </Text>
                 <Text style={{ fontSize: '13px' }}>
-                  <Text type="secondary">By:</Text> {request.createdBy}
+                  <Text type="secondary">By:</Text> {getUserLdap(request.createdBy)}
                 </Text>
                 <Text style={{ fontSize: '13px' }}>
                   <Text type="secondary">Product:</Text> {request.targetProductId}

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Card, Typography, Space, Tag, Divider, Row, Col, Skeleton, Alert } from 'antd';
-import { Eye, Package, DollarSign, Settings, Clock, Plus, Users, AlertTriangle } from 'lucide-react';
+import { Eye, DollarSign, Clock, Plus, Users, AlertTriangle } from 'lucide-react';
 import type { Product, ConfigurationRequest, SalesChannel, BillingCycle, ChangeRequestStatus } from '../../utils/types';
-import { generatePreviewSku, generateSkuName, generatePriceGroupName } from '../../utils/configurationUtils';
+import { generatePreviewSku, generatePriceGroupName } from '../../utils/configurationUtils';
 
 const { Title, Text } = Typography;
 
 interface ChangeRequestPreviewProps {
   product: Product;
   configurationData: {
+    priceGroupName?: string;
     salesChannel?: string;
     billingCycle?: string;
     priceAmount?: number;
@@ -23,7 +24,7 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
   configurationData,
   isRealTimeUpdate = false
 }) => {
-  const { salesChannel, billingCycle, priceAmount, lixKey, lixTreatment } = configurationData;
+  const { priceGroupName, salesChannel, billingCycle, priceAmount, lixKey, lixTreatment } = configurationData;
 
   // Generate preview SKU if we have enough data
   const previewSku = React.useMemo(() => {
@@ -34,6 +35,7 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
         salesChannel: salesChannel as SalesChannel,
         billingCycle: billingCycle as BillingCycle,
         priceAmount,
+        priceGroupName,
         lixKey,
         lixTreatment,
         status: 'Draft' as ChangeRequestStatus,
@@ -43,27 +45,17 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
       return generatePreviewSku(product, mockConfigRequest);
     }
     return null;
-  }, [product, salesChannel, billingCycle, priceAmount, lixKey, lixTreatment]);
+  }, [product, priceGroupName, salesChannel, billingCycle, priceAmount, lixKey, lixTreatment]);
 
-  // Generate preview names even with partial data
-  const previewSkuName = React.useMemo(() => {
-    if (salesChannel && billingCycle) {
-      const mockConfigRequest: ConfigurationRequest = {
-        id: 'preview',
-        targetProductId: product.id,
-        salesChannel: salesChannel as SalesChannel,
-        billingCycle: billingCycle as BillingCycle,
-        priceAmount: priceAmount || 0,
-        status: 'Draft' as ChangeRequestStatus,
-        createdBy: 'Current User',
-        createdDate: new Date().toISOString()
-      };
-      return generateSkuName(product, mockConfigRequest);
-    }
-    return null;
-  }, [product, salesChannel, billingCycle, priceAmount]);
+
 
   const previewPriceGroupName = React.useMemo(() => {
+    // Use user-provided name if available
+    if (priceGroupName && priceGroupName.trim()) {
+      return priceGroupName.trim();
+    }
+    
+    // Fall back to auto-generation if we have required fields
     if (salesChannel && billingCycle) {
       const mockConfigRequest: ConfigurationRequest = {
         id: 'preview',
@@ -78,7 +70,7 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
       return generatePriceGroupName(product, mockConfigRequest);
     }
     return null;
-  }, [product, salesChannel, billingCycle]);
+  }, [product, priceGroupName, salesChannel, billingCycle]);
 
   // Price group impact analysis
   const priceGroupAnalysis = React.useMemo(() => {
@@ -150,110 +142,44 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
-        <div>
-          <Title level={4}>
-            <Space>
-              <Eye size={20} />
-              Configuration Preview
-              {isRealTimeUpdate && completionPercentage < 100 && (
-                <Clock size={16} style={{ color: '#1890ff' }} />
-              )}
-            </Space>
-          </Title>
-          <Text type="secondary">
-            This shows what will be created when you submit this configuration
-          </Text>
-          
-          {/* Completion Progress */}
-          {completionPercentage < 100 && (
-            <div style={{ marginTop: 8 }}>
+      <div style={{ width: '100%' }}>
+        <Title level={4} style={{ marginBottom: 8 }}>
+          <Space>
+            Preview
+            {isRealTimeUpdate && completionPercentage < 100 && (
+              <Clock size={16} style={{ color: '#1890ff' }} />
+            )}
+          </Space>
+        </Title>
+        
+        {/* Completion Progress */}
+        {completionPercentage < 100 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ 
+              width: '100%', 
+              height: '4px', 
+              backgroundColor: '#f0f0f0', 
+              borderRadius: '2px',
+              overflow: 'hidden'
+            }}>
               <div style={{ 
-                width: '100%', 
-                height: '4px', 
-                backgroundColor: '#f0f0f0', 
-                borderRadius: '2px',
-                overflow: 'hidden'
-              }}>
-                <div style={{ 
-                  width: `${completionPercentage}%`, 
-                  height: '100%', 
-                  backgroundColor: '#1890ff',
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-              <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px' }}>
-                {Math.round(completionPercentage)}% complete
-              </Text>
+                width: `${completionPercentage}%`, 
+                height: '100%', 
+                backgroundColor: '#1890ff',
+                transition: 'width 0.3s ease'
+              }} />
             </div>
-          )}
-        </div>
+            <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px' }}>
+              {Math.round(completionPercentage)}% complete
+            </Text>
+          </div>
+        )}
 
-        <Divider />
+        <Divider style={{ margin: '16px 0' }} />
 
-        {/* SKU Preview */}
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Space>
-                <Package size={16} />
-                <Text strong>Generated SKU</Text>
-              </Space>
-              <Card size="small" style={{ 
-                backgroundColor: hasCompleteData ? '#f6ffed' : '#fafafa', 
-                border: hasCompleteData ? '1px solid #b7eb8f' : '1px solid #d9d9d9'
-              }}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  {/* SKU ID */}
-                  <div>
-                    <Text strong style={{ color: hasCompleteData ? '#52c41a' : '#8c8c8c' }}>
-                      {previewSku?.id || <Skeleton.Input style={{ width: 120 }} active size="small" />}
-                    </Text>
-                    {!hasCompleteData && (
-                      <Text type="secondary" style={{ fontSize: '12px', marginLeft: '8px' }}>
-                        (Generated after form completion)
-                      </Text>
-                    )}
-                  </div>
-                  
-                  {/* SKU Name */}
-                  <div>
-                    <Text type="secondary">
-                      {previewSkuName || (
-                        <Text type="secondary" style={{ fontStyle: 'italic' }}>
-                          Enter sales channel and billing cycle to see name
-                        </Text>
-                      )}
-                    </Text>
-                  </div>
-                  
-                  {/* Tags */}
-                  <Space wrap>
-                    <Tag color={salesChannel ? "blue" : "default"}>
-                      {salesChannel || "Select Channel"}
-                    </Tag>
-                    <Tag color={billingCycle ? "purple" : "default"}>
-                      {billingCycle || "Select Billing"}
-                    </Tag>
-                    <Tag color={priceAmount && priceAmount > 0 ? "green" : "default"}>
-                      {priceAmount && priceAmount > 0 ? `$${priceAmount.toFixed(2)}` : "Enter Price"}
-                    </Tag>
-                    {lixKey && <Tag color="orange">LIX: {lixKey}</Tag>}
-                  </Space>
-                  
-                  {/* Real-time update indicator */}
-                  {isRealTimeUpdate && completionPercentage < 100 && (
-                    <Alert
-                      type="info"
-                      message="Preview updates as you type"
-                      style={{ marginTop: 8 }}
-                    />
-                  )}
-                </Space>
-              </Card>
-            </Space>
-          </Col>
-        </Row>
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+
+
 
         {/* Price Group Preview with Impact Analysis */}
         <Row gutter={[16, 16]}>
@@ -367,72 +293,7 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
           </Col>
         </Row>
 
-        {/* Inherited Attributes */}
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Space>
-                <Settings size={16} />
-                <Text strong>Inherited from Product</Text>
-              </Space>
-              <Card size="small" style={{ backgroundColor: '#fafafa', border: '1px solid #d9d9d9' }}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Row gutter={[16, 8]}>
-                    <Col span={8}>
-                      <Text type="secondary">Billing Model:</Text>
-                    </Col>
-                    <Col span={16}>
-                      <Text>{product.billingModel}</Text>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 8]}>
-                    <Col span={8}>
-                      <Text type="secondary">LOB:</Text>
-                    </Col>
-                    <Col span={16}>
-                      <Text>{product.lob}</Text>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 8]}>
-                    <Col span={8}>
-                      <Text type="secondary">Folder:</Text>
-                    </Col>
-                    <Col span={16}>
-                      <Text>{product.folder}</Text>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 8]}>
-                    <Col span={8}>
-                      <Text type="secondary">Status:</Text>
-                    </Col>
-                    <Col span={16}>
-                      <Tag color={product.status === 'Active' ? 'green' : 'red'}>
-                        {product.status}
-                      </Tag>
-                    </Col>
-                  </Row>
-                  {product.features && product.features.length > 0 && (
-                    <Row gutter={[16, 8]}>
-                      <Col span={8}>
-                        <Text type="secondary">Features:</Text>
-                      </Col>
-                      <Col span={16}>
-                        <Space wrap>
-                          {product.features.slice(0, 3).map((feature, index) => (
-                            <Tag key={index}>{feature}</Tag>
-                          ))}
-                          {product.features.length > 3 && (
-                            <Tag>+{product.features.length - 3} more</Tag>
-                          )}
-                        </Space>
-                      </Col>
-                    </Row>
-                  )}
-                </Space>
-              </Card>
-            </Space>
-          </Col>
-        </Row>
+
 
         {/* Experimental Configuration Notice */}
         {(lixKey || lixTreatment) && (
@@ -460,28 +321,8 @@ export const ChangeRequestPreview: React.FC<ChangeRequestPreviewProps> = ({
           </Card>
         )}
         
-        {/* Action Summary */}
-        {hasCompleteData && (
-          <Alert
-            type="success"
-            message="Configuration Ready"
-            description={
-              <Space direction="vertical" size={4}>
-                <Text>All required fields are filled. The preview above shows exactly what will be created when you submit this configuration.</Text>
-                {priceGroupAnalysis && (
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    {priceGroupAnalysis.willCreateNewPriceGroup 
-                      ? 'A new price group will be created for this configuration.'
-                      : `This configuration will use an existing price group${priceGroupAnalysis.sharedSkuCount > 1 ? ` (shared with ${priceGroupAnalysis.sharedSkuCount - 1} other SKUs)` : ''}.`
-                    }
-                  </Text>
-                )}
-              </Space>
-            }
-            style={{ marginTop: 16 }}
-          />
-        )}
-      </Space>
+        </Space>
+      </div>
     </Card>
   );
 }; 

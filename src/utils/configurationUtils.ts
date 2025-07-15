@@ -30,6 +30,12 @@ export function generateChangeRequestId(): string {
  * Format: "PRODUCT_PREFIX_FY25_BILLING_CYCLE"
  */
 export function generatePriceGroupName(product: Product, changeRequest: ConfigurationRequest): string {
+  // If a custom price group name is provided, use that
+  if (changeRequest.priceGroupName && changeRequest.priceGroupName.trim()) {
+    return changeRequest.priceGroupName.trim();
+  }
+  
+  // Otherwise, auto-generate the name
   // Create product prefix (e.g., "Premium Career" -> "PC")
   const words = product.name.split(' ');
   const productPrefix = words.length > 1 
@@ -376,6 +382,7 @@ export function submitChangeRequest(
     salesChannel: string;
     billingCycle: string;
     priceAmount: number;
+    priceGroupName?: string;
     lixKey?: string;
     lixTreatment?: string;
   }
@@ -391,6 +398,7 @@ export function submitChangeRequest(
       salesChannel: changeRequestData.salesChannel as any,
       billingCycle: changeRequestData.billingCycle as any,
       priceAmount: changeRequestData.priceAmount,
+      priceGroupName: changeRequestData.priceGroupName,
       lixKey: changeRequestData.lixKey,
       lixTreatment: changeRequestData.lixTreatment,
       status: 'Draft' as any,

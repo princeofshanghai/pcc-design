@@ -75,6 +75,7 @@ export type ChangeRequest = {
   salesChannel: SalesChannel;
   billingCycle: BillingCycle;
   priceAmount: number;
+  priceGroupName?: string;
   lixKey?: string;
   lixTreatment?: string;
   status: ChangeRequestStatus;

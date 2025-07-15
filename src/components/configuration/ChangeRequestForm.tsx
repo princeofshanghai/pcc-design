@@ -16,6 +16,7 @@ interface ChangeRequestFormProps {
 }
 
 interface FormData {
+  priceGroupName?: string;
   salesChannel: SalesChannel;
   billingCycle: BillingCycle;
   priceAmount: number;
@@ -72,6 +73,7 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
       salesChannel: formData.salesChannel,
       billingCycle: formData.billingCycle,
       priceAmount: formData.priceAmount,
+      priceGroupName: formData.priceGroupName,
       lixKey: formData.lixKey,
       lixTreatment: formData.lixTreatment,
       status: 'Draft' as ChangeRequestStatus,
@@ -153,6 +155,7 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
         salesChannel: values.salesChannel,
         billingCycle: values.billingCycle,
         priceAmount: values.priceAmount,
+        priceGroupName: values.priceGroupName,
         lixKey: values.lixKey,
         lixTreatment: values.lixTreatment
       });
@@ -267,10 +270,7 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
   return (
     <>
       <Card>
-        <Title level={4}>Create Configuration for {product.name}</Title>
-        <Text type="secondary">
-          Configure pricing and availability for different sales channels
-        </Text>
+        <Title level={4}>Add price group for {product.name}</Title>
         
         {/* Global validation errors */}
         {validationState.errors.length > 0 && (
@@ -325,6 +325,18 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
           onFinish={handleSubmit}
           style={{ marginTop: 24 }}
         >
+          <Form.Item
+            name="priceGroupName"
+            label="Price group name (Optional)"
+            validateTrigger="onChange"
+            hasFeedback
+          >
+            <Input 
+              placeholder="Enter price group name (leave blank for auto-generation)"
+              onChange={(e) => handleFieldChange('priceGroupName', e.target.value)}
+            />
+          </Form.Item>
+
           <Form.Item
             name="salesChannel"
             label="Sales Channel"
@@ -387,7 +399,7 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
                 label: (
                   <Space>
                     <Beaker size={16} />
-                    <span>Experimental Configuration (Optional)</span>
+                    <span>LIX experiment (Optional)</span>
                   </Space>
                 ),
                 children: (
@@ -437,7 +449,7 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
                 disabled={!isFormValid}
                 icon={<Check size={16} />}
               >
-                {isSubmitting ? 'Creating Configuration...' : 'Create Configuration'}
+                {isSubmitting ? 'Processing...' : 'Continue'}
               </Button>
               <Button onClick={onCancel}>Cancel</Button>
             </Space>

@@ -558,7 +558,7 @@ const ProductDetail: React.FC = () => {
           <div>
             <div style={{ marginBottom: '16px' }}>Add price group</div>
             <Steps current={currentStep} size="small">
-              <Step title="Configure" />
+              <Step title="Details" />
               <Step title="Preview" />
             </Steps>
           </div>
@@ -615,7 +615,7 @@ const ProductDetail: React.FC = () => {
                 icon={<Check size={16} />}
                 onClick={handleConfirmConfiguration}
               >
-                                  Create Change Request
+                Submit Change Request
               </Button>
             </div>
           </div>

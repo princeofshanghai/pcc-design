@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tag, Typography, Space, Tooltip, Badge } from 'antd';
-import { Beaker, Info, ExternalLink } from 'lucide-react';
+import { FlaskConical, Info, ExternalLink } from 'lucide-react';
 
 const { Text } = Typography;
 
@@ -56,7 +56,7 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
   if (variant === 'compact') {
     const badge = (
       <Badge 
-        count={<Beaker size={10} color="white" />}
+        count={<FlaskConical size={10} color="white" />}
         style={{ 
           backgroundColor: '#fa8c16',
           border: '1px solid #fff',
@@ -103,7 +103,7 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
         
         <Space direction="vertical" style={{ width: '100%' }} size={8}>
           <Space>
-            <Beaker size={16} color="#d46b08" />
+            <FlaskConical size={16} color="#d46b08" />
             <Text strong style={{ color: '#d46b08' }}>
               Experimental Change Request
             </Text>
@@ -167,7 +167,7 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
         fontWeight: 500
       }}
     >
-      <Beaker size={12} />
+      <FlaskConical size={12} />
       <span>LIX: {lixKey}</span>
       {lixTreatment && (
         <span style={{ 

@@ -91,6 +91,75 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
     createdBy: 'Sarah Demo (Pricing)',
     createdDate: '2024-03-24T15:30:00Z',
   },
+  // Successful DEMO Product change requests (Live status)
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Mobile',
+    billingCycle: 'Monthly',
+    priceAmount: 19.99,
+    lixKey: 'mobile_pricing_test_2024',
+    lixTreatment: 'discount_treatment',
+    status: 'Live',
+    createdBy: 'Sarah Demo (Pricing)',
+    createdDate: '2024-03-20T09:30:00Z',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Field',
+    billingCycle: 'Monthly',
+    priceAmount: 89.99,
+    lixKey: 'premium_features_upsell',
+    lixTreatment: 'enhanced_package',
+    status: 'Live',
+    createdBy: 'Chris Demo (Product)',
+    createdDate: '2024-03-18T11:45:00Z',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Mobile',
+    billingCycle: 'Quarterly',
+    priceAmount: 59.99,
+    lixKey: 'mobile_pricing_test_2024',
+    lixTreatment: 'control',
+    status: 'Live',
+    createdBy: 'Jordan Demo (Analytics)',
+    createdDate: '2024-03-22T16:20:00Z',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Field',
+    billingCycle: 'Annual',
+    priceAmount: 899.99,
+    status: 'Live',
+    createdBy: 'Taylor Demo (Enterprise)',
+    createdDate: '2024-02-20T13:30:00Z',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
+  {
+    id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
+    targetProductId: '9999999', // DEMO Product
+    salesChannel: 'Desktop',
+    billingCycle: 'Annual',
+    priceAmount: 449.99,
+    lixKey: 'extended_billing_cycle_test',
+    lixTreatment: 'biannual_option',
+    status: 'Live',
+    createdBy: 'Mike Demo (Growth)',
+    createdDate: '2024-03-25T14:15:00Z',
+    generatedSkuId: '8' + Math.floor(100000 + Math.random() * 900000).toString(),
+    generatedPriceGroupId: '9' + Math.floor(100000 + Math.random() * 900000).toString(),
+  },
   {
     id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '9999999', // DEMO Product
@@ -456,11 +525,13 @@ export const mockProducts: Product[] = [
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
          configurationRequests: [
-       mockConfigurationRequests[1], // Sam's annual pricing experiment
-       mockConfigurationRequests[3], // Alex's monthly billing
-       mockConfigurationRequests[4], // Sarah's annual mobile test
-       mockConfigurationRequests[5], // Mike's quarterly billing
-       mockConfigurationRequests[6], // Chris's annual pricing experiment
+       mockConfigurationRequests[3], // Alex's monthly billing (Pending Review)
+       mockConfigurationRequests[4], // Sarah's annual mobile test (In Staging)
+       mockConfigurationRequests[5], // Sarah's mobile monthly (Live)
+       mockConfigurationRequests[6], // Chris's field monthly premium (Live)
+       mockConfigurationRequests[7], // Jordan's mobile quarterly control (Live)
+       mockConfigurationRequests[8], // Taylor's field annual enterprise (Live)
+       mockConfigurationRequests[9], // Mike's desktop annual biannual (Live)
      ],
   }
 ]; 
@@ -629,7 +700,7 @@ const demoProduct = mockProducts.find(p => p.id === '9999999');
 if (demoProduct) {
   demoProduct.skus = [
     {
-      id: "sku-demo-monthly-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "DEMO Product FY25 Desktop Monthly",
       status: "Active",
       salesChannel: "Desktop",
@@ -653,7 +724,7 @@ if (demoProduct) {
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
-      id: "sku-demo-annual-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "DEMO Product FY25 Desktop Annual",
       status: "Active",
       salesChannel: "Desktop",
@@ -677,7 +748,7 @@ if (demoProduct) {
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
-      id: "sku-demo-quarterly-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "DEMO Product FY25 Desktop Quarterly",
       status: "Active",
       salesChannel: "Desktop",
@@ -701,7 +772,7 @@ if (demoProduct) {
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
-      id: "sku-demo-mobile-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "DEMO Product FY25 Mobile Annual",
       status: "Active",
       salesChannel: "Mobile",
@@ -725,7 +796,7 @@ if (demoProduct) {
       createdDate: "2024-02-01T14:00:00Z"
     },
     {
-      id: "sku-demo-field-001",
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
       name: "DEMO Product FY25 Field Quarterly",
       status: "Active",
       salesChannel: "Field",
@@ -747,6 +818,175 @@ if (demoProduct) {
       origin: "manual",
       createdBy: "Alex Demo (PM)",
       createdDate: "2024-03-15T10:00:00Z"
+    },
+    // SKUs generated from Live change requests
+    {
+      id: mockConfigurationRequests[5].generatedSkuId!,
+      name: "DEMO Product FY25 Mobile Monthly",
+      status: "Active",
+      salesChannel: "Mobile",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: mockConfigurationRequests[5].generatedPriceGroupId!,
+        name: "PD_MOBILE_MONTHLY_EXP",
+        status: "Active",
+        startDate: "2024-03-20",
+        pricePoints: [
+          { currencyCode: "USD", amount: 19.99 },
+          { currencyCode: "EUR", amount: 16.99 },
+          { currencyCode: "GBP", amount: 14.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Sarah Demo (Pricing)",
+      createdDate: "2024-03-20T09:30:00Z",
+      configurationRequestId: mockConfigurationRequests[5].id,
+      lix: {
+        key: "mobile_pricing_test_2024",
+        treatment: "discount_treatment"
+      }
+    },
+    {
+      id: mockConfigurationRequests[9].generatedSkuId!,
+      name: "DEMO Product FY25 Desktop Annual",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: mockConfigurationRequests[9].generatedPriceGroupId!,
+        name: "PD_BIANNUAL_TEST",
+        status: "Active",
+        startDate: "2024-03-25",
+        pricePoints: [
+          { currencyCode: "USD", amount: 449.99 },
+          { currencyCode: "EUR", amount: 389.99 },
+          { currencyCode: "GBP", amount: 329.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Mike Demo (Growth)",
+      createdDate: "2024-03-25T14:15:00Z",
+      configurationRequestId: mockConfigurationRequests[9].id,
+      lix: {
+        key: "extended_billing_cycle_test",
+        treatment: "biannual_option"
+      }
+    },
+    {
+      id: mockConfigurationRequests[6].generatedSkuId!,
+      name: "DEMO Product FY25 Field Monthly",
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: mockConfigurationRequests[6].generatedPriceGroupId!,
+        name: "PD_FIELD_PREMIUM",
+        status: "Active",
+        startDate: "2024-03-18",
+        pricePoints: [
+          { currencyCode: "USD", amount: 89.99 },
+          { currencyCode: "EUR", amount: 79.99 },
+          { currencyCode: "GBP", amount: 69.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Chris Demo (Product)",
+      createdDate: "2024-03-18T11:45:00Z",
+      configurationRequestId: mockConfigurationRequests[6].id,
+      lix: {
+        key: "premium_features_upsell",
+        treatment: "enhanced_package"
+      }
+    },
+    {
+      id: mockConfigurationRequests[7].generatedSkuId!,
+      name: "DEMO Product FY25 Mobile Quarterly",
+      status: "Active",
+      salesChannel: "Mobile",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: mockConfigurationRequests[7].generatedPriceGroupId!,
+        name: "PD_MOBILE_QUARTERLY_CONTROL",
+        status: "Active",
+        startDate: "2024-03-22",
+        pricePoints: [
+          { currencyCode: "USD", amount: 59.99 },
+          { currencyCode: "EUR", amount: 49.99 },
+          { currencyCode: "GBP", amount: 42.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Jordan Demo (Analytics)",
+      createdDate: "2024-03-22T16:20:00Z",
+      configurationRequestId: mockConfigurationRequests[7].id,
+      lix: {
+        key: "mobile_pricing_test_2024",
+        treatment: "control"
+      }
+    },
+    // Additional manual SKUs without LIX
+    {
+      id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
+      name: "DEMO Product FY25 Desktop Weekly (Limited)",
+      status: "Legacy",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
+        name: "PD_WEEKLY_LIMITED",
+        status: "Active",
+        startDate: "2024-01-15",
+        endDate: "2024-03-31",
+        pricePoints: [
+          { currencyCode: "USD", amount: 6.99 },
+          { currencyCode: "EUR", amount: 5.99 },
+          { currencyCode: "GBP", amount: 4.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "Pat Demo (Marketing)",
+      createdDate: "2024-01-15T08:00:00Z"
+    },
+    // SKU from Field Annual Enterprise change request (no LIX)
+    {
+      id: mockConfigurationRequests[8].generatedSkuId!,
+      name: "DEMO Product FY25 Field Annual",
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: mockConfigurationRequests[8].generatedPriceGroupId!,
+        name: "PD_ENTERPRISE_ANNUAL",
+        status: "Active",
+        startDate: "2024-02-20",
+        pricePoints: [
+          { currencyCode: "USD", amount: 899.99 },
+          { currencyCode: "EUR", amount: 799.99 },
+          { currencyCode: "GBP", amount: 699.99 }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "configuration_request",
+      createdBy: "Taylor Demo (Enterprise)",
+      createdDate: "2024-02-20T13:30:00Z",
+      configurationRequestId: mockConfigurationRequests[8].id
     },
 
   ];

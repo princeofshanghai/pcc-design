@@ -4,6 +4,7 @@ import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps, Row, Col } f
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
+import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
 import type { SalesChannel, Status, ConfigurationRequest } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
@@ -63,7 +64,7 @@ const ProductDetail: React.FC = () => {
   const searchParams = new URLSearchParams(location.search);
   const priceGroupFilter = searchParams.get('priceGroupFilter');
 
-  // New hook for SKU filtering
+  // SKU filtering hook
   const {
     setSearchQuery,
     channelFilter, setChannelFilter, channelOptions,
@@ -77,6 +78,27 @@ const ProductDetail: React.FC = () => {
     groupedSkus,
     skuCount,
   } = useSkuFilters(product?.skus || [], product);
+
+  // Price Group filtering hook
+  const {
+    setSearchQuery: setPriceGroupSearchQuery,
+    channelFilter: priceGroupChannelFilter, 
+    setChannelFilter: setPriceGroupChannelFilter,
+    billingCycleFilter: priceGroupBillingCycleFilter, 
+    setBillingCycleFilter: setPriceGroupBillingCycleFilter,
+    groupBy: priceGroupGroupBy, 
+    setGroupBy: setPriceGroupGroupBy,
+    filteredPriceGroups,
+    groupedPriceGroups,
+    channelOptions: priceGroupChannelOptions,
+    billingCycleOptions: priceGroupBillingCycleOptions,
+  } = usePriceGroupFilters(product?.skus || []);
+
+  const clearAllPriceGroupFilters = () => {
+    setPriceGroupSearchQuery('');
+    setPriceGroupChannelFilter(null);
+    setPriceGroupBillingCycleFilter(null);
+  };
 
   const clearAllSkuFilters = () => {
     setChannelFilter(null);
@@ -250,26 +272,39 @@ const ProductDetail: React.FC = () => {
             <FilterBar
               search={{
                 placeholder: "Search by ID or Name...",
-                onChange: () => {}, // TODO: Add price group filtering
+                onChange: setPriceGroupSearchQuery,
               }}
               filters={[
-                // TODO: Add price group filters
-              ]}
-              viewOptions={{
-                sortOrder: {
-                  value: 'None',
-                  setter: () => {},
-                  options: ['None'],
+                {
+                  placeholder: "All Channels",
+                  options: priceGroupChannelOptions,
+                  value: priceGroupChannelFilter,
+                  onChange: setPriceGroupChannelFilter,
                 },
+                {
+                  placeholder: "All Billing Cycles",
+                  options: priceGroupBillingCycleOptions,
+                  value: priceGroupBillingCycleFilter,
+                  onChange: setPriceGroupBillingCycleFilter,
+                },
+              ]}
+              onClearAll={clearAllPriceGroupFilters}
+              viewOptions={{
                 groupBy: {
-                  value: 'None',
-                  setter: () => {},
-                  options: ['None'],
+                  value: priceGroupGroupBy,
+                  setter: setPriceGroupGroupBy,
+                  options: ['None', 'Channel', 'Billing Cycle'],
                 },
               }}
-              displayMode="drawer"
+              displayMode="inline"
+              filterSize="large"
             />
-            <PriceGroupTable skus={product.skus} productId={product.id} />
+            <PriceGroupTable 
+              priceGroups={filteredPriceGroups} 
+              groupedPriceGroups={groupedPriceGroups}
+              groupBy={priceGroupGroupBy}
+              productId={product.id} 
+            />
           </PageSection>
           
           {/* Pending Change Requests Section */}

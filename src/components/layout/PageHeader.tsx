@@ -6,6 +6,7 @@ const { Title, Text } = Typography;
 
 interface PageHeaderProps {
   icon?: React.ReactNode;
+  iconSize?: number;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   tagContent?: React.ReactNode;
@@ -13,7 +14,7 @@ interface PageHeaderProps {
   actions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, tagContent, onBack, actions }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ icon, iconSize = 14, title, subtitle, tagContent, onBack, actions }) => {
   const { token } = theme.useToken();
 
   return (
@@ -36,8 +37,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, tagConte
         <Space direction="vertical" size={2}>
           <Space align="center" size="middle">
             {icon && (
-              <div style={{ color: token.colorTextSecondary }}>
-                {icon}
+              <div style={{ 
+                color: token.colorTextSecondary,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                {React.cloneElement(icon as React.ReactElement, { size: iconSize } as any)}
               </div>
             )}
             <Title level={1} style={{ margin: 0, fontWeight: 500 }}>

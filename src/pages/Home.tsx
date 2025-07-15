@@ -112,7 +112,8 @@ const Home: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <PageHeader
-            icon={currentFolder ? <Folder size={14} /> : undefined}
+            icon={currentFolder ? <Folder /> : undefined}
+            iconSize={24}
             title={pageTitle}
             subtitle={pageSubtitle}
           />

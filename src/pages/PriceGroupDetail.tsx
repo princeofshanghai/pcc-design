@@ -85,9 +85,10 @@ const PriceGroupDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        icon={<DollarSign size={14} />}
+        icon={<DollarSign />}
+        iconSize={24}
         title={priceGroupId!}
-        onBack={() => navigate(`/product/${product.id}`)}
+        onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
         subtitle={formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
       />

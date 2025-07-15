@@ -139,9 +139,10 @@ const ChangeRequestDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
-        icon={<GitPullRequestArrow size={14} />}
+        icon={<GitPullRequestArrow />}
+        iconSize={24}
         title={configRequest.id}
-        onBack={() => navigate('/change-requests')}
+        onBack={() => navigate(-1)}
         tagContent={<ChangeRequestStatus status={configRequest.status} />}
         subtitle={`for ${product.name}`}
       />

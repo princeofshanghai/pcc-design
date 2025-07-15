@@ -107,16 +107,7 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = (props) => {
               <Text type="secondary" style={{ fontSize: '13px' }}>
                 {formatTimeAgo(request.createdDate)}
               </Text>
-              {request.generatedSkuId && (
-                <>
-                  <Text type="secondary" style={{ fontSize: '13px' }}>
-                    •
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Created {request.generatedPriceGroupId?.slice(0, 7)}..., {request.generatedSkuId?.slice(0, 7)}...
-                  </Text>
-                </>
-              )}
+
             </Space>
           </Space>
         </Col>

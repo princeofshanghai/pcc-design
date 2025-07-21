@@ -3,7 +3,7 @@ import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { Folder } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
-import type { Status } from '../utils/types';
+import type { Status, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
 import {
   PageHeader,
@@ -53,6 +53,33 @@ const Home: React.FC = () => {
   // Convert URL folder name to actual folder name for filtering
   const currentFolder = folderName ? urlToFolderName(folderName) : null;
 
+  // Column visibility state for ProductListTable
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
+    name: true,     // Always visible (required)
+    lob: true,      // Toggleable
+    folder: true,   // Toggleable
+    skus: true,     // Toggleable
+    status: true,   // Toggleable
+  });
+
+  // Column order state for ProductListTable
+  const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
+    'name',
+    'lob',
+    'folder',
+    'skus',
+    'status'
+  ]);
+
+  // Column configuration for ProductListTable
+  const columnOptions: ColumnConfig[] = [
+    { key: 'name', label: 'Name', required: true },
+    { key: 'lob', label: 'LOB', required: false },
+    { key: 'folder', label: 'Folder', required: false },
+    { key: 'skus', label: 'SKUs', required: false },
+    { key: 'status', label: 'Status', required: false },
+  ];
+
   const {
     setSearchQuery,
     statusFilter,
@@ -100,6 +127,15 @@ const Home: React.FC = () => {
     if (!currentFolder) {
       setFolderFilter(null);
     }
+    // Reset columns to show all toggleable columns
+    const resetColumns: ColumnVisibility = {};
+    columnOptions.forEach(col => {
+      resetColumns[col.key] = true;
+    });
+    setVisibleColumns(resetColumns);
+    // Reset column order to original order
+    const originalOrder = columnOptions.map(col => col.key);
+    setColumnOrder(originalOrder);
   };
 
   // Generate page title and subtitle based on current context
@@ -158,6 +194,11 @@ const Home: React.FC = () => {
                 value: viewMode,
                 setter: setViewMode,
               },
+              columnOptions,
+              visibleColumns,
+              setVisibleColumns,
+              columnOrder,
+              setColumnOrder,
             }}
           />
         </Space>
@@ -167,9 +208,19 @@ const Home: React.FC = () => {
       <div>
         {viewMode === 'list' ? (
           groupedProducts ? (
-            <GroupedProductListTable groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
+            <GroupedProductListTable 
+              groupedProducts={groupedProducts} 
+              hideRedundantColumns={!!currentFolder}
+              visibleColumns={visibleColumns}
+              columnOrder={columnOrder}
+            />
           ) : (
-            <ProductListTable products={sortedProducts} hideRedundantColumns={!!currentFolder} />
+            <ProductListTable 
+              products={sortedProducts} 
+              hideRedundantColumns={!!currentFolder}
+              visibleColumns={visibleColumns}
+              columnOrder={columnOrder}
+            />
           )
         ) : groupedProducts ? (
           <GroupedProductList groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />

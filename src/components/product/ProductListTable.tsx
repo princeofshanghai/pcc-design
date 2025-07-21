@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Product } from '../../utils/types';
+import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,11 +11,19 @@ const { Text } = Typography;
 interface ProductListTableProps {
   products: Product[];
   hideRedundantColumns?: boolean;
+  visibleColumns?: ColumnVisibility;
+  columnOrder?: ColumnOrder;
 }
 
-export const getProductListTableColumns = (_navigate: (path: string) => void, hideRedundantColumns?: boolean): ColumnsType<Product> => {
-  const allColumns = [
-    {
+export const getProductListTableColumns = (
+  _navigate: (path: string) => void, 
+  hideRedundantColumns?: boolean,
+  visibleColumns: ColumnVisibility = {},
+  columnOrder: ColumnOrder = ['name', 'lob', 'folder', 'skus', 'status']
+): ColumnsType<Product> => {
+  // Define all possible columns
+  const allColumnsMap: Record<string, any> = {
+    name: {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
@@ -32,43 +40,46 @@ export const getProductListTableColumns = (_navigate: (path: string) => void, hi
       ),
       className: 'table-col-first',
     },
-    {
+    lob: (visibleColumns.lob !== false && !hideRedundantColumns) ? {
       title: 'LOB',
       dataIndex: 'lob',
       key: 'lob',
       render: (lob: Product['lob']) => <span>{lob}</span>,
-    },
-    {
+    } : null,
+    folder: (visibleColumns.folder !== false && !hideRedundantColumns) ? {
       title: 'Folder',
       dataIndex: 'folder',
       key: 'folder',
       render: (folder: string) => <span>{folder}</span>,
-    },
-    {
+    } : null,
+    skus: visibleColumns.skus !== false ? {
       title: 'SKUs',
       dataIndex: 'skus',
       key: 'skus',
       render: (skus: any[]) => skus.length,
-    },
-    {
+    } : null,
+    status: visibleColumns.status !== false ? {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status: Product['status']) => <StatusTag status={status} />,
-    },
-  ];
+    } : null,
+  };
 
-  // Filter out LOB and Folder columns when on folder pages
-  if (hideRedundantColumns) {
-    return allColumns.filter(col => col.key !== 'lob' && col.key !== 'folder');
-  }
-
-  return allColumns;
+  // Build columns in the specified order, filtering out hidden/null columns
+  return columnOrder
+    .map(key => allColumnsMap[key])
+    .filter(Boolean);
 };
 
-const ProductListTable: React.FC<ProductListTableProps> = ({ products, hideRedundantColumns }) => {
+const ProductListTable: React.FC<ProductListTableProps> = ({ 
+  products, 
+  hideRedundantColumns,
+  visibleColumns = {},
+  columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
+}) => {
   const navigate = useNavigate();
-  const columns = getProductListTableColumns(navigate, hideRedundantColumns);
+  const columns = getProductListTableColumns(navigate, hideRedundantColumns, visibleColumns, columnOrder);
 
   return (
     <div className="content-panel">

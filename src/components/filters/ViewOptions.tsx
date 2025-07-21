@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, Button, Dropdown, theme, Segmented, Menu, Checkbox } from 'antd';
+import { Badge, Button, Dropdown, theme, Menu, Checkbox } from 'antd';
 import { Settings2, Check, List, LayoutGrid, GripVertical } from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { toSentenceCase } from '../../utils/formatters';
@@ -350,32 +350,100 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           borderTopRightRadius: token.borderRadiusLG
         }}>
           <div style={{ 
-            marginBottom: 8, 
-            fontSize: '14px', 
-            fontWeight: 400, 
-            color: token.colorTextTertiary,
-            lineHeight: token.lineHeightSM
+            display: 'flex',
+            gap: '8px',
+            width: '100%'
           }}>
-            {toSentenceCase('View mode')}
+            {/* List Option */}
+            <div
+              onClick={() => setViewMode('list')}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px 12px',
+                borderRadius: token.borderRadius,
+                border: `1px solid ${token.colorBorder}`,
+                backgroundColor: viewMode === 'list' ? token.colorPrimaryBg : token.colorBgContainer,
+                borderColor: viewMode === 'list' ? token.colorPrimary : token.colorBorder,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                minHeight: '64px'
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'list') {
+                  e.currentTarget.style.backgroundColor = token.colorFillTertiary;
+                  e.currentTarget.style.borderColor = token.colorPrimaryHover;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'list') {
+                  e.currentTarget.style.backgroundColor = token.colorBgContainer;
+                  e.currentTarget.style.borderColor = token.colorBorder;
+                }
+              }}
+            >
+              <List 
+                size={20} 
+                color={viewMode === 'list' ? token.colorPrimary : token.colorText} 
+                style={{ marginBottom: '4px' }}
+              />
+              <span style={{ 
+                fontSize: '13px',
+                color: viewMode === 'list' ? token.colorPrimary : token.colorText,
+                fontWeight: viewMode === 'list' ? 500 : 400
+              }}>
+                List
+              </span>
+            </div>
+
+            {/* Card Option */}
+            <div
+              onClick={() => setViewMode('card')}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px 12px',
+                borderRadius: token.borderRadius,
+                border: `1px solid ${token.colorBorder}`,
+                backgroundColor: viewMode === 'card' ? token.colorPrimaryBg : token.colorBgContainer,
+                borderColor: viewMode === 'card' ? token.colorPrimary : token.colorBorder,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                minHeight: '64px'
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'card') {
+                  e.currentTarget.style.backgroundColor = token.colorFillTertiary;
+                  e.currentTarget.style.borderColor = token.colorPrimaryHover;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'card') {
+                  e.currentTarget.style.backgroundColor = token.colorBgContainer;
+                  e.currentTarget.style.borderColor = token.colorBorder;
+                }
+              }}
+            >
+              <LayoutGrid 
+                size={20} 
+                color={viewMode === 'card' ? token.colorPrimary : token.colorText}
+                style={{ marginBottom: '4px' }}
+              />
+                             <span style={{ 
+                 fontSize: '13px',
+                 color: viewMode === 'card' ? token.colorPrimary : token.colorText,
+                 fontWeight: viewMode === 'card' ? 500 : 400
+               }}>
+                 Card
+               </span>
+            </div>
           </div>
-          <Segmented
-            options={[
-              { 
-                value: 'list', 
-                icon: <List size={16} />, 
-                label: 'List' 
-              },
-              { 
-                value: 'card', 
-                icon: <LayoutGrid size={16} />, 
-                label: 'Card' 
-              },
-            ]}
-            value={viewMode}
-            onChange={(value) => setViewMode(value as ViewMode)}
-            size="middle"
-            style={{ width: '100%' }}
-          />
         </div>
       )}
 

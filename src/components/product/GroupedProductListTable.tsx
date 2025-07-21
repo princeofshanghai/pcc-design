@@ -22,7 +22,6 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
 }) => {
   const navigate = useNavigate();
-  const { token } = theme.useToken();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
 
   const dataSource: TableRow[] = [];

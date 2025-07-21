@@ -8,14 +8,12 @@ interface GroupHeaderProps {
   title: string;
   count: number;
   contextType: 'products' | 'skus' | 'price groups' | 'currencies' | 'price points';
-  groupBy?: string; // Optional: for conditional title formatting
 }
 
 const GroupHeader: React.FC<GroupHeaderProps> = ({ 
   title, 
   count, 
-  contextType,
-  groupBy 
+  contextType 
 }) => {
   const { token } = theme.useToken();
 

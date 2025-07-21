@@ -38,7 +38,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'effectiveDate'],
 }) => {
   const navigate = useNavigate();
-  const { token } = theme.useToken();
 
   // Define all possible columns
   const allColumnsMap: Record<string, any> = {
@@ -250,7 +249,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
                         title={title}
                         count={count}
                         contextType="price groups"
-                        groupBy={groupBy}
                       />
                     </td>
                   </tr>

@@ -5,7 +5,7 @@ import { zIndex } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions, { type ViewMode } from './ViewOptions';
-import type { ColumnConfig, ColumnVisibility } from '../../utils/types';
+import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
 import './DrawerTitle.css';
 
@@ -47,6 +47,9 @@ interface FilterBarProps {
     columnOptions?: ColumnConfig[];
     visibleColumns?: ColumnVisibility;
     setVisibleColumns?: (columns: ColumnVisibility) => void;
+    // Column ordering options
+    columnOrder?: ColumnOrder;
+    setColumnOrder?: (order: ColumnOrder) => void;
   };
   // New prop to control how filters are displayed
   displayMode?: 'inline' | 'drawer';
@@ -168,6 +171,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 columnOptions={viewOptions?.columnOptions}
                 visibleColumns={viewOptions?.visibleColumns}
                 setVisibleColumns={viewOptions?.setVisibleColumns}
+                columnOrder={viewOptions?.columnOrder}
+                setColumnOrder={viewOptions?.setColumnOrder}
                 
                 size={searchAndViewSize}
               />

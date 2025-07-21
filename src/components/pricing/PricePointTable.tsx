@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Table, Space, Typography, theme } from 'antd';
 import type { PricePoint } from '../../utils/types';
-import type { ColumnVisibility } from '../../utils/types';
+import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import type { ColumnsType } from 'antd/es/table';
@@ -12,6 +12,7 @@ interface PricePointTableProps {
   pricePoints: PricePoint[];
   groupedPricePoints?: Record<string, PricePoint[]> | null;
   visibleColumns?: ColumnVisibility;
+  columnOrder?: ColumnOrder;
 }
 
 type TableRow = PricePoint | {
@@ -131,6 +132,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
+  columnOrder = ['currency', 'amount', 'usdEquivalent'],
 }) => {
   const { token } = theme.useToken();
 
@@ -145,12 +147,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   // Check if USD Equivalent column should be visible
   const showUsdEquivalent = visibleColumns.usdEquivalent !== false && usdPricePoint;
 
-  // Table columns
-  const columns: ColumnsType<any> = [
-    {
+  // Define all possible columns
+  const allColumns: Record<string, any> = {
+    currency: {
       title: toSentenceCase('Currency'),
       dataIndex: 'currencyCode',
-      key: 'currencyCode',
+      key: 'currency',
       width: 160,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -162,7 +164,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
       className: 'table-col-first',
     },
-    {
+    amount: {
       title: toSentenceCase('Amount'),
       dataIndex: 'amount',
       key: 'amount',
@@ -171,8 +173,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return formatAmount(record);
       },
     },
-    // Only show USD Equivalent column if both USD price point exists AND column is visible
-    ...(showUsdEquivalent ? [{
+    usdEquivalent: showUsdEquivalent ? {
       title: 'USD Equivalent',
       key: 'usdEquivalent',
       width: 140,
@@ -185,8 +186,13 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           </Text>
         );
       },
-    }] : []),
-  ];
+    } : null,
+  };
+
+  // Build columns in the specified order, filtering out hidden/null columns
+  const columns: ColumnsType<any> = columnOrder
+    .map(key => allColumns[key])
+    .filter(Boolean);
 
   // Prepare data source
   const dataSource: TableRow[] = useMemo(() => {

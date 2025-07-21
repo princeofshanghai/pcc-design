@@ -58,9 +58,12 @@ export type ColumnConfig = {
   key: string;           // Unique identifier for the column
   label: string;         // Display name in the Show Columns section
   required: boolean;     // Whether this column can be hidden (false = toggleable)
+  order?: number;        // Optional: display order for the column
 };
 
 export type ColumnVisibility = Record<string, boolean>; // key -> visible state
+
+export type ColumnOrder = string[]; // Array of column keys in display order
 
 export type PricePoint = {
   id?: string; // Optional for now during migration

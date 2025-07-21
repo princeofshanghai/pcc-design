@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility } from '../utils/types';
+import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
@@ -104,6 +104,17 @@ const ProductDetail: React.FC = () => {
     sku: true,            // Toggleable
     effectiveDate: true,  // Toggleable
   });
+
+  // Column order state for PriceGroupTable
+  const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>([
+    'name',
+    'channel',
+    'billingCycle', 
+    'usdPrice',
+    'currencies',
+    'sku',
+    'effectiveDate'
+  ]);
 
   // Column configuration for PriceGroupTable
   const priceGroupColumnOptions: ColumnConfig[] = [
@@ -318,6 +329,8 @@ const ProductDetail: React.FC = () => {
                 columnOptions: priceGroupColumnOptions,
                 visibleColumns: priceGroupVisibleColumns,
                 setVisibleColumns: setPriceGroupVisibleColumns,
+                columnOrder: priceGroupColumnOrder,
+                setColumnOrder: setPriceGroupColumnOrder,
               }}
               displayMode="drawer"
               filterSize="middle"
@@ -329,6 +342,7 @@ const ProductDetail: React.FC = () => {
               groupBy={priceGroupGroupBy}
               productId={product.id}
               visibleColumns={priceGroupVisibleColumns}
+              columnOrder={priceGroupColumnOrder}
             />
           </PageSection>
         </Space>

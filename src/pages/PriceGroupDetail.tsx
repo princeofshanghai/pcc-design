@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
-import type { ColumnConfig, ColumnVisibility } from '../utils/types';
+import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import {
   PageHeader,
   StatusTag,
@@ -42,6 +42,13 @@ const PriceGroupDetail: React.FC = () => {
     amount: true,      // Always visible (required)
     usdEquivalent: true, // Toggleable
   });
+
+  // Column order state for PricePointTable
+  const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
+    'currency',
+    'amount', 
+    'usdEquivalent'
+  ]);
 
   // Column configuration for PricePointTable
   const columnOptions: ColumnConfig[] = [
@@ -199,6 +206,8 @@ const PriceGroupDetail: React.FC = () => {
             columnOptions,
             visibleColumns,
             setVisibleColumns,
+            columnOrder,
+            setColumnOrder,
           }}
           displayMode="drawer"
           filterSize="middle"
@@ -208,6 +217,7 @@ const PriceGroupDetail: React.FC = () => {
           pricePoints={filteredPricePoints} 
           groupedPricePoints={groupedPricePointsData}
           visibleColumns={visibleColumns}
+          columnOrder={columnOrder}
         />
       </PageSection>
     </Space>

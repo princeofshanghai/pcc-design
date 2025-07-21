@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ConfigurationRequest } from '../utils/types';
+import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
@@ -93,6 +93,28 @@ const ProductDetail: React.FC = () => {
     channelOptions: priceGroupChannelOptions,
     billingCycleOptions: priceGroupBillingCycleOptions,
   } = usePriceGroupFilters(product?.skus || []);
+
+  // Column visibility state for PriceGroupTable
+  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>({
+    name: true,           // Always visible (required)
+    channel: true,        // Toggleable
+    billingCycle: true,   // Toggleable
+    usdPrice: true,       // Toggleable
+    currencies: true,     // Toggleable
+    sku: true,            // Toggleable
+    effectiveDate: true,  // Toggleable
+  });
+
+  // Column configuration for PriceGroupTable
+  const priceGroupColumnOptions: ColumnConfig[] = [
+    { key: 'name', label: 'Name', required: true },
+    { key: 'channel', label: 'Channel', required: false },
+    { key: 'billingCycle', label: 'Billing Cycle', required: false },
+    { key: 'usdPrice', label: 'USD Price', required: false },
+    { key: 'currencies', label: 'Currencies', required: false },
+    { key: 'sku', label: 'SKU', required: false },
+    { key: 'effectiveDate', label: 'Effective Date', required: false },
+  ];
 
   const clearAllPriceGroupFilters = () => {
     setPriceGroupSearchQuery('');
@@ -293,6 +315,9 @@ const ProductDetail: React.FC = () => {
                   setter: setPriceGroupGroupBy,
                   options: ['None', 'Channel', 'Billing Cycle'],
                 },
+                columnOptions: priceGroupColumnOptions,
+                visibleColumns: priceGroupVisibleColumns,
+                setVisibleColumns: setPriceGroupVisibleColumns,
               }}
               displayMode="drawer"
               filterSize="middle"
@@ -302,7 +327,8 @@ const ProductDetail: React.FC = () => {
               priceGroups={filteredPriceGroups} 
               groupedPriceGroups={groupedPriceGroups}
               groupBy={priceGroupGroupBy}
-              productId={product.id} 
+              productId={product.id}
+              visibleColumns={priceGroupVisibleColumns}
             />
           </PageSection>
         </Space>

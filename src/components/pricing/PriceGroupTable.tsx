@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Table, Space, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { PriceGroup, Sku } from '../../utils/types';
+import type { PriceGroup, Sku, ColumnVisibility } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import CopyableId from '../shared/CopyableId';
@@ -15,6 +15,7 @@ interface PriceGroupTableProps {
   groupedPriceGroups?: Record<string, Array<{ priceGroup: PriceGroup; skus: Sku[] }>> | null;
   groupBy?: string;
   productId: string;
+  visibleColumns?: ColumnVisibility;
 }
 
 type TableRow = {
@@ -31,13 +32,14 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   priceGroups, 
   groupedPriceGroups, 
   groupBy,
-  productId 
+  productId,
+  visibleColumns = {},
 }) => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
 
-  // Table columns
-  const columns: ColumnsType<any> = [
+  // Table columns - Name is always required, others are toggleable
+  const allColumns: ColumnsType<any> = [
     {
       title: toSentenceCase('Name'),
       dataIndex: 'name',
@@ -109,7 +111,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
       className: 'table-col-first',
     },
-    {
+    // Only include these columns if they are visible
+    ...(visibleColumns.channel !== false ? [{
       title: toSentenceCase('Channel'),
       dataIndex: 'channel',
       key: 'channel',
@@ -117,8 +120,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return record.skus[0].salesChannel;
       },
-    },
-    {
+    }] : []),
+    ...(visibleColumns.billingCycle !== false ? [{
       title: toSentenceCase('Billing Cycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
@@ -126,8 +129,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return record.skus[0].billingCycle;
       },
-    },
-    {
+    }] : []),
+    ...(visibleColumns.usdPrice !== false ? [{
       title: toSentenceCase('USD Price'),
       dataIndex: 'usdPrice',
       key: 'usdPrice',
@@ -136,8 +139,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
         return usd ? formatCurrency(usd) : 'N/A';
       },
-    },
-    {
+    }] : []),
+    ...(visibleColumns.currencies !== false ? [{
       title: toSentenceCase('Currencies'),
       dataIndex: 'currencies',
       key: 'currencies',
@@ -145,8 +148,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return record.priceGroup.pricePoints.length;
       },
-    },
-    {
+    }] : []),
+    ...(visibleColumns.sku !== false ? [{
       title: toSentenceCase('SKU'),
       dataIndex: 'sku',
       key: 'sku',
@@ -170,8 +173,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         return record.skus.length;
       },
-    },
-    {
+    }] : []),
+    ...(visibleColumns.effectiveDate !== false ? [{
       title: toSentenceCase('Effective Date'),
       dataIndex: 'effectiveDate',
       key: 'effectiveDate',
@@ -179,8 +182,10 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return formatEffectiveDateRange(record.priceGroup.startDate, record.priceGroup.endDate);
       },
-    },
+    }] : []),
   ];
+
+  const columns = allColumns;
 
   // Prepare data source
   const dataSource: TableRow[] = useMemo(() => {

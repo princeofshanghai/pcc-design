@@ -63,6 +63,7 @@ export type ColumnConfig = {
 export type ColumnVisibility = Record<string, boolean>; // key -> visible state
 
 export type PricePoint = {
+  id?: string; // Optional for now during migration
   currencyCode: string;
   amount: number;
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)

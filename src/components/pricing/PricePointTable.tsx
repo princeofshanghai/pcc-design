@@ -59,19 +59,59 @@ const calculateUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoin
     return null;
   }
 
-  // If no exchange rate is available, we can't calculate the equivalent
-  if (!pricePoint.exchangeRate) {
-    return null;
+  // If exchange rate is available, use it for precise calculation
+  if (pricePoint.exchangeRate) {
+    // Convert the current price point to USD using exchange rate
+    // exchangeRate represents how many units of the currency = 1 USD
+    const usdAmount = pricePoint.amount / pricePoint.exchangeRate;
+    
+    // Calculate percentage compared to USD price point
+    const percentage = (usdAmount / usdPricePoint.amount) * 100;
+    
+    return percentage;
   }
 
-  // Convert the current price point to USD using exchange rate
-  // exchangeRate represents how many units of the currency = 1 USD
-  const usdAmount = pricePoint.amount / pricePoint.exchangeRate;
-  
-  // Calculate percentage compared to USD price point
-  const percentage = (usdAmount / usdPricePoint.amount) * 100;
-  
-  return percentage;
+  // Fallback: If no exchange rate available, use approximate rates for common currencies
+  const approximateRates: Record<string, number> = {
+    'EUR': 0.85,
+    'GBP': 0.75,
+    'CAD': 1.35,
+    'AUD': 1.45,
+    'CHF': 0.90,
+    'JPY': 110.0,
+    'DKK': 6.85,
+    'NOK': 9.90,
+    'SEK': 12.60,
+    'HKD': 7.85,
+    'SGD': 1.35,
+    'BRL': 1.85,
+    'NZD': 1.60,
+    'INR': 83.0,
+    'ZAR': 18.5,
+    'AED': 3.67,
+    'PLN': 4.15,
+    'SAR': 3.75,
+    'MXN': 17.5,
+    'EGP': 31.0,
+    'TRY': 31.5,
+    // Add more common currencies as needed
+    'KRW': 1300.0,
+    'VND': 24000.0,
+    'THB': 35.0,
+    'MYR': 4.6,
+    'PHP': 56.0,
+  };
+
+  const approxRate = approximateRates[pricePoint.currencyCode];
+  if (approxRate) {
+    // Use approximate rate for calculation
+    const usdAmount = pricePoint.amount / approxRate;
+    const percentage = (usdAmount / usdPricePoint.amount) * 100;
+    return percentage;
+  }
+
+  // If no exchange rate or approximate rate available, we can't calculate
+  return null;
 };
 
 /**

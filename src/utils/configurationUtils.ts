@@ -10,11 +10,19 @@ export function generateSkuId(_product: Product, _changeRequest: ConfigurationRe
 }
 
 /**
- * Generates a unique price group ID based on existing app patterns
- * Format: "9" + 6-digit random number (matches existing price group pattern)
+ * Generates a unique price group ID based on new pattern
+ * Format: 6-digit number starting with 1 (e.g., "123456")
  */
 export function generatePriceGroupId(_changeRequest: ConfigurationRequest): string {
-  return "9" + Math.floor(100000 + Math.random() * 900000).toString();
+  return "1" + Math.floor(10000 + Math.random() * 90000).toString();
+}
+
+/**
+ * Generates a unique price point ID based on new pattern
+ * Format: 7-digit number starting with 6 (e.g., "6123456")
+ */
+export function generatePricePointId(): string {
+  return "6" + Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 /**
@@ -71,8 +79,10 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
     startDate: new Date().toISOString().split('T')[0], // Today's date
     pricePoints: [
       {
+        id: generatePricePointId(),
         currencyCode: 'USD',
-        amount: changeRequest.priceAmount
+        amount: changeRequest.priceAmount,
+        exchangeRate: 1.0 // USD always has exchange rate of 1.0
       }
     ]
   };

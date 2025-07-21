@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
+import type { ColumnConfig, ColumnVisibility } from '../utils/types';
 import {
   PageHeader,
   StatusTag,
@@ -34,6 +35,20 @@ const PriceGroupDetail: React.FC = () => {
   
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
+
+  // Column visibility state for PricePointTable
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
+    currency: true,    // Always visible (required)
+    amount: true,      // Always visible (required)
+    usdEquivalent: true, // Toggleable
+  });
+
+  // Column configuration for PricePointTable
+  const columnOptions: ColumnConfig[] = [
+    { key: 'currency', label: 'Currency', required: true },
+    { key: 'amount', label: 'Amount', required: true },
+    { key: 'usdEquivalent', label: 'USD Equivalent', required: false },
+  ];
 
   useEffect(() => {
     // Set wider max-width for detail pages to accommodate data tables
@@ -181,6 +196,9 @@ const PriceGroupDetail: React.FC = () => {
               setter: setPricePointGroupBy,
               options: ['None', 'Core / Long Tail'],
             },
+            columnOptions,
+            visibleColumns,
+            setVisibleColumns,
           }}
           displayMode="drawer"
           filterSize="middle"
@@ -189,6 +207,7 @@ const PriceGroupDetail: React.FC = () => {
         <PricePointTable 
           pricePoints={filteredPricePoints} 
           groupedPricePoints={groupedPricePointsData}
+          visibleColumns={visibleColumns}
         />
       </PageSection>
     </Space>

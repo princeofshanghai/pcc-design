@@ -53,6 +53,15 @@ export type ContractTypeTag = {
 export type Tag = SalesFunnelTag | CustomerTypeTag | ContractTypeTag;
 // --- End Smart Tag Definitions ---
 
+// Column configuration for table visibility controls
+export type ColumnConfig = {
+  key: string;           // Unique identifier for the column
+  label: string;         // Display name in the Show Columns section
+  required: boolean;     // Whether this column can be hidden (false = toggleable)
+};
+
+export type ColumnVisibility = Record<string, boolean>; // key -> visible state
+
 export type PricePoint = {
   currencyCode: string;
   amount: number;

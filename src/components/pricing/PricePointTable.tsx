@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Table, Space, Typography, theme } from 'antd';
 import type { PricePoint } from '../../utils/types';
+import type { ColumnVisibility } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters';
 import CountTag from '../attributes/CountTag';
 import type { ColumnsType } from 'antd/es/table';
@@ -10,6 +11,7 @@ const { Text } = Typography;
 interface PricePointTableProps {
   pricePoints: PricePoint[];
   groupedPricePoints?: Record<string, PricePoint[]> | null;
+  visibleColumns?: ColumnVisibility;
 }
 
 type TableRow = PricePoint | {
@@ -87,7 +89,8 @@ const formatUsdEquivalent = (percentage: number | null): string => {
 
 const PricePointTable: React.FC<PricePointTableProps> = ({ 
   pricePoints, 
-  groupedPricePoints, 
+  groupedPricePoints,
+  visibleColumns = {},
 }) => {
   const { token } = theme.useToken();
 
@@ -98,6 +101,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       : pricePoints;
     return allPoints.find(point => point.currencyCode === 'USD');
   }, [pricePoints, groupedPricePoints]);
+
+  // Check if USD Equivalent column should be visible
+  const showUsdEquivalent = visibleColumns.usdEquivalent !== false && usdPricePoint;
 
   // Table columns
   const columns: ColumnsType<any> = [
@@ -125,8 +131,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return formatAmount(record);
       },
     },
-    // Only show USD Equivalent column if USD price point exists
-    ...(usdPricePoint ? [{
+    // Only show USD Equivalent column if both USD price point exists AND column is visible
+    ...(showUsdEquivalent ? [{
       title: 'USD Equivalent',
       key: 'usdEquivalent',
       width: 140,

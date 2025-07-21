@@ -5,6 +5,7 @@ import { zIndex } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import ViewOptions, { type ViewMode } from './ViewOptions';
+import type { ColumnConfig, ColumnVisibility } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
 import './DrawerTitle.css';
 
@@ -38,10 +39,14 @@ interface FilterBarProps {
       setter: (order: string) => void;
       options: string[];
     };
-    };
     viewMode?: {
       value: ViewMode;
       setter: (mode: ViewMode) => void;
+    };
+    // Column visibility options
+    columnOptions?: ColumnConfig[];
+    visibleColumns?: ColumnVisibility;
+    setVisibleColumns?: (columns: ColumnVisibility) => void;
   };
   // New prop to control how filters are displayed
   displayMode?: 'inline' | 'drawer';
@@ -56,13 +61,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
   filters = [],
   onClearAll,
   viewOptions,
-  viewMode,
   displayMode = 'drawer', // Default to current behavior
   filterSize = 'middle', // Default filter size
   searchAndViewSize = 'large', // Default search and view options size
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder;
+  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
+  const viewMode = viewOptions?.viewMode;
 
   const activeFilterCount = filters.filter(f => f.value != null).length;
 
@@ -159,6 +164,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 sortOrder={viewOptions?.sortOrder?.value}
                 setSortOrder={viewOptions?.sortOrder?.setter}
                 sortOptions={viewOptions?.sortOrder?.options}
+
+                columnOptions={viewOptions?.columnOptions}
+                visibleColumns={viewOptions?.visibleColumns}
+                setVisibleColumns={viewOptions?.setVisibleColumns}
+                
                 size={searchAndViewSize}
               />
             )}

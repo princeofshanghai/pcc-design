@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Badge, Button, Dropdown, theme, Segmented, Menu } from 'antd';
+import { Badge, Button, Dropdown, theme, Segmented, Menu, Checkbox } from 'antd';
 import { Settings2, Check, List, LayoutGrid } from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { toSentenceCase } from '../../utils/formatters';
+import type { ColumnConfig, ColumnVisibility } from '../../utils/types';
 
 export type ViewMode = 'card' | 'list';
 
@@ -18,6 +19,10 @@ interface ViewOptionsProps {
   sortOptions?: string[];
   isGroupingDisabled?: boolean;
   size?: 'small' | 'middle' | 'large';
+  // Column visibility props
+  columnOptions?: ColumnConfig[];
+  visibleColumns?: ColumnVisibility;
+  setVisibleColumns?: (columns: ColumnVisibility) => void;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -31,6 +36,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   sortOptions,
   isGroupingDisabled = false,
   size = 'large',
+  columnOptions,
+  visibleColumns,
+  setVisibleColumns,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -47,14 +55,30 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     if (setViewMode) setViewMode('list');
     if (setGroupBy) setGroupBy('None');
     if (setSortOrder) setSortOrder('None');
+    // Reset columns to show all toggleable columns
+    if (setVisibleColumns && columnOptions) {
+      const resetColumns: ColumnVisibility = {};
+      columnOptions.forEach(col => {
+        resetColumns[col.key] = true;
+      });
+      setVisibleColumns(resetColumns);
+    }
     setIsOpen(false);
   };
 
-  const isViewActive = viewMode === 'card' || (groupBy && groupBy !== 'None') || (sortOrder && sortOrder !== 'None');
+  // Check if any non-default column visibility is active
+  const hasColumnChanges = columnOptions && visibleColumns ? 
+    columnOptions.some(col => !col.required && !visibleColumns[col.key]) : false;
+
+  const isViewActive = viewMode === 'card' || 
+    (groupBy && groupBy !== 'None') || 
+    (sortOrder && sortOrder !== 'None') ||
+    hasColumnChanges;
 
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
   const showViewMode = viewMode !== undefined && setViewMode;
+  const showColumnOptions = columnOptions !== undefined && visibleColumns !== undefined && setVisibleColumns;
   
   // Create menu items only for Group by and Sort by
   const menuItems: MenuProps['items'] = [];
@@ -105,7 +129,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     });
   }
   
-  const isDisabled = !showViewMode && !showGroupBy && !showSortBy;
+  const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions;
 
   if (isDisabled) {
     return null;
@@ -122,6 +146,15 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       if (setSortOrder) {
         setSortOrder(value);
       }
+    }
+  };
+
+  const handleColumnVisibilityChange = (columnKey: string, checked: boolean) => {
+    if (setVisibleColumns && visibleColumns) {
+      setVisibleColumns({
+        ...visibleColumns,
+        [columnKey]: checked,
+      });
     }
   };
 
@@ -186,8 +219,52 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         />
       )}
 
+      {/* Show Columns Section - Standalone (Last Section) */}
+      {showColumnOptions && (
+        <>
+          {/* Divider before Show Columns if there are menu items or view mode */}
+          {(showViewMode || showGroupBy || showSortBy) && (
+            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+          )}
+          
+          <div style={{ 
+            padding: '12px 16px',
+            backgroundColor: token.colorBgElevated,
+          }}>
+            <div style={{ 
+              marginBottom: 8, 
+              fontSize: '14px', 
+              fontWeight: 400, 
+              color: token.colorTextTertiary,
+              lineHeight: token.lineHeightSM
+            }}>
+              {toSentenceCase('Show columns')}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {columnOptions?.map(column => (
+                <Checkbox
+                  key={column.key}
+                  checked={visibleColumns?.[column.key] ?? true}
+                  onChange={(e) => handleColumnVisibilityChange(column.key, e.target.checked)}
+                  disabled={column.required}
+                  style={{ 
+                    fontSize: '14px',
+                    ...(column.required && { 
+                      color: token.colorTextTertiary,
+                      cursor: 'not-allowed'
+                    })
+                  }}
+                >
+                  {column.label}
+                </Checkbox>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Clear All Section - Standalone */}
-      {(showViewMode || showGroupBy || showSortBy) && (
+      {(showViewMode || showGroupBy || showSortBy || showColumnOptions) && (
         <>
           <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           <div style={{ 

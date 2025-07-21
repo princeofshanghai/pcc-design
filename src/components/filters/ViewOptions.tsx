@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, Button, Dropdown, theme, Menu, Checkbox } from 'antd';
-import { Settings2, Check, List, LayoutGrid, GripVertical } from 'lucide-react';
-import type { MenuProps } from 'antd';
+import { Badge, Button, Dropdown, theme, Select, Checkbox } from 'antd';
+import { Settings2, List, LayoutGrid, GripVertical, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import {
@@ -60,64 +59,34 @@ const SortableColumnItem: React.FC<SortableColumnItemProps> = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="sortable-column-item"
     >
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 8,
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
         padding: '4px 0',
-        borderRadius: 4,
-        cursor: column.required ? 'not-allowed' : 'grab',
-        transition: 'background-color 0.2s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!column.required) {
-          e.currentTarget.style.backgroundColor = '#f5f5f5';
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'transparent';
-      }}
-      >
+        borderRadius: '4px',
+        cursor: column.required ? 'default' : 'pointer',
+      }}>
         <div
           {...listeners}
           style={{
-            cursor: column.required ? 'not-allowed' : 'grab',
-            padding: '4px',
-            borderRadius: '4px',
-            color: column.required ? colorTextTertiary : '#666',
+            cursor: 'grab',
             display: 'flex',
             alignItems: 'center',
-            transition: 'background-color 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (!column.required) {
-              e.currentTarget.style.backgroundColor = '#e6f7ff';
-              e.currentTarget.style.color = '#1677ff';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = column.required ? colorTextTertiary : '#666';
+            color: colorTextTertiary,
+            padding: '2px',
           }}
         >
-          <GripVertical size={14} />
+          <GripVertical size={12} />
         </div>
         <Checkbox
           checked={isChecked}
-          onChange={(e) => onVisibilityChange(column.key, e.target.checked)}
           disabled={column.required}
-          style={{ 
-            fontSize: '14px',
-            flex: 1,
-            ...(column.required && { 
-              color: colorTextTertiary,
-              cursor: 'not-allowed'
-            })
-          }}
+          onChange={(e) => onVisibilityChange(column.key, e.target.checked)}
+          style={{ flex: 1 }}
         >
-          {column.label}
+          {toSentenceCase(column.label || column.key)}
         </Checkbox>
       </div>
     </div>
@@ -173,39 +142,37 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     })
   );
 
-  const handleOpenChange = (flag: boolean, info?: { source?: 'trigger' | 'menu' }) => {
-    if (info?.source === 'menu' && !flag) {
-      return;
-    }
-    setIsOpen(flag);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
   };
 
-  const handleClearAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (setViewMode) setViewMode('list');
-    if (setGroupBy) setGroupBy('None');
-    if (setSortOrder) setSortOrder('None');
-    // Reset columns to show all toggleable columns
+  const handleClearAll = () => {
+    // Don't reset view mode - it's a display preference, not a filter
+    if (setGroupBy) {
+      setGroupBy('None');
+    }
+    if (setSortOrder) {
+      setSortOrder('None');
+    }
     if (setVisibleColumns && columnOptions) {
-      const resetColumns: ColumnVisibility = {};
+      const defaultVisibility: ColumnVisibility = {};
       columnOptions.forEach(col => {
-        resetColumns[col.key] = true;
+        defaultVisibility[col.key] = true;
       });
-      setVisibleColumns(resetColumns);
+      setVisibleColumns(defaultVisibility);
     }
-    // Reset column order to original order
     if (setColumnOrder && columnOptions) {
-      const originalOrder = columnOptions.map(col => col.key);
-      setColumnOrder(originalOrder);
+      const defaultOrder = columnOptions.map(col => col.key);
+      setColumnOrder(defaultOrder);
     }
-    setIsOpen(false);
+    // Don't close dropdown - keep it open so user can see the changes
   };
 
   // Check if any non-default column visibility is active
   const hasColumnChanges = columnOptions && visibleColumns ? 
     columnOptions.some(col => !col.required && !visibleColumns[col.key]) : false;
 
-  const isViewActive = viewMode === 'card' || 
+  const isViewActive = 
     (groupBy && groupBy !== 'None') || 
     (sortOrder && sortOrder !== 'None') ||
     hasColumnChanges;
@@ -215,74 +182,11 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   const showViewMode = viewMode !== undefined && setViewMode;
   const showColumnOptions = columnOptions !== undefined && visibleColumns !== undefined && setVisibleColumns;
   
-  // Create menu items only for Group by and Sort by
-  const menuItems: MenuProps['items'] = [];
-
-  if (showGroupBy) {
-    // Ensure 'None' is first, rest alphabetical
-    const sortedGroupByOptions = groupByOptions
-      ? [
-          ...groupByOptions.filter(opt => opt === 'None'),
-          ...groupByOptions.filter(opt => opt !== 'None').sort((a, b) => a.localeCompare(b))
-        ]
-      : [];
-    menuItems.push({
-      key: 'group-by-group',
-      label: toSentenceCase('Group by'),
-      type: 'group',
-      children: sortedGroupByOptions.map(opt => ({
-        key: `group-${opt}`,
-        disabled: isGroupingDisabled,
-        label: (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {toSentenceCase(opt)}
-            {groupBy === opt && !isGroupingDisabled && <Check size={16} color={token.colorPrimary} />}
-          </div>
-        ),
-      })),
-    });
-  }
-
-  if (showGroupBy && showSortBy) {
-    menuItems.push({ type: 'divider' });
-  }
-
-  if (showSortBy) {
-    menuItems.push({
-      key: 'sort-by-group',
-      label: toSentenceCase('Sort by'),
-      type: 'group',
-      children: sortOptions.map(opt => ({
-        key: `sort-${opt}`,
-        label: (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {toSentenceCase(opt)}
-            {sortOrder === opt && <Check size={16} color={token.colorPrimary} />}
-          </div>
-        ),
-      })),
-    });
-  }
-  
   const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions;
 
   if (isDisabled) {
     return null;
   }
-
-  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-    if (key.startsWith('group-')) {
-      const value = key.replace('group-', '');
-      if (!isGroupingDisabled && setGroupBy) {
-        setGroupBy(value);
-      }
-    } else if (key.startsWith('sort-')) {
-      const value = key.replace('sort-', '');
-      if (setSortOrder) {
-        setSortOrder(value);
-      }
-    }
-  };
 
   const handleColumnVisibilityChange = (columnKey: string, checked: boolean) => {
     if (setVisibleColumns && visibleColumns) {
@@ -333,10 +237,133 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }
   };
 
-  // Custom dropdown content combining standalone components with menu
+  // Prepare group by options with 'None' first
+  const sortedGroupByOptions = groupByOptions
+    ? [
+        ...groupByOptions.filter(opt => opt === 'None'),
+        ...groupByOptions.filter(opt => opt !== 'None').sort((a, b) => a.localeCompare(b))
+      ]
+    : [];
+
+  // Transform sort options to separate field from direction
+  const transformedSortOptions = useMemo(() => {
+    if (!sortOptions) return { fields: [], directions: new Map() };
+
+    const fieldMap = new Map<string, { ascending: string; descending: string }>();
+    const nonDirectionalFields = new Set<string>();
+
+    sortOptions.forEach(option => {
+      if (option === 'None') {
+        nonDirectionalFields.add(option);
+        return;
+      }
+
+      // Detect directional patterns
+      let baseField: string;
+      let isAscending: boolean;
+
+      if (option.includes('(A-Z)') || option.includes('A-Z')) {
+        baseField = option.replace(/\s*\(A-Z\)|\s*A-Z/g, '').trim();
+        isAscending = true;
+      } else if (option.includes('(Z-A)') || option.includes('Z-A')) {
+        baseField = option.replace(/\s*\(Z-A\)|\s*Z-A/g, '').trim();
+        isAscending = false;
+      } else if (option.includes('(Low to High)') || option.includes('Low to High')) {
+        baseField = option.replace(/\s*\(Low to High\)|\s*Low to High/g, '').trim();
+        isAscending = true;
+      } else if (option.includes('(High to Low)') || option.includes('High to Low')) {
+        baseField = option.replace(/\s*\(High to Low\)|\s*High to Low/g, '').trim();
+        isAscending = false;
+      } else {
+        // Non-directional or single option - try to detect if it could have directions
+        baseField = option;
+        if (option.toLowerCase().includes('name') || 
+            option.toLowerCase().includes('alphabetical') ||
+            option.toLowerCase().includes('date') ||
+            option.toLowerCase().includes('amount') ||
+            option.toLowerCase().includes('effective')) {
+          // These could potentially have directions, treat as ascending by default
+          isAscending = true;
+        } else {
+          nonDirectionalFields.add(option);
+          return;
+        }
+      }
+
+      if (!fieldMap.has(baseField)) {
+        fieldMap.set(baseField, { ascending: option, descending: option });
+      }
+
+      const existing = fieldMap.get(baseField)!;
+      if (isAscending) {
+        existing.ascending = option;
+      } else {
+        existing.descending = option;
+      }
+    });
+
+    const fields = ['None', ...Array.from(fieldMap.keys()), ...Array.from(nonDirectionalFields)].filter((field, index, arr) => arr.indexOf(field) === index);
+    
+    return { fields, directions: fieldMap };
+  }, [sortOptions]);
+
+  // Parse current sort to determine field and direction
+  const currentSortField = useMemo(() => {
+    if (!sortOrder || sortOrder === 'None') return 'None';
+    
+    for (const [field, directions] of transformedSortOptions.directions) {
+      if (directions.ascending === sortOrder || directions.descending === sortOrder) {
+        return field;
+      }
+    }
+    return sortOrder; // Fallback for non-directional options
+  }, [sortOrder, transformedSortOptions.directions]);
+
+  const currentSortDirection = useMemo(() => {
+    if (!sortOrder || sortOrder === 'None') return 'asc';
+    
+    for (const [, directions] of transformedSortOptions.directions) {
+      if (directions.ascending === sortOrder) return 'asc';
+      if (directions.descending === sortOrder) return 'desc';
+    }
+    return 'asc'; // Default for non-directional
+  }, [sortOrder, transformedSortOptions.directions]);
+
+  const handleSortFieldChange = (field: string) => {
+    if (!setSortOrder) return;
+    
+    if (field === 'None') {
+      setSortOrder('None');
+      return;
+    }
+
+    const directions = transformedSortOptions.directions.get(field);
+    if (directions) {
+      // Use current direction preference, default to ascending
+      const newSortOrder = currentSortDirection === 'desc' ? directions.descending : directions.ascending;
+      setSortOrder(newSortOrder);
+    } else {
+      // Non-directional field
+      setSortOrder(field);
+    }
+  };
+
+  const handleSortDirectionToggle = () => {
+    if (!setSortOrder || currentSortField === 'None') return;
+    
+    const directions = transformedSortOptions.directions.get(currentSortField);
+    if (directions) {
+      const newSortOrder = currentSortDirection === 'asc' ? directions.descending : directions.ascending;
+      setSortOrder(newSortOrder);
+    }
+  };
+
+  const showSortDirectionToggle = currentSortField !== 'None' && transformedSortOptions.directions.has(currentSortField);
+
+  // Custom dropdown content combining standalone components
   const dropdownContent = (
     <div style={{ 
-      minWidth: 200,
+      minWidth: 320, // Increased width to accommodate horizontal layout
       backgroundColor: token.colorBgElevated,
       borderRadius: token.borderRadiusLG,
       boxShadow: token.boxShadowSecondary
@@ -435,37 +462,137 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
                 color={viewMode === 'card' ? token.colorPrimary : token.colorText}
                 style={{ marginBottom: '4px' }}
               />
-                             <span style={{ 
-                 fontSize: '13px',
-                 color: viewMode === 'card' ? token.colorPrimary : token.colorText,
-                 fontWeight: viewMode === 'card' ? 500 : 400
-               }}>
-                 Card
-               </span>
+              <span style={{ 
+                fontSize: '13px',
+                color: viewMode === 'card' ? token.colorPrimary : token.colorText,
+                fontWeight: viewMode === 'card' ? 500 : 400
+              }}>
+                Card
+              </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Divider between view mode and menu items */}
-      {showViewMode && (showGroupBy || showSortBy) && (
-        <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+      {/* Group By Section - Horizontal Layout */}
+      {showGroupBy && (
+        <>
+          {showViewMode && (
+            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+          )}
+          <div style={{ 
+            padding: '12px 16px',
+            backgroundColor: token.colorBgElevated,
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 400,
+                color: token.colorTextTertiary,
+                lineHeight: token.lineHeightSM,
+                minWidth: '70px'
+              }}>
+                Group by
+              </span>
+              <Select
+                value={groupBy}
+                onChange={setGroupBy}
+                disabled={isGroupingDisabled}
+                style={{ flex: 1, minWidth: 120 }}
+                size="small"
+              >
+                {sortedGroupByOptions.map(option => (
+                  <Select.Option key={option} value={option}>
+                    {toSentenceCase(option)}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </>
       )}
 
-      {/* Menu Items for Group by and Sort by */}
-      {(showGroupBy || showSortBy) && (
-        <Menu
-          items={menuItems}
-          onClick={handleMenuClick}
-          selectable={false}
-          style={{ border: 'none', boxShadow: 'none', backgroundColor: 'transparent' }}
-        />
+      {/* Sort By Section - Linear Style with Direction Toggle */}
+      {showSortBy && (
+        <>
+          {(showViewMode || showGroupBy) && (
+            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+          )}
+          <div style={{ 
+            padding: '12px 16px',
+            backgroundColor: token.colorBgElevated,
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 400,
+                color: token.colorTextTertiary,
+                lineHeight: token.lineHeightSM,
+                minWidth: '70px'
+              }}>
+                Sort by
+              </span>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                flex: 1 
+              }}>
+                <Select
+                  value={currentSortField}
+                  onChange={handleSortFieldChange}
+                  style={{ flex: 1, minWidth: 120 }}
+                  size="small"
+                >
+                  {transformedSortOptions.fields.map(field => (
+                    <Select.Option key={field} value={field}>
+                      {toSentenceCase(field)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {showSortDirectionToggle && (
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={currentSortDirection === 'asc' ? 
+                      <ArrowUpNarrowWide size={14} /> : 
+                      <ArrowDownWideNarrow size={14} />
+                    }
+                    onClick={handleSortDirectionToggle}
+                    style={{
+                      border: `1px solid ${token.colorBorder}`,
+                      borderRadius: token.borderRadius,
+                      width: '28px',
+                      height: '24px',
+                      minWidth: '28px',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: token.colorText
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Show Columns Section - Standalone (Last Section) */}
       {showColumnOptions && (
         <>
-          {/* Divider before Show Columns if there are menu items or view mode */}
+          {/* Divider before Show Columns if there are other sections */}
           {(showViewMode || showGroupBy || showSortBy) && (
             <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           )}
@@ -527,7 +654,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               disabled={!isViewActive}
               style={{ padding: 0 }}
             >
-              {toSentenceCase('Clear all')}
+              {toSentenceCase('Reset to default')}
             </Button>
           </div>
         </>

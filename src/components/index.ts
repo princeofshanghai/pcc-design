@@ -47,6 +47,7 @@ export { default as ViewOptions } from './filters/ViewOptions';
 
 // Shared/utility components
 export { default as CopyableId } from './shared/CopyableId';
+export { default as GroupHeader } from './shared/GroupHeader';
 
 // Configuration components
 export { ChangeRequestForm } from './configuration/ChangeRequestForm';

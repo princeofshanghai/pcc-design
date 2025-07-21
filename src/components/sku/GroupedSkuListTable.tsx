@@ -1,12 +1,10 @@
 import React from 'react';
-import { Table, Typography, Space, theme } from 'antd';
+import { Table, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Sku, Product } from '../../utils/types';
 import { getSkuTableColumns } from './SkuListTable';
-import CountTag from '../attributes/CountTag';
+import GroupHeader from '../shared/GroupHeader';
 import { type ColumnsType } from 'antd/es/table';
-
-const { Text } = Typography;
 
 interface GroupedSkuListTableProps {
   groupedSkus: Record<string, Sku[]>;
@@ -67,14 +65,15 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
                 const { title, count } = props.children[0].props.record;
-                const displayTitle = groupBy === 'Price Group' ? `Price Group: ${title}` : title;
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
-                      <Space>
-                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{displayTitle}</Text>
-                        <CountTag count={count} />
-                      </Space>
+                      <GroupHeader 
+                        title={title}
+                        count={count}
+                        contextType="skus"
+                        groupBy={groupBy}
+                      />
                     </td>
                   </tr>
                 );

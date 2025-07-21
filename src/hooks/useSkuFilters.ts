@@ -36,8 +36,9 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
     return skus;
   }, [initialSkus, searchQuery, channelFilter, statusFilter, billingCycleFilter, lixKeyFilter, featuresFilter, product]);
 
-  const sortedSkus = useMemo(() => {
-    const sorted = [...filteredSkus]; // Create a new array to avoid mutating the original
+  // Helper function to sort SKUs
+  const sortSkus = (skus: Sku[]) => {
+    const sorted = [...skus];
     sorted.sort((a, b) => {
       if (sortOrder === 'Effective Date') {
         // Use priceGroup.startDate for sorting by date, handle undefined cases
@@ -50,12 +51,22 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
       return 0; // None
     });
     return sorted;
-  }, [filteredSkus, sortOrder]);
+  };
+
+  const sortedSkus = useMemo(() => {
+    // If no grouping, sort all filtered SKUs
+    if (groupBy === 'None') {
+      return sortSkus(filteredSkus);
+    }
+    // If grouping is active, return filtered SKUs (sorting happens within groups)
+    return filteredSkus;
+  }, [filteredSkus, sortOrder, groupBy]);
 
   const groupedSkus = useMemo(() => {
     if (groupBy === 'None') return null;
 
-    return sortedSkus.reduce((acc, sku) => {
+    // First group the filtered SKUs
+    const grouped = filteredSkus.reduce((acc, sku) => {
       let key: string;
       switch (groupBy) {
         case 'Price Group':
@@ -86,7 +97,14 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
       acc[key].push(sku);
       return acc;
     }, {} as Record<string, Sku[]>);
-  }, [sortedSkus, groupBy]);
+
+    // Then sort within each group
+    Object.keys(grouped).forEach(key => {
+      grouped[key] = sortSkus(grouped[key]);
+    });
+
+    return grouped;
+  }, [filteredSkus, groupBy, sortOrder]);
 
   const skuCount = sortedSkus.length;
 

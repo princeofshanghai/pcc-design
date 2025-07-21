@@ -10,14 +10,12 @@ const { Text } = Typography;
 
 interface ProductListTableProps {
   products: Product[];
-  hideRedundantColumns?: boolean;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
 }
 
 export const getProductListTableColumns = (
   _navigate: (path: string) => void, 
-  hideRedundantColumns?: boolean,
   visibleColumns: ColumnVisibility = {},
   columnOrder: ColumnOrder = ['name', 'lob', 'folder', 'skus', 'status']
 ): ColumnsType<Product> => {
@@ -40,13 +38,13 @@ export const getProductListTableColumns = (
       ),
       className: 'table-col-first',
     },
-    lob: (visibleColumns.lob !== false && !hideRedundantColumns) ? {
+    lob: visibleColumns.lob !== false ? {
       title: 'LOB',
       dataIndex: 'lob',
       key: 'lob',
       render: (lob: Product['lob']) => <span>{lob}</span>,
     } : null,
-    folder: (visibleColumns.folder !== false && !hideRedundantColumns) ? {
+    folder: visibleColumns.folder !== false ? {
       title: 'Folder',
       dataIndex: 'folder',
       key: 'folder',
@@ -74,12 +72,11 @@ export const getProductListTableColumns = (
 
 const ProductListTable: React.FC<ProductListTableProps> = ({ 
   products, 
-  hideRedundantColumns,
   visibleColumns = {},
   columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
 }) => {
   const navigate = useNavigate();
-  const columns = getProductListTableColumns(navigate, hideRedundantColumns, visibleColumns, columnOrder);
+  const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder);
 
   return (
     <div className="content-panel">

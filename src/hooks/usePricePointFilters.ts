@@ -36,11 +36,11 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     return filtered;
   }, [initialPricePoints, searchQuery, currencyFilter]);
 
-  // Apply sorting
-  const sortedPricePoints = useMemo(() => {
-    if (sortOrder === 'None') return filteredPricePoints;
+  // Helper function to sort price points
+  const sortPricePoints = (pricePoints: PricePoint[]) => {
+    if (sortOrder === 'None') return pricePoints;
 
-    const sorted = [...filteredPricePoints];
+    const sorted = [...pricePoints];
     
     switch (sortOrder) {
       case 'Amount (High to Low)':
@@ -52,28 +52,37 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       default:
         return sorted;
     }
-  }, [filteredPricePoints, sortOrder]);
+  };
+
+  const sortedPricePoints = useMemo(() => {
+    // If no grouping, sort all filtered price points
+    if (groupBy === 'None') {
+      return sortPricePoints(filteredPricePoints);
+    }
+    // If grouping is active, return filtered price points (sorting happens within groups)
+    return filteredPricePoints;
+  }, [filteredPricePoints, sortOrder, groupBy]);
 
   // Apply grouping
   const groupedPricePoints = useMemo(() => {
     if (groupBy === 'None') return null;
 
     if (groupBy === 'Core / Long Tail') {
-      const { core, longTail } = categorizePricePoints(sortedPricePoints);
+      const { core, longTail } = categorizePricePoints(filteredPricePoints);
       const groups: Record<string, PricePoint[]> = {};
       
       if (core.length > 0) {
-        groups['Core'] = core;
+        groups['Core'] = sortPricePoints(core);
       }
       if (longTail.length > 0) {
-        groups['Long Tail'] = longTail;
+        groups['Long Tail'] = sortPricePoints(longTail);
       }
       
       return groups;
     }
 
     return null;
-  }, [sortedPricePoints, groupBy]);
+  }, [filteredPricePoints, groupBy, sortOrder]);
 
   return {
     // Filter controls

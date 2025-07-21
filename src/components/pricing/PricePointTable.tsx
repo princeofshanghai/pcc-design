@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { Table, Space, Typography, theme } from 'antd';
+import { Table, Typography, theme } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters';
-import CountTag from '../attributes/CountTag';
+import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -232,10 +232,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
-                      <Space>
-                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{title}</Text>
-                        <CountTag count={count} />
-                      </Space>
+                      <GroupHeader 
+                        title={title}
+                        count={count}
+                        contextType="currencies"
+                      />
                     </td>
                   </tr>
                 );

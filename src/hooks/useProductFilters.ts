@@ -40,10 +40,10 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     }
   }, [lobFilter, folderFilter, initialProducts]);
 
-  const sortedProducts = useMemo(() => {
+  const filteredProducts = useMemo(() => {
     let products = initialProducts;
 
-    // Filtering
+    // Filtering only
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       products = products.filter(p =>
@@ -56,25 +56,47 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
     if (folderFilter) { products = products.filter(p => p.folder === folderFilter); }
 
-    // Sorting
-    products.sort((a, b) => {
+    return products;
+  }, [searchQuery, lobFilter, statusFilter, folderFilter, initialProducts]);
+
+  // Helper function to sort products
+  const sortProducts = (products: Product[]) => {
+    const sorted = [...products];
+    sorted.sort((a, b) => {
       if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
       if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
       return 0;
     });
+    return sorted;
+  };
 
-    return products;
-  }, [searchQuery, lobFilter, statusFilter, folderFilter, sortOrder, initialProducts]);
+  const sortedProducts = useMemo(() => {
+    // If no grouping, sort all filtered products
+    if (groupBy === 'None') {
+      return sortProducts(filteredProducts);
+    }
+    // If grouping is active, return filtered products (sorting happens within groups)
+    return filteredProducts;
+  }, [filteredProducts, sortOrder, groupBy]);
 
   const groupedProducts = useMemo(() => {
     if (groupBy === 'None') return null;
-    return sortedProducts.reduce((acc, product) => {
+    
+    // First group the filtered products
+    const grouped = filteredProducts.reduce((acc, product) => {
       const key = product[groupBy.toLowerCase() as keyof Product] as string;
       if (!acc[key]) { acc[key] = []; }
       acc[key].push(product);
       return acc;
     }, {} as Record<string, Product[]>);
-  }, [sortedProducts, groupBy]);
+
+    // Then sort within each group
+    Object.keys(grouped).forEach(key => {
+      grouped[key] = sortProducts(grouped[key]);
+    });
+
+    return grouped;
+  }, [filteredProducts, groupBy, sortOrder]);
 
   const productCount = sortedProducts.length;
 

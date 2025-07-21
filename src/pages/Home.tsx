@@ -114,11 +114,7 @@ const Home: React.FC = () => {
     return GROUP_BY_OPTIONS;
   }, [currentFolder]);
 
-  useEffect(() => {
-    if (viewMode === 'list') {
-      setGroupBy('None');
-    }
-  }, [viewMode, setGroupBy]);
+
 
   // Remove this useEffect since we no longer use folder tabs
 
@@ -210,22 +206,20 @@ const Home: React.FC = () => {
           groupedProducts ? (
             <GroupedProductListTable 
               groupedProducts={groupedProducts} 
-              hideRedundantColumns={!!currentFolder}
               visibleColumns={visibleColumns}
               columnOrder={columnOrder}
             />
           ) : (
             <ProductListTable 
               products={sortedProducts} 
-              hideRedundantColumns={!!currentFolder}
               visibleColumns={visibleColumns}
               columnOrder={columnOrder}
             />
           )
         ) : groupedProducts ? (
-          <GroupedProductList groupedProducts={groupedProducts} hideRedundantColumns={!!currentFolder} />
+          <GroupedProductList groupedProducts={groupedProducts} />
         ) : (
-          <ProductList products={sortedProducts} hideRedundantColumns={!!currentFolder} />
+          <ProductList products={sortedProducts} />
         )}
       </div>
     </div>

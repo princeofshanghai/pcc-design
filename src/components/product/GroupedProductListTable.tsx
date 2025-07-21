@@ -1,16 +1,15 @@
 import React from 'react';
-import { Table, Typography, Space, theme } from 'antd';
+import { Table, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { getProductListTableColumns } from './ProductListTable';
-import CountTag from '../attributes/CountTag';
+import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
-const { Text } = Typography;
+
 
 interface GroupedProductListTableProps {
   groupedProducts: Record<string, Product[]>;
-  hideRedundantColumns?: boolean;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
 }
@@ -19,13 +18,12 @@ type TableRow = Product | { isGroupHeader: true; key: string; title: string; cou
 
 const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ 
   groupedProducts, 
-  hideRedundantColumns,
   visibleColumns = {},
   columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
 }) => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
-  const columns = getProductListTableColumns(navigate, hideRedundantColumns, visibleColumns, columnOrder) as ColumnsType<TableRow>;
+  const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
 
   const dataSource: TableRow[] = [];
   for (const groupTitle in groupedProducts) {
@@ -62,10 +60,11 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
                 return (
                   <tr {...props}>
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
-                      <Space>
-                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{title}</Text>
-                        <CountTag count={count} />
-                      </Space>
+                      <GroupHeader 
+                        title={title}
+                        count={count}
+                        contextType="products"
+                      />
                     </td>
                   </tr>
                 );

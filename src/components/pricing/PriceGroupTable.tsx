@@ -3,7 +3,7 @@ import { Table, Space, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
-import CountTag from '../attributes/CountTag';
+import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
@@ -243,15 +243,15 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
                 const { title, count } = props.children[0].props.record;
-                const displayTitle = groupBy === 'Channel' ? `Channel: ${title}` : 
-                                   groupBy === 'Billing Cycle' ? `Billing Cycle: ${title}` : title;
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
-                      <Space>
-                        <Text style={{ fontSize: token.fontSizeHeading3, fontWeight: 500 }}>{displayTitle}</Text>
-                        <CountTag count={count} />
-                      </Space>
+                      <GroupHeader 
+                        title={title}
+                        count={count}
+                        contextType="price groups"
+                        groupBy={groupBy}
+                      />
                     </td>
                   </tr>
                 );

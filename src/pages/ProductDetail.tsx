@@ -183,14 +183,6 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-          {/* New Bundled in section */}
-          <PageSection title={toSentenceCase('Bundled in')}>
-            <span style={{ color: '#888' }}>NOTE* This shows bundles that this product is a part of</span>
-          </PageSection>
-          {/* New Offers section */}
-          <PageSection title={toSentenceCase('Offers')}>
-            <span style={{ color: '#888' }}>NOTE* This should show offers applicable to this product</span>
-          </PageSection>
           {/* Moved Configuration section from Other tab */}
           <PageSection title={toSentenceCase('Configuration')}>
             <AttributeGroup>
@@ -261,7 +253,7 @@ const ProductDetail: React.FC = () => {
           <PageSection 
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Price groups</span>
+                <span>Prices</span>
                 <CountTag count={filteredPriceGroups.length} />
               </div>
             }
@@ -271,7 +263,7 @@ const ProductDetail: React.FC = () => {
                 onClick={() => setIsConfigurationModalOpen(true)}
                 size="large"
               >
-                Add price group
+                Add prices
               </Button>
             }
           >
@@ -350,7 +342,7 @@ const ProductDetail: React.FC = () => {
                 <CountTag count={finalSkuCount} />
                 {priceGroupFilter && (
                   <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-                    (filtered by price group: {priceGroupFilter})
+                    (filtered by price: {priceGroupFilter})
                   </Typography.Text>
                 )}
               </div>
@@ -418,15 +410,7 @@ const ProductDetail: React.FC = () => {
         </PageSection>
       ),
     },
-    {
-      key: 'experiments',
-      label: 'Experiments',
-      children: (
-        <PageSection title="Experiments">
-          <span style={{ color: '#888' }}>NOTE* This should show experiments related to this product</span>
-        </PageSection>
-      ),
-    },
+
     {
       key: 'activity',
       label: (() => {
@@ -556,7 +540,7 @@ const ProductDetail: React.FC = () => {
       <Modal
         title={
           <div>
-            <div style={{ marginBottom: '16px' }}>Add price group</div>
+            <div style={{ marginBottom: '16px' }}>Add prices</div>
             <Steps current={currentStep} size="small">
               <Step title="Details" />
               <Step title="Preview" />

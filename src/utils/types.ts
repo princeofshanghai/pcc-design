@@ -56,6 +56,7 @@ export type Tag = SalesFunnelTag | CustomerTypeTag | ContractTypeTag;
 export type PricePoint = {
   currencyCode: string;
   amount: number;
+  exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
 };
 
 export type PriceGroup = {

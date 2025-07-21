@@ -42,11 +42,62 @@ const formatAmount = (pricePoint: PricePoint): string => {
   return pricePoint.amount.toFixed(2);
 };
 
+/**
+ * Calculates the USD equivalent percentage for a price point.
+ * @param pricePoint - The price point to calculate for.
+ * @param usdPricePoint - The USD price point to compare against.
+ * @returns The percentage as a number, or null if calculation not possible.
+ */
+const calculateUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoint): number | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return 100; // USD always shows 100%
+  }
+  
+  if (!usdPricePoint || usdPricePoint.currencyCode !== 'USD') {
+    return null;
+  }
+
+  // If no exchange rate is available, we can't calculate the equivalent
+  if (!pricePoint.exchangeRate) {
+    return null;
+  }
+
+  // Convert the current price point to USD using exchange rate
+  // exchangeRate represents how many units of the currency = 1 USD
+  const usdAmount = pricePoint.amount / pricePoint.exchangeRate;
+  
+  // Calculate percentage compared to USD price point
+  const percentage = (usdAmount / usdPricePoint.amount) * 100;
+  
+  return percentage;
+};
+
+/**
+ * Formats the USD equivalent percentage for display.
+ * @param percentage - The percentage value.
+ * @returns A formatted percentage string.
+ */
+const formatUsdEquivalent = (percentage: number | null): string => {
+  if (percentage === null) return '';
+  if (percentage === 100) return '100%';
+  
+  // Show 1 decimal place for non-100% values
+  return `${percentage.toFixed(1)}%`;
+};
+
 const PricePointTable: React.FC<PricePointTableProps> = ({ 
   pricePoints, 
   groupedPricePoints, 
 }) => {
   const { token } = theme.useToken();
+
+  // Find USD price point for calculations
+  const usdPricePoint = useMemo(() => {
+    const allPoints = groupedPricePoints 
+      ? Object.values(groupedPricePoints).flat()
+      : pricePoints;
+    return allPoints.find(point => point.currencyCode === 'USD');
+  }, [pricePoints, groupedPricePoints]);
 
   // Table columns
   const columns: ColumnsType<any> = [
@@ -74,6 +125,21 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return formatAmount(record);
       },
     },
+    // Only show USD Equivalent column if USD price point exists
+    ...(usdPricePoint ? [{
+      title: 'USD Equivalent',
+      key: 'usdEquivalent',
+      width: 140,
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        const percentage = calculateUsdEquivalent(record, usdPricePoint);
+        return (
+          <Text style={{ color: percentage === 100 ? token.colorTextSecondary : token.colorText }}>
+            {formatUsdEquivalent(percentage)}
+          </Text>
+        );
+      },
+    }] : []),
   ];
 
   // Prepare data source

@@ -349,8 +349,9 @@ export const ChangeRequestForm: React.FC<ChangeRequestFormProps> = ({
               onChange={(value) => handleFieldChange('salesChannel', value)}
             >
               <Select.Option value="Desktop">Desktop</Select.Option>
-              <Select.Option value="Mobile">Mobile</Select.Option>
               <Select.Option value="Field">Field</Select.Option>
+              <Select.Option value="iOS">iOS</Select.Option>
+              <Select.Option value="GPB">GPB</Select.Option>
             </Select>
           </Form.Item>
 

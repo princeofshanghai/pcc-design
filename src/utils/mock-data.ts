@@ -38,7 +38,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
   {
     id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '5095295', // Sales Navigator Core
-    salesChannel: 'Mobile',
+    salesChannel: 'iOS',
     billingCycle: 'Monthly',
     priceAmount: 79.99,
     status: 'In EI',
@@ -83,7 +83,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
   {
     id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '9999999', // DEMO Product
-    salesChannel: 'Mobile',
+    salesChannel: 'GPB',
     billingCycle: 'Annual',
     priceAmount: 199.99,
     lixKey: 'mobile_annual_test',
@@ -96,7 +96,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
   {
     id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '9999999', // DEMO Product
-    salesChannel: 'Mobile',
+    salesChannel: 'iOS',
     billingCycle: 'Monthly',
     priceAmount: 19.99,
     lixKey: 'mobile_pricing_test_2024',
@@ -124,7 +124,7 @@ export const mockConfigurationRequests: ConfigurationRequest[] = [
   {
     id: '3' + Math.floor(10000 + Math.random() * 90000).toString(),
     targetProductId: '9999999', // DEMO Product
-    salesChannel: 'Mobile',
+    salesChannel: 'GPB',
     billingCycle: 'Quarterly',
     priceAmount: 59.99,
     lixKey: 'mobile_pricing_test_2024',
@@ -392,8 +392,8 @@ export const mockProducts: Product[] = [
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
     configurationRequests: [
-      mockConfigurationRequests[0], // Anand's mobile channel addition
-      mockConfigurationRequests[2], // Anand's successful quarterly experiment
+          mockConfigurationRequests[0], // Anand's iOS channel addition
+    mockConfigurationRequests[2], // Anand's successful quarterly experiment
     ],
   },
   {
@@ -527,10 +527,10 @@ export const mockProducts: Product[] = [
     skus: [],
          configurationRequests: [
        mockConfigurationRequests[3], // Alex's monthly billing (Pending Review)
-       mockConfigurationRequests[4], // Sarah's annual mobile test (In EI)
-       mockConfigurationRequests[5], // Sarah's mobile monthly (Live)
+       mockConfigurationRequests[4], // Sarah's annual GPB test (In EI)
+       mockConfigurationRequests[5], // Sarah's iOS monthly (Live)
        mockConfigurationRequests[6], // Chris's field monthly premium (Live)
-       mockConfigurationRequests[7], // Jordan's mobile quarterly control (Live)
+       mockConfigurationRequests[7], // Jordan's GPB quarterly control (Live)
        mockConfigurationRequests[8], // Taylor's field annual enterprise (Live)
        mockConfigurationRequests[9], // Mike's desktop annual biannual (Live)
      ],
@@ -844,9 +844,9 @@ if (demoProduct) {
     },
     {
       id: "8" + Math.floor(100000 + Math.random() * 900000).toString(),
-      name: "DEMO Product FY25 Mobile Annual",
+      name: "DEMO Product FY25 iOS Annual",
       status: "Active",
-      salesChannel: "Mobile",
+      salesChannel: "iOS",
       billingCycle: "Annual",
       priceGroup: {
         id: "9" + Math.floor(100000 + Math.random() * 900000).toString(),
@@ -893,9 +893,9 @@ if (demoProduct) {
     // SKUs generated from Live change requests
     {
       id: mockConfigurationRequests[5].generatedSkuId!,
-      name: "DEMO Product FY25 Mobile Monthly",
+      name: "DEMO Product FY25 iOS Monthly",
       status: "Active",
-      salesChannel: "Mobile",
+      salesChannel: "iOS",
       billingCycle: "Monthly",
       priceGroup: {
         id: mockConfigurationRequests[5].generatedPriceGroupId!,
@@ -980,9 +980,9 @@ if (demoProduct) {
     },
     {
       id: mockConfigurationRequests[7].generatedSkuId!,
-      name: "DEMO Product FY25 Mobile Quarterly",
+      name: "DEMO Product FY25 GPB Quarterly",
       status: "Active",
-      salesChannel: "Mobile",
+      salesChannel: "GPB",
       billingCycle: "Quarterly",
       priceGroup: {
         id: mockConfigurationRequests[7].generatedPriceGroupId!,

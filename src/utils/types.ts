@@ -5,7 +5,7 @@ export type Status = 'Active' | 'Legacy' | 'Retired';
 
 export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium' | 'Other';
 
-export type SalesChannel = 'Desktop' | 'Field' | 'Mobile';
+export type SalesChannel = 'Desktop' | 'Field' | 'iOS' | 'GPB';
 
 export type BillingCycle = 'Monthly' | 'Quarterly' | 'Annual';
 

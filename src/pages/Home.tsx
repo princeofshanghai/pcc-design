@@ -154,10 +154,10 @@ const Home: React.FC = () => {
                 setter: setSortOrder,
                 options: SORT_OPTIONS,
               },
-            }}
-            viewMode={{
-              value: viewMode,
-              setter: setViewMode,
+              viewMode: {
+                value: viewMode,
+                setter: setViewMode,
+              },
             }}
           />
         </Space>

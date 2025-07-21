@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, theme } from 'antd';
+import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { getProductListTableColumns } from './ProductListTable';

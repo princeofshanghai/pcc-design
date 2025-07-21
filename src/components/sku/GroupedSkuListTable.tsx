@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, theme } from 'antd';
+import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Sku, Product } from '../../utils/types';
 import { getSkuTableColumns } from './SkuListTable';
@@ -9,13 +9,12 @@ import { type ColumnsType } from 'antd/es/table';
 interface GroupedSkuListTableProps {
   groupedSkus: Record<string, Sku[]>;
   product: Product;
-  groupBy?: string;
 }
 
 // A special type to handle rows that can be either a real Sku or a group header
 type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: number };
 
-const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, groupBy }) => {
+const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product }) => {
   const navigate = useNavigate();
   const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
 

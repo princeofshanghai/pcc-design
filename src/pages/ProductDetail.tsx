@@ -358,7 +358,6 @@ const ProductDetail: React.FC = () => {
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 
               groupedPriceGroups={groupedPriceGroups}
-              groupBy={priceGroupGroupBy}
               productId={product.id}
               visibleColumns={priceGroupVisibleColumns}
               columnOrder={priceGroupColumnOrder}
@@ -462,7 +461,7 @@ const ProductDetail: React.FC = () => {
             searchAndViewSize="large"
           />
           {finalGroupedSkus ? (
-            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} groupBy={groupBy} />
+            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} />
           ) : (
             <SkuListTable skus={finalSortedSkus} product={product} />
           )}

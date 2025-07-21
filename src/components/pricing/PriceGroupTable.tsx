@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Table, Space, Typography, theme } from 'antd';
+import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
@@ -13,7 +13,6 @@ const { Text } = Typography;
 interface PriceGroupTableProps {
   priceGroups: Array<{ priceGroup: PriceGroup; skus: Sku[] }>;
   groupedPriceGroups?: Record<string, Array<{ priceGroup: PriceGroup; skus: Sku[] }>> | null;
-  groupBy?: string;
   productId: string;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
@@ -32,7 +31,6 @@ type TableRow = {
 const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ 
   priceGroups, 
   groupedPriceGroups, 
-  groupBy,
   productId,
   visibleColumns = {},
   columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'effectiveDate'],

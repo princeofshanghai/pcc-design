@@ -7,6 +7,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
+  const [sortOrder, setSortOrder] = useState<string>('None');
 
   // Derive unique price groups and their associated SKUs
   const priceGroupMap = useMemo(() => {
@@ -51,15 +52,61 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     return filtered;
   }, [priceGroupMap, searchQuery, channelFilter, billingCycleFilter]);
 
+  // Helper function to sort price groups
+  const sortPriceGroups = (priceGroups: typeof filteredPriceGroups) => {
+    const sorted = [...priceGroups];
+    sorted.sort((a, b) => {
+      if (sortOrder === 'Name (A-Z)') { 
+        return a.priceGroup.name.localeCompare(b.priceGroup.name); 
+      }
+      if (sortOrder === 'Name (Z-A)') { 
+        return b.priceGroup.name.localeCompare(a.priceGroup.name); 
+      }
+      if (sortOrder === 'Currencies (Low to High)') { 
+        return a.priceGroup.pricePoints.length - b.priceGroup.pricePoints.length; 
+      }
+      if (sortOrder === 'Currencies (High to Low)') { 
+        return b.priceGroup.pricePoints.length - a.priceGroup.pricePoints.length; 
+      }
+      if (sortOrder === 'SKUs (Low to High)') { 
+        return a.skus.length - b.skus.length; 
+      }
+      if (sortOrder === 'SKUs (High to Low)') { 
+        return b.skus.length - a.skus.length; 
+      }
+      if (sortOrder === 'Effective Date (Earliest to Latest)') { 
+        const aDate = new Date(a.priceGroup.startDate).getTime();
+        const bDate = new Date(b.priceGroup.startDate).getTime();
+        return aDate - bDate; 
+      }
+      if (sortOrder === 'Effective Date (Latest to Earliest)') { 
+        const aDate = new Date(a.priceGroup.startDate).getTime();
+        const bDate = new Date(b.priceGroup.startDate).getTime();
+        return bDate - aDate; 
+      }
+      return 0;
+    });
+    return sorted;
+  };
+
+  const sortedPriceGroups = useMemo(() => {
+    // If no grouping, sort all filtered price groups
+    if (groupBy === 'None') {
+      return sortPriceGroups(filteredPriceGroups);
+    }
+    // If grouping is active, return filtered price groups (sorting happens within groups)
+    return filteredPriceGroups;
+  }, [filteredPriceGroups, sortOrder, groupBy]);
+
   // Apply grouping
   const groupedPriceGroups = useMemo(() => {
     if (groupBy === 'None') {
       return null;
     }
 
-    const grouped: Record<string, typeof filteredPriceGroups> = {};
+    const grouped: Record<string, typeof sortedPriceGroups> = {};
     
-    filteredPriceGroups.forEach((group: { priceGroup: any; skus: any[] }) => {
+    sortedPriceGroups.forEach((group: { priceGroup: any; skus: any[] }) => {
       let groupKey: string;
       
       if (groupBy === 'Channel') {
@@ -86,8 +133,13 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       grouped[groupKey].push(group);
     });
 
+    // Sort within each group
+    Object.keys(grouped).forEach(key => {
+      grouped[key] = sortPriceGroups(grouped[key]);
+    });
+
     return grouped;
-  }, [filteredPriceGroups, groupBy]);
+  }, [sortedPriceGroups, groupBy, sortOrder]);
 
   // Generate filter options from initial SKU data
   const channelOptions = useMemo(() => {
@@ -108,9 +160,10 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     channelFilter, setChannelFilter,
     billingCycleFilter, setBillingCycleFilter,
     groupBy, setGroupBy,
+    sortOrder, setSortOrder,
 
     // Derived Data
-    filteredPriceGroups,
+    filteredPriceGroups: sortedPriceGroups,
     groupedPriceGroups,
     priceGroupCount,
 

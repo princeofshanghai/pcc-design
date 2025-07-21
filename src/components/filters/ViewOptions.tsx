@@ -172,10 +172,15 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   const hasColumnChanges = columnOptions && visibleColumns ? 
     columnOptions.some(col => !col.required && !visibleColumns[col.key]) : false;
 
+  // Check if column order has been modified from default
+  const hasColumnOrderChanges = columnOptions && columnOrder ? 
+    !columnOptions.every((col, index) => columnOrder[index] === col.key) : false;
+
   const isViewActive = 
     (groupBy && groupBy !== 'None') || 
     (sortOrder && sortOrder !== 'None') ||
-    hasColumnChanges;
+    hasColumnChanges ||
+    hasColumnOrderChanges;
 
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
@@ -273,6 +278,12 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         isAscending = true;
       } else if (option.includes('(High to Low)') || option.includes('High to Low')) {
         baseField = option.replace(/\s*\(High to Low\)|\s*High to Low/g, '').trim();
+        isAscending = false;
+      } else if (option.includes('(Earliest to Latest)') || option.includes('Earliest to Latest')) {
+        baseField = option.replace(/\s*\(Earliest to Latest\)|\s*Earliest to Latest/g, '').trim();
+        isAscending = true;
+      } else if (option.includes('(Latest to Earliest)') || option.includes('Latest to Earliest')) {
+        baseField = option.replace(/\s*\(Latest to Earliest\)|\s*Latest to Earliest/g, '').trim();
         isAscending = false;
       } else {
         // Non-directional or single option - try to detect if it could have directions
@@ -589,8 +600,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         </>
       )}
 
-      {/* Show Columns Section - Standalone (Last Section) */}
-      {showColumnOptions && (
+      {/* Show Columns Section - Standalone (Last Section) - Only in list view */}
+      {showColumnOptions && viewMode !== 'card' && (
         <>
           {/* Divider before Show Columns if there are other sections */}
           {(showViewMode || showGroupBy || showSortBy) && (
@@ -637,7 +648,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       )}
 
       {/* Clear All Section - Standalone */}
-      {(showViewMode || showGroupBy || showSortBy || showColumnOptions) && (
+      {(showViewMode || showGroupBy || showSortBy || (showColumnOptions && viewMode !== 'card')) && (
         <>
           <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           <div style={{ 

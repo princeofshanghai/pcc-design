@@ -65,6 +65,8 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     sorted.sort((a, b) => {
       if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
       if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
+      if (sortOrder === 'SKUs (Low to High)') { return a.skus.length - b.skus.length; }
+      if (sortOrder === 'SKUs (High to Low)') { return b.skus.length - a.skus.length; }
       return 0;
     });
     return sorted;

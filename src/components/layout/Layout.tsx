@@ -85,10 +85,10 @@ const generateMenuStructure = (collapsed: boolean) => {
             key: lob.toLowerCase(),
             className: 'sidebar-lob-menu-item', // Add this line for custom styling
             label: (
-              <SidebarMenuItem text={lob} collapsed={collapsed}>
+              <SidebarMenuItem text={toSentenceCase(lob)} collapsed={collapsed}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Folder size={16} color="#999" />
-                  <span>{lob}</span>
+                  <span>{toSentenceCase(lob)}</span>
                 </span>
               </SidebarMenuItem>
             ),
@@ -96,10 +96,10 @@ const generateMenuStructure = (collapsed: boolean) => {
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: (
-                <SidebarMenuItem text={folder} collapsed={collapsed}>
+                <SidebarMenuItem text={toSentenceCase(folder)} collapsed={collapsed}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Folder size={16} color="#999" />
-                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{folder}</Link>
+                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toSentenceCase(folder)}</Link>
                   </span>
                 </SidebarMenuItem>
               )
@@ -111,8 +111,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'offers',
       label: (
-        <SidebarMenuItem text="Offers" collapsed={collapsed}>
-          <Link to="/offers">Offers</Link>
+        <SidebarMenuItem text={toSentenceCase("Offers")} collapsed={collapsed}>
+          <Link to="/offers">{toSentenceCase("Offers")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={16} />
@@ -120,8 +120,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'offer-groups',
       label: (
-        <SidebarMenuItem text="Offer Groups" collapsed={collapsed}>
-          <Link to="/offer-groups">Offer Groups</Link>
+        <SidebarMenuItem text={toSentenceCase("Offer Groups")} collapsed={collapsed}>
+          <Link to="/offer-groups">{toSentenceCase("Offer Groups")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={16} />
@@ -129,8 +129,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'rulesets',
       label: (
-        <SidebarMenuItem text="Rulesets" collapsed={collapsed}>
-          <Link to="/rulesets">Rulesets</Link>
+        <SidebarMenuItem text={toSentenceCase("Rulesets")} collapsed={collapsed}>
+          <Link to="/rulesets">{toSentenceCase("Rulesets")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={16} />
@@ -138,8 +138,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'calculation-schemes',
       label: (
-        <SidebarMenuItem text="Calculation Schemes" collapsed={collapsed}>
-          <Link to="/calculation-schemes">Calculation Schemes</Link>
+        <SidebarMenuItem text={toSentenceCase("Calculation Schemes")} collapsed={collapsed}>
+          <Link to="/calculation-schemes">{toSentenceCase("Calculation Schemes")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={16} />
@@ -147,8 +147,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'change-requests',
       label: (
-        <SidebarMenuItem text="Change Requests" collapsed={collapsed}>
-          <Link to="/change-requests">Change Requests</Link>
+        <SidebarMenuItem text={toSentenceCase("Change Requests")} collapsed={collapsed}>
+          <Link to="/change-requests">{toSentenceCase("Change Requests")}</Link>
         </SidebarMenuItem>
       ),
       icon: <GitPullRequestArrow size={16} />
@@ -157,8 +157,8 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'picasso-npi',
       label: (
-        <SidebarMenuItem text="Picasso NPI" collapsed={collapsed}>
-          <Link to="/picasso-npi">Picasso NPI</Link>
+        <SidebarMenuItem text={toSentenceCase("Picasso NPI")} collapsed={collapsed}>
+          <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={16} />
@@ -322,18 +322,26 @@ const AppLayout = () => {
           borderRight: '1px solid #f0f0f0',
           position: 'fixed',
           height: '100vh',
+          overflow: 'auto', // Ant Design's recommended approach
           zIndex: 1000,
           transition: 'width 180ms cubic-bezier(0.4,0,0.2,1)',
           willChange: 'width',
+          scrollbarWidth: 'thin',
+          scrollbarGutter: 'stable',
         }}
       >
+        {/* Fixed Header Section */}
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'space-between',
           height: 64, 
           padding: '0 16px',
-          borderBottom: '1px solid #f0f0f0'
+          borderBottom: '1px solid #f0f0f0',
+          background: '#fff',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
         }}>
           {!collapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -377,6 +385,7 @@ const AppLayout = () => {
         />
         <style>
           {`
+
             .collapsed-menu .ant-menu-item {
               text-align: center !important;
               padding: 0 !important;

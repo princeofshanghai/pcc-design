@@ -33,6 +33,18 @@ const { Step } = Steps;
 const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
 const SKU_GROUP_BY_OPTIONS = ['None', 'Price Group', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
 
+const PRICE_GROUP_SORT_OPTIONS = [
+  'None', 
+  'Name (A-Z)', 
+  'Name (Z-A)', 
+  'Currencies (Low to High)', 
+  'Currencies (High to Low)', 
+  'SKUs (Low to High)', 
+  'SKUs (High to Low)', 
+  'Effective Date (Earliest to Latest)',
+  'Effective Date (Latest to Earliest)'
+];
+
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
     return value ? 'Yes' : 'No';
@@ -88,6 +100,8 @@ const ProductDetail: React.FC = () => {
     setBillingCycleFilter: setPriceGroupBillingCycleFilter,
     groupBy: priceGroupGroupBy, 
     setGroupBy: setPriceGroupGroupBy,
+    sortOrder: priceGroupSortOrder, 
+    setSortOrder: setPriceGroupSortOrder,
     filteredPriceGroups,
     groupedPriceGroups,
     channelOptions: priceGroupChannelOptions,
@@ -325,6 +339,11 @@ const ProductDetail: React.FC = () => {
                   value: priceGroupGroupBy,
                   setter: setPriceGroupGroupBy,
                   options: ['None', 'Channel', 'Billing Cycle'],
+                },
+                sortOrder: {
+                  value: priceGroupSortOrder,
+                  setter: setPriceGroupSortOrder,
+                  options: PRICE_GROUP_SORT_OPTIONS,
                 },
                 columnOptions: priceGroupColumnOptions,
                 visibleColumns: priceGroupVisibleColumns,

@@ -1,5 +1,7 @@
 const ACRONYMS = new Set([
-  'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API', 'EI',
+  'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API', 'EI', 'NPI',
+  // Official LOB acronyms
+  'LMS', 'LSS', 'LTS',
   // Common currency codes
   'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SEK', 'KRW', 'SGD', 'INR', 'MXN', 'BRL', 'ZAR'
 ]);
@@ -8,9 +10,9 @@ const ACRONYMS = new Set([
 const PROPER_NOUNS = new Set([
   // LinkedIn product/brand names
   'LinkedIn', 'Premium', 'Sales', 'Solutions', 'Marketing', 'Talent', 'Learning', 
-  'Core', 'Products', 'Multiseat', 'Company', 'Page', 'Small', 'Business', 
-  'Entitlements', 'Career', 'LSS', 'LMS',
-  // Common business terms that should be capitalized
+  'Core', 'Multiseat', 'Company', 'Page', 'Small', 'Business', 
+  'Entitlements', 'Career', 'Picasso',
+  // Platform/technology names
   'Desktop', 'Mobile', 'iOS', 'Android', 'Web', 'Enterprise', 'Professional',
   'Basic', 'Standard', 'Advanced', 'Ultimate', 'Starter', 'Growth', 'Scale',
   // Status and attribute terms
@@ -28,7 +30,11 @@ const SMALL_WORDS = new Set([
   // Action words that should be lowercase unless first
   'all', 'clear', 'show', 'view', 'sort', 'group', 'filter', 'search',
   'default', 'reset', 'none', 'option', 'settings', 'preferences',
-  'columns', 'rows', 'items', 'data', 'content', 'details'
+  'columns', 'rows', 'items', 'data', 'content', 'details',
+  // Descriptive words that should be lowercase unless first
+  'cycle', 'date', 'price', 'model', 'display', 'table', 'list', 'card',
+  // Generic business terms that should be lowercase unless first
+  'products', 'groups', 'requests', 'schemes', 'other', 'offers', 'calculation'
 ]);
 
 /**
@@ -75,13 +81,6 @@ export function toSentenceCase(str: string): string {
 
       // Handle small words (lowercase unless first word)
       if (SMALL_WORDS.has(lowerWord) && index !== 0) {
-        // Special case: "All" should be capitalized in product names like "All LSS Products"
-        if (lowerWord === 'all' && index < words.length - 1) {
-          const nextWord = words[index + 1]?.toUpperCase();
-          if (nextWord && (ACRONYMS.has(nextWord) || nextWord === 'PRODUCTS')) {
-            return 'All';
-          }
-        }
         return lowerWord;
       }
 

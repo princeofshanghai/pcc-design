@@ -17,7 +17,7 @@ import type { ViewMode, SelectOption } from '../components';
 
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
-const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)'];
+const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'SKUs (Low to High)', 'SKUs (High to Low)'];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
 

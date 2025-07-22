@@ -409,7 +409,8 @@ const SkuDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
         icon={<SkuIcon />}
-        iconSize={24}
+        iconSize={16}
+        entityType="SKU"
         title={sku.id}
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={sku.status} />}

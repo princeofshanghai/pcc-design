@@ -586,7 +586,8 @@ const ProductDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <PageHeader
         icon={<Box />}
-        iconSize={24}
+        iconSize={16}
+        entityType="Product"
         title={product.name}
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={product.status} />}

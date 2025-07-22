@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { Table, Typography, theme } from 'antd';
+import { Table, Typography, theme, Space } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import GroupHeader from '../shared/GroupHeader';
+import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -13,6 +14,7 @@ interface PricePointTableProps {
   groupedPricePoints?: Record<string, PricePoint[]> | null;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
+  sortOrder?: string;
 }
 
 type TableRow = PricePoint | {
@@ -179,11 +181,82 @@ const getCommonDates = (pricePoints: PricePoint[]): { startDate: string; endDate
   };
 };
 
+/**
+ * Sorts price points based on the selected sort order
+ */
+const sortPricePoints = (points: PricePoint[], sortOrder: string, usdPricePoint?: PricePoint): PricePoint[] => {
+  if (!sortOrder || sortOrder === 'None') {
+    return points;
+  }
+
+  const sorted = [...points];
+  
+  switch (sortOrder) {
+    case 'Currency (A-Z)':
+      return sorted.sort((a, b) => a.currencyCode.localeCompare(b.currencyCode));
+    
+    case 'Currency (Z-A)':
+      return sorted.sort((a, b) => b.currencyCode.localeCompare(a.currencyCode));
+    
+    case 'Amount (Low to High)':
+      return sorted.sort((a, b) => a.amount - b.amount);
+    
+    case 'Amount (High to Low)':
+      return sorted.sort((a, b) => b.amount - a.amount);
+    
+    case 'USD Equivalent (High to Low)':
+      return sorted.sort((a, b) => {
+        if (!usdPricePoint) return 0;
+        const aEquiv = calculateUsdEquivalent(a, usdPricePoint) || 0;
+        const bEquiv = calculateUsdEquivalent(b, usdPricePoint) || 0;
+        return bEquiv - aEquiv;
+      });
+    
+    case 'USD Equivalent (Low to High)':
+      return sorted.sort((a, b) => {
+        if (!usdPricePoint) return 0;
+        const aEquiv = calculateUsdEquivalent(a, usdPricePoint) || 0;
+        const bEquiv = calculateUsdEquivalent(b, usdPricePoint) || 0;
+        return aEquiv - bEquiv;
+      });
+    
+    case 'Currency Type':
+      return sorted.sort((a, b) => {
+        const aType = getCurrencyType(a.currencyCode);
+        const bType = getCurrencyType(b.currencyCode);
+        
+        // Core currencies first, then alphabetical within each group
+        if (aType !== bType) {
+          return aType === 'Core' ? -1 : 1;
+        }
+        return a.currencyCode.localeCompare(b.currencyCode);
+      });
+    
+    case 'Effective Date (Earliest to Latest)':
+      return sorted.sort((a, b) => {
+        const aDate = new Date(a.startDate || '').getTime();
+        const bDate = new Date(b.startDate || '').getTime();
+        return aDate - bDate;
+      });
+    
+    case 'Effective Date (Latest to Earliest)':
+      return sorted.sort((a, b) => {
+        const aDate = new Date(a.startDate || '').getTime();
+        const bDate = new Date(b.startDate || '').getTime();
+        return bDate - aDate;
+      });
+    
+    default:
+      return sorted;
+  }
+};
+
 const PricePointTable: React.FC<PricePointTableProps> = ({ 
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['currency', 'currencyType', 'amount', 'usdEquivalent', 'effectiveDate'],
+  columnOrder = ['id', 'currency', 'currencyType', 'amount', 'usdEquivalent', 'effectiveDate'],
+  sortOrder = 'None',
 }) => {
   const { token } = theme.useToken();
 
@@ -208,21 +281,36 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
   // Define all possible columns
   const allColumns: Record<string, any> = {
-    currency: {
-      title: toSentenceCase('Currency'),
-      dataIndex: 'currencyCode',
-      key: 'currency',
-      width: 160,
+    id: visibleColumns.id === true ? {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <div>
-            <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
-          </div>
+          <Space size="small">
+            <Text style={{ fontFamily: 'GeistMono, monospace' }}>{record.id}</Text>
+            <CopyableId id={record.id || ''} showId={false} />
+          </Space>
         );
       },
-      className: 'table-col-first',
-    },
+            } : null,
+      currency: {
+        title: toSentenceCase('Currency'),
+        dataIndex: 'currencyCode',
+        key: 'currency',
+        width: 160,
+        render: (_: any, record: any) => {
+          if ('isGroupHeader' in record) return null;
+          return (
+            <div>
+              <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
+            </div>
+          );
+        },
+        className: visibleColumns.id === true ? '' : 'table-col-first',
+      },
     currencyType: visibleColumns.currencyType === true ? {
       title: 'Currency Type',
       dataIndex: 'currencyCode',
@@ -289,26 +377,28 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     .map(key => allColumns[key])
     .filter(Boolean);
 
-  // Prepare data source
+  // Prepare data source with sorting applied
   const dataSource: TableRow[] = useMemo(() => {
     if (groupedPricePoints) {
-      // Grouped data
+      // Grouped data - sort within each group
       const result: TableRow[] = [];
       Object.entries(groupedPricePoints).forEach(([groupTitle, points]) => {
+        const sortedPoints = sortPricePoints(points, sortOrder, usdPricePoint);
         result.push({
           isGroupHeader: true,
           key: `header-${groupTitle}`,
           title: groupTitle,
-          count: points.length,
+          count: sortedPoints.length,
         });
-        result.push(...points);
+        result.push(...sortedPoints);
       });
       return result;
     } else {
-      // Ungrouped data
-      return pricePoints;
+      // Ungrouped data - sort all points
+      const sortedPoints = sortPricePoints(pricePoints, sortOrder, usdPricePoint);
+      return sortedPoints;
     }
-  }, [pricePoints, groupedPricePoints]);
+  }, [pricePoints, groupedPricePoints, sortOrder, usdPricePoint]);
 
   return (
     <div className="content-panel">

@@ -6,14 +6,13 @@ import {
   ChangeRequestListTable,
   FilterBar
 } from '../components';
-import { GitPullRequestArrow } from 'lucide-react';
 import type { ConfigurationRequest } from '../utils/types';
 
 interface ConfigurationRequestWithProduct extends ConfigurationRequest {
   productName: string;
 }
 
-const ChangeRequestsPlaceholder: React.FC = () => {
+const ChangeRequestsList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
@@ -79,8 +78,6 @@ const ChangeRequestsPlaceholder: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <PageHeader
-            icon={<GitPullRequestArrow />}
-            iconSize={24}
             title="Change Requests"
             subtitle={`${filteredRequests.length} change request${filteredRequests.length !== 1 ? 's' : ''} found`}
           />
@@ -113,4 +110,4 @@ const ChangeRequestsPlaceholder: React.FC = () => {
   );
 };
 
-export default ChangeRequestsPlaceholder; 
+export default ChangeRequestsList; 

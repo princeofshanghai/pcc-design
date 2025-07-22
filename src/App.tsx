@@ -10,7 +10,7 @@ import { LayoutProvider } from './context/LayoutContext';
 import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
 import ChangeRequestDetail from './pages/ChangeRequestDetail';
-import ChangeRequestsPlaceholder from './pages/ChangeRequestsPlaceholder';
+import ChangeRequestsList from './pages/ChangeRequestsList';
 
 
 // The following placeholder pages are missing. 
@@ -44,7 +44,7 @@ function App() {
                 <Route path="/offer-groups" element={<OfferGroupsPlaceholder />} />
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
-                <Route path="/change-requests" element={<ChangeRequestsPlaceholder />} />
+                <Route path="/change-requests" element={<ChangeRequestsList />} />
         
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
               </Route>

@@ -38,6 +38,7 @@ const PriceGroupDetail: React.FC = () => {
 
   // Column visibility state for PricePointTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
+    id: false,         // Hidden by default, toggleable
     currency: true,    // Always visible (required)
     amount: true,      // Always visible (required)
     usdEquivalent: true, // Toggleable
@@ -47,6 +48,7 @@ const PriceGroupDetail: React.FC = () => {
 
   // Column order state for PricePointTable
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
+    'id',
     'currency',
     'currencyType',
     'amount', 
@@ -54,13 +56,31 @@ const PriceGroupDetail: React.FC = () => {
     'effectiveDate'
   ]);
 
+  // Sort state for PricePointTable
+  const [sortOrder, setSortOrder] = useState<string>('None');
+
   // Column configuration for PricePointTable
   const columnOptions: ColumnConfig[] = [
+    { key: 'id', label: 'ID', required: false },
     { key: 'currency', label: 'Currency', required: true },
     { key: 'currencyType', label: 'Currency Type', required: false },
     { key: 'amount', label: 'Amount', required: true },
     { key: 'usdEquivalent', label: 'USD Equivalent', required: false },
     { key: 'effectiveDate', label: 'Effective Date', required: false },
+  ];
+
+  // Sort options for PricePointTable - using the toggle logic pattern
+  const sortOptions = [
+    'None',
+    'Currency (A-Z)',
+    'Currency (Z-A)', 
+    'Amount (Low to High)',
+    'Amount (High to Low)',
+    'USD Equivalent (High to Low)',
+    'USD Equivalent (Low to High)',
+    'Currency Type', // Core first, then long tail
+    'Effective Date (Earliest to Latest)',
+    'Effective Date (Latest to Earliest)'
   ];
 
   useEffect(() => {
@@ -114,8 +134,6 @@ const PriceGroupDetail: React.FC = () => {
     currencyFilter, 
     setCurrencyFilter,
     currencyOptions,
-    sortOrder, 
-    setSortOrder,
     groupBy: pricePointGroupBy, 
     setGroupBy: setPricePointGroupBy,
     filteredPricePoints,
@@ -132,7 +150,8 @@ const PriceGroupDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
         icon={<DollarSign />}
-        iconSize={24}
+        iconSize={16}
+        entityType="Price Group"
         title={priceGroup.name}
         onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
@@ -202,7 +221,7 @@ const PriceGroupDetail: React.FC = () => {
             sortOrder: {
               value: sortOrder,
               setter: setSortOrder,
-              options: ['None', 'Amount (High to Low)', 'Amount (Low to High)', 'Alphabetical A-Z'],
+              options: sortOptions,
             },
             groupBy: {
               value: pricePointGroupBy,
@@ -224,6 +243,7 @@ const PriceGroupDetail: React.FC = () => {
           groupedPricePoints={groupedPricePointsData}
           visibleColumns={visibleColumns}
           columnOrder={columnOrder}
+          sortOrder={sortOrder}
         />
       </PageSection>
     </Space>

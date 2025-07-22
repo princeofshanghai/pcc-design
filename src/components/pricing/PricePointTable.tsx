@@ -32,6 +32,24 @@ const zeroDecimalCurrencies = new Set([
 ]);
 
 /**
+ * Core currencies that are actively managed and commonly used.
+ * Based on your business documentation showing core vs longtail currencies.
+ */
+const coreCurrencies = new Set([
+  'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD', 'CNY', 'INR',
+  'DKK', 'NOK', 'SEK', 'BRL', 'NZD', 'ZAR', 'AED', 'PLN', 'SAR', 'MXN', 'EGP', 'TRY'
+]);
+
+/**
+ * Determines if a currency is core or long tail
+ * @param currencyCode - The currency code to check
+ * @returns "Core" or "Long tail"
+ */
+const getCurrencyType = (currencyCode: string): string => {
+  return coreCurrencies.has(currencyCode) ? 'Core' : 'Long tail';
+};
+
+/**
  * Formats just the amount portion of a price point (without currency code).
  * @param pricePoint - The price point object to format.
  * @returns A formatted amount string.
@@ -165,7 +183,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['currency', 'amount', 'usdEquivalent', 'effectiveDate'],
+  columnOrder = ['currency', 'currencyType', 'amount', 'usdEquivalent', 'effectiveDate'],
 }) => {
   const { token } = theme.useToken();
 
@@ -205,6 +223,18 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
       className: 'table-col-first',
     },
+    currencyType: visibleColumns.currencyType === true ? {
+      title: 'Currency Type',
+      dataIndex: 'currencyCode',
+      key: 'currencyType',
+      width: 120,
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <Text style={{ fontWeight: 500 }}>{getCurrencyType(record.currencyCode)}</Text>
+        );
+      },
+    } : null,
     amount: {
       title: toSentenceCase('Amount'),
       dataIndex: 'amount',

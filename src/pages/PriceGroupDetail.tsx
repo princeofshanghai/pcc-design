@@ -42,11 +42,13 @@ const PriceGroupDetail: React.FC = () => {
     amount: true,      // Always visible (required)
     usdEquivalent: true, // Toggleable
     effectiveDate: true, // Toggleable
+    currencyType: false, // Hidden by default, toggleable
   });
 
   // Column order state for PricePointTable
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
     'currency',
+    'currencyType',
     'amount', 
     'usdEquivalent',
     'effectiveDate'
@@ -55,6 +57,7 @@ const PriceGroupDetail: React.FC = () => {
   // Column configuration for PricePointTable
   const columnOptions: ColumnConfig[] = [
     { key: 'currency', label: 'Currency', required: true },
+    { key: 'currencyType', label: 'Currency Type', required: false },
     { key: 'amount', label: 'Amount', required: true },
     { key: 'usdEquivalent', label: 'USD Equivalent', required: false },
     { key: 'effectiveDate', label: 'Effective Date', required: false },

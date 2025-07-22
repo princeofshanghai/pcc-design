@@ -509,6 +509,34 @@ export const mockProducts: Product[] = [
       mockConfigurationRequests[8], // Taylor's field annual enterprise (Live)
       mockConfigurationRequests[9], // Mike's desktop annual biannual (Live)
     ],
+  },
+  {
+    id: '5083684',
+    name: 'Recruiter Lite',
+    description: 'Essential recruiting tools for small to medium teams.',
+    lob: 'LTS',
+    folder: 'Recruiter',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/talent/recruiter-lite/',
+    seatType: 'Multi-seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 50,
+    features: ['Candidate Search', 'InMail Credits', 'Basic Analytics', 'Team Collaboration'],
+    tags: [{ type: 'Customer Type', value: 'Enterprise customer' }, { type: 'Sales Top of Funnel', value: 'Premium Chooser' }],
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: false,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/talent/recruiter-lite',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
   }
 ]; 
 
@@ -519,9 +547,9 @@ const pcFy25Monthly: PriceGroup = {
   status: 'Active',
   startDate: "2025-05-01",
   pricePoints: [
-    { id: "6123001", currencyCode: "USD", amount: 39.99, exchangeRate: 1.0, startDate: "2025-05-01" },
-    { id: "6123002", currencyCode: "EUR", amount: 29.99, exchangeRate: 0.85, startDate: "2025-05-01" },
-    { id: "6123003", currencyCode: "CAD", amount: 49.99, exchangeRate: 1.35, startDate: "2025-05-01" },
+    { id: "6123001", currencyCode: "USD", amount: 39.99, exchangeRate: 1.0, startDate: "2025-05-01", pricingRule: "NONE" },
+    { id: "6123002", currencyCode: "EUR", amount: 29.99, exchangeRate: 0.85, startDate: "2025-05-01", pricingRule: "NONE" },
+    { id: "6123003", currencyCode: "CAD", amount: 49.99, exchangeRate: 1.35, startDate: "2025-05-01", pricingRule: "NONE" },
     { id: "6123004", currencyCode: "AUD", amount: 54.99, exchangeRate: 1.45, startDate: "2025-05-01" },
     { id: "6123005", currencyCode: "CHF", amount: 39.99, exchangeRate: 0.90, startDate: "2025-05-01" },
     { id: "6123006", currencyCode: "DKK", amount: 189.99, exchangeRate: 6.85, startDate: "2025-05-01" },
@@ -1034,6 +1062,157 @@ if (demoProduct) {
         key: "extended_billing_cycle_test",
         treatment: "biannual_option"
       }
+    }
+  ];
+}
+
+// Add SKUs to Recruiter Lite product with slab pricing examples
+const recruiterLiteProduct = mockProducts.find(p => p.id === '5083684');
+if (recruiterLiteProduct) {
+  recruiterLiteProduct.skus = [
+    {
+      id: "8435001",
+      name: "Recruiter Lite FY25 Desktop Monthly (1-2 seats)",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "112007",
+        name: "RL_FY25_MONTHLY_SLAB",
+        status: "Active",
+        startDate: "2025-01-01",
+        pricePoints: [
+          { 
+            id: "6485069", 
+            currencyCode: "USD", 
+            amount: 169.99, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 1,
+            maxQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6485079", 
+            currencyCode: "USD", 
+            amount: 269.99, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "8435002",
+      name: "Recruiter Lite FY25 Desktop Annual (1-2 seats)",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "115003",
+        name: "RL_FY25_ANNUAL_SLAB", 
+        status: "Active",
+        startDate: "2025-01-01",
+        pricePoints: [
+          { 
+            id: "6485089", 
+            currencyCode: "USD", 
+            amount: 1679.88, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 1,
+            maxQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6485099", 
+            currencyCode: "USD", 
+            amount: 2599.88, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.JORDAN_BADER.fullName,
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "8435003",
+      name: "Recruiter Lite FY25 Desktop Monthly (Simple)",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "116001",
+        name: "RL_FY25_MONTHLY_SIMPLE",
+        status: "Active",
+        startDate: "2025-01-01",
+        pricePoints: [
+          { 
+            id: "6336603", 
+            currencyCode: "USD", 
+            amount: 169.99, 
+            startDate: "2025-01-01",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.TANMAY_KHEMKA.fullName,
+      createdDate: "2024-02-15T10:00:00Z"
+    },
+    {
+      id: "8435004",
+      name: "Recruiter Lite FY25 Desktop Annual (Simple)",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "116002",
+        name: "RL_FY25_ANNUAL_SIMPLE",
+        status: "Active",
+        startDate: "2025-01-01",
+        pricePoints: [
+          { 
+            id: "6336613", 
+            currencyCode: "USD", 
+            amount: 1679.88, 
+            startDate: "2025-01-01",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2024-02-15T10:00:00Z"
     }
   ];
 } 

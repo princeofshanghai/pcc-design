@@ -72,6 +72,12 @@ export type PricePoint = {
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
   startDate: string; // Mandatory effective start date
   endDate?: string; // Optional effective end date
+  // Pricing rule fields
+  pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
+  minQuantity?: number;
+  maxQuantity?: number;
+  priceType?: string; // e.g., 'BASE_AMOUNT'
+  isTaxInclusive?: boolean;
 };
 
 export type PriceGroup = {

@@ -285,7 +285,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -300,7 +299,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         title: toSentenceCase('Currency'),
         dataIndex: 'currencyCode',
         key: 'currency',
-        width: 160,
         render: (_: any, record: any) => {
           if ('isGroupHeader' in record) return null;
           return (
@@ -315,7 +313,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: 'Currency Type',
       dataIndex: 'currencyCode',
       key: 'currencyType',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -335,7 +332,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     usdEquivalent: showUsdEquivalent ? {
       title: 'USD Equivalent',
       key: 'usdEquivalent',
-      width: 140,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const percentage = calculateUsdEquivalent(record, usdPricePoint);
@@ -349,7 +345,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     effectiveDate: visibleColumns.effectiveDate !== false ? {
       title: 'Effective Date',
       key: 'effectiveDate',
-      width: 180,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         

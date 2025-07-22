@@ -12,9 +12,10 @@ const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
   })).filter(group => group.options.length > 0);
 };
 
-export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | null) => {
+export const useProductFilters = (initialProducts: Product[], initialLobFilter: LOB | null) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
+  const [lobFilter, setLobFilter] = useState<LOB | null>(initialLobFilter);
   const [folderFilter, setFolderFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
@@ -65,6 +66,10 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     sorted.sort((a, b) => {
       if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
       if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
+      if (sortOrder === 'LOB (A-Z)') { return a.lob.localeCompare(b.lob); }
+      if (sortOrder === 'LOB (Z-A)') { return b.lob.localeCompare(a.lob); }
+      if (sortOrder === 'Folder (A-Z)') { return a.folder.localeCompare(b.folder); }
+      if (sortOrder === 'Folder (Z-A)') { return b.folder.localeCompare(a.folder); }
       if (sortOrder === 'SKUs (Low to High)') { return a.skus.length - b.skus.length; }
       if (sortOrder === 'SKUs (High to Low)') { return b.skus.length - a.skus.length; }
       return 0;
@@ -108,6 +113,8 @@ export const useProductFilters = (initialProducts: Product[], lobFilter: LOB | n
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    lobFilter,
+    setLobFilter,
     folderFilter,
     setFolderFilter,
     

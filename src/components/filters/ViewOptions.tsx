@@ -202,7 +202,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }
   };
 
-  // Create ordered columns list
+  // Create ordered columns list with alphabetical sorting
   const orderedColumns = useMemo(() => {
     if (!columnOptions) return [];
     
@@ -212,16 +212,16 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         .map(key => columnOptions.find(col => col.key === key))
         .filter(Boolean) as ColumnConfig[];
       
-      // Add any columns not in the order array at the end
-      const remainingCols = columnOptions.filter(
-        col => !columnOrder.includes(col.key)
-      );
+      // Add any columns not in the order array at the end, sorted alphabetically
+      const remainingCols = columnOptions
+        .filter(col => !columnOrder.includes(col.key))
+        .sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key));
       
       return [...orderedCols, ...remainingCols];
     }
     
-    // No order specified, use original order
-    return columnOptions;
+    // No order specified, sort alphabetically by label (or key if no label)
+    return [...columnOptions].sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key));
   }, [columnOptions, columnOrder]);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -313,9 +313,14 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       }
     });
 
-    const fields = ['None', ...Array.from(fieldMap.keys()), ...Array.from(nonDirectionalFields)].filter((field, index, arr) => arr.indexOf(field) === index);
+    // Sort fields alphabetically while keeping 'None' first
+    const sortedFields = [
+      'None', 
+      ...Array.from(fieldMap.keys()).sort((a, b) => a.localeCompare(b)), 
+      ...Array.from(nonDirectionalFields).filter(field => field !== 'None').sort((a, b) => a.localeCompare(b))
+    ].filter((field, index, arr) => arr.indexOf(field) === index);
     
-    return { fields, directions: fieldMap };
+    return { fields: sortedFields, directions: fieldMap };
   }, [sortOptions]);
 
   // Parse current sort to determine field and direction

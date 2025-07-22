@@ -3,7 +3,7 @@ import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { Folder } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
-import type { Status, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
+import type { Status, LOB, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
 import {
   PageHeader,
@@ -17,9 +17,16 @@ import type { ViewMode, SelectOption } from '../components';
 
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
-const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'SKUs (Low to High)', 'SKUs (High to Low)'];
+const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to High)', 'SKUs (High to Low)'];
 
 const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
+const LOB_SELECT_OPTIONS: SelectOption[] = [
+  { label: 'Premium', value: 'Premium' },
+  { label: 'LTS', value: 'LTS' },
+  { label: 'LMS', value: 'LMS' },
+  { label: 'LSS', value: 'LSS' },
+  { label: 'Other', value: 'Other' }
+];
 
 // Helper function to convert URL folder names back to actual folder names
 const urlToFolderName = (urlFolder: string): string => {
@@ -84,6 +91,8 @@ const Home: React.FC = () => {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    lobFilter,
+    setLobFilter,
     folderFilter,
     setFolderFilter,
     groupBy,
@@ -121,6 +130,7 @@ const Home: React.FC = () => {
   const clearAllProductFilters = () => {
     setStatusFilter(null);
     if (!currentFolder) {
+      setLobFilter(null);
       setFolderFilter(null);
     }
     // Reset columns to show all toggleable columns
@@ -166,14 +176,22 @@ const Home: React.FC = () => {
                 value: statusFilter,
                 onChange: (value) => setStatusFilter((value as Status) ?? null),
               },
-              // Only show folder dropdown when on All Products page
-              ...(!currentFolder ? [{
-                placeholder: "All folders",
-                options: folderOptions,
-                value: folderFilter,
-                onChange: (value: string | null) => setFolderFilter(value ?? null),
-                showOptionTooltip: true,
-              }] : []),
+              // Only show LOB and folder dropdowns when on All Products page
+              ...(!currentFolder ? [
+                {
+                  placeholder: "All LOBs",
+                  options: LOB_SELECT_OPTIONS,
+                  value: lobFilter,
+                  onChange: (value: string | null) => setLobFilter((value as LOB) ?? null),
+                },
+                {
+                  placeholder: "All folders",
+                  options: folderOptions,
+                  value: folderFilter,
+                  onChange: (value: string | null) => setFolderFilter(value ?? null),
+                  showOptionTooltip: true,
+                }
+              ] : []),
             ]}
             viewOptions={{
               groupBy: {

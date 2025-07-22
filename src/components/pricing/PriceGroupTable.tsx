@@ -194,7 +194,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     currencies: visibleColumns.currencies !== false ? {
-      title: toSentenceCase('Currencies'),
+      title: toSentenceCase('Price points'),
       dataIndex: 'currencies',
       key: 'currencies',
       render: (_: any, record: any) => {
@@ -208,22 +208,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'sku',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        
-        if (record.skus.length === 1) {
-          const sku = record.skus[0];
-          return (
-            <Text 
-              style={{ color: '#1677ff', cursor: 'pointer', textDecoration: 'underline' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/product/${productId}/sku/${sku.id}`);
-              }}
-            >
-              {sku.name}
-            </Text>
-          );
-        }
-        
         return record.skus.length;
       },
     } : null,

@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from '../index';
 import { getUserLdap } from '../../utils/users';
+import { formatColumnTitles } from '../../utils/formatters';
 import { Copy } from 'lucide-react';
 
 const { Text } = Typography;
@@ -76,7 +77,7 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
     },
 
     {
-      title: 'Created By',
+      title: 'Created by',
       dataIndex: 'createdBy',
       key: 'createdBy',
       render: (createdBy: string) => (
@@ -84,7 +85,7 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
       ),
     },
     {
-      title: 'Created Date',
+      title: 'Created date',
       dataIndex: 'createdDate',
       key: 'createdDate',
       render: (createdDate: string) => (

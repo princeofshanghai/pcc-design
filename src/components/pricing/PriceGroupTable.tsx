@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
-import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
+import { formatCurrency, formatEffectiveDateRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
@@ -223,9 +223,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
-  const columns: ColumnsType<any> = columnOrder
-    .map(key => allColumnsMap[key])
-    .filter(Boolean);
+  const columns: ColumnsType<any> = formatColumnTitles(
+    columnOrder
+      .map(key => allColumnsMap[key])
+      .filter(Boolean)
+  );
 
   // Prepare data source
   const dataSource: TableRow[] = useMemo(() => {

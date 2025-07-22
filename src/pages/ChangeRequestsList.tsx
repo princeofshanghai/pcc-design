@@ -84,7 +84,8 @@ const ChangeRequestsList: React.FC = () => {
 
           <FilterBar
             displayMode="inline"
-            filterSize="large"
+            filterSize="middle"
+            searchAndViewSize="middle"
             search={{
               placeholder: "Search by request ID, product, channel, or creator...",
               onChange: setSearchQuery,

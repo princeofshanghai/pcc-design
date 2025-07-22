@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Table, Typography, theme, Space, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
+import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -372,7 +372,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         className: visibleColumns.id === true ? '' : 'table-col-first',
       },
     currencyType: visibleColumns.currencyType === true ? {
-      title: 'Currency Type',
+      title: 'Currency type',
       dataIndex: 'currencyCode',
       key: 'currencyType',
       render: (_: any, record: any) => {
@@ -392,7 +392,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     },
     pricingRule: visibleColumns.pricingRule !== false ? {
-      title: 'Pricing Rule',
+      title: 'Pricing rule',
       dataIndex: 'pricingRule',
       key: 'pricingRule',
       render: (_: any, record: any) => {
@@ -422,7 +422,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     quantityRange: visibleColumns.quantityRange !== false ? {
-      title: 'Quantity Range',
+      title: 'Quantity range',
       key: 'quantityRange',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -468,7 +468,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     usdEquivalent: showUsdEquivalent ? {
-      title: 'USD Equivalent',
+      title: 'USD equivalent',
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -482,7 +482,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     effectiveDate: visibleColumns.effectiveDate !== false ? {
-      title: 'Effective Date',
+      title: 'Effective date',
       key: 'effectiveDate',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -507,9 +507,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
-  const columns: ColumnsType<any> = columnOrder
-    .map(key => allColumns[key])
-    .filter(Boolean);
+  const columns: ColumnsType<any> = formatColumnTitles(
+    columnOrder
+      .map(key => allColumns[key])
+      .filter(Boolean)
+  );
 
   // Prepare data source with sorting applied
   const dataSource: TableRow[] = useMemo(() => {

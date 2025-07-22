@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'antd';
+import { formatColumnTitles } from '../../utils/formatters';
 import type { ColumnsType } from 'antd/es/table';
 
 interface DigitalGoodRecord {

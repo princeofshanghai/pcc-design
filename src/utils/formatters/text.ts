@@ -32,9 +32,11 @@ const SMALL_WORDS = new Set([
   'default', 'reset', 'none', 'option', 'settings', 'preferences',
   'columns', 'rows', 'items', 'data', 'content', 'details',
   // Descriptive words that should be lowercase unless first
-  'cycle', 'date', 'price', 'model', 'display', 'table', 'list', 'card',
+  'cycle', 'cycles', 'date', 'price', 'model', 'display', 'table', 'list', 'card',
   // Generic business terms that should be lowercase unless first
-  'products', 'groups', 'requests', 'schemes', 'other', 'offers', 'calculation'
+  'products', 'groups', 'requests', 'schemes', 'other', 'offers', 'calculation',
+  // Filter-related words that should be lowercase unless first
+  'channels', 'billing', 'currencies', 'features', 'statuses', 'keys'
 ]);
 
 /**

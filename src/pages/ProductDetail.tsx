@@ -321,13 +321,13 @@ const ProductDetail: React.FC = () => {
               }}
               filters={[
                 {
-                  placeholder: "All Channels",
+                  placeholder: "All channels",
                   options: priceGroupChannelOptions,
                   value: priceGroupChannelFilter,
                   onChange: setPriceGroupChannelFilter,
                 },
                 {
-                  placeholder: "All Billing Cycles",
+                  placeholder: "All billing cycles",
                   options: priceGroupBillingCycleOptions,
                   value: priceGroupBillingCycleFilter,
                   onChange: setPriceGroupBillingCycleFilter,
@@ -351,9 +351,9 @@ const ProductDetail: React.FC = () => {
                 columnOrder: priceGroupColumnOrder,
                 setColumnOrder: setPriceGroupColumnOrder,
               }}
-              displayMode="drawer"
+              displayMode="inline"
               filterSize="middle"
-              searchAndViewSize="large"
+              searchAndViewSize="middle"
             />
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 
@@ -414,31 +414,31 @@ const ProductDetail: React.FC = () => {
             onClearAll={clearAllSkuFilters}
             filters={[
               {
-                placeholder: toSentenceCase("All Channels"),
+                placeholder: "All channels",
                 options: channelOptions,
                 value: channelFilter,
                 onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
               },
               {
-                placeholder: toSentenceCase("All Cycles"),
+                placeholder: "All cycles",
                 options: billingCycleOptions,
                 value: billingCycleFilter,
                 onChange: (value) => setBillingCycleFilter(value as string ?? null),
               },
               {
-                placeholder: toSentenceCase("All Lix Keys"),
+                placeholder: "All LIX keys",
                 options: lixKeyOptions,
                 value: lixKeyFilter,
                 onChange: (value) => setLixKeyFilter(value as string ?? null),
               },
               {
-                placeholder: toSentenceCase("All Features"),
+                placeholder: "All features",
                 options: featuresOptions,
                 value: featuresFilter,
                 onChange: (value) => setFeaturesFilter(value as 'Standard' | 'Overrides' ?? null),
               },
               {
-                placeholder: toSentenceCase("All Statuses"),
+                placeholder: "All statuses",
                 options: statusOptions,
                 value: statusFilter,
                 onChange: (value) => setStatusFilter(value as Status ?? null),
@@ -458,7 +458,7 @@ const ProductDetail: React.FC = () => {
             }}
             displayMode="drawer"
             filterSize="middle"
-            searchAndViewSize="large"
+            searchAndViewSize="middle"
           />
           {finalGroupedSkus ? (
             <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} />

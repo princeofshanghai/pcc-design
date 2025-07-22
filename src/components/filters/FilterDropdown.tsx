@@ -2,6 +2,7 @@ import React from 'react';
 import { Select, Tooltip } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { useTruncationDetection } from '../../hooks/useTruncationDetection';
+import { toSentenceCase } from '../../utils/formatters';
 
 const { OptGroup, Option } = Select;
 
@@ -75,11 +76,14 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   showOptionTooltip = false, 
   dropdownStyle 
 }) => {
+  // Apply sentence casing to placeholder for consistency
+  const formattedPlaceholder = toSentenceCase(placeholder);
+
   return (
     <Select
       value={value}
       onChange={onChange}
-      placeholder={placeholder}
+      placeholder={formattedPlaceholder}
       style={{ minWidth: 140, ...style }}
       allowClear
       showSearch

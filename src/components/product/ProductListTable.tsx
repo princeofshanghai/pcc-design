@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
+import { formatColumnTitles } from '../../utils/formatters';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -65,9 +66,11 @@ export const getProductListTableColumns = (
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
-  return columnOrder
-    .map(key => allColumnsMap[key])
-    .filter(Boolean);
+  return formatColumnTitles(
+    columnOrder
+      .map(key => allColumnsMap[key])
+      .filter(Boolean)
+  );
 };
 
 const ProductListTable: React.FC<ProductListTableProps> = ({ 

@@ -306,7 +306,7 @@ const SkuDetail: React.FC = () => {
                 }}
                 filters={[
                   {
-                    placeholder: "All Currencies",
+                    placeholder: "All currencies",
                     options: currencyOptions,
                     value: currencyFilter,
                     onChange: setCurrencyFilter,
@@ -327,7 +327,7 @@ const SkuDetail: React.FC = () => {
                 }}
                 displayMode="drawer"
                 filterSize="middle"
-                searchAndViewSize="large"
+                searchAndViewSize="middle"
               />
               <PricePointTable 
                 pricePoints={filteredPricePoints} 

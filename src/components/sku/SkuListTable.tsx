@@ -8,7 +8,7 @@ import StatusTag from '../attributes/StatusTag';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
-import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
+import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
 
 const { Text } = Typography;
 
@@ -38,7 +38,7 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
   return false;
 };
 
-export const getSkuTableColumns = (product: Product, navigate: (path: string) => void, hidePriceGroupColumn: boolean = false): ColumnsType<Sku> => [
+export const getSkuTableColumns = (product: Product, navigate: (path: string) => void, hidePriceGroupColumn: boolean = false): ColumnsType<Sku> => formatColumnTitles([
   {
     title: toSentenceCase('Name'),
     dataIndex: 'name',
@@ -119,7 +119,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     key: 'status',
     render: (status: Status) => <StatusTag status={status} />, 
   },
-];
+]);
 
 const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGroupColumn = false }) => {
   const navigate = useNavigate();

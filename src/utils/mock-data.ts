@@ -513,7 +513,7 @@ export const mockProducts: Product[] = [
   {
     id: '5083684',
     name: 'Recruiter Lite',
-    description: 'Essential recruiting tools for small to medium teams.',
+    description: 'Find the right talent faster. Search for qualified candidates with 20+ filters, 30 InMail messages per month, saved search alerts, daily candidate recommendations, among other features.',
     lob: 'LTS',
     folder: 'Recruiter',
     status: 'Active',
@@ -1097,6 +1097,27 @@ if (recruiterLiteProduct) {
             id: "6485079", 
             currencyCode: "USD", 
             amount: 269.99, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6485169", 
+            currencyCode: "EUR", 
+            amount: 140.49, 
+            startDate: "2025-01-01",
+            pricingRule: "SLAB",
+            minQuantity: 1,
+            maxQuantity: 2,
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6485179", 
+            currencyCode: "EUR", 
+            amount: 224.78, 
             startDate: "2025-01-01",
             pricingRule: "SLAB",
             minQuantity: 2,

@@ -145,7 +145,8 @@ const Home: React.FC = () => {
         <Space direction="vertical" style={{ width: '100%' }} size="large">
           <PageHeader
             icon={currentFolder ? <Folder /> : undefined}
-            iconSize={24}
+            iconSize={16}
+            entityType={currentFolder ? "Folder" : undefined}
             title={pageTitle}
             subtitle={pageSubtitle}
           />

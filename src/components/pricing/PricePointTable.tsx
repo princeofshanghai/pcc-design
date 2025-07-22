@@ -136,6 +136,62 @@ const calculateUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoin
 };
 
 /**
+ * Finds the matching USD price point for a given price point based on quantity ranges.
+ * @param pricePoint - The price point to find a USD match for.
+ * @param allPricePoints - All price points in the price group.
+ * @returns The matching USD price point, or null if not found.
+ */
+const findMatchingUsdPricePoint = (pricePoint: PricePoint, allPricePoints: PricePoint[]): PricePoint | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return pricePoint; // USD price point matches itself
+  }
+
+  // Find all USD price points
+  const usdPricePoints = allPricePoints.filter(point => point.currencyCode === 'USD');
+  
+  if (usdPricePoints.length === 0) {
+    return null;
+  }
+
+  // If there's only one USD price point, use it
+  if (usdPricePoints.length === 1) {
+    return usdPricePoints[0];
+  }
+
+  // Try to find a USD price point with matching quantity ranges
+  const matchingUsdPoint = usdPricePoints.find(usdPoint => {
+    // Check if both price points have the same quantity range
+    const sameMinQuantity = (pricePoint.minQuantity || null) === (usdPoint.minQuantity || null);
+    const sameMaxQuantity = (pricePoint.maxQuantity || null) === (usdPoint.maxQuantity || null);
+    
+    return sameMinQuantity && sameMaxQuantity;
+  });
+
+  // If we found a matching quantity range, use it
+  if (matchingUsdPoint) {
+    return matchingUsdPoint;
+  }
+
+  // Fallback: if no exact match, try to find a USD point with overlapping range
+  const overlappingUsdPoint = usdPricePoints.find(usdPoint => {
+    const priceMin = pricePoint.minQuantity || 1;
+    const priceMax = pricePoint.maxQuantity || Infinity;
+    const usdMin = usdPoint.minQuantity || 1;
+    const usdMax = usdPoint.maxQuantity || Infinity;
+    
+    // Check if ranges overlap
+    return priceMin <= usdMax && priceMax >= usdMin;
+  });
+
+  if (overlappingUsdPoint) {
+    return overlappingUsdPoint;
+  }
+
+  // Final fallback: use the first USD price point
+  return usdPricePoints[0];
+};
+
+/**
  * Formats the USD equivalent percentage for display.
  * @param percentage - The percentage value.
  * @returns A formatted percentage string.
@@ -184,7 +240,7 @@ const getCommonDates = (pricePoints: PricePoint[]): { startDate: string; endDate
 /**
  * Sorts price points based on the selected sort order
  */
-const sortPricePoints = (points: PricePoint[], sortOrder: string, usdPricePoint?: PricePoint): PricePoint[] => {
+const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints: PricePoint[]): PricePoint[] => {
   if (!sortOrder || sortOrder === 'None') {
     return points;
   }
@@ -206,17 +262,19 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, usdPricePoint?
     
     case 'USD Equivalent (High to Low)':
       return sorted.sort((a, b) => {
-        if (!usdPricePoint) return 0;
-        const aEquiv = calculateUsdEquivalent(a, usdPricePoint) || 0;
-        const bEquiv = calculateUsdEquivalent(b, usdPricePoint) || 0;
+        const aUsdPoint = findMatchingUsdPricePoint(a, allPricePoints);
+        const bUsdPoint = findMatchingUsdPricePoint(b, allPricePoints);
+        const aEquiv = aUsdPoint ? calculateUsdEquivalent(a, aUsdPoint) || 0 : 0;
+        const bEquiv = bUsdPoint ? calculateUsdEquivalent(b, bUsdPoint) || 0 : 0;
         return bEquiv - aEquiv;
       });
     
     case 'USD Equivalent (Low to High)':
       return sorted.sort((a, b) => {
-        if (!usdPricePoint) return 0;
-        const aEquiv = calculateUsdEquivalent(a, usdPricePoint) || 0;
-        const bEquiv = calculateUsdEquivalent(b, usdPricePoint) || 0;
+        const aUsdPoint = findMatchingUsdPricePoint(a, allPricePoints);
+        const bUsdPoint = findMatchingUsdPricePoint(b, allPricePoints);
+        const aEquiv = aUsdPoint ? calculateUsdEquivalent(a, aUsdPoint) || 0 : 0;
+        const bEquiv = bUsdPoint ? calculateUsdEquivalent(b, bUsdPoint) || 0 : 0;
         return aEquiv - bEquiv;
       });
     
@@ -260,13 +318,17 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 }) => {
   const { token } = theme.useToken();
 
-  // Find USD price point for calculations
-  const usdPricePoint = useMemo(() => {
-    const allPoints = groupedPricePoints 
+  // Get all price points for USD equivalent calculations
+  const allPricePoints = useMemo(() => {
+    return groupedPricePoints 
       ? Object.values(groupedPricePoints).flat()
       : pricePoints;
-    return allPoints.find(point => point.currencyCode === 'USD');
   }, [pricePoints, groupedPricePoints]);
+
+  // Find USD price point for calculations (keeping for backward compatibility)
+  const usdPricePoint = useMemo(() => {
+    return allPricePoints.find(point => point.currencyCode === 'USD');
+  }, [allPricePoints]);
 
   // Get common dates for inheritance detection
   const commonDates = useMemo(() => {
@@ -410,7 +472,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        const percentage = calculateUsdEquivalent(record, usdPricePoint);
+        const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
+        const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
         return (
           <Text style={{ color: percentage === 100 ? token.colorTextSecondary : token.colorText }}>
             {formatUsdEquivalent(percentage)}
@@ -454,7 +517,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       // Grouped data - sort within each group
       const result: TableRow[] = [];
       Object.entries(groupedPricePoints).forEach(([groupTitle, points]) => {
-        const sortedPoints = sortPricePoints(points, sortOrder, usdPricePoint);
+        const sortedPoints = sortPricePoints(points, sortOrder, allPricePoints);
         result.push({
           isGroupHeader: true,
           key: `header-${groupTitle}`,
@@ -466,10 +529,10 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       return result;
     } else {
       // Ungrouped data - sort all points
-      const sortedPoints = sortPricePoints(pricePoints, sortOrder, usdPricePoint);
+      const sortedPoints = sortPricePoints(pricePoints, sortOrder, allPricePoints);
       return sortedPoints;
     }
-  }, [pricePoints, groupedPricePoints, sortOrder, usdPricePoint]);
+  }, [pricePoints, groupedPricePoints, sortOrder, allPricePoints]);
 
   return (
     <div className="content-panel">

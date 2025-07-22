@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Table, Typography, theme, Space } from 'antd';
+import { Table, Typography, theme, Space, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
@@ -255,7 +255,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['id', 'currency', 'currencyType', 'amount', 'usdEquivalent', 'effectiveDate'],
+  columnOrder = ['id', 'currency', 'currencyType', 'amount', 'pricingRule', 'quantityRange', 'usdEquivalent', 'effectiveDate'],
   sortOrder = 'None',
 }) => {
   const { token } = theme.useToken();
@@ -329,6 +329,82 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return formatAmount(record);
       },
     },
+    pricingRule: visibleColumns.pricingRule !== false ? {
+      title: 'Pricing Rule',
+      dataIndex: 'pricingRule',
+      key: 'pricingRule',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        const getPricingRuleTooltip = (rule: string): string => {
+          switch (rule) {
+            case 'NONE':
+              return 'Flat rate pricing - same price regardless of quantity';
+            case 'SLAB':
+              return 'Slab pricing - different price per unit for different quantity ranges';
+            case 'RANGE':
+              return 'Range pricing - different total price for different quantity ranges';
+            case 'BLOCK':
+              return 'Block pricing - fixed price per block of units';
+            default:
+              return 'Pricing rule not specified';
+          }
+        };
+        
+        const rule = record.pricingRule || 'NONE';
+        return (
+          <Tooltip title={getPricingRuleTooltip(rule)}>
+            <Text>{rule}</Text>
+          </Tooltip>
+        );
+      },
+    } : null,
+    quantityRange: visibleColumns.quantityRange !== false ? {
+      title: 'Quantity Range',
+      key: 'quantityRange',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        // Format quantity range based on min/max values
+        const formatQuantityRange = (pricePoint: any): string => {
+          if (!pricePoint.minQuantity && !pricePoint.maxQuantity) {
+            return '-';
+          }
+          
+          const min = pricePoint.minQuantity || 1;
+          const max = pricePoint.maxQuantity;
+          
+          if (!max) {
+            return `${min}+ seats`;
+          }
+          
+          if (min === max) {
+            return `${min} seat${min === 1 ? '' : 's'}`;
+          }
+          
+          return `${min}-${max} seats`;
+        };
+        
+        const getQuantityRangeTooltip = (pricePoint: any): string => {
+          if (!pricePoint.minQuantity && !pricePoint.maxQuantity) {
+            return 'No quantity restrictions apply';
+          }
+          
+          if (pricePoint.pricingRule === 'SLAB') {
+            return 'This price applies to the specified quantity range in a slab pricing structure';
+          }
+          
+          return 'Price applies to this quantity range';
+        };
+        
+        const rangeText = formatQuantityRange(record);
+        return (
+          <Tooltip title={getQuantityRangeTooltip(record)}>
+            <Text>{rangeText}</Text>
+          </Tooltip>
+        );
+      },
+    } : null,
     usdEquivalent: showUsdEquivalent ? {
       title: 'USD Equivalent',
       key: 'usdEquivalent',

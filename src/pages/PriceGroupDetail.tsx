@@ -41,6 +41,8 @@ const PriceGroupDetail: React.FC = () => {
     id: false,         // Hidden by default, toggleable
     currency: true,    // Always visible (required)
     amount: true,      // Always visible (required)
+    pricingRule: true, // Show pricing rule by default
+    quantityRange: true, // Show quantity range by default
     usdEquivalent: true, // Toggleable
     effectiveDate: true, // Toggleable
     currencyType: false, // Hidden by default, toggleable
@@ -51,7 +53,9 @@ const PriceGroupDetail: React.FC = () => {
     'id',
     'currency',
     'currencyType',
-    'amount', 
+    'amount',
+    'pricingRule',
+    'quantityRange',
     'usdEquivalent',
     'effectiveDate'
   ]);
@@ -65,6 +69,8 @@ const PriceGroupDetail: React.FC = () => {
     { key: 'currency', label: 'Currency', required: true },
     { key: 'currencyType', label: 'Currency Type', required: false },
     { key: 'amount', label: 'Amount', required: true },
+    { key: 'pricingRule', label: 'Pricing Rule', required: false },
+    { key: 'quantityRange', label: 'Quantity Range', required: false },
     { key: 'usdEquivalent', label: 'USD Equivalent', required: false },
     { key: 'effectiveDate', label: 'Effective Date', required: false },
   ];

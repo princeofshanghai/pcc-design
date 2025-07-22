@@ -47,7 +47,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         <Space direction="vertical" size={4}>
           {/* Icon + Entity Type above title */}
           {(icon || entityType) && (
-            <Space align="center" size="small">
+            <Space align="center" size={4}>
               {icon && (
                 <div style={{ 
                   color: token.colorTextSecondary,

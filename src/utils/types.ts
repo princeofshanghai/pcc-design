@@ -70,6 +70,8 @@ export type PricePoint = {
   currencyCode: string;
   amount: number;
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
+  startDate: string; // Mandatory effective start date
+  endDate?: string; // Optional effective end date
 };
 
 export type PriceGroup = {

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase } from '../../utils/formatters';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
@@ -26,6 +26,61 @@ type TableRow = {
   key: string;
   title: string;
   count: number;
+};
+
+/**
+ * Determines the common effective date range for a price group based on its price points
+ */
+const getCommonEffectiveDateRange = (pricePoints: PricePoint[]): string => {
+  if (!pricePoints || pricePoints.length === 0) return 'N/A';
+
+  // Count frequency of start dates
+  const startDateCounts: Record<string, number> = {};
+  const endDateCounts: Record<string, number> = {};
+  
+  pricePoints.forEach(point => {
+    const startDate = point.startDate || '';
+    const endDate = point.endDate || '';
+    
+    startDateCounts[startDate] = (startDateCounts[startDate] || 0) + 1;
+    endDateCounts[endDate] = (endDateCounts[endDate] || 0) + 1;
+  });
+
+  // Find most common start date
+  const startDateEntries = Object.entries(startDateCounts);
+  const mostCommonStartEntry = startDateEntries.reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  );
+  const mostCommonStartDate = mostCommonStartEntry[0];
+  const startDateFrequency = mostCommonStartEntry[1];
+
+  // Find most common end date
+  const endDateEntries = Object.entries(endDateCounts);
+  const mostCommonEndEntry = endDateEntries.reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  );
+  const mostCommonEndDate = mostCommonEndEntry[0];
+  const endDateFrequency = mostCommonEndEntry[1];
+
+  // Check if dates are mixed
+  const hasMultipleStartDates = startDateEntries.length > 1;
+  const hasMultipleEndDates = endDateEntries.length > 1;
+  
+  // If start dates vary significantly, show "Mixed effective dates"
+  if (hasMultipleStartDates && startDateFrequency < pricePoints.length * 0.7) {
+    return 'Mixed effective dates';
+  }
+  
+  // If end dates vary significantly, but start dates are consistent
+  if (hasMultipleEndDates && endDateFrequency < pricePoints.length * 0.7) {
+    return formatEffectiveDateRange(mostCommonStartDate, undefined) + ' - Mixed end dates';
+  }
+  
+  // Use most common dates
+  return formatEffectiveDateRange(
+    mostCommonStartDate || undefined, 
+    mostCommonEndDate || undefined
+  );
 };
 
 const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ 
@@ -178,7 +233,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'effectiveDate',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return formatEffectiveDateRange(record.priceGroup.startDate, record.priceGroup.endDate);
+        return getCommonEffectiveDateRange(record.priceGroup.pricePoints);
       },
     } : null,
   };

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Table, Typography, theme } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { toSentenceCase } from '../../utils/formatters';
+import { toSentenceCase, formatEffectiveDateRange } from '../../utils/formatters';
 import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -128,11 +128,44 @@ const formatUsdEquivalent = (percentage: number | null): string => {
   return `${percentage.toFixed(1)}%`;
 };
 
+/**
+ * Determines the "common" dates for this price point group for inheritance detection
+ */
+const getCommonDates = (pricePoints: PricePoint[]): { startDate: string; endDate?: string } => {
+  if (!pricePoints || pricePoints.length === 0) return { startDate: '' };
+
+  // Count frequency of start dates
+  const startDateCounts: Record<string, number> = {};
+  const endDateCounts: Record<string, number> = {};
+  
+  pricePoints.forEach(point => {
+    const startDate = point.startDate || '';
+    const endDate = point.endDate || '';
+    
+    startDateCounts[startDate] = (startDateCounts[startDate] || 0) + 1;
+    endDateCounts[endDate] = (endDateCounts[endDate] || 0) + 1;
+  });
+
+  // Find most common dates
+  const mostCommonStartDate = Object.entries(startDateCounts).reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  )[0];
+  
+  const mostCommonEndDate = Object.entries(endDateCounts).reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  )[0];
+
+  return { 
+    startDate: mostCommonStartDate,
+    endDate: mostCommonEndDate || undefined
+  };
+};
+
 const PricePointTable: React.FC<PricePointTableProps> = ({ 
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['currency', 'amount', 'usdEquivalent'],
+  columnOrder = ['currency', 'amount', 'usdEquivalent', 'effectiveDate'],
 }) => {
   const { token } = theme.useToken();
 
@@ -142,6 +175,14 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       ? Object.values(groupedPricePoints).flat()
       : pricePoints;
     return allPoints.find(point => point.currencyCode === 'USD');
+  }, [pricePoints, groupedPricePoints]);
+
+  // Get common dates for inheritance detection
+  const commonDates = useMemo(() => {
+    const allPoints = groupedPricePoints 
+      ? Object.values(groupedPricePoints).flat()
+      : pricePoints;
+    return getCommonDates(allPoints);
   }, [pricePoints, groupedPricePoints]);
 
   // Check if USD Equivalent column should be visible
@@ -183,6 +224,30 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return (
           <Text style={{ color: percentage === 100 ? token.colorTextSecondary : token.colorText }}>
             {formatUsdEquivalent(percentage)}
+          </Text>
+        );
+      },
+    } : null,
+    effectiveDate: visibleColumns.effectiveDate !== false ? {
+      title: 'Effective Date',
+      key: 'effectiveDate',
+      width: 180,
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        // Check if this price point's dates match the common dates (inherited)
+        const isInherited = (
+          record.startDate === commonDates.startDate && 
+          (record.endDate || '') === (commonDates.endDate || '')
+        );
+        
+        const effectiveDateText = formatEffectiveDateRange(record.startDate, record.endDate);
+        
+        return (
+          <Text style={{ 
+            color: isInherited ? token.colorTextSecondary : token.colorText 
+          }}>
+            {effectiveDateText}
           </Text>
         );
       },

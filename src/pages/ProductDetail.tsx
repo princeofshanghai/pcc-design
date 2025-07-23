@@ -18,32 +18,28 @@ import {
   AttributeGroup,
   StatusTag,
   BillingModelDisplay,
-  CountTag,
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
   ActivityFeedItem
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
+import { 
+  PRICE_GROUP_COLUMNS, 
+  PRICE_GROUP_SORT_OPTIONS, 
+  PRICE_GROUP_GROUP_BY_OPTIONS,
+  DEFAULT_PRICE_GROUP_COLUMN_VISIBILITY,
+  DEFAULT_PRICE_GROUP_COLUMN_ORDER,
+  SKU_SORT_OPTIONS
+} from '../utils/tableConfigurations';
 import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
 
 const { Title } = Typography;
 const { Step } = Steps;
 
-const SKU_SORT_OPTIONS = ['None', 'Effective Date'];
 const SKU_GROUP_BY_OPTIONS = ['None', 'Price Group', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
 
-const PRICE_GROUP_SORT_OPTIONS = [
-  'None', 
-  'Name (A-Z)', 
-  'Name (Z-A)', 
-  'Currencies (Low to High)', 
-  'Currencies (High to Low)', 
-  'SKUs (Low to High)', 
-  'SKUs (High to Low)', 
-  'Effective Date (Earliest to Latest)',
-  'Effective Date (Latest to Earliest)'
-];
+
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -109,37 +105,17 @@ const ProductDetail: React.FC = () => {
   } = usePriceGroupFilters(product?.skus || []);
 
   // Column visibility state for PriceGroupTable
-  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>({
-    name: true,           // Always visible (required)
-    channel: true,        // Toggleable
-    billingCycle: true,   // Toggleable
-    usdPrice: true,       // Toggleable
-    currencies: true,     // Toggleable
-    sku: true,            // Toggleable
-    effectiveDate: true,  // Toggleable
-  });
+  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(
+    DEFAULT_PRICE_GROUP_COLUMN_VISIBILITY
+  );
 
   // Column order state for PriceGroupTable
-  const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>([
-    'name',
-    'channel',
-    'billingCycle', 
-    'usdPrice',
-    'currencies',
-    'sku',
-    'effectiveDate'
-  ]);
+  const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>(
+    DEFAULT_PRICE_GROUP_COLUMN_ORDER
+  );
 
-  // Column configuration for PriceGroupTable
-  const priceGroupColumnOptions: ColumnConfig[] = [
-    { key: 'name', label: 'Name', required: true },
-    { key: 'channel', label: 'Channel', required: false },
-    { key: 'billingCycle', label: 'Billing Cycle', required: false },
-    { key: 'usdPrice', label: 'USD Price', required: false },
-    { key: 'currencies', label: 'Currencies', required: false },
-    { key: 'sku', label: 'SKU', required: false },
-    { key: 'effectiveDate', label: 'Effective Date', required: false },
-  ];
+  // Column configuration for PriceGroupTable - use centralized configuration
+  const priceGroupColumnOptions: ColumnConfig[] = PRICE_GROUP_COLUMNS;
 
   const clearAllPriceGroupFilters = () => {
     setPriceGroupSearchQuery('');
@@ -291,104 +267,7 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // New Pricing tab
-    {
-      key: 'pricing',
-      label: 'Pricing',
-      children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection 
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Prices</span>
-                <CountTag count={filteredPriceGroups.length} />
-              </div>
-            }
-            actions={
-              <Button 
-                icon={<Plus size={16} />}
-                onClick={() => setIsConfigurationModalOpen(true)}
-                size="large"
-              >
-                Add prices
-              </Button>
-            }
-          >
-            <FilterBar
-              search={{
-                placeholder: "Search by ID or Name...",
-                onChange: setPriceGroupSearchQuery,
-              }}
-              filters={[
-                {
-                  placeholder: "All channels",
-                  options: priceGroupChannelOptions,
-                  value: priceGroupChannelFilter,
-                  onChange: setPriceGroupChannelFilter,
-                },
-                {
-                  placeholder: "All billing cycles",
-                  options: priceGroupBillingCycleOptions,
-                  value: priceGroupBillingCycleFilter,
-                  onChange: setPriceGroupBillingCycleFilter,
-                },
-              ]}
-              onClearAll={clearAllPriceGroupFilters}
-              viewOptions={{
-                groupBy: {
-                  value: priceGroupGroupBy,
-                  setter: setPriceGroupGroupBy,
-                  options: ['None', 'Channel', 'Billing Cycle'],
-                },
-                sortOrder: {
-                  value: priceGroupSortOrder,
-                  setter: setPriceGroupSortOrder,
-                  options: PRICE_GROUP_SORT_OPTIONS,
-                },
-                columnOptions: priceGroupColumnOptions,
-                visibleColumns: priceGroupVisibleColumns,
-                setVisibleColumns: setPriceGroupVisibleColumns,
-                columnOrder: priceGroupColumnOrder,
-                setColumnOrder: setPriceGroupColumnOrder,
-              }}
-              displayMode="inline"
-              filterSize="middle"
-              searchAndViewSize="middle"
-            />
-            <PriceGroupTable 
-              priceGroups={filteredPriceGroups} 
-              groupedPriceGroups={groupedPriceGroups}
-              productId={product.id}
-              visibleColumns={priceGroupVisibleColumns}
-              columnOrder={priceGroupColumnOrder}
-            />
-          </PageSection>
-        </Space>
-      ),
-    },
-    {
-      key: 'features',
-      label: 'Features',
-      children: (
-        <PageSection title={toSentenceCase('Features')}>
-          {product.features && product.features.length > 0 ? (
-            <div className="content-panel">
-              <Table
-                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
-                pagination={false}
-                size="small"
-                rowKey="key"
-                showHeader={false}
-              />
-            </div>
-          ) : (
-            <span style={{ color: '#888' }}>No features listed for this product.</span>
-          )}
-        </PageSection>
-      ),
-    },
-    // New SKUs tab (second to last)
+    // SKUs tab (moved to be second)
     {
       key: 'skus',
       label: 'SKUs',
@@ -397,7 +276,6 @@ const ProductDetail: React.FC = () => {
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>{toSentenceCase('SKUs')}</span>
-                <CountTag count={finalSkuCount} />
                 {priceGroupFilter && (
                   <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
                     (filtered by price: {priceGroupFilter})
@@ -468,7 +346,98 @@ const ProductDetail: React.FC = () => {
         </PageSection>
       ),
     },
-
+    // New Pricing tab
+    {
+      key: 'pricing',
+      label: 'Pricing',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection 
+            title="Prices"
+            actions={
+              <Button 
+                icon={<Plus size={16} />}
+                onClick={() => setIsConfigurationModalOpen(true)}
+                size="large"
+              >
+                Add prices
+              </Button>
+            }
+          >
+            <FilterBar
+              search={{
+                placeholder: "Search by ID or Name...",
+                onChange: setPriceGroupSearchQuery,
+              }}
+              filters={[
+                {
+                  placeholder: "All channels",
+                  options: priceGroupChannelOptions,
+                  value: priceGroupChannelFilter,
+                  onChange: setPriceGroupChannelFilter,
+                },
+                {
+                  placeholder: "All billing cycles",
+                  options: priceGroupBillingCycleOptions,
+                  value: priceGroupBillingCycleFilter,
+                  onChange: setPriceGroupBillingCycleFilter,
+                },
+              ]}
+              onClearAll={clearAllPriceGroupFilters}
+              viewOptions={{
+                groupBy: {
+                  value: priceGroupGroupBy,
+                  setter: setPriceGroupGroupBy,
+                  options: PRICE_GROUP_GROUP_BY_OPTIONS,
+                },
+                sortOrder: {
+                  value: priceGroupSortOrder,
+                  setter: setPriceGroupSortOrder,
+                  options: PRICE_GROUP_SORT_OPTIONS,
+                },
+                columnOptions: priceGroupColumnOptions,
+                visibleColumns: priceGroupVisibleColumns,
+                setVisibleColumns: setPriceGroupVisibleColumns,
+                columnOrder: priceGroupColumnOrder,
+                setColumnOrder: setPriceGroupColumnOrder,
+              }}
+              displayMode="inline"
+              filterSize="middle"
+              searchAndViewSize="middle"
+            />
+            <PriceGroupTable 
+              priceGroups={filteredPriceGroups} 
+              groupedPriceGroups={groupedPriceGroups}
+              productId={product.id}
+              visibleColumns={priceGroupVisibleColumns}
+              columnOrder={priceGroupColumnOrder}
+            />
+          </PageSection>
+        </Space>
+      ),
+    },
+    {
+      key: 'features',
+      label: 'Features',
+      children: (
+        <PageSection title={toSentenceCase('Features')}>
+          {product.features && product.features.length > 0 ? (
+            <div className="content-panel">
+              <Table
+                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
+                pagination={false}
+                size="small"
+                rowKey="key"
+                showHeader={false}
+              />
+            </div>
+          ) : (
+            <span style={{ color: '#888' }}>No features listed for this product.</span>
+          )}
+        </PageSection>
+      ),
+    },
     {
       key: 'activity',
       label: (() => {
@@ -493,14 +462,7 @@ const ProductDetail: React.FC = () => {
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>🔥 {toSentenceCase('Needs Attention')}</span>
-                {(() => {
-                  const pendingRequests = product.configurationRequests?.filter(request => 
-                    ['Draft', 'Pending Review', 'In EI'].includes(request.status)
-                  ) || [];
-                  return pendingRequests.length > 0 && (
-                    <CountTag count={pendingRequests.length} />
-                  );
-                })()}
+
               </div>
             }
           >

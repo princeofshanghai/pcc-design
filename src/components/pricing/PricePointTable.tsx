@@ -3,6 +3,7 @@ import { Table, Typography, theme, Space, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
+import { PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -318,6 +319,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 }) => {
   const { token } = theme.useToken();
 
+  // Create a helper to get column label from centralized config
+  const getColumnLabel = (key: string): string => {
+    const column = PRICE_POINT_COLUMNS.find(col => col.key === key);
+    return column?.label || toSentenceCase(key);
+  };
+
   // Get all price points for USD equivalent calculations
   const allPricePoints = useMemo(() => {
     return groupedPricePoints 
@@ -344,7 +351,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   // Define all possible columns
   const allColumns: Record<string, any> = {
     id: visibleColumns.id === true ? {
-      title: 'ID',
+      title: getColumnLabel('id'),
       dataIndex: 'id',
       key: 'id',
       render: (_: any, record: any) => {
@@ -358,7 +365,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
             } : null,
       currency: {
-        title: toSentenceCase('Currency'),
+        title: getColumnLabel('currency'),
         dataIndex: 'currencyCode',
         key: 'currency',
         render: (_: any, record: any) => {
@@ -372,7 +379,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         className: visibleColumns.id === true ? '' : 'table-col-first',
       },
     currencyType: visibleColumns.currencyType === true ? {
-      title: 'Currency type',
+      title: getColumnLabel('currencyType'),
       dataIndex: 'currencyCode',
       key: 'currencyType',
       render: (_: any, record: any) => {
@@ -383,7 +390,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     amount: {
-      title: toSentenceCase('Amount'),
+      title: getColumnLabel('amount'),
       dataIndex: 'amount',
       key: 'amount',
       render: (_: any, record: any) => {
@@ -392,7 +399,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     },
     pricingRule: visibleColumns.pricingRule !== false ? {
-      title: 'Pricing rule',
+      title: getColumnLabel('pricingRule'),
       dataIndex: 'pricingRule',
       key: 'pricingRule',
       render: (_: any, record: any) => {
@@ -413,16 +420,21 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           }
         };
         
+        const formatPricingRule = (rule: string): string => {
+          if (!rule || rule === 'NONE') return 'None';
+          return rule.charAt(0).toUpperCase() + rule.slice(1).toLowerCase();
+        };
+        
         const rule = record.pricingRule || 'NONE';
         return (
           <Tooltip title={getPricingRuleTooltip(rule)}>
-            <Text>{rule}</Text>
+            <Text>{formatPricingRule(rule)}</Text>
           </Tooltip>
         );
       },
     } : null,
     quantityRange: visibleColumns.quantityRange !== false ? {
-      title: 'Quantity range',
+      title: getColumnLabel('quantityRange'),
       key: 'quantityRange',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -468,7 +480,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     usdEquivalent: showUsdEquivalent ? {
-      title: 'USD equivalent',
+      title: getColumnLabel('usdEquivalent'),
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -482,7 +494,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     effectiveDate: visibleColumns.effectiveDate !== false ? {
-      title: 'Effective date',
+      title: getColumnLabel('effectiveDate'),
       key: 'effectiveDate',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;

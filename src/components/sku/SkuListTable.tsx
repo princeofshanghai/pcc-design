@@ -9,6 +9,7 @@ import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
 import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
+import { SKU_COLUMNS } from '../../utils/tableConfigurations';
 
 const { Text } = Typography;
 
@@ -38,9 +39,15 @@ const hasSkuOverrides = (sku: Sku, product: Product): boolean => {
   return false;
 };
 
+// Create a helper to get column label from centralized config
+const getColumnLabel = (key: string): string => {
+  const column = SKU_COLUMNS.find(col => col.key === key);
+  return column?.label || toSentenceCase(key);
+};
+
 export const getSkuTableColumns = (product: Product, navigate: (path: string) => void, hidePriceGroupColumn: boolean = false): ColumnsType<Sku> => formatColumnTitles([
   {
-    title: toSentenceCase('Name'),
+    title: getColumnLabel('name'),
     dataIndex: 'name',
     key: 'name',
     render: (name: string, record: Sku) => (
@@ -69,12 +76,12 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     className: 'table-col-first',
   },
   {
-    title: toSentenceCase('Effective Date'),
+    title: getColumnLabel('effectiveDate'),
     key: 'effectiveDates',
     render: (_: any, sku: Sku) => formatEffectiveDateRange(sku.priceGroup.startDate, sku.priceGroup.endDate),
   },
   ...(hidePriceGroupColumn ? [] : [{
-    title: toSentenceCase('Price group'),
+    title: getColumnLabel('priceGroup'),
     key: 'priceGroupId',
     render: (_: any, sku: Sku) => {
       if (!sku.priceGroup.id) return 'N/A';
@@ -93,7 +100,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   }]),
 
   {
-    title: toSentenceCase('LIX'),
+    title: getColumnLabel('lix'),
     key: 'experimental',
     render: (_: any, sku: Sku) => {
       if (!sku.lix?.key) return null;
@@ -114,7 +121,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   },
 
   {
-    title: toSentenceCase('Status'),
+    title: getColumnLabel('status'),
     dataIndex: 'status',
     key: 'status',
     render: (status: Status) => <StatusTag status={status} />, 

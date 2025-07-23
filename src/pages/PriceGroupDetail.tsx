@@ -12,12 +12,17 @@ import {
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  CountTag,
   FilterBar
 } from '../components';
 import { SkuListTable } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
 import { formatEffectiveDateRange, toSentenceCase } from '../utils/formatters';
+import { 
+  PRICE_POINT_COLUMNS, 
+  PRICE_POINT_SORT_OPTIONS,
+  DEFAULT_PRICE_POINT_COLUMN_VISIBILITY,
+  DEFAULT_PRICE_POINT_COLUMN_ORDER
+} from '../utils/tableConfigurations';
 import { DollarSign } from 'lucide-react';
 
 const { Title } = Typography;
@@ -36,58 +41,24 @@ const PriceGroupDetail: React.FC = () => {
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
-  // Column visibility state for PricePointTable
-  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
-    id: false,         // Hidden by default, toggleable
-    currency: true,    // Always visible (required)
-    amount: true,      // Always visible (required)
-    pricingRule: true, // Show pricing rule by default
-    quantityRange: true, // Show quantity range by default
-    usdEquivalent: true, // Toggleable
-    effectiveDate: true, // Toggleable
-    currencyType: false, // Hidden by default, toggleable
-  });
+  // Column visibility state for PricePointTable - use centralized defaults
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(
+    DEFAULT_PRICE_POINT_COLUMN_VISIBILITY
+  );
 
-  // Column order state for PricePointTable
-  const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
-    'id',
-    'currency',
-    'currencyType',
-    'amount',
-    'pricingRule',
-    'quantityRange',
-    'usdEquivalent',
-    'effectiveDate'
-  ]);
+  // Column order state for PricePointTable - use centralized defaults
+  const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
+    DEFAULT_PRICE_POINT_COLUMN_ORDER
+  );
 
   // Sort state for PricePointTable
   const [sortOrder, setSortOrder] = useState<string>('None');
 
-  // Column configuration for PricePointTable
-  const columnOptions: ColumnConfig[] = [
-    { key: 'id', label: 'ID', required: false },
-    { key: 'currency', label: 'Currency', required: true },
-    { key: 'currencyType', label: 'Currency Type', required: false },
-    { key: 'amount', label: 'Amount', required: true },
-    { key: 'pricingRule', label: 'Pricing Rule', required: false },
-    { key: 'quantityRange', label: 'Quantity Range', required: false },
-    { key: 'usdEquivalent', label: 'USD Equivalent', required: false },
-    { key: 'effectiveDate', label: 'Effective Date', required: false },
-  ];
+  // Column configuration for PricePointTable - use centralized configuration
+  const columnOptions: ColumnConfig[] = PRICE_POINT_COLUMNS;
 
-  // Sort options for PricePointTable - using the toggle logic pattern
-  const sortOptions = [
-    'None',
-    'Currency (A-Z)',
-    'Currency (Z-A)', 
-    'Amount (Low to High)',
-    'Amount (High to Low)',
-    'USD Equivalent (High to Low)',
-    'USD Equivalent (Low to High)',
-    'Currency Type', // Core first, then long tail
-    'Effective Date (Earliest to Latest)',
-    'Effective Date (Latest to Earliest)'
-  ];
+  // Sort options for PricePointTable - use centralized configuration
+  const sortOptions = PRICE_POINT_SORT_OPTIONS;
 
   useEffect(() => {
     // Set wider max-width for detail pages to accommodate data tables
@@ -187,12 +158,7 @@ const PriceGroupDetail: React.FC = () => {
 
       {/* SKUs Using This Price Group */}
       <PageSection 
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{toSentenceCase("SKUs Using This Price Group")}</span>
-            <CountTag count={skusWithPriceGroup.length} />
-          </div>
-        }
+        title={toSentenceCase("SKUs Using This Price Group")}
       >
         <SkuListTable skus={skusWithPriceGroup} product={product} hidePriceGroupColumn={true} />
       </PageSection>
@@ -202,7 +168,6 @@ const PriceGroupDetail: React.FC = () => {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>{toSentenceCase("Price Points")}</span>
-            <CountTag count={pricePointCount} />
             <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
               currencies
             </Typography.Text>

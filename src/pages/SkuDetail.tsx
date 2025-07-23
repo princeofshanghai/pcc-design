@@ -6,6 +6,7 @@ import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
+import { PRICE_POINT_SORT_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
   StatusTag,
@@ -15,7 +16,6 @@ import {
   SalesChannelDisplay,
   OverrideIndicator,
   OverrideComparison,
-  CountTag,
   FilterBar
 } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -292,12 +292,7 @@ const SkuDetail: React.FC = () => {
 
             {/* Price Points */}
             <PageSection 
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{toSentenceCase("Price Points")}</span>
-                  <CountTag count={pricePointCount} />
-                </div>
-              }
+              title={toSentenceCase("Price Points")}
             >
               <FilterBar
                 search={{
@@ -317,7 +312,7 @@ const SkuDetail: React.FC = () => {
                   sortOrder: {
                     value: sortOrder,
                     setter: setSortOrder,
-                    options: ['None', 'Amount (High to Low)', 'Amount (Low to High)', 'Alphabetical A-Z'],
+                    options: PRICE_POINT_SORT_OPTIONS,
                   },
                   groupBy: {
                     value: pricePointGroupBy,

@@ -35,7 +35,7 @@ export function generateChangeRequestId(): string {
 
 /**
  * Generates a price group name based on existing app patterns
- * Format: "PRODUCT_PREFIX_FY25_BILLING_CYCLE"
+ * Format: "Product Prefix FY25 Billing Cycle"
  */
 export function generatePriceGroupName(product: Product, changeRequest: ConfigurationRequest): string {
   // If a custom price group name is provided, use that
@@ -50,7 +50,11 @@ export function generatePriceGroupName(product: Product, changeRequest: Configur
     ? words.map(word => word.charAt(0)).join('')
     : product.name.substring(0, 2);
   
-  return `${productPrefix.toUpperCase()}_FY25_${changeRequest.billingCycle.toUpperCase()}`;
+  // Format billing cycle to sentence case
+  const formattedBillingCycle = changeRequest.billingCycle.charAt(0).toUpperCase() + 
+    changeRequest.billingCycle.slice(1).toLowerCase();
+  
+  return `${productPrefix.toUpperCase()} FY25 ${formattedBillingCycle}`;
 }
 
 /**
@@ -83,7 +87,8 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
         currencyCode: 'USD',
         amount: changeRequest.priceAmount,
         exchangeRate: 1.0, // USD always has exchange rate of 1.0
-        startDate: new Date().toISOString().split('T')[0] // Today's date
+        startDate: new Date().toISOString().split('T')[0], // Today's date
+        pricingRule: 'NONE' as const // Default pricing rule for new price points
       }
     ]
   };

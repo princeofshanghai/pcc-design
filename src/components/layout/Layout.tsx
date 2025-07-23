@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow } from 'lucide-react';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, Plus } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -477,7 +477,19 @@ const AppLayout = () => {
           }}
         >
           <Breadcrumb separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}>{breadcrumbItems}</Breadcrumb>
-          <Avatar icon={<User size={20} />} />
+          <Space size={16}>
+            <Button 
+              type="primary" 
+              icon={<Plus size={16} />}
+              onClick={() => {
+                // Placeholder - functionality to be implemented later
+                console.log('New GTM motion clicked');
+              }}
+            >
+              New GTM motion
+            </Button>
+            <Avatar icon={<User size={20} />} />
+          </Space>
         </Header>
         <Content style={{ 
           margin: '120px 24px 24px 24px', // Top margin to account for fixed header

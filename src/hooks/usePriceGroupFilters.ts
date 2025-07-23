@@ -62,17 +62,51 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       if (sortOrder === 'Name (Z-A)') { 
         return b.priceGroup.name.localeCompare(a.priceGroup.name); 
       }
-      if (sortOrder === 'Currencies (Low to High)') { 
+      if (sortOrder === 'Price points (Low to High)') { 
         return a.priceGroup.pricePoints.length - b.priceGroup.pricePoints.length; 
       }
-      if (sortOrder === 'Currencies (High to Low)') { 
+      if (sortOrder === 'Price points (High to Low)') { 
         return b.priceGroup.pricePoints.length - a.priceGroup.pricePoints.length; 
       }
-      if (sortOrder === 'SKUs (Low to High)') { 
+      if (sortOrder === 'SKU (Low to High)') { 
         return a.skus.length - b.skus.length; 
       }
-      if (sortOrder === 'SKUs (High to Low)') { 
+      if (sortOrder === 'SKU (High to Low)') { 
         return b.skus.length - a.skus.length; 
+      }
+      if (sortOrder === 'Channel (A-Z)') {
+        const aChannel = a.skus[0]?.salesChannel || '';
+        const bChannel = b.skus[0]?.salesChannel || '';
+        return aChannel.localeCompare(bChannel);
+      }
+      if (sortOrder === 'Channel (Z-A)') {
+        const aChannel = a.skus[0]?.salesChannel || '';
+        const bChannel = b.skus[0]?.salesChannel || '';
+        return bChannel.localeCompare(aChannel);
+      }
+      if (sortOrder === 'Billing Cycle (A-Z)') {
+        const aCycle = a.skus[0]?.billingCycle || '';
+        const bCycle = b.skus[0]?.billingCycle || '';
+        return aCycle.localeCompare(bCycle);
+      }
+      if (sortOrder === 'Billing Cycle (Z-A)') {
+        const aCycle = a.skus[0]?.billingCycle || '';
+        const bCycle = b.skus[0]?.billingCycle || '';
+        return bCycle.localeCompare(aCycle);
+      }
+      if (sortOrder === 'USD Price (Low to High)') {
+        const aUsd = a.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
+        const bUsd = b.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
+        const aAmount = aUsd?.amount || 0;
+        const bAmount = bUsd?.amount || 0;
+        return aAmount - bAmount;
+      }
+      if (sortOrder === 'USD Price (High to Low)') {
+        const aUsd = a.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
+        const bUsd = b.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
+        const aAmount = aUsd?.amount || 0;
+        const bAmount = bUsd?.amount || 0;
+        return bAmount - aAmount;
       }
       if (sortOrder === 'Effective Date (Earliest to Latest)') { 
         const aDate = new Date(a.priceGroup.startDate).getTime();

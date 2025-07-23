@@ -3,6 +3,7 @@ import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
@@ -92,10 +93,16 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  // Create a helper to get column label from centralized config
+  const getColumnLabel = (key: string): string => {
+    const column = PRICE_GROUP_COLUMNS.find(col => col.key === key);
+    return column?.label || toSentenceCase(key);
+  };
+
   // Define all possible columns
   const allColumnsMap: Record<string, any> = {
     name: {
-      title: toSentenceCase('Name'),
+      title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
       render: (_: any, record: any) => {
@@ -166,7 +173,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       className: 'table-col-first',
     },
     channel: visibleColumns.channel !== false ? {
-      title: toSentenceCase('Channel'),
+      title: getColumnLabel('channel'),
       dataIndex: 'channel',
       key: 'channel',
       render: (_: any, record: any) => {
@@ -175,7 +182,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     billingCycle: visibleColumns.billingCycle !== false ? {
-      title: toSentenceCase('Billing Cycle'),
+      title: getColumnLabel('billingCycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
       render: (_: any, record: any) => {
@@ -184,7 +191,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     usdPrice: visibleColumns.usdPrice !== false ? {
-      title: toSentenceCase('USD Price'),
+      title: getColumnLabel('usdPrice'),
       dataIndex: 'usdPrice',
       key: 'usdPrice',
       render: (_: any, record: any) => {
@@ -194,7 +201,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     currencies: visibleColumns.currencies !== false ? {
-      title: toSentenceCase('Price points'),
+      title: getColumnLabel('currencies'),
       dataIndex: 'currencies',
       key: 'currencies',
       render: (_: any, record: any) => {
@@ -203,7 +210,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     sku: visibleColumns.sku !== false ? {
-      title: toSentenceCase('SKU'),
+      title: getColumnLabel('sku'),
       dataIndex: 'sku',
       key: 'sku',
       render: (_: any, record: any) => {
@@ -212,7 +219,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     effectiveDate: visibleColumns.effectiveDate !== false ? {
-      title: toSentenceCase('Effective Date'),
+      title: getColumnLabel('effectiveDate'),
       dataIndex: 'effectiveDate',
       key: 'effectiveDate',
       render: (_: any, record: any) => {

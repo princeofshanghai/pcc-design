@@ -3,7 +3,7 @@ import { List, Typography, Space, Button } from 'antd';
 import type { Sku, PricePoint, Product } from '../../utils/types';
 import { formatCurrency, formatEffectiveDateRange } from '../../utils/formatters';
 import StatusTag from '../attributes/StatusTag';
-import CountTag from '../attributes/CountTag';
+
 import DetailSection from '../layout/DetailSection';
 import AttributeDisplay from '../attributes/AttributeDisplay';
 import { Link } from 'react-router-dom';
@@ -70,7 +70,6 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
       <div style={{ marginTop: '8px' }}>
         <Space align="center" style={{ marginBottom: '12px' }}>
           <Typography.Text strong>Price Points</Typography.Text>
-          <CountTag count={price.pricePoints.length} />
           <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
             currencies
           </Typography.Text>

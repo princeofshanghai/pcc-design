@@ -273,17 +273,17 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       } else if (option.includes('(Z-A)') || option.includes('Z-A')) {
         baseField = option.replace(/\s*\(Z-A\)|\s*Z-A/g, '').trim();
         isAscending = false;
-      } else if (option.includes('(Low to High)') || option.includes('Low to High')) {
-        baseField = option.replace(/\s*\(Low to High\)|\s*Low to High/g, '').trim();
+      } else if (option.includes('(Low to High)') || option.includes('Low to High') || option.includes('(Low to high)') || option.includes('Low to high')) {
+        baseField = option.replace(/\s*\(Low to High\)|\s*Low to High|\s*\(Low to high\)|\s*Low to high/g, '').trim();
         isAscending = true;
-      } else if (option.includes('(High to Low)') || option.includes('High to Low')) {
-        baseField = option.replace(/\s*\(High to Low\)|\s*High to Low/g, '').trim();
+      } else if (option.includes('(High to Low)') || option.includes('High to Low') || option.includes('(High to low)') || option.includes('High to low')) {
+        baseField = option.replace(/\s*\(High to Low\)|\s*High to Low|\s*\(High to low\)|\s*High to low/g, '').trim();
         isAscending = false;
-      } else if (option.includes('(Earliest to Latest)') || option.includes('Earliest to Latest')) {
-        baseField = option.replace(/\s*\(Earliest to Latest\)|\s*Earliest to Latest/g, '').trim();
+      } else if (option.includes('(Earliest to Latest)') || option.includes('Earliest to Latest') || option.includes('(Earliest to latest)') || option.includes('Earliest to latest')) {
+        baseField = option.replace(/\s*\(Earliest to Latest\)|\s*Earliest to Latest|\s*\(Earliest to latest\)|\s*Earliest to latest/g, '').trim();
         isAscending = true;
-      } else if (option.includes('(Latest to Earliest)') || option.includes('Latest to Earliest')) {
-        baseField = option.replace(/\s*\(Latest to Earliest\)|\s*Latest to Earliest/g, '').trim();
+      } else if (option.includes('(Latest to Earliest)') || option.includes('Latest to Earliest') || option.includes('(Latest to earliest)') || option.includes('Latest to earliest')) {
+        baseField = option.replace(/\s*\(Latest to Earliest\)|\s*Latest to Earliest|\s*\(Latest to earliest\)|\s*Latest to earliest/g, '').trim();
         isAscending = false;
       } else {
         // Non-directional or single option - try to detect if it could have directions

@@ -161,11 +161,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
                 />
               )}
             </div>
-            <div>
-              <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.priceGroup.id}</Text>
-                <CopyableId id={record.priceGroup.id || ''} showId={false} />
-              </Space>
+            <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <CopyableId id={record.priceGroup.id || ''} size="small" />
             </div>
           </div>
         );

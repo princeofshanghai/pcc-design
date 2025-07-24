@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Table, Typography, theme, Space, Tooltip } from 'antd';
+import { Table, Typography, theme, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
@@ -255,13 +255,13 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
     case 'Currency (Z-A)':
       return sorted.sort((a, b) => b.currencyCode.localeCompare(a.currencyCode));
     
-    case 'Amount (Low to High)':
+    case 'Amount (Low to high)':
       return sorted.sort((a, b) => a.amount - b.amount);
     
-    case 'Amount (High to Low)':
+    case 'Amount (High to low)':
       return sorted.sort((a, b) => b.amount - a.amount);
     
-    case 'USD Equivalent (High to Low)':
+    case 'USD equivalent (High to low)':
       return sorted.sort((a, b) => {
         const aUsdPoint = findMatchingUsdPricePoint(a, allPricePoints);
         const bUsdPoint = findMatchingUsdPricePoint(b, allPricePoints);
@@ -270,7 +270,7 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return bEquiv - aEquiv;
       });
     
-    case 'USD Equivalent (Low to High)':
+    case 'USD equivalent (Low to high)':
       return sorted.sort((a, b) => {
         const aUsdPoint = findMatchingUsdPricePoint(a, allPricePoints);
         const bUsdPoint = findMatchingUsdPricePoint(b, allPricePoints);
@@ -279,7 +279,7 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return aEquiv - bEquiv;
       });
     
-    case 'Currency Type':
+    case 'Currency type':
       return sorted.sort((a, b) => {
         const aType = getCurrencyType(a.currencyCode);
         const bType = getCurrencyType(b.currencyCode);
@@ -291,14 +291,14 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return a.currencyCode.localeCompare(b.currencyCode);
       });
     
-    case 'Effective Date (Earliest to Latest)':
+    case 'Effective date (Earliest to latest)':
       return sorted.sort((a, b) => {
         const aDate = new Date(a.startDate || '').getTime();
         const bDate = new Date(b.startDate || '').getTime();
         return aDate - bDate;
       });
     
-    case 'Effective Date (Latest to Earliest)':
+    case 'Effective date (Latest to earliest)':
       return sorted.sort((a, b) => {
         const aDate = new Date(a.startDate || '').getTime();
         const bDate = new Date(b.startDate || '').getTime();
@@ -357,10 +357,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Space size="small">
-            <Text style={{ fontFamily: 'GeistMono, monospace' }}>{record.id}</Text>
-            <CopyableId id={record.id || ''} showId={false} />
-          </Space>
+          <CopyableId id={record.id || ''} size="small" />
         );
       },
             } : null,

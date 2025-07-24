@@ -12,7 +12,8 @@ import {
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  FilterBar
+  FilterBar,
+  CopyableId
 } from '../components';
 import { SkuListTable } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -128,37 +129,18 @@ const PriceGroupDetail: React.FC = () => {
       <PageHeader
         icon={<DollarSign />}
         iconSize={16}
-        entityType="Price Group"
+        entityType="Price group"
         title={priceGroup.name}
         onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
-        subtitle={formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
+        subtitle={
+          <CopyableId id={priceGroup.id || ''} size="small" />
+        }
       />
-
-      {/* Price Group Information */}
-      <PageSection title={toSentenceCase("Price Group Details")}>
-        <AttributeGroup>
-          <AttributeDisplay label="Price Group ID" layout="horizontal">
-            <Typography.Text code>{priceGroup.id}</Typography.Text>
-          </AttributeDisplay>
-          
-          {priceGroup.status && (
-            <AttributeDisplay label="Status" layout="horizontal">
-              <StatusTag status={priceGroup.status} />
-            </AttributeDisplay>
-          )}
-          
-          {(priceGroup.startDate || priceGroup.endDate) && (
-            <AttributeDisplay label="Effective Period" layout="horizontal">
-              {formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
-            </AttributeDisplay>
-          )}
-        </AttributeGroup>
-      </PageSection>
 
       {/* SKUs Using This Price Group */}
       <PageSection 
-        title={toSentenceCase("SKUs Using This Price Group")}
+        title={toSentenceCase("SKUs using this price group")}
       >
         <SkuListTable skus={skusWithPriceGroup} product={product} hidePriceGroupColumn={true} />
       </PageSection>
@@ -167,7 +149,7 @@ const PriceGroupDetail: React.FC = () => {
       <PageSection 
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{toSentenceCase("Price Points")}</span>
+            <span>{toSentenceCase("Price points")}</span>
             <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
               currencies
             </Typography.Text>

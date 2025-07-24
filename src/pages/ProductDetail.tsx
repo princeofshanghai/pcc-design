@@ -21,7 +21,8 @@ import {
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
-  ActivityFeedItem
+  ActivityFeedItem,
+  CopyableId
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
@@ -37,7 +38,7 @@ import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
 const { Title } = Typography;
 const { Step } = Steps;
 
-const SKU_GROUP_BY_OPTIONS = ['None', 'Price Group', 'Effective Date', 'LIX', 'Status', 'Region', 'Sales Channel', 'Billing Cycle'];
+const SKU_GROUP_BY_OPTIONS = ['None', 'Price group', 'Effective date', 'LIX', 'Status', 'Region', 'Sales channel', 'Billing cycle'];
 
 
 
@@ -550,6 +551,9 @@ const ProductDetail: React.FC = () => {
         title={product.name}
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={product.status} />}
+        subtitle={
+          <CopyableId id={product.id} size="small" />
+        }
       />
 
       <Tabs defaultActiveKey="details" items={tabItems} />

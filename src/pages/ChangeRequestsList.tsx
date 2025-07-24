@@ -7,6 +7,7 @@ import {
   FilterBar
 } from '../components';
 import type { ConfigurationRequest } from '../utils/types';
+import { toSentenceCase } from '../utils/formatters';
 
 interface ConfigurationRequestWithProduct extends ConfigurationRequest {
   productName: string;
@@ -65,11 +66,11 @@ const ChangeRequestsList: React.FC = () => {
 
   // Status filter options
   const statusOptions = [
-    { label: 'Pending Review', value: 'Pending Review' },
-    { label: 'In EI', value: 'In EI' },
-    { label: 'Live', value: 'Live' },
-    { label: 'Failed', value: 'Failed' },
-    { label: 'Draft', value: 'Draft' }
+    { label: toSentenceCase('Pending Review'), value: 'Pending Review' },
+    { label: toSentenceCase('In EI'), value: 'In EI' },
+    { label: toSentenceCase('Live'), value: 'Live' },
+    { label: toSentenceCase('Failed'), value: 'Failed' },
+    { label: toSentenceCase('Draft'), value: 'Draft' }
   ];
 
   return (

@@ -4,11 +4,11 @@ import type { ColumnConfig } from './types';
 export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Name', required: true },
   { key: 'channel', label: 'Channel', required: false },
-  { key: 'billingCycle', label: 'Billing Cycle', required: false },
-  { key: 'usdPrice', label: 'USD Price', required: false },
+  { key: 'billingCycle', label: 'Billing cycle', required: false },
+  { key: 'usdPrice', label: 'USD price', required: false },
   { key: 'currencies', label: 'Price points', required: false },
   { key: 'sku', label: 'SKU', required: false },
-  { key: 'effectiveDate', label: 'Effective Date', required: false },
+  { key: 'effectiveDate', label: 'Effective date', required: false },
 ];
 
 // Generate sort options from column configurations
@@ -25,20 +25,20 @@ export const generateSortOptionsFromColumns = (columns: ColumnConfig[]): string[
       sortOptions.push(`${label} (Z-A)`);
     } else if (column.key === 'currencies' || column.key === 'sku') {
       // Count fields - numerical sorting
-      sortOptions.push(`${label} (Low to High)`);
-      sortOptions.push(`${label} (High to Low)`);
+      sortOptions.push(`${label} (Low to high)`);
+      sortOptions.push(`${label} (High to low)`);
     } else if (column.key === 'effectiveDate') {
       // Date fields - chronological sorting
-      sortOptions.push(`${label} (Earliest to Latest)`);
-      sortOptions.push(`${label} (Latest to Earliest)`);
+      sortOptions.push(`${label} (Earliest to latest)`);
+      sortOptions.push(`${label} (Latest to earliest)`);
     } else if (column.key === 'channel' || column.key === 'billingCycle') {
       // Categorical fields - alphabetical sorting (but different labels)
       sortOptions.push(`${label} (A-Z)`);
       sortOptions.push(`${label} (Z-A)`);
     } else if (column.key === 'usdPrice') {
       // Price fields - monetary sorting
-      sortOptions.push(`${label} (Low to High)`);
-      sortOptions.push(`${label} (High to Low)`);
+      sortOptions.push(`${label} (Low to high)`);
+      sortOptions.push(`${label} (High to low)`);
     }
   });
   
@@ -75,7 +75,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = generateGroupByOptionsFromColumns(PR
 // SKU Table Configuration
 export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Name', required: true },
-  { key: 'effectiveDate', label: 'Effective Date', required: false },
+  { key: 'effectiveDate', label: 'Effective date', required: false },
   { key: 'priceGroup', label: 'Price group', required: false },
   { key: 'lix', label: 'LIX', required: false },
   { key: 'status', label: 'Status', required: false },
@@ -105,19 +105,19 @@ export const generatePricePointSortOptions = (columns: ColumnConfig[]): string[]
       sortOptions.push(`${label} (A-Z)`);
       sortOptions.push(`${label} (Z-A)`);
     } else if (column.key === 'amount') {
-      sortOptions.push(`${label} (Low to High)`);
-      sortOptions.push(`${label} (High to Low)`);
+      sortOptions.push(`${label} (Low to high)`);
+      sortOptions.push(`${label} (High to low)`);
     } else if (column.key === 'usdEquivalent') {
-      sortOptions.push(`${label} (High to Low)`);
-      sortOptions.push(`${label} (Low to High)`);
+      sortOptions.push(`${label} (High to low)`);
+      sortOptions.push(`${label} (Low to high)`);
     } else if (column.key === 'effectiveDate') {
-      sortOptions.push(`${label} (Earliest to Latest)`);
-      sortOptions.push(`${label} (Latest to Earliest)`);
+      sortOptions.push(`${label} (Earliest to latest)`);
+      sortOptions.push(`${label} (Latest to earliest)`);
     }
   });
   
   // Add custom sort options specific to price points
-  sortOptions.push('Currency Type'); // Core vs Long tail
+  sortOptions.push('Currency type'); // Core vs Long tail
   
   return sortOptions;
 };

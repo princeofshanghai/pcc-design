@@ -65,8 +65,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
           </div>
           <div>
             <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.id}</Text>
-              <CopyableId id={record.id} showId={false} />
+              <CopyableId id={record.id} size="small" />
               {hasSkuOverrides(record, product) && <OverrideIndicator />}
             </Space>
           </div>

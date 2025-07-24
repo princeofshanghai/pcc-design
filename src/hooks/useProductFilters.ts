@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Product, LOB, Status } from '../utils/types';
 import type { SelectOption } from '../components';
+import { toSentenceCase, toTitleCase } from '../utils/formatters';
 
 // This function generates the grouped folder options from the full product list.
 const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
@@ -8,7 +9,7 @@ const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
   return lobs.map(lob => ({
     label: lob,
     options: [...new Set(products.filter(p => p.lob === lob).map(p => p.folder))]
-      .map(folder => ({ label: folder, value: folder }))
+      .map(folder => ({ label: toTitleCase(folder), value: folder }))
   })).filter(group => group.options.length > 0);
 };
 
@@ -23,7 +24,7 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
   const folderOptions = useMemo(() => {
     if (lobFilter) {
       return [...new Set(initialProducts.filter(p => p.lob === lobFilter).map(p => p.folder))]
-        .map(folder => ({ label: folder, value: folder }));
+        .map(folder => ({ label: toTitleCase(folder), value: folder }));
     }
     // When no LOB is selected, show grouped options
     return getFolderGroupedOptions(initialProducts);

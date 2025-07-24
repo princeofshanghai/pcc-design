@@ -14,18 +14,19 @@ import {
   FilterBar,
 } from '../components';
 import type { ViewMode, SelectOption } from '../components';
+import { toSentenceCase } from '../utils/formatters';
 
 const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
-const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to High)', 'SKUs (High to Low)'];
+const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
 
-const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: status, value: status }));
+const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: toSentenceCase(status), value: status }));
 const LOB_SELECT_OPTIONS: SelectOption[] = [
-  { label: 'Premium', value: 'Premium' },
-  { label: 'LTS', value: 'LTS' },
-  { label: 'LMS', value: 'LMS' },
-  { label: 'LSS', value: 'LSS' },
-  { label: 'Other', value: 'Other' }
+  { label: toSentenceCase('Premium'), value: 'Premium' },
+  { label: toSentenceCase('LTS'), value: 'LTS' },
+  { label: toSentenceCase('LMS'), value: 'LMS' },
+  { label: toSentenceCase('LSS'), value: 'LSS' },
+  { label: toSentenceCase('Other'), value: 'Other' }
 ];
 
 // Helper function to convert URL folder names back to actual folder names
@@ -190,6 +191,7 @@ const Home: React.FC = () => {
                   value: folderFilter,
                   onChange: (value: string | null) => setFolderFilter(value ?? null),
                   showOptionTooltip: true,
+                  dropdownStyle: { width: '240px' },
                 }
               ] : []),
             ]}

@@ -1,14 +1,13 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
 import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, Plus } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
 import { folderStructure } from '../../utils/mock-data';
-import { toSentenceCase } from '../../utils/formatters/text';
-import { useTruncationDetection } from '../../hooks/useTruncationDetection';
+import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
 
@@ -20,7 +19,71 @@ const SidebarMenuItem: React.FC<{
   text: string;
   collapsed: boolean;
 }> = ({ children, text, collapsed }) => {
-  const { isTruncated, textRef } = useTruncationDetection(text);
+  const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (collapsed) {
+      setShouldShowTooltip(false);
+      return;
+    }
+
+    const checkTruncation = () => {
+      if (!contentRef.current) {
+        setShouldShowTooltip(false);
+        return;
+      }
+
+      const element = contentRef.current;
+      
+      // Find the actual text element (Link or span) that contains the text
+      let textElement: Element | null = null;
+      
+      // Look for Link elements first
+      const linkElement = element.querySelector('a');
+      if (linkElement && linkElement.textContent?.trim() === text) {
+        textElement = linkElement;
+      } else {
+        // Look for span elements
+        const spanElements = element.querySelectorAll('span');
+        for (const span of spanElements) {
+          if (span.textContent?.trim() === text) {
+            textElement = span;
+            break;
+          }
+        }
+      }
+      
+      // If we found the text element, check if it's truncated
+      let isOverflowing = false;
+      if (textElement) {
+        isOverflowing = textElement.scrollWidth > textElement.clientWidth;
+      } else {
+        // Fallback: check the wrapper element
+        isOverflowing = element.scrollWidth > element.clientWidth;
+      }
+      
+      setShouldShowTooltip(isOverflowing);
+    };
+
+    // Check immediately and after a small delay to handle rendering
+    checkTruncation();
+    const timer = setTimeout(checkTruncation, 100);
+
+    // Check on resize
+    const resizeObserver = new ResizeObserver(() => {
+      setTimeout(checkTruncation, 50);
+    });
+
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      resizeObserver.disconnect();
+    };
+  }, [collapsed, text]);
 
   if (collapsed) {
     // When collapsed, let Ant Design handle tooltips automatically
@@ -30,7 +93,7 @@ const SidebarMenuItem: React.FC<{
   // When expanded, use our truncation detection
   const content = (
     <div 
-      ref={textRef as React.RefObject<HTMLDivElement>}
+      ref={contentRef}
       style={{ 
         overflow: 'hidden', 
         textOverflow: 'ellipsis', 
@@ -44,7 +107,7 @@ const SidebarMenuItem: React.FC<{
     </div>
   );
 
-  if (isTruncated) {
+  if (shouldShowTooltip) {
     return (
       <Tooltip title={text} placement="right">
         {content}
@@ -96,10 +159,10 @@ const generateMenuStructure = (collapsed: boolean) => {
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: (
-                <SidebarMenuItem text={toSentenceCase(folder)} collapsed={collapsed}>
+                <SidebarMenuItem text={toTitleCase(folder)} collapsed={collapsed}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Folder size={14} color="#999" />
-                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toSentenceCase(folder)}</Link>
+                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>
                   </span>
                 </SidebarMenuItem>
               )
@@ -322,11 +385,12 @@ const AppLayout = () => {
           borderRight: '1px solid #f0f0f0',
           position: 'fixed',
           height: '100vh',
-          overflow: 'overlay',
+          overflow: 'auto',
           zIndex: 1000,
           transition: 'width 180ms cubic-bezier(0.4,0,0.2,1)',
           willChange: 'width',
           scrollbarWidth: 'thin',
+          scrollbarGutter: 'stable',
         }}
       >
         {/* Fixed Header Section */}
@@ -335,15 +399,29 @@ const AppLayout = () => {
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'space-between',
           height: 64, 
-          padding: '0 12px',
-          borderBottom: '1px solid #f0f0f0',
+          padding: '0 12px 0 20px',
           background: '#fff',
           position: 'sticky',
           top: 0,
           zIndex: 10,
         }}>
           {!collapsed && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Link 
+              to="/" 
+              className="sidebar-logo-link"
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 8, 
+                textDecoration: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                margin: '-8px -12px',
+                transition: 'background-color 150ms ease'
+              }}
+            >
               <img 
                 src={LinkedInLogo} 
                 alt="LinkedIn Logo" 
@@ -352,7 +430,7 @@ const AppLayout = () => {
               <span className="sidebar-label" style={{ fontWeight: 600, fontSize: 18, letterSpacing: 0.1, transition: 'opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1)', opacity: showLabels ? 1 : 0, transform: showLabels ? 'translateX(0)' : 'translateX(-8px)' }}>
                 PCC
               </span>
-            </div>
+            </Link>
           )}
           <Button
             icon={<PanelLeft size={18} />}
@@ -401,21 +479,21 @@ const AppLayout = () => {
               line-height: 32px !important;
             }
 
-            /* Custom indentation with inlineIndent=0 */
-            /* Top level items (Products, Offers, etc.) - keep default padding */
+            /* Consistent spacing for all menu items */
+            /* Top level items (Products, Offers, etc.) */
             .compact-menu > .ant-menu-item,
             .compact-menu > .ant-menu-submenu > .ant-menu-submenu-title {
               padding-left: 16px !important;
-              padding-right: 16px !important;
+              padding-right: 24px !important;
               margin-left: 8px !important;
               margin-right: 8px !important;
             }
 
-            /* Level 1 items (All Products, LOB items) - minimal padding */
+            /* Level 1 items (All Products, LOB items) */
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-item,
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title {
               padding-left: 16px !important;
-              padding-right: 16px !important;
+              padding-right: 24px !important;
               margin-left: 8px !important;
               margin-right: 8px !important;
             }
@@ -423,7 +501,7 @@ const AppLayout = () => {
             /* Level 2 items (folder items within LOBs) - slight indent */
             .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
               padding-left: 28px !important;
-              padding-right: 16px !important;
+              padding-right: 24px !important;
               margin-left: 8px !important;
               margin-right: 8px !important;
             }
@@ -496,6 +574,24 @@ const AppLayout = () => {
               white-space: nowrap !important;
               min-width: 0 !important;
               flex: 1 !important;
+            }
+
+            /* Ensure consistent right spacing by reserving space for scrollbar */
+            .compact-menu .ant-menu-item,
+            .compact-menu .ant-menu-submenu-title {
+              margin-right: 8px !important;
+              padding-right: 24px !important;
+              box-sizing: border-box !important;
+            }
+
+            /* Add consistent spacing to menu wrapper */
+            .compact-menu {
+              padding-right: 4px !important;
+            }
+
+            /* Hover effect for logo/text link */
+            .sidebar-logo-link:hover {
+              background-color: rgba(0, 0, 0, 0.04) !important;
             }
           `}
         </style>

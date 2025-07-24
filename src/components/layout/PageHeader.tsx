@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Space, theme, Button } from 'antd';
+import { Typography, Space, theme } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 
 const { Title, Text } = Typography;
@@ -38,11 +38,29 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     >
       <Space align="start" size="middle">
         {onBack && (
-          <Button 
-            shape="circle" 
-            icon={<ArrowLeft size={16} />} 
+          <div 
             onClick={onBack}
-          />
+            style={{
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              transition: 'background-color 0.2s ease',
+              color: token.colorTextSecondary,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = token.colorBgTextHover;
+              e.currentTarget.style.color = token.colorText;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = token.colorTextSecondary;
+            }}
+          >
+            <ArrowLeft size={20} />
+          </div>
         )}
         <Space direction="vertical" size={4}>
           {/* Icon + Entity Type above title */}
@@ -76,7 +94,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           {/* Subtitle */}
           {subtitle && (
             <div style={{ marginTop: '4px' }}>
-              <Text type="secondary">{subtitle}</Text>
+              {React.isValidElement(subtitle) ? (
+                subtitle
+              ) : (
+                <Text type="secondary">{subtitle}</Text>
+              )}
             </div>
           )}
         </Space>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, theme } from 'antd';
-import { toSentenceCase } from '../../utils/formatters';
+import { toSentenceCase, toTitleCase } from '../../utils/formatters';
 
 const { Text } = Typography;
 

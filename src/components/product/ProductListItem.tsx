@@ -42,17 +42,16 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleNavigate}
     >
-      <Space direction="vertical" size={4} style={{ alignItems: 'flex-start' }}>
+      <Space direction="vertical" size={8} style={{ alignItems: 'flex-start' }}>
         <Space align="center">
           <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
             {product.name}
           </Title>
           <StatusTag status={product.status} showLabel={false} size={16} />
         </Space>
-        <Space>
-          <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'rgba(0, 0, 0, 0.88)' }}>{product.id}</span>
-          <CopyableId id={product.id} showId={false} />
-        </Space>
+        <div onClick={(e) => e.stopPropagation()}>
+          <CopyableId id={product.id} size="small" />
+        </div>
         {/* Always show LOB and Folder tags */}
         <div style={{ marginTop: '8px' }}>
           <Space size={0}>

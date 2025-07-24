@@ -1,4 +1,4 @@
-import { toSentenceCase } from './text';
+import { toSentenceCase, toTitleCase } from './text';
 import type { ColumnsType } from 'antd/es/table';
 
 /**

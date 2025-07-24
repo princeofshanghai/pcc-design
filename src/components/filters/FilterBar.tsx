@@ -100,7 +100,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
           )}
           <FilterDropdown
-            placeholder={filter.placeholder}
+            placeholder={toSentenceCase(filter.placeholder)}
             options={filter.options}
             value={filter.value}
             onChange={filter.onChange}

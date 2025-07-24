@@ -256,10 +256,7 @@ const SkuDetail: React.FC = () => {
                 </AttributeDisplay>
 
                 <AttributeDisplay label="Price Group ID" layout="horizontal">
-                  <Space size="small">
-                    <Typography.Text code>{priceGroup.id}</Typography.Text>
-                    <CopyableId id={priceGroup.id || ''} showId={false} />
-                  </Space>
+                  <CopyableId id={priceGroup.id || ''} size="small" />
                 </AttributeDisplay>
                 
                 {priceGroup.status && (
@@ -291,7 +288,7 @@ const SkuDetail: React.FC = () => {
 
             {/* Price Points */}
             <PageSection 
-              title={toSentenceCase("Price Points")}
+              title={toSentenceCase("Price points")}
             >
               <FilterBar
                 search={{
@@ -408,6 +405,7 @@ const SkuDetail: React.FC = () => {
         title={sku.id}
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={sku.status} />}
+        subtitle={<CopyableId id={sku.id} size="small" />}
       />
 
       <Tabs defaultActiveKey="overview" items={tabItems} />

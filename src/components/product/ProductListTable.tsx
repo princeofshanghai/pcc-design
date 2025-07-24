@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space, Typography } from 'antd';
+import { Table, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
@@ -7,7 +7,6 @@ import CopyableId from '../shared/CopyableId';
 import { formatColumnTitles } from '../../utils/formatters';
 import type { ColumnsType } from 'antd/es/table';
 
-const { Text } = Typography;
 
 interface ProductListTableProps {
   products: Product[];
@@ -29,11 +28,8 @@ export const getProductListTableColumns = (
       render: (name: string, record: Product) => (
         <div>
           <div style={{ fontWeight: 500 }}>{name}</div>
-          <div>
-            <Space size="small" onClick={(e) => e.stopPropagation()}>
-              <Text type="secondary" style={{ fontSize: '13px', fontFamily: 'monospace' }}>{record.id}</Text>
-              <CopyableId id={record.id} showId={false} />
-            </Space>
+          <div onClick={(e) => e.stopPropagation()} style={{ marginTop: '4px' }}>
+            <CopyableId id={record.id} size="small" />
           </div>
         </div>
       ),

@@ -63,7 +63,7 @@ const generateMenuStructure = (collapsed: boolean) => {
     {
       key: 'products',
       label: 'Products',
-      icon: <Box size={16} />, // add the cube icon back for Products only
+      icon: <Box size={14} />, // add the cube icon back for Products only
       className: 'sidebar-products-menu-item', // custom class for CSS targeting
       children: [
         {
@@ -86,8 +86,8 @@ const generateMenuStructure = (collapsed: boolean) => {
             className: 'sidebar-lob-menu-item', // Add this line for custom styling
             label: (
               <SidebarMenuItem text={toSentenceCase(lob)} collapsed={collapsed}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Folder size={16} color="#999" />
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Folder size={14} color="#999" />
                   <span>{toSentenceCase(lob)}</span>
                 </span>
               </SidebarMenuItem>
@@ -97,8 +97,8 @@ const generateMenuStructure = (collapsed: boolean) => {
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: (
                 <SidebarMenuItem text={toSentenceCase(folder)} collapsed={collapsed}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Folder size={16} color="#999" />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Folder size={14} color="#999" />
                     <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toSentenceCase(folder)}</Link>
                   </span>
                 </SidebarMenuItem>
@@ -115,7 +115,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/offers">{toSentenceCase("Offers")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'offer-groups',
@@ -124,7 +124,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/offer-groups">{toSentenceCase("Offer Groups")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'rulesets',
@@ -133,7 +133,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/rulesets">{toSentenceCase("Rulesets")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'calculation-schemes',
@@ -142,7 +142,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/calculation-schemes">{toSentenceCase("Calculation Schemes")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'change-requests',
@@ -151,7 +151,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/change-requests">{toSentenceCase("Change Requests")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <GitPullRequestArrow size={16} />
+      icon: <GitPullRequestArrow size={14} />
     },
 
     {
@@ -161,7 +161,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <SquareSlash size={16} />
+      icon: <SquareSlash size={14} />
     }
   ];
 
@@ -178,10 +178,10 @@ const AppLayout = () => {
   const { token } = theme.useToken();
 
   // Calculate dynamic max width based on sidebar state and current page width
-  // Add 140px (sidebar width difference) when collapsed
+  // Add 160px (sidebar width difference) when collapsed
   const calculateDynamicWidth = (baseWidth: string) => {
     const widthValue = parseInt(baseWidth);
-    return collapsed ? `${widthValue + 140}px` : baseWidth;
+    return collapsed ? `${widthValue + 160}px` : baseWidth;
   };
 
   // Get the current max width from context (set by individual pages)
@@ -316,18 +316,17 @@ const AppLayout = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider 
         collapsed={collapsed} 
-        width={220} 
+        width={240} 
         style={{ 
           background: '#fff', 
           borderRight: '1px solid #f0f0f0',
           position: 'fixed',
           height: '100vh',
-          overflow: 'auto', // Ant Design's recommended approach
+          overflow: 'overlay',
           zIndex: 1000,
           transition: 'width 180ms cubic-bezier(0.4,0,0.2,1)',
           willChange: 'width',
           scrollbarWidth: 'thin',
-          scrollbarGutter: 'stable',
         }}
       >
         {/* Fixed Header Section */}
@@ -336,7 +335,7 @@ const AppLayout = () => {
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'space-between',
           height: 64, 
-          padding: '0 16px',
+          padding: '0 12px',
           borderBottom: '1px solid #f0f0f0',
           background: '#fff',
           position: 'sticky',
@@ -356,7 +355,7 @@ const AppLayout = () => {
             </div>
           )}
           <Button
-            icon={<PanelLeft size={20} />}
+            icon={<PanelLeft size={18} />}
             onClick={() => setCollapsed(!collapsed)}
             type="text"
             style={{
@@ -370,21 +369,58 @@ const AppLayout = () => {
           defaultSelectedKeys={['all-products']}
           defaultOpenKeys={['products']}
           items={menuItems}
-          inlineIndent={16}
+          inlineIndent={0}
           style={{ 
             border: 'none',
-            padding: '8px',
-            // Center menu items when collapsed
+            padding: '6px 0px',
             ...(collapsed && {
               '--ant-menu-item-padding-horizontal': '0px',
-              '--ant-menu-item-height': '40px',
+              '--ant-menu-item-height': '32px',
               '--ant-menu-item-border-radius': '0px'
             })
-          }}
-          className={collapsed ? 'collapsed-menu' : ''}
+          } as React.CSSProperties}
+          className={collapsed ? 'collapsed-menu' : 'compact-menu'}
         />
         <style>
           {`
+            /* Compact menu styling for smaller items */
+            .compact-menu {
+              --ant-menu-item-height: 32px;
+              --ant-menu-item-padding-inline: 12px;
+            }
+
+            .compact-menu .ant-menu-item,
+            .compact-menu .ant-menu-submenu-title {
+              font-size: 13px;
+              height: 32px !important;
+              line-height: 32px !important;
+            }
+
+            .compact-menu .ant-menu-submenu > .ant-menu-submenu-title {
+              height: 32px !important;
+              line-height: 32px !important;
+            }
+
+            /* Custom indentation with inlineIndent=0 */
+            /* Top level items (Products, Offers, etc.) - keep default padding */
+            .compact-menu > .ant-menu-item,
+            .compact-menu > .ant-menu-submenu > .ant-menu-submenu-title {
+              padding-left: 16px !important;
+              padding-right: 0px !important;
+            }
+
+            /* Level 1 items (All Products, LOB items) - minimal padding */
+            .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-item,
+            .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title {
+              padding-left: 16px !important;
+              padding-right: 0px !important;
+            }
+
+            /* Level 2 items (folder items within LOBs) - slight indent */
+            .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
+              padding-left: 28px !important;
+              padding-right: 0px !important;
+            }
 
             .collapsed-menu .ant-menu-item {
               text-align: center !important;
@@ -417,20 +453,22 @@ const AppLayout = () => {
               will-change: opacity, transform;
             }
             /* Custom style for LOB expandable sections only (not child folders) */
-            /* Target the LOB menu items that are direct children of Products submenu */
-            li.sidebar-lob-menu-item > .ant-menu-title-content span span:last-child {
-              font-size: 13px !important;
-              font-weight: 500 !important;
-              color: var(--ant-color-text-secondary);
-            }
-            
-            /* Ensure child folders don't inherit this styling */
-            li.sidebar-lob-menu-item .ant-menu-sub .ant-menu-item span {
-              font-size: inherit !important;
-              font-weight: inherit !important;
-              color: inherit !important;
+            /* Target ONLY the direct LOB submenu titles, not their children */
+            .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+            .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title span {
+              font-size: 12px !important;
+              font-weight: 600 !important;
+              color: #6b7280 !important;
             }
 
+            /* Ensure child folders don't inherit LOB styling */
+            .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item,
+            .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item span {
+              font-size: 13px !important;
+              font-weight: normal !important;
+              color: inherit !important;
+            }
+            
             /* Fix text truncation in sidebar menu items */
             .ant-menu-title-content {
               overflow: hidden !important;
@@ -456,7 +494,7 @@ const AppLayout = () => {
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 220, backgroundColor: token.colorBgLayout }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 240, backgroundColor: token.colorBgLayout }}>
         <Header 
           style={{ 
             background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,
@@ -471,7 +509,7 @@ const AppLayout = () => {
             position: 'fixed',
             top: 0,
             right: 0,
-            left: collapsed ? 80 : 220,
+            left: collapsed ? 80 : 240,
             zIndex: zIndex.header,
             transition: 'all 0.3s ease'
           }}

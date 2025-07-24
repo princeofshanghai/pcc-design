@@ -406,20 +406,26 @@ const AppLayout = () => {
             .compact-menu > .ant-menu-item,
             .compact-menu > .ant-menu-submenu > .ant-menu-submenu-title {
               padding-left: 16px !important;
-              padding-right: 0px !important;
+              padding-right: 16px !important;
+              margin-left: 8px !important;
+              margin-right: 8px !important;
             }
 
             /* Level 1 items (All Products, LOB items) - minimal padding */
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-item,
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title {
               padding-left: 16px !important;
-              padding-right: 0px !important;
+              padding-right: 16px !important;
+              margin-left: 8px !important;
+              margin-right: 8px !important;
             }
 
             /* Level 2 items (folder items within LOBs) - slight indent */
             .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
               padding-left: 28px !important;
-              padding-right: 0px !important;
+              padding-right: 16px !important;
+              margin-left: 8px !important;
+              margin-right: 8px !important;
             }
 
             .collapsed-menu .ant-menu-item {

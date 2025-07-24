@@ -227,17 +227,17 @@ const SkuDetail: React.FC = () => {
 
         // Use the same filtering logic as PriceGroupDetail
         const {
+          searchQuery: pricePointSearchQuery,
           setSearchQuery: setPricePointSearchQuery,
           currencyFilter, 
           setCurrencyFilter,
           currencyOptions,
-          sortOrder, 
+          sortOrder: pricePointSortOrder,
           setSortOrder,
           groupBy: pricePointGroupBy, 
           setGroupBy: setPricePointGroupBy,
           filteredPricePoints,
           groupedPricePoints: groupedPricePointsData,
-          pricePointCount,
         } = usePricePointFilters(priceGroup.pricePoints);
 
         const clearAllPricePointFilters = () => {
@@ -310,7 +310,7 @@ const SkuDetail: React.FC = () => {
                 onClearAll={clearAllPricePointFilters}
                 viewOptions={{
                   sortOrder: {
-                    value: sortOrder,
+                    value: pricePointSortOrder,
                     setter: setSortOrder,
                     options: PRICE_POINT_SORT_OPTIONS,
                   },

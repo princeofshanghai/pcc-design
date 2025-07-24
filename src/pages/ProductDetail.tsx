@@ -146,8 +146,6 @@ const ProductDetail: React.FC = () => {
     }, {} as Record<string, any[]>) : null) : 
     groupedSkus;
 
-  const finalSkuCount = priceGroupFilter ? finalSortedSkus.length : skuCount;
-
   useEffect(() => {
     // Set a wider max-width for product detail pages to accommodate data tables
     setMaxWidth('1200px');

@@ -5,7 +5,6 @@ import type { ColumnsType } from 'antd/es/table';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from '../index';
 import { getUserLdap } from '../../utils/users';
-import { formatColumnTitles } from '../../utils/formatters';
 import { Copy } from 'lucide-react';
 
 const { Text } = Typography;

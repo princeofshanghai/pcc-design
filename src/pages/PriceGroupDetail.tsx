@@ -107,15 +107,17 @@ const PriceGroupDetail: React.FC = () => {
 
   // Group core currencies vs others
   const {
+    searchQuery: pricePointSearchQuery,
     setSearchQuery: setPricePointSearchQuery,
     currencyFilter, 
     setCurrencyFilter,
     currencyOptions,
+    sortOrder: pricePointSortOrder,
+    setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy, 
     setGroupBy: setPricePointGroupBy,
     filteredPricePoints,
     groupedPricePoints: groupedPricePointsData,
-    pricePointCount,
   } = usePricePointFilters(priceGroup.pricePoints);
 
   const clearAllPricePointFilters = () => {

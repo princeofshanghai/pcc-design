@@ -51,8 +51,7 @@ const PriceGroupDetail: React.FC = () => {
     DEFAULT_PRICE_POINT_COLUMN_ORDER
   );
 
-  // Sort state for PricePointTable
-  const [sortOrder, setSortOrder] = useState<string>('None');
+
 
   // Column configuration for PricePointTable - use centralized configuration
   const columnOptions: ColumnConfig[] = PRICE_POINT_COLUMNS;
@@ -107,7 +106,6 @@ const PriceGroupDetail: React.FC = () => {
 
   // Group core currencies vs others
   const {
-    searchQuery: pricePointSearchQuery,
     setSearchQuery: setPricePointSearchQuery,
     currencyFilter, 
     setCurrencyFilter,
@@ -192,8 +190,8 @@ const PriceGroupDetail: React.FC = () => {
           onClearAll={clearAllPricePointFilters}
           viewOptions={{
             sortOrder: {
-              value: sortOrder,
-              setter: setSortOrder,
+              value: pricePointSortOrder,
+              setter: setPricePointSortOrder,
               options: sortOptions,
             },
             groupBy: {
@@ -216,7 +214,7 @@ const PriceGroupDetail: React.FC = () => {
           groupedPricePoints={groupedPricePointsData}
           visibleColumns={visibleColumns}
           columnOrder={columnOrder}
-          sortOrder={sortOrder}
+          sortOrder={pricePointSortOrder}
         />
       </PageSection>
     </Space>

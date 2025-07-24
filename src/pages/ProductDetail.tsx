@@ -84,7 +84,6 @@ const ProductDetail: React.FC = () => {
     groupBy, setGroupBy,
     sortedSkus,
     groupedSkus,
-    skuCount,
   } = useSkuFilters(product?.skus || [], product);
 
   // Price Group filtering hook

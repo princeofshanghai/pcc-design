@@ -352,15 +352,6 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
             title="Prices"
-            actions={
-              <Button 
-                icon={<Plus size={16} />}
-                onClick={() => setIsConfigurationModalOpen(true)}
-                size="large"
-              >
-                Add prices
-              </Button>
-            }
           >
             <FilterBar
               search={{

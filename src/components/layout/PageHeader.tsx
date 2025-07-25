@@ -13,6 +13,8 @@ interface PageHeaderProps {
   tagContent?: React.ReactNode;
   onBack?: () => void;
   actions?: React.ReactNode;
+  // New prop to control optical alignment
+  enableOpticalAlignment?: boolean;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
@@ -23,7 +25,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   subtitle, 
   tagContent, 
   onBack, 
-  actions 
+  actions,
+  enableOpticalAlignment = false
 }) => {
   const { token } = theme.useToken();
 
@@ -36,7 +39,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         marginBottom: '24px',
       }}
     >
-      <Space align="start" size="middle">
+      <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
+        {/* Back Button - Always at the edge */}
         {onBack && (
           <div 
             onClick={onBack}
@@ -49,6 +53,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               borderRadius: '4px',
               transition: 'background-color 0.2s ease',
               color: token.colorTextSecondary,
+              marginRight: '16px', // Fixed spacing from content
+              flexShrink: 0 // Don't shrink
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = token.colorBgTextHover;
@@ -62,47 +68,58 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <ArrowLeft size={20} />
           </div>
         )}
-        <Space direction="vertical" size={4}>
-          {/* Icon + Entity Type above title */}
-          {(icon || entityType) && (
-            <Space align="center" size={4}>
-              {icon && (
-                <div style={{ 
-                  color: token.colorTextSecondary,
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  {React.cloneElement(icon as React.ReactElement, { size: iconSize } as any)}
-                </div>
-              )}
-              {entityType && (
-                <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
-                  {entityType}
-                </Text>
-              )}
+        
+        {/* Content Area - With optional optical alignment */}
+        <div 
+          style={{ 
+            flex: 1,
+            marginLeft: enableOpticalAlignment ? '0px' : '0px' // Will be set via CSS for tabs alignment
+          }}
+        >
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            {/* Icon + Entity Type above title */}
+            {(icon || entityType) && (
+              <Space align="center" size={4}>
+                {icon && (
+                  <div style={{ 
+                    color: token.colorTextSecondary,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    {React.cloneElement(icon as React.ReactElement, { size: iconSize } as any)}
+                  </div>
+                )}
+                {entityType && (
+                  <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
+                    {entityType}
+                  </Text>
+                )}
+              </Space>
+            )}
+            
+            {/* Title + Tag */}
+            <Space align="center" size="middle">
+              <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
+                {title}
+              </Title>
+              {tagContent}
             </Space>
-          )}
-          
-          {/* Title + Tag */}
-          <Space align="center" size="middle">
-            <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
-              {title}
-            </Title>
-            {tagContent}
+            
+            {/* Subtitle */}
+            {subtitle && (
+              <div style={{ marginTop: '4px' }}>
+                {React.isValidElement(subtitle) ? (
+                  subtitle
+                ) : (
+                  <Text type="secondary">{subtitle}</Text>
+                )}
+              </div>
+            )}
           </Space>
-          
-          {/* Subtitle */}
-          {subtitle && (
-            <div style={{ marginTop: '4px' }}>
-              {React.isValidElement(subtitle) ? (
-                subtitle
-              ) : (
-                <Text type="secondary">{subtitle}</Text>
-              )}
-            </div>
-          )}
-        </Space>
-      </Space>
+        </div>
+      </div>
+      
+      {/* Actions */}
       {actions && <Space>{actions}</Space>}
     </div>
   );

@@ -3,6 +3,12 @@
   We can use this to apply consistent styling tweaks across the application.
 */
 
+/* Design System Variables */
+:root {
+  /* Optical alignment tokens for detail pages */
+  --detail-page-tab-content-offset: 0px; /* Will be calculated based on actual tab positioning */
+}
+
 /*
   Lucide Icon Alignment Fix
   By default, lucide-react icons don't always vertically align perfectly with text.
@@ -34,4 +40,43 @@
 /* Increase spacing between tabs and tab content */
 .ant-tabs-content {
   margin-top: 24px;
+}
+
+/* Detail Page Layout Styles */
+.detail-page-header-section {
+  /* Use viewport units to extend to true full width */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* Optical Alignment: Move tabs content to align with header content */
+.detail-page-tabs .ant-tabs-nav {
+  margin-bottom: 0 !important;
+  /* Move tabs content to the right to align with header */
+  margin-left: 56px; /* Back button width (40px) + margin (16px) */
+}
+
+.detail-page-tabs .ant-tabs-nav::before {
+  border-bottom: none !important;
+}
+
+.detail-page-tabs .ant-tabs-tab {
+  margin-bottom: 0 !important;
+}
+
+.detail-page-tabs .ant-tabs-ink-bar {
+  bottom: 0 !important;
+}
+
+.detail-page-tabs .ant-tabs-content-holder {
+  display: none !important;
+}
+
+/* Override the global tabs content margin for detail pages */
+.detail-page-layout .ant-tabs-content {
+  margin-top: 0 !important;
 } 

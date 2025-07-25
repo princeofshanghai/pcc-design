@@ -22,7 +22,8 @@ import {
   ChangeRequestForm,
   ChangeRequestPreview,
   ActivityFeedItem,
-  CopyableId
+  CopyableId,
+  DetailPageLayout
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
@@ -535,21 +536,27 @@ const ProductDetail: React.FC = () => {
     setConfigurationData(null);
   };
 
-  return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
-      <PageHeader
-        icon={<Box />}
-        iconSize={16}
-        entityType="Product"
-        title={product.name}
-        onBack={() => navigate(-1)}
-        tagContent={<StatusTag status={product.status} />}
-        subtitle={
-          <CopyableId id={product.id} size="small" />
-        }
-      />
+  const pageHeader = (
+    <PageHeader
+      icon={<Box />}
+      iconSize={16}
+      entityType="Product"
+      title={product.name}
+      onBack={() => navigate(-1)}
+      tagContent={<StatusTag status={product.status} />}
+      subtitle={
+        <CopyableId id={product.id} size="small" />
+      }
+    />
+  );
 
-      <Tabs defaultActiveKey="details" items={tabItems} />
+  return (
+    <>
+      <DetailPageLayout
+        header={pageHeader}
+        tabItems={tabItems}
+        defaultActiveKey="overview"
+      />
       
       {/* Configuration Creation Modal */}
       <Modal
@@ -572,18 +579,18 @@ const ProductDetail: React.FC = () => {
         {currentStep === 0 && (
           <Row gutter={24}>
             <Col span={14}>
-                             <ChangeRequestForm 
-                 product={product}
-                 onCancel={handleModalClose}
-                 onSubmit={handleFormSubmit}
-                 onFieldChange={(formData: any) => setConfigurationData(formData)}
-                 onSuccess={handleConfigurationSuccess}
-               />
+              <ChangeRequestForm 
+                product={product!}
+                onCancel={handleModalClose}
+                onSubmit={handleFormSubmit}
+                onFieldChange={(formData: any) => setConfigurationData(formData)}
+                onSuccess={handleConfigurationSuccess}
+              />
             </Col>
             <Col span={10}>
               <ChangeRequestPreview 
-                product={product}
-                configurationData={configurationData || {}}
+                product={product!}
+                configurationData={configurationData ?? {}}
                 isRealTimeUpdate={true}
               />
             </Col>
@@ -593,7 +600,7 @@ const ProductDetail: React.FC = () => {
         {currentStep === 1 && configurationData && (
           <div>
             <ChangeRequestPreview 
-              product={product}
+              product={product!}
               configurationData={configurationData}
             />
             <div style={{ 
@@ -620,7 +627,7 @@ const ProductDetail: React.FC = () => {
           </div>
         )}
       </Modal>
-    </Space>
+    </>
   );
 };
 

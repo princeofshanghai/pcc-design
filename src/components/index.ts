@@ -6,6 +6,7 @@ export { default as Layout } from './layout/Layout';
 export { default as PageHeader } from './layout/PageHeader';
 export { default as PageSection } from './layout/PageSection';
 export { default as DetailSection } from './layout/DetailSection';
+export { default as DetailPageLayout } from './layout/DetailPageLayout';
 export { default as ScrollToTop } from './layout/ScrollToTop';
 
 // Product components

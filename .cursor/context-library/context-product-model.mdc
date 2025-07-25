@@ -1,8 +1,3 @@
----
-description: 
-globs: 
-alwaysApply: false
----
 # Product Model: Catalog Structure & Core Entities
 
 ---
@@ -50,7 +45,7 @@ A unique combo of attributes like Channel, Region, and Billing Cycle. SKUs are *
 
 ### 2.3 Price
 Tied to a specific SKU, defines when certain prices are valid. Includes:
-- **Effective Dates** (Start, End)
+- **Validity Periods** (Valid From, Valid To)
 - **Drafts & Publishing workflow**
 
 Used for scheduled pricing (e.g., Q4 promotion).
@@ -60,6 +55,11 @@ The actual currency value (e.g., USD 999.99). Multiple price points live under a
 
 ---
 
+## Notes
+- A single Product may have many SKUs.
+- Each SKU may only have one price.
+- Each Price holds multiple currency-specific Price Points.
+- SKUs are never edited—new versions are created to support safe experimentation.
 ## Notes
 - A single Product may have many SKUs.
 - Each SKU may only have one price.

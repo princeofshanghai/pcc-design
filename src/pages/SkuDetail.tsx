@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { useLayout } from '../context/LayoutContext';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
-import { toSentenceCase, formatEffectiveDateRange } from '../utils/formatters';
+import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { PRICE_POINT_SORT_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
@@ -265,9 +265,9 @@ const SkuDetail: React.FC = () => {
                   </AttributeDisplay>
                 )}
                 
-                {(priceGroup.startDate || priceGroup.endDate) && (
+                {(priceGroup.validFrom || priceGroup.validTo) && (
                   <AttributeDisplay label="Effective Period" layout="horizontal">
-                    {formatEffectiveDateRange(priceGroup.startDate, priceGroup.endDate)}
+                    {formatValidityRange(priceGroup.validFrom, priceGroup.validTo)}
                   </AttributeDisplay>
                 )}
 

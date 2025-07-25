@@ -1,9 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-# Experimentation Model: Effective Dates & LIX Logic
+# Experimentation Model: Validity & LIX Logic
 
 ---
 
@@ -22,19 +17,19 @@ Only users bucketed into the treatment will see the new SKU. If no LIX is set, t
 
 ---
 
-## 2. Effective Dates
+## 2. Validity Periods
 
-While LIX controls **who** sees a SKU, **Effective Dates** control **when** its prices apply.
+While LIX controls **who** sees a SKU, **Validity Periods** control **when** its prices apply.
 
 Every **Price Group** tied to a SKU can have:
-- **Start Date**: When pricing becomes active
-- **End Date**: When it ends (optional)
+- **Valid From**: When pricing becomes active
+- **Valid To**: When it ends (optional)
 
 If left blank:
-- Start defaults to the moment the Price Group is pushed to production
-- End remains open-ended
+- Valid From defaults to the moment the Price Group is pushed to production
+- Valid To remains open-ended
 
-**Price Points** (per currency) inherit the effective dates from the Price Group but can override them (e.g., adding EUR pricing later).
+**Price Points** (per currency) inherit the validity periods from the Price Group but can override them (e.g., adding EUR pricing later).
 
 ---
 
@@ -42,9 +37,9 @@ If left blank:
 
 | Condition                      | Result                                      |
 |-------------------------------|---------------------------------------------|
-| SKU has no LIX                | Shown to all users once prices are active   |
+| SKU has no LIX                | Shown to all users once prices are valid   |
 | SKU has LIX only              | Shown only to treatment group users         |
-| SKU has LIX + start date      | Shown only to treatment group after date    |
+| SKU has LIX + validity dates  | Shown only to treatment group after date    |
 | SKU with expired price group  | Not shown regardless of LIX                 |
 
 ---
@@ -61,7 +56,12 @@ If left blank:
 ## 5. Summary
 
 - **LIX = who** sees a SKU
-- **Effective Dates = when** its pricing is valid
+- **Validity Periods = when** its pricing is valid
+- **SKU = unit of experimentation**
+
+Every change—price, billing cycle, digital good, or description—is modeled as a new SKU gated by a LIX experiment.
+
+---
 - **SKU = unit of experimentation**
 
 Every change—price, billing cycle, digital good, or description—is modeled as a new SKU gated by a LIX experiment.

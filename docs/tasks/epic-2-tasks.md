@@ -28,7 +28,7 @@ This document breaks down the work for the second major epic: building the Produ
 
 - [x] **4.4: Build the SKU List Table**
     - [x] 4.4.1: In the "Details" tab, add a `SkuListTable.tsx` component to display all SKUs for the product.
-    - [x] 4.4.2: The table must include columns for `SKU ID`, `Region`, `Sales Channel`, `Billing Cycle`, `Effective Date`, `Amount`, `LIX Key`, and `Status`.
+    - [x] 4.4.2: The table must include columns for `SKU ID`, `Region`, `Sales Channel`, `Billing Cycle`, `Validity`, `Amount`, `LIX Key`, and `Status`.
     - [x] 4.4.3: Add a `CountTag` next to the section title to show the number of SKUs.
 
 - [x] **4.5: Implement SKU Filtering**
@@ -39,7 +39,7 @@ This document breaks down the work for the second major epic: building the Produ
 - [x] **4.6: Implement Expandable Price & Tax View**
     - [x] 4.6.1: Make the rows in `SkuListTable.tsx` expandable.
     - [x] 4.6.2: Create a `PriceDetailView.tsx` component to render inside the expanded row.
-    - [x] 4.6.3: Add an "Effective Date" column to the `SkuListTable` with user-friendly date formatting.
+    - [x] 4.6.3: Add a "Validity" column to the `SkuListTable` with user-friendly date formatting.
     - [x] 4.6.4: The `PriceDetailView` must display a list of all `Price Points` (currency and amount).
     - [x] 4.6.5: Add a section to the expanded view that only appears if a SKU has overrides and lists them clearly.
     

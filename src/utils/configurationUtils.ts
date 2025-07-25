@@ -80,14 +80,14 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
     id: priceGroupId,
     name: generatePriceGroupName(product, changeRequest),
     status: 'Active' as const,
-    startDate: new Date().toISOString().split('T')[0], // Today's date
+    validFrom: new Date().toISOString().split('T')[0], // Today's date
     pricePoints: [
       {
         id: generatePricePointId(),
         currencyCode: 'USD',
         amount: changeRequest.priceAmount,
         exchangeRate: 1.0, // USD always has exchange rate of 1.0
-        startDate: new Date().toISOString().split('T')[0], // Today's date
+        validFrom: new Date().toISOString().split('T')[0], // Today's date
         pricingRule: 'NONE' as const // Default pricing rule for new price points
       }
     ]

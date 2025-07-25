@@ -28,9 +28,7 @@ import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
-  PRICE_GROUP_GROUP_BY_OPTIONS,
-  DEFAULT_PRICE_GROUP_COLUMN_VISIBILITY,
-  DEFAULT_PRICE_GROUP_COLUMN_ORDER,
+  DEFAULT_PRICE_GROUP_COLUMNS,
   SKU_SORT_OPTIONS
 } from '../utils/tableConfigurations';
 import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
@@ -38,8 +36,8 @@ import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
 const { Title } = Typography;
 const { Step } = Steps;
 
-const SKU_GROUP_BY_OPTIONS = ['None', 'Price group', 'Effective date', 'LIX', 'Status', 'Region', 'Sales channel', 'Billing cycle'];
-
+const SKU_GROUP_BY_OPTIONS = ['None', 'Price group', 'Validity', 'LIX', 'Status', 'Region', 'Sales channel', 'Billing cycle'];
+const PRICE_GROUP_GROUP_BY_OPTIONS = ['None', 'Channel', 'Billing cycle'];
 
 
 const renderValue = (value: any, isBoolean = false) => {
@@ -105,13 +103,17 @@ const ProductDetail: React.FC = () => {
   } = usePriceGroupFilters(product?.skus || []);
 
   // Column visibility state for PriceGroupTable
-  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(
-    DEFAULT_PRICE_GROUP_COLUMN_VISIBILITY
-  );
+  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(() => {
+    const defaultVisibility: ColumnVisibility = {};
+    PRICE_GROUP_COLUMNS.forEach(col => {
+      defaultVisibility[col.key] = true;
+    });
+    return defaultVisibility;
+  });
 
   // Column order state for PriceGroupTable
   const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>(
-    DEFAULT_PRICE_GROUP_COLUMN_ORDER
+    PRICE_GROUP_COLUMNS.map(col => col.key)
   );
 
   // Column configuration for PriceGroupTable - use centralized configuration

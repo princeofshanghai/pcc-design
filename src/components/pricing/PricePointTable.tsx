@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { Table, Typography, theme, Tooltip } from 'antd';
+import { Table, Typography, theme, Tag, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { toSentenceCase, formatEffectiveDateRange, formatColumnTitles } from '../../utils/formatters';
+import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
@@ -208,33 +208,33 @@ const formatUsdEquivalent = (percentage: number | null): string => {
 /**
  * Determines the "common" dates for this price point group for inheritance detection
  */
-const getCommonDates = (pricePoints: PricePoint[]): { startDate: string; endDate?: string } => {
-  if (!pricePoints || pricePoints.length === 0) return { startDate: '' };
+const getCommonDates = (pricePoints: PricePoint[]): { validFrom: string; validTo?: string } => {
+  if (!pricePoints || pricePoints.length === 0) return { validFrom: '' };
 
-  // Count frequency of start dates
-  const startDateCounts: Record<string, number> = {};
-  const endDateCounts: Record<string, number> = {};
+  // Count frequency of valid from dates
+  const validFromCounts: Record<string, number> = {};
+  const validToCounts: Record<string, number> = {};
   
   pricePoints.forEach(point => {
-    const startDate = point.startDate || '';
-    const endDate = point.endDate || '';
+    const validFrom = point.validFrom || '';
+    const validTo = point.validTo || '';
     
-    startDateCounts[startDate] = (startDateCounts[startDate] || 0) + 1;
-    endDateCounts[endDate] = (endDateCounts[endDate] || 0) + 1;
+    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
+    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
   });
 
   // Find most common dates
-  const mostCommonStartDate = Object.entries(startDateCounts).reduce((prev, current) => 
+  const mostCommonValidFrom = Object.entries(validFromCounts).reduce((prev, current) => 
     current[1] > prev[1] ? current : prev
   )[0];
   
-  const mostCommonEndDate = Object.entries(endDateCounts).reduce((prev, current) => 
+  const mostCommonValidTo = Object.entries(validToCounts).reduce((prev, current) => 
     current[1] > prev[1] ? current : prev
   )[0];
 
   return { 
-    startDate: mostCommonStartDate,
-    endDate: mostCommonEndDate || undefined
+    validFrom: mostCommonValidFrom,
+    validTo: mostCommonValidTo || undefined
   };
 };
 
@@ -291,17 +291,17 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return a.currencyCode.localeCompare(b.currencyCode);
       });
     
-    case 'Effective date (Earliest to latest)':
+    case 'Validity (Earliest to latest)':
       return sorted.sort((a, b) => {
-        const aDate = new Date(a.startDate || '').getTime();
-        const bDate = new Date(b.startDate || '').getTime();
+        const aDate = new Date(a.validFrom || '').getTime();
+        const bDate = new Date(b.validFrom || '').getTime();
         return aDate - bDate;
       });
     
-    case 'Effective date (Latest to earliest)':
+    case 'Validity (Latest to earliest)':
       return sorted.sort((a, b) => {
-        const aDate = new Date(a.startDate || '').getTime();
-        const bDate = new Date(b.startDate || '').getTime();
+        const aDate = new Date(a.validFrom || '').getTime();
+        const bDate = new Date(b.validFrom || '').getTime();
         return bDate - aDate;
       });
     
@@ -490,29 +490,43 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         );
       },
     } : null,
-    effectiveDate: visibleColumns.effectiveDate !== false ? {
-      title: getColumnLabel('effectiveDate'),
-      key: 'effectiveDate',
-      render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
+    validity: visibleColumns.validity !== false ? {
+      title: getColumnLabel('validity'),
+      key: 'validity',
+      width: 180,
+      render: (_: any, record: PricePoint) => {
+        const commonDates = getCommonDates(pricePoints);
         
-        // Check if this price point's dates match the common dates (inherited)
-        const isInherited = (
-          record.startDate === commonDates.startDate && 
-          (record.endDate || '') === (commonDates.endDate || '')
-        );
-        
-        const effectiveDateText = formatEffectiveDateRange(record.startDate, record.endDate);
-        
+        // Check if this record's dates match the "common" dates (indicating inheritance)
+        const isInherited = 
+          record.validFrom === commonDates.validFrom &&
+          (record.validTo || '') === (commonDates.validTo || '');
+
+        const validityText = formatValidityRange(record.validFrom, record.validTo);
+
         return (
-          <Text style={{ 
-            color: isInherited ? token.colorTextSecondary : token.colorText 
-          }}>
-            {effectiveDateText}
-          </Text>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ 
+              color: isInherited ? token.colorTextTertiary : token.colorText,
+              fontSize: isInherited ? '12px' : '13px'
+            }}>
+              {validityText}
+            </span>
+            {isInherited && (
+              <Tooltip title="Inherited from Price Group">
+                <span style={{ 
+                  color: token.colorTextTertiary, 
+                  fontSize: '10px',
+                  fontStyle: 'italic'
+                }}>
+                  (inherited)
+                </span>
+              </Tooltip>
+            )}
+          </div>
         );
       },
-    } : null,
+    } : undefined,
   };
 
   // Build columns in the specified order, filtering out hidden/null columns

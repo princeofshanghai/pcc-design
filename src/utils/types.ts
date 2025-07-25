@@ -70,8 +70,8 @@ export type PricePoint = {
   currencyCode: string;
   amount: number;
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
-  startDate: string; // Mandatory effective start date
-  endDate?: string; // Optional effective end date
+  validFrom: string; // Mandatory validity start date
+  validTo?: string; // Optional validity end date
   // Pricing rule fields
   pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
   minQuantity?: number;
@@ -81,11 +81,11 @@ export type PricePoint = {
 };
 
 export type PriceGroup = {
-  id?: string;
+  id: string;
   name: string;
-  status?: Status;
-  startDate?: string;
-  endDate?: string;
+  status: Status;
+  validFrom: string; // When this price group becomes active
+  validTo?: string; // When this price group expires (optional)
   pricePoints: PricePoint[];
 };
 

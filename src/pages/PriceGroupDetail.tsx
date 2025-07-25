@@ -17,12 +17,11 @@ import {
 } from '../components';
 import { SkuListTable } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
-import { formatEffectiveDateRange, toSentenceCase } from '../utils/formatters';
+import { formatValidityRange, toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
   PRICE_POINT_SORT_OPTIONS,
-  DEFAULT_PRICE_POINT_COLUMN_VISIBILITY,
-  DEFAULT_PRICE_POINT_COLUMN_ORDER
+  DEFAULT_PRICE_POINT_COLUMNS
 } from '../utils/tableConfigurations';
 import { DollarSign } from 'lucide-react';
 
@@ -43,13 +42,17 @@ const PriceGroupDetail: React.FC = () => {
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
   // Column visibility state for PricePointTable - use centralized defaults
-  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(
-    DEFAULT_PRICE_POINT_COLUMN_VISIBILITY
-  );
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
+    const defaultVisibility: ColumnVisibility = {};
+    PRICE_POINT_COLUMNS.forEach(col => {
+      defaultVisibility[col.key] = true;
+    });
+    return defaultVisibility;
+  });
 
   // Column order state for PricePointTable - use centralized defaults
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
-    DEFAULT_PRICE_POINT_COLUMN_ORDER
+    PRICE_POINT_COLUMNS.map(col => col.key)
   );
 
 

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
-import { formatCurrency, formatEffectiveDateRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import { formatCurrency, formatValidityRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
@@ -30,57 +30,57 @@ type TableRow = {
 };
 
 /**
- * Determines the common effective date range for a price group based on its price points
+ * Determines the common validity range for a price group based on its price points
  */
-const getCommonEffectiveDateRange = (pricePoints: PricePoint[]): string => {
+const getCommonValidityRange = (pricePoints: PricePoint[]): string => {
   if (!pricePoints || pricePoints.length === 0) return 'N/A';
 
-  // Count frequency of start dates
-  const startDateCounts: Record<string, number> = {};
-  const endDateCounts: Record<string, number> = {};
+  // Count frequency of valid from dates
+  const validFromCounts: Record<string, number> = {};
+  const validToCounts: Record<string, number> = {};
   
   pricePoints.forEach(point => {
-    const startDate = point.startDate || '';
-    const endDate = point.endDate || '';
+    const validFrom = point.validFrom || '';
+    const validTo = point.validTo || '';
     
-    startDateCounts[startDate] = (startDateCounts[startDate] || 0) + 1;
-    endDateCounts[endDate] = (endDateCounts[endDate] || 0) + 1;
+    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
+    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
   });
 
-  // Find most common start date
-  const startDateEntries = Object.entries(startDateCounts);
-  const mostCommonStartEntry = startDateEntries.reduce((prev, current) => 
+  // Find most common valid from date
+  const validFromEntries = Object.entries(validFromCounts);
+  const mostCommonValidFromEntry = validFromEntries.reduce((prev, current) => 
     current[1] > prev[1] ? current : prev
   );
-  const mostCommonStartDate = mostCommonStartEntry[0];
-  const startDateFrequency = mostCommonStartEntry[1];
+  const mostCommonValidFrom = mostCommonValidFromEntry[0];
+  const validFromFrequency = mostCommonValidFromEntry[1];
 
-  // Find most common end date
-  const endDateEntries = Object.entries(endDateCounts);
-  const mostCommonEndEntry = endDateEntries.reduce((prev, current) => 
+  // Find most common valid to date
+  const validToEntries = Object.entries(validToCounts);
+  const mostCommonValidToEntry = validToEntries.reduce((prev, current) => 
     current[1] > prev[1] ? current : prev
   );
-  const mostCommonEndDate = mostCommonEndEntry[0];
-  const endDateFrequency = mostCommonEndEntry[1];
+  const mostCommonValidTo = mostCommonValidToEntry[0];
+  const validToFrequency = mostCommonValidToEntry[1];
 
   // Check if dates are mixed
-  const hasMultipleStartDates = startDateEntries.length > 1;
-  const hasMultipleEndDates = endDateEntries.length > 1;
+  const hasMultipleValidFromDates = validFromEntries.length > 1;
+  const hasMultipleValidToDates = validToEntries.length > 1;
   
-  // If start dates vary significantly, show "Mixed effective dates"
-  if (hasMultipleStartDates && startDateFrequency < pricePoints.length * 0.7) {
-    return 'Mixed effective dates';
+  // If valid from dates vary significantly, show "Mixed validity"
+  if (hasMultipleValidFromDates && validFromFrequency < pricePoints.length * 0.7) {
+    return 'Mixed validity';
   }
   
-  // If end dates vary significantly, but start dates are consistent
-  if (hasMultipleEndDates && endDateFrequency < pricePoints.length * 0.7) {
-    return formatEffectiveDateRange(mostCommonStartDate, undefined) + ' - Mixed end dates';
+  // If valid to dates vary significantly, but valid from dates are consistent
+  if (hasMultipleValidToDates && validToFrequency < pricePoints.length * 0.7) {
+    return formatValidityRange(mostCommonValidFrom, undefined) + ' - Mixed validity end dates';
   }
   
   // Use most common dates
-  return formatEffectiveDateRange(
-    mostCommonStartDate || undefined, 
-    mostCommonEndDate || undefined
+  return formatValidityRange(
+    mostCommonValidFrom || undefined, 
+    mostCommonValidTo || undefined
   );
 };
 
@@ -215,15 +215,15 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         return record.skus.length;
       },
     } : null,
-    effectiveDate: visibleColumns.effectiveDate !== false ? {
-      title: getColumnLabel('effectiveDate'),
-      dataIndex: 'effectiveDate',
-      key: 'effectiveDate',
+    validity: visibleColumns.validity !== false ? {
+      title: getColumnLabel('validity'),
+      dataIndex: 'validity',
+      key: 'validity',
+      width: 160,
       render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
-        return getCommonEffectiveDateRange(record.priceGroup.pricePoints);
+        return getCommonValidityRange(record.priceGroup.pricePoints);
       },
-    } : null,
+    } : undefined,
   };
 
   // Build columns in the specified order, filtering out hidden/null columns

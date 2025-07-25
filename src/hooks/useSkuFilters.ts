@@ -40,10 +40,10 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   const sortSkus = (skus: Sku[]) => {
     const sorted = [...skus];
     sorted.sort((a, b) => {
-      if (sortOrder === 'Effective Date') {
-        // Use priceGroup.startDate for sorting by date, handle undefined cases
-        const dateA = a.priceGroup.startDate ? new Date(a.priceGroup.startDate).getTime() : 0;
-        const dateB = b.priceGroup.startDate ? new Date(b.priceGroup.startDate).getTime() : 0;
+      if (sortOrder === 'Validity') {
+        // Use priceGroup.validFrom for sorting by date, handle undefined cases
+        const dateA = a.priceGroup.validFrom ? new Date(a.priceGroup.validFrom).getTime() : 0;
+        const dateB = b.priceGroup.validFrom ? new Date(b.priceGroup.validFrom).getTime() : 0;
         return dateA - dateB;
       }
       // Since SKU has no name, we remove name sorting for now.
@@ -54,26 +54,22 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   };
 
   const sortedSkus = useMemo(() => {
-    // If no grouping, sort all filtered SKUs
-    if (groupBy === 'None') {
-      return sortSkus(filteredSkus);
-    }
-    // If grouping is active, return filtered SKUs (sorting happens within groups)
-    return filteredSkus;
-  }, [filteredSkus, sortOrder, groupBy]);
+    if (!filteredSkus) return [];
+    return sortSkus(filteredSkus);
+  }, [filteredSkus, sortOrder]);
 
   const groupedSkus = useMemo(() => {
     if (groupBy === 'None') return null;
 
-    // First group the filtered SKUs
-    const grouped = filteredSkus.reduce((acc, sku) => {
+    // First group the sorted SKUs
+    const grouped = sortedSkus.reduce((acc, sku) => {
       let key: string;
       switch (groupBy) {
         case 'Price Group':
           key = sku.priceGroup.id || 'No Price Group';
           break;
-        case 'Effective Date':
-          key = sku.priceGroup.startDate ? new Date(sku.priceGroup.startDate).toISOString().split('T')[0] : 'No Date';
+        case 'Validity':
+          key = sku.priceGroup.validFrom ? new Date(sku.priceGroup.validFrom).toISOString().split('T')[0] : 'No Date';
           break;
         case 'LIX':
           key = sku.lix ? sku.lix.key : 'No LIX';
@@ -89,6 +85,7 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
           break;
         default:
           key = 'Other';
+          break;
       }
       
       if (!acc[key]) {
@@ -104,7 +101,7 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
     });
 
     return grouped;
-  }, [filteredSkus, groupBy, sortOrder]);
+  }, [sortedSkus, groupBy, sortOrder]);
 
   const skuCount = sortedSkus.length;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { List, Typography, Space, Button } from 'antd';
 import type { Sku, PricePoint, Product } from '../../utils/types';
-import { formatCurrency, formatEffectiveDateRange } from '../../utils/formatters';
+import { formatCurrency, formatValidityRange } from '../../utils/formatters';
 import StatusTag from '../attributes/StatusTag';
 
 import DetailSection from '../layout/DetailSection';
@@ -33,16 +33,16 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
     </Space>
   );
 
-  // Build subtitle with Price Group ID and effective dates
-  const priceSubtitle = [
-    price.id && `${price.id}`,
-    (price.startDate || price.endDate) && formatEffectiveDateRange(price.startDate, price.endDate)
-  ].filter(Boolean).join(' • ');
+  // Build subtitle with Price Group ID and validity
+  const subtitleParts = [
+    `Price Group ${price.id}`,
+    (price.validFrom || price.validTo) && formatValidityRange(price.validFrom, price.validTo)
+  ].filter(Boolean);
 
   return (
     <DetailSection 
       title={priceTitle}
-      subtitle={priceSubtitle}
+      subtitle={subtitleParts.join(' • ')}
     >
       {/* Price Group Information */}
       <div style={{ marginBottom: '24px' }}>

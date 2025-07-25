@@ -108,15 +108,15 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         const bAmount = bUsd?.amount || 0;
         return bAmount - aAmount;
       }
-      if (sortOrder === 'Effective Date (Earliest to Latest)') { 
-        const aDate = new Date(a.priceGroup.startDate).getTime();
-        const bDate = new Date(b.priceGroup.startDate).getTime();
-        return aDate - bDate; 
+      if (sortOrder === 'Validity (Earliest to Latest)') {
+        const aDate = new Date(a.priceGroup.validFrom).getTime();
+        const bDate = new Date(b.priceGroup.validFrom).getTime();
+        return aDate - bDate;
       }
-      if (sortOrder === 'Effective Date (Latest to Earliest)') { 
-        const aDate = new Date(a.priceGroup.startDate).getTime();
-        const bDate = new Date(b.priceGroup.startDate).getTime();
-        return bDate - aDate; 
+      if (sortOrder === 'Validity (Latest to Earliest)') {
+        const aDate = new Date(a.priceGroup.validFrom).getTime();
+        const bDate = new Date(b.priceGroup.validFrom).getTime();
+        return bDate - aDate;
       }
       return 0;
     });

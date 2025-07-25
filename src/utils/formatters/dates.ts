@@ -1,11 +1,11 @@
 
 /**
  * Formats a date range into a user-friendly string.
- * @param startDate - The start date string (e.g., "2024-01-01").
- * @param endDate - The end date string (e.g., "2024-12-31").
+ * @param start - The valid from date string (e.g., "2024-01-01").
+ * @param end - The valid to date string (e.g., "2024-12-31").
  * @returns A formatted date range string.
  */
-export const formatEffectiveDateRange = (start?: string, end?: string): string => {
+export const formatValidityRange = (start?: string, end?: string): string => {
   if (!start) return 'N/A';
 
   const options: Intl.DateTimeFormatOptions = {

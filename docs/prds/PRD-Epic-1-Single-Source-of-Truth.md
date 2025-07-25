@@ -46,13 +46,13 @@ The primary goal of this epic is to **empower business users to independently fi
 - **AC3:** The page must present information in a clean, tabbed interface, separating high-level details from other areas like Configuration, Links, etc.
 - **AC4:** Within the main tab, the page must display a table of all **SKUs** associated with that Product.
 - **AC5:** The SKU table must be filterable by **Region**, **Sales Channel**, and **Status**.
-- **AC6:** The SKU table must have columns for key attributes including **SKU ID**, **Region**, **Sales Channel**, **Billing Cycle**, **Effective Date**, **Price**, and **Status**.
+- **AC6:** The SKU table must have columns for key attributes including **SKU ID**, **Region**, **Sales Channel**, **Billing Cycle**, **Validity**, **Price**, and **Status**.
 
 **User Story 3: Inspect a Single SKU's Price and Configuration**
 *As Sam the Business Partner, I want to select a single, specific SKU and see its detailed price points and configuration, so that I can confirm the exact price and setup for a customer.*
 
 - **AC1:** The SKU table rows must be expandable to reveal a detailed view for that specific SKU.
-- **AC2:** The expanded view must show the SKU's active `Price` version, including its `Start Date` and `End Date`.
+- **AC2:** The expanded view must show the SKU's active `Price` version, including its `Valid From` and `Valid To` dates.
 - **AC3:** Within that `Price` version, the view must list all `Price Points` (the actual amounts), including **Currency Code** and **Amount**.
 - **AC4:** The expanded view must clearly display the `Tax Class` of the SKU.
 - **AC5:** If a SKU is part of a **LIX experiment**, the table must clearly indicate the LIX `key` and show the `treatment` on hover.
@@ -98,7 +98,7 @@ The primary goal of this epic is to **empower business users to independently fi
 | Region | SKU | NAMER, EMEA, APAC, LATAM, OTHER |
 | LIX Assignment | SKU | Optional LIX experiment key and treatment. |
 | Digital Goods | SKU | Features included. Can be an `Entitlement` (boolean) or `Consumable` (numeric). |
-| Price | Price | A versioned container for price points with an effective `Start Date` and `End Date`. |
+| Price | Price | A versioned container for price points with validity `Valid From` and `Valid To` dates. |
 | Price Points | Price Point | The actual price in a given `Currency Code` and `Amount`. |
 | Tax Class | SKU | A label indicating if the price is tax-inclusive or exclusive |
 | SKU Status | SKU | Business status: Active, Legacy, Retired. |
@@ -113,7 +113,7 @@ The primary goal of this epic is to **empower business users to independently fi
 ### 7. Glossary
 - **Product:** The highest-level conceptual offering that users recognize (e.g., "Sales Navigator Core").
 - **SKU (Sellable Configuration):** A unique, immutable combination of commercial attributes. A single Product can have many SKUs. The SKU is the unit of experimentation.
-- **Price:** A versioned container attached to a SKU that holds price points and has effective start/end dates.
+- **Price:** A versioned container attached to a SKU that holds price points and has validity from/to dates.
 - **Price Point:** The most granular level, representing the actual monetary amount in a specific currency.
 - **Digital Good:** A feature or benefit included with a SKU.
 - **Entitlement:** A type of Digital Good that is a boolean (yes/no) permission to access a feature.

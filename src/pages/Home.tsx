@@ -13,21 +13,11 @@ import {
   GroupedProductListTable,
   FilterBar,
 } from '../components';
-import type { ViewMode, SelectOption } from '../components';
-import { toSentenceCase } from '../utils/formatters';
+import type { ViewMode } from '../components';
 
-const STATUS_OPTIONS: Status[] = ['Active', 'Legacy', 'Retired'];
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
 
-const STATUS_SELECT_OPTIONS: SelectOption[] = STATUS_OPTIONS.map(status => ({ label: toSentenceCase(status), value: status }));
-const LOB_SELECT_OPTIONS: SelectOption[] = [
-  { label: toSentenceCase('Premium'), value: 'Premium' },
-  { label: toSentenceCase('LTS'), value: 'LTS' },
-  { label: toSentenceCase('LMS'), value: 'LMS' },
-  { label: toSentenceCase('LSS'), value: 'LSS' },
-  { label: toSentenceCase('Other'), value: 'Other' }
-];
 
 // Helper function to convert URL folder names back to actual folder names
 const urlToFolderName = (urlFolder: string): string => {
@@ -90,8 +80,9 @@ const Home: React.FC = () => {
 
   const {
     setSearchQuery,
-    statusFilter,
     setStatusFilter,
+    statusFilters,
+    setStatusFilters,
     lobFilter,
     setLobFilter,
     folderFilter,
@@ -104,6 +95,8 @@ const Home: React.FC = () => {
     groupedProducts,
     productCount,
     folderOptions,
+    dynamicStatusOptions,
+    dynamicLobOptions,
   } = useProductFilters(mockProducts, null); // No LOB filtering - using folder-based navigation
 
   // Set folder filter based on URL parameter
@@ -130,8 +123,9 @@ const Home: React.FC = () => {
 
   const clearAllProductFilters = () => {
     setStatusFilter(null);
+    setStatusFilters([]);
+    setLobFilter(null);
     if (!currentFolder) {
-      setLobFilter(null);
       setFolderFilter(null);
     }
     // Reset columns to show all toggleable columns
@@ -171,17 +165,11 @@ const Home: React.FC = () => {
             }}
             onClearAll={clearAllProductFilters}
             filters={[
-              {
-                placeholder: "All statuses",
-                options: STATUS_SELECT_OPTIONS,
-                value: statusFilter,
-                onChange: (value) => setStatusFilter((value as Status) ?? null),
-              },
               // Only show LOB and folder dropdowns when on All Products page
               ...(!currentFolder ? [
                 {
                   placeholder: "All LOBs",
-                  options: LOB_SELECT_OPTIONS,
+                  options: dynamicLobOptions,
                   value: lobFilter,
                   onChange: (value: string | null) => setLobFilter((value as LOB) ?? null),
                 },
@@ -194,6 +182,16 @@ const Home: React.FC = () => {
                   dropdownStyle: { width: '240px' },
                 }
               ] : []),
+              {
+                placeholder: "All statuses",
+                options: dynamicStatusOptions,
+                multiSelect: true,
+                multiValue: statusFilters,
+                onMultiChange: (values: string[]) => setStatusFilters(values as Status[]),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
             ]}
             viewOptions={{
               groupBy: {

@@ -21,8 +21,17 @@ export type SelectOption = Option | OptionGroup;
 interface FilterDropdownProps {
   placeholder: string;
   options: SelectOption[];
-  value: string | null;
-  onChange: (value: string | null) => void;
+  
+  // Single-select mode (existing)
+  value?: string | null;
+  onChange?: (value: string | null) => void;
+  
+  // Multi-select mode (new)
+  multiSelect?: boolean;
+  multiValue?: string[];
+  onMultiChange?: (values: string[]) => void;
+  
+  // Common props
   style?: React.CSSProperties;
   size?: SizeType;
   showOptionTooltip?: boolean;
@@ -36,28 +45,74 @@ const DropdownOption: React.FC<{
 }> = ({ label, showTooltip = false }) => {
   const { isTruncated, textRef } = useTruncationDetection(label);
 
+  // Parse label to separate text and count
+  const parseLabel = (fullLabel: string) => {
+    const countMatch = fullLabel.match(/^(.+?)\s*\((\d+)\)$/);
+    if (countMatch) {
+      return {
+        text: countMatch[1].trim(),
+        count: countMatch[2]
+      };
+    }
+    return { text: fullLabel, count: null };
+  };
+
+  const { text, count } = parseLabel(label);
+
   if (!showTooltip) {
-    return <span>{label}</span>;
+    return (
+      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <span>{text}</span>
+        {count && (
+          <span style={{ 
+            fontSize: '11px', 
+            color: '#999', 
+            marginLeft: '8px',
+            fontWeight: 400
+          }}>
+            {count}
+          </span>
+        )}
+      </span>
+    );
   }
 
   const content = (
     <span 
       ref={textRef as React.RefObject<HTMLSpanElement>}
       style={{ 
-        display: 'block', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        width: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      <span style={{ 
         overflow: 'hidden', 
         textOverflow: 'ellipsis', 
         whiteSpace: 'nowrap',
-        maxWidth: '100%'
-      }}
-    >
-      {label}
+        flex: 1
+      }}>
+        {text}
+      </span>
+      {count && (
+        <span style={{ 
+          fontSize: '11px', 
+          color: '#999', 
+          marginLeft: '8px',
+          fontWeight: 400,
+          flexShrink: 0
+        }}>
+          {count}
+        </span>
+      )}
     </span>
   );
 
   if (isTruncated) {
     return (
-      <Tooltip title={label} placement="right">
+      <Tooltip title={text} placement="right">
         {content}
       </Tooltip>
     );
@@ -71,6 +126,9 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   options, 
   value, 
   onChange, 
+  multiSelect = false,
+  multiValue,
+  onMultiChange,
   style, 
   size, 
   showOptionTooltip = false, 
@@ -79,6 +137,45 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   // Apply sentence casing to placeholder for consistency
   const formattedPlaceholder = toSentenceCase(placeholder);
 
+  // Multi-select mode
+  if (multiSelect) {
+    return (
+      <Select
+        mode="multiple"
+        value={multiValue}
+        onChange={onMultiChange}
+        placeholder={formattedPlaceholder}
+        style={{ minWidth: 140, ...style }}
+        allowClear
+        showSearch
+        optionFilterProp="label"
+        size={size}
+        dropdownStyle={dropdownStyle}
+        maxTagCount="responsive"
+      >
+        {options.map(opt => {
+          if ('options' in opt) {
+            return (
+              <OptGroup key={opt.label} label={opt.label}>
+                {opt.options.map(child => (
+                  <Option key={child.value} value={child.value} label={child.label}>
+                    <DropdownOption label={child.label} showTooltip={showOptionTooltip} />
+                  </Option>
+                ))}
+              </OptGroup>
+            );
+          }
+          return (
+            <Option key={opt.value} value={opt.value} label={opt.label}>
+              <DropdownOption label={opt.label} showTooltip={showOptionTooltip} />
+            </Option>
+          );
+        })}
+      </Select>
+    );
+  }
+
+  // Single-select mode (existing behavior)
   return (
     <Select
       value={value}

@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
-import type { Product, LOB, Status } from '../utils/types';
+import type { Product, Status, LOB } from '../utils/types';
 import type { SelectOption } from '../components';
 import { toSentenceCase, toTitleCase } from '../utils/formatters';
+import { matchesMultiSelectFilter, matchesSingleSelectFilter, generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
 // This function generates the grouped folder options from the full product list.
 const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
@@ -15,9 +16,16 @@ const getFolderGroupedOptions = (products: Product[]): SelectOption[] => {
 
 export const useProductFilters = (initialProducts: Product[], initialLobFilter: LOB | null) => {
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Single-select filters (existing)
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [lobFilter, setLobFilter] = useState<LOB | null>(initialLobFilter);
   const [folderFilter, setFolderFilter] = useState<string | null>(null);
+  
+  // Multi-select filters (new - demo with status)
+  const [statusFilters, setStatusFilters] = useState<Status[]>([]);
+  
+  // View options
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
@@ -54,12 +62,19 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
         p.folder.toLowerCase().includes(lowercasedQuery)
       );
     }
+    
     if (lobFilter) { products = products.filter(p => p.lob === lobFilter); }
-    if (statusFilter) { products = products.filter(p => p.status === statusFilter); }
     if (folderFilter) { products = products.filter(p => p.folder === folderFilter); }
+    
+    // Status filtering - use multiselect if active, otherwise single-select
+    if (statusFilters.length > 0) {
+      products = matchesMultiSelectFilter(products, statusFilters, p => p.status);
+    } else if (statusFilter) {
+      products = matchesSingleSelectFilter(products, statusFilter, p => p.status);
+    }
 
     return products;
-  }, [searchQuery, lobFilter, statusFilter, folderFilter, initialProducts]);
+  }, [searchQuery, lobFilter, statusFilter, statusFilters, folderFilter, initialProducts]);
 
   // Helper function to sort products
   const sortProducts = (products: Product[]) => {
@@ -108,12 +123,87 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
 
   const productCount = sortedProducts.length;
 
+  // Generate dynamic filter options based on current filtering context
+  const dynamicStatusOptions = useMemo(() => {
+    // For status options, apply all filters EXCEPT status filters
+    let productsForStatusOptions = initialProducts;
+    
+    // Apply search filter
+    if (searchQuery) {
+      const lowercasedQuery = searchQuery.toLowerCase();
+      productsForStatusOptions = productsForStatusOptions.filter(p =>
+        p.name.toLowerCase().includes(lowercasedQuery) ||
+        p.id.toLowerCase().includes(lowercasedQuery) ||
+        p.folder.toLowerCase().includes(lowercasedQuery)
+      );
+    }
+    
+    // Apply other non-status filters
+    if (lobFilter) { 
+      productsForStatusOptions = productsForStatusOptions.filter(p => p.lob === lobFilter); 
+    }
+    if (folderFilter) { 
+      productsForStatusOptions = productsForStatusOptions.filter(p => p.folder === folderFilter); 
+    }
+
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      productsForStatusOptions,
+      p => p.status,
+      status => toSentenceCase(status)
+    );
+
+    // Format labels with counts
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialProducts, searchQuery, lobFilter, folderFilter]);
+
+  const dynamicLobOptions = useMemo(() => {
+    // For LOB options, apply all filters EXCEPT LOB filter
+    let productsForLobOptions = initialProducts;
+    
+    // Apply search filter
+    if (searchQuery) {
+      const lowercasedQuery = searchQuery.toLowerCase();
+      productsForLobOptions = productsForLobOptions.filter(p =>
+        p.name.toLowerCase().includes(lowercasedQuery) ||
+        p.id.toLowerCase().includes(lowercasedQuery) ||
+        p.folder.toLowerCase().includes(lowercasedQuery)
+      );
+    }
+    
+    // Apply other non-LOB filters
+    if (statusFilters.length > 0) {
+      productsForLobOptions = matchesMultiSelectFilter(productsForLobOptions, statusFilters, p => p.status);
+    } else if (statusFilter) {
+      productsForLobOptions = matchesSingleSelectFilter(productsForLobOptions, statusFilter, p => p.status);
+    }
+    if (folderFilter) { 
+      productsForLobOptions = productsForLobOptions.filter(p => p.folder === folderFilter); 
+    }
+
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      productsForLobOptions,
+      p => p.lob,
+      lob => toSentenceCase(lob)
+    );
+
+    // Format labels with counts
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialProducts, searchQuery, statusFilter, statusFilters, folderFilter]);
+
   return {
     // Filter states and setters
     searchQuery,
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    statusFilters,
+    setStatusFilters,
     lobFilter,
     setLobFilter,
     folderFilter,
@@ -130,5 +220,9 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
     groupedProducts,
     productCount,
     folderOptions,
+    
+    // Dynamic filter options (new)
+    dynamicStatusOptions,
+    dynamicLobOptions,
   };
 }; 

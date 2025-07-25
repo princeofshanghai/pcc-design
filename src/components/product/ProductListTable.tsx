@@ -1,10 +1,10 @@
 import React from 'react';
-import { Table, Typography } from 'antd';
+import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
-import { formatColumnTitles } from '../../utils/formatters';
+import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import type { ColumnsType } from 'antd/es/table';
 
 
@@ -39,7 +39,7 @@ export const getProductListTableColumns = (
       title: 'LOB',
       dataIndex: 'lob',
       key: 'lob',
-      render: (lob: Product['lob']) => <span>{lob}</span>,
+      render: (lob: Product['lob']) => <span>{toSentenceCase(lob)}</span>,
     } : null,
     folder: visibleColumns.folder !== false ? {
       title: 'Folder',

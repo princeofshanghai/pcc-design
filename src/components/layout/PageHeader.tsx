@@ -17,7 +17,7 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
   icon, 
-  iconSize = 14, 
+  iconSize = 12, 
   entityType,
   title, 
   subtitle, 
@@ -76,7 +76,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 </div>
               )}
               {entityType && (
-                <Text type="secondary" style={{ fontSize: '14px', fontWeight: 500 }}>
+                <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
                   {entityType}
                 </Text>
               )}

@@ -17,6 +17,11 @@ export interface FilterConfig {
   style?: React.CSSProperties;
   dropdownStyle?: React.CSSProperties;
   showOptionTooltip?: boolean;
+  
+  // New optional properties for multiselect support
+  multiSelect?: boolean;
+  multiValue?: string[];
+  onMultiChange?: (values: string[]) => void;
 }
 
 interface FilterBarProps {
@@ -72,7 +77,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
   const viewMode = viewOptions?.viewMode;
 
-  const activeFilterCount = filters.filter(f => f.value != null).length;
+  const activeFilterCount = filters.filter(f => 
+    f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null
+  ).length;
 
   const showDrawer = () => setDrawerVisible(true);
   const hideDrawer = () => setDrawerVisible(false);
@@ -102,8 +109,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
           <FilterDropdown
             placeholder={toSentenceCase(filter.placeholder)}
             options={filter.options}
-            value={filter.value}
-            onChange={filter.onChange}
+            multiSelect={filter.multiSelect}
+            value={filter.multiSelect ? undefined : filter.value}
+            onChange={filter.multiSelect ? undefined : filter.onChange}
+            multiValue={filter.multiSelect ? filter.multiValue : undefined}
+            onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
             size={displayMode === 'inline' ? filterSize : 'large'}
             style={{ 
               width: displayMode === 'inline' ? 'auto' : '100%', 

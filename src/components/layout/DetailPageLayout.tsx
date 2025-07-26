@@ -40,12 +40,11 @@ const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
           paddingBottom: '0'
         }}
       >
-        {/* Content Container */}
+        {/* Content Container - Remove extra padding to match Layout's container system */}
         <div style={{
           maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 24px',
-          position: 'relative'
+          margin: '0 auto'
+          // Removed padding: '0 24px' - Layout's Content already provides 24px margin
         }}>
           {/* Header */}
           <div style={{ marginBottom: '24px' }}>

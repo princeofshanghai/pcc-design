@@ -1,4 +1,4 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip } from 'antd';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
 import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, Plus } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
@@ -233,12 +233,15 @@ const generateMenuStructure = (collapsed: boolean) => {
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [manuallyToggled, setManuallyToggled] = useState(false); // Track if user manually toggled
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { maxWidth } = useLayout();
   const { token } = theme.useToken();
+  const { useBreakpoint } = Grid;
+  const screens = useBreakpoint();
 
   // Calculate dynamic max width based on sidebar state and current page width
   // Add 160px (sidebar width difference) when collapsed
@@ -249,6 +252,22 @@ const AppLayout = () => {
 
   // Get the current max width from context (set by individual pages)
   const dynamicMaxWidth = calculateDynamicWidth(maxWidth);
+
+  // Handle responsive sidebar collapse
+  useEffect(() => {
+    // Only auto-collapse/expand if user hasn't manually toggled on large screens
+    if (screens.lg !== undefined) {
+      if (!screens.lg) {
+        // Screen is smaller than lg (992px) - auto-collapse
+        setCollapsed(true);
+        // Reset manual toggle state when going to small screen
+        setManuallyToggled(false);
+      } else if (screens.lg && !manuallyToggled) {
+        // Screen is lg or larger AND user hasn't manually collapsed - auto-expand
+        setCollapsed(false);
+      }
+    }
+  }, [screens.lg, manuallyToggled]);
 
   // Animate label hiding after collapse
   useEffect(() => {
@@ -399,7 +418,7 @@ const AppLayout = () => {
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'space-between',
           height: 64, 
-          padding: '0 12px 0 20px',
+          padding: collapsed ? '0 16px' : '0 12px 0 20px',
           background: '#fff',
           position: 'sticky',
           top: 0,
@@ -434,7 +453,15 @@ const AppLayout = () => {
           )}
           <Button
             icon={<PanelLeft size={18} />}
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => {
+              const newCollapsed = !collapsed;
+              setCollapsed(newCollapsed);
+              // Mark as manually toggled only on large screens
+              // On small screens, we don't track manual toggles since sidebar should stay collapsed
+              if (screens.lg) {
+                setManuallyToggled(true);
+              }
+            }}
             type="text"
             style={{
               fontSize: '16px',

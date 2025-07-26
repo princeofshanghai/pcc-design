@@ -105,7 +105,10 @@ const ChangeRequestListTable: React.FC<ChangeRequestListTableProps> = ({ request
         dataSource={requests}
         rowKey="id"
         pagination={false}
-        scroll={{ x: 1000 }}
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         onRow={(record) => ({
           onClick: () => navigate(`/product/${record.targetProductId}/configuration/${record.id}`),
           style: { cursor: 'pointer' },

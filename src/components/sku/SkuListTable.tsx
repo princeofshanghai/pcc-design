@@ -8,6 +8,7 @@ import StatusTag from '../attributes/StatusTag';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
+import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
 import { SKU_COLUMNS } from '../../utils/tableConfigurations';
 
@@ -50,6 +51,9 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     title: getColumnLabel('name'),
     dataIndex: 'name',
     key: 'name',
+    // Name column always visible and has minimum width
+    fixed: 'left',
+    width: 280,
     render: (name: string, record: Sku) => (
       <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
         <div>
@@ -77,11 +81,17 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   {
     title: getColumnLabel('validity'),
     key: 'effectiveDates',
+    width: 160,
+    // Hide on screens smaller than 1024px (desktop)
+    responsive: ['lg' as Breakpoint],
     render: (_: any, sku: Sku) => formatValidityRange(sku.priceGroup.validFrom, sku.priceGroup.validTo),
   },
   ...(hidePriceGroupColumn ? [] : [{
     title: getColumnLabel('priceGroup'),
     key: 'priceGroupId',
+    width: 180,
+    // Hide on screens smaller than 768px (tablet)
+    responsive: ['md' as Breakpoint],
     render: (_: any, sku: Sku) => {
       if (!sku.priceGroup.id) return 'N/A';
       return (
@@ -101,6 +111,9 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   {
     title: getColumnLabel('lix'),
     key: 'experimental',
+    width: 140,
+    // Hide on screens smaller than 1024px (desktop)
+    responsive: ['lg' as Breakpoint],
     render: (_: any, sku: Sku) => {
       if (!sku.lix?.key) return null;
       return (
@@ -123,6 +136,8 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     title: getColumnLabel('status'),
     dataIndex: 'status',
     key: 'status',
+    width: 100,
+    // Status is important, keep visible on all screens
     render: (status: Status) => <StatusTag status={status} />, 
   },
 ]);
@@ -138,7 +153,10 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGro
         dataSource={skus}
         rowKey="id"
         pagination={false}
-        size="small"
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         onRow={(record) => ({
           onClick: () => {
             navigate(`/product/${product.id}/sku/${record.id}`);

@@ -39,7 +39,10 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
         dataSource={dataSource}
         rowKey={(record) => ('isGroupHeader' in record ? record.key : record.id)}
         pagination={false}
-        size="small"
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         rowClassName={(record) => ('isGroupHeader'in record ? 'ant-table-row-group-header' : '')}
         onRow={(record) => ({
           onClick: () => {

@@ -44,20 +44,16 @@
 
 /* Detail Page Layout Styles */
 .detail-page-header-section {
-  /* Use viewport units to extend to true full width */
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  /* Use calc to extend beyond container without scrollbar issues */
+  width: calc(100% + 48px); /* 24px on each side to match Content margin */
+  margin-left: -24px;
+  margin-right: -24px;
 }
 
-/* Optical Alignment: Move tabs content to align with header content */
+/* Tab Styling - Now follows normal layout flow */
 .detail-page-tabs .ant-tabs-nav {
   margin-bottom: 0 !important;
-  /* Move tabs content to the right to align with header */
-  margin-left: 56px; /* Back button width (40px) + margin (16px) */
+  /* Remove fixed positioning - let tabs follow responsive layout */
 }
 
 .detail-page-tabs .ant-tabs-nav::before {

@@ -105,6 +105,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
+      // Name column always visible and has minimum width
+      fixed: 'left',
+      width: 300,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -173,6 +176,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
       key: 'channel',
+      width: 120,
+      // Hide on screens smaller than 768px (tablet)
+      responsive: ['md'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus[0].salesChannel;
@@ -182,6 +188,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('billingCycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
+      width: 140,
+      // Hide on screens smaller than 1024px (desktop)
+      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus[0].billingCycle;
@@ -191,6 +200,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('usdPrice'),
       dataIndex: 'usdPrice',
       key: 'usdPrice',
+      width: 120,
+      // Price is important, keep visible on most screens
+      responsive: ['sm'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
@@ -201,6 +213,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('currencies'),
       dataIndex: 'currencies',
       key: 'currencies',
+      width: 100,
+      // Hide on screens smaller than 1024px
+      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.priceGroup.pricePoints.length;
@@ -210,6 +225,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('sku'),
       dataIndex: 'sku',
       key: 'sku',
+      width: 80,
+      // Hide on screens smaller than 576px
+      responsive: ['sm'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus.length;
@@ -220,6 +238,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'validity',
       key: 'validity',
       width: 160,
+      // Hide on screens smaller than 1024px
+      responsive: ['lg'],
       render: (_: any, record: any) => {
         return getCommonValidityRange(record.priceGroup.pricePoints);
       },
@@ -261,7 +281,10 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : record.priceGroup.id || Math.random().toString())}
         pagination={false}
-        size="small"
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
         onRow={(record) => ({
           onClick: () => {

@@ -365,6 +365,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         title: getColumnLabel('currency'),
         dataIndex: 'currencyCode',
         key: 'currency',
+        // Currency column always visible and has minimum width
+        fixed: 'left',
+        width: 100,
         render: (_: any, record: any) => {
           if ('isGroupHeader' in record) return null;
           return (
@@ -390,6 +393,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('amount'),
       dataIndex: 'amount',
       key: 'amount',
+      width: 120,
+      // Amount is important, keep visible on all screens
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return formatAmount(record);
@@ -399,6 +404,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('pricingRule'),
       dataIndex: 'pricingRule',
       key: 'pricingRule',
+      width: 130,
+      // Hide on screens smaller than 768px (tablet)
+      responsive: ['md'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -433,6 +441,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     quantityRange: visibleColumns.quantityRange !== false ? {
       title: getColumnLabel('quantityRange'),
       key: 'quantityRange',
+      width: 140,
+      // Hide on screens smaller than 1024px (desktop)
+      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -566,7 +577,10 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : `${record.currencyCode}-${record.amount}`)}
         pagination={false}
-        size="small"
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
         components={{
           body: {

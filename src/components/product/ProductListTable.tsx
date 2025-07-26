@@ -25,6 +25,9 @@ export const getProductListTableColumns = (
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      // Name column always visible and has minimum width
+      fixed: 'left',
+      width: 280,
       render: (name: string, record: Product) => (
         <div>
           <div style={{ fontWeight: 500 }}>{name}</div>
@@ -39,24 +42,35 @@ export const getProductListTableColumns = (
       title: 'LOB',
       dataIndex: 'lob',
       key: 'lob',
+      width: 120,
+      // Hide on screens smaller than 768px (tablet)
+      responsive: ['md'],
       render: (lob: Product['lob']) => <span>{toSentenceCase(lob)}</span>,
     } : null,
     folder: visibleColumns.folder !== false ? {
       title: 'Folder',
       dataIndex: 'folder',
       key: 'folder',
+      width: 150,
+      // Hide on screens smaller than 1024px (desktop)
+      responsive: ['lg'],
       render: (folder: string) => <span>{folder}</span>,
     } : null,
     skus: visibleColumns.skus !== false ? {
       title: 'SKUs',
       dataIndex: 'skus',
       key: 'skus',
+      width: 80,
+      // Hide on screens smaller than 576px (mobile)
+      responsive: ['sm'],
       render: (skus: any[]) => skus.length,
     } : null,
     status: visibleColumns.status !== false ? {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      width: 100,
+      // Status is important, keep visible on all screens
       render: (status: Product['status']) => <StatusTag status={status} />,
     } : null,
   };
@@ -84,6 +98,10 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
         dataSource={products}
         rowKey="id"
         pagination={false}
+        // Enable horizontal scrolling for responsive behavior
+        scroll={{ x: 'max-content' }}
+        // Use smaller size on mobile devices
+        size={window.innerWidth < 768 ? 'small' : 'middle'}
         onRow={(record) => ({
           onClick: () => navigate(`/product/${record.id}`),
           style: { cursor: 'pointer' },

@@ -197,10 +197,10 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       lob => toSentenceCase(lob)
     );
 
-    // Format labels with counts
+    // Format labels WITHOUT counts for LOB options
     return optionsWithCounts.map(option => ({
       value: option.value,
-      label: `${option.label} (${option.count})`
+      label: option.label  // Remove the count formatting
     }));
   }, [initialProducts, searchQuery, statusFilter, statusFilters, folderFilter]);
 

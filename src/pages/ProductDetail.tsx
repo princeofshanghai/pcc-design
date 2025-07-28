@@ -353,7 +353,7 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title="Prices"
+            title="Price groups"
           >
             <FilterBar
               search={{

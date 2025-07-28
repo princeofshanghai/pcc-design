@@ -20,9 +20,7 @@ import PricePointTable from '../components/pricing/PricePointTable';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
-  PRICE_POINT_SORT_OPTIONS,
-  DEFAULT_PRICE_POINT_COLUMNS
-} from '../utils/tableConfigurations';
+  PRICE_POINT_SORT_OPTIONS} from '../utils/tableConfigurations';
 import { DollarSign } from 'lucide-react';
 
 const { Title } = Typography;
@@ -151,19 +149,15 @@ const PriceGroupDetail: React.FC = () => {
         <AttributeGroup>
           <AttributeDisplay
             layout="horizontal"
-            label="Billing Cycle"
+            label="Associated product"
           >
-            {skusWithPriceGroup[0]?.billingCycle}
+            <a onClick={() => navigate(`/product/${productId}`)}>
+              {productId}
+            </a>
           </AttributeDisplay>
           <AttributeDisplay
             layout="horizontal"
-            label="Channel"
-          >
-            {skusWithPriceGroup[0]?.salesChannel}
-          </AttributeDisplay>
-          <AttributeDisplay
-            layout="horizontal"
-            label="Used in SKUs"
+            label="Associated SKUs"
           >
             <Space size={4}>
               {skusWithPriceGroup.map((sku, index) => (
@@ -176,12 +170,25 @@ const PriceGroupDetail: React.FC = () => {
               ))}
             </Space>
           </AttributeDisplay>
+          <AttributeDisplay
+            layout="horizontal"
+            label="Billing Cycle"
+          >
+            {skusWithPriceGroup[0]?.billingCycle}
+          </AttributeDisplay>
+          <AttributeDisplay
+            layout="horizontal"
+            label="Channel"
+          >
+            {skusWithPriceGroup[0]?.salesChannel}
+          </AttributeDisplay>
         </AttributeGroup>
       </PageSection>
 
       {/* Price Points */}
       <PageSection 
         title={toSentenceCase("Price points")}
+        subtitle={`${filteredPricePoints.length} price point${filteredPricePoints.length !== 1 ? 's' : ''}`}
       >
         <FilterBar
           search={{

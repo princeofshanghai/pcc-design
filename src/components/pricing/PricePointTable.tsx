@@ -3,7 +3,7 @@ import { Table, Typography, theme, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
-import { PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
+import { PRICE_POINT_COLUMNS, DEFAULT_PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -315,7 +315,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['id', 'currency', 'amount', 'usdEquivalent', 'validity'],
+  columnOrder = DEFAULT_PRICE_POINT_COLUMNS,
   sortOrder = 'None',
 }) => {
   const { token } = theme.useToken();
@@ -395,7 +395,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return formatAmount(record);
       },
     },
-    pricingRule: visibleColumns.pricingRule !== false ? {
+    pricingRule: visibleColumns.pricingRule === true ? {
       title: getColumnLabel('pricingRule'),
       dataIndex: 'pricingRule',
       key: 'pricingRule',
@@ -431,7 +431,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         );
       },
     } : null,
-    quantityRange: visibleColumns.quantityRange !== false ? {
+    quantityRange: visibleColumns.quantityRange === true ? {
       title: getColumnLabel('quantityRange'),
       key: 'quantityRange',
       width: 140,

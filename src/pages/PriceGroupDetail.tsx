@@ -55,9 +55,9 @@ const PriceGroupDetail: React.FC = () => {
     return defaultVisibility;
   });
 
-  // Column order state for PricePointTable - use centralized defaults
+  // Column order state for PricePointTable - include all columns so they can be toggled
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
-    DEFAULT_PRICE_POINT_COLUMNS
+    PRICE_POINT_COLUMNS.map(col => col.key)
   );
 
 

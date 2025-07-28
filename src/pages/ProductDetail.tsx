@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Tabs, Table, Button, Modal, Steps, Row, Col, Badge } from 'antd';
+import { Typography, Space, Tag, Table, Button, Modal, Steps, Row, Col, Badge } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -29,10 +29,9 @@ import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
-  DEFAULT_PRICE_GROUP_COLUMNS,
   SKU_SORT_OPTIONS
 } from '../utils/tableConfigurations';
-import { Box, Plus, ArrowLeft, Check } from 'lucide-react';
+import { Box, ArrowLeft, Check } from 'lucide-react';
 
 const { Title } = Typography;
 const { Step } = Steps;
@@ -394,8 +393,8 @@ const ProductDetail: React.FC = () => {
                 setColumnOrder: setPriceGroupColumnOrder,
               }}
               displayMode="inline"
-              filterSize="middle"
-              searchAndViewSize="middle"
+              filterSize="large"
+              searchAndViewSize="large"
             />
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 

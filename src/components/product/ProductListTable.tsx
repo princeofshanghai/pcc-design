@@ -98,10 +98,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
         dataSource={products}
         rowKey="id"
         pagination={false}
-        // Enable horizontal scrolling for responsive behavior
         scroll={{ x: 'max-content' }}
-        // Use smaller size on mobile devices
-        size={window.innerWidth < 768 ? 'small' : 'middle'}
         onRow={(record) => ({
           onClick: () => navigate(`/product/${record.id}`),
           style: { cursor: 'pointer' },

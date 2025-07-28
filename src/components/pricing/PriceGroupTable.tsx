@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
@@ -27,6 +27,7 @@ type TableRow = {
   key: string;
   title: string;
   count: number;
+  groupKey: string;
 };
 
 /**
@@ -177,8 +178,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'channel',
       key: 'channel',
       width: 120,
-      // Hide on screens smaller than 768px (tablet)
-      responsive: ['md'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus[0].salesChannel;
@@ -189,8 +188,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'billingCycle',
       key: 'billingCycle',
       width: 140,
-      // Hide on screens smaller than 1024px (desktop)
-      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus[0].billingCycle;
@@ -201,8 +198,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'usdPrice',
       key: 'usdPrice',
       width: 120,
-      // Price is important, keep visible on most screens
-      responsive: ['sm'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
@@ -214,8 +209,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'currencies',
       key: 'currencies',
       width: 100,
-      // Hide on screens smaller than 1024px
-      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.priceGroup.pricePoints.length;
@@ -226,8 +219,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'sku',
       key: 'sku',
       width: 80,
-      // Hide on screens smaller than 576px
-      responsive: ['sm'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus.length;
@@ -238,8 +229,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       dataIndex: 'validity',
       key: 'validity',
       width: 160,
-      // Hide on screens smaller than 1024px
-      responsive: ['lg'],
       render: (_: any, record: any) => {
         return getCommonValidityRange(record.priceGroup.pricePoints);
       },
@@ -253,6 +242,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       .filter(Boolean)
   );
 
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
   // Prepare data source
   const dataSource: TableRow[] = useMemo(() => {
     if (groupedPriceGroups) {
@@ -264,15 +255,27 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           key: `header-${groupTitle}`,
           title: groupTitle,
           count: groups.length,
+          groupKey: groupTitle,
         });
-        result.push(...groups);
+        // Only add group items if the group is expanded
+        if (expandedGroups.includes(groupTitle)) {
+          result.push(...groups);
+        }
       });
       return result;
     } else {
       // Ungrouped data
       return priceGroups;
     }
-  }, [priceGroups, groupedPriceGroups]);
+  }, [priceGroups, groupedPriceGroups, expandedGroups]);
+
+  const handleGroupToggle = (groupKey: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupKey) 
+        ? prev.filter(key => key !== groupKey)
+        : [...prev, groupKey]
+    );
+  };
 
   return (
     <div className="content-panel">
@@ -281,10 +284,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : record.priceGroup.id || Math.random().toString())}
         pagination={false}
-        // Enable horizontal scrolling for responsive behavior
         scroll={{ x: 'max-content' }}
-        // Use smaller size on mobile devices
-        size={window.innerWidth < 768 ? 'small' : 'middle'}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
         onRow={(record) => ({
           onClick: () => {
@@ -292,22 +292,13 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
             navigate(`/product/${productId}/price-group/${record.priceGroup.id}`);
           },
           style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
-          onMouseEnter: (e) => {
-            if (!('isGroupHeader' in record)) {
-              e.currentTarget.style.backgroundColor = '#f5f5f5';
-            }
-          },
-          onMouseLeave: (e) => {
-            if (!('isGroupHeader' in record)) {
-              e.currentTarget.style.backgroundColor = '';
-            }
-          },
         })}
         components={{
           body: {
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
-                const { title, count } = props.children[0].props.record;
+                const { title, count, groupKey } = props.children[0].props.record;
+                const isExpanded = expandedGroups.includes(groupKey);
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
@@ -315,6 +306,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
                         title={title}
                         count={count}
                         contextType="price groups"
+                        isExpanded={isExpanded}
+                        onToggle={() => handleGroupToggle(groupKey)}
+                        isExpandable={true}
                       />
                     </td>
                   </tr>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -6,15 +6,19 @@ import { getProductListTableColumns } from './ProductListTable';
 import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
-
-
 interface GroupedProductListTableProps {
   groupedProducts: Record<string, Product[]>;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
 }
 
-type TableRow = Product | { isGroupHeader: true; key: string; title: string; count: number };
+type TableRow = Product | { 
+  isGroupHeader: true; 
+  key: string; 
+  title: string; 
+  count: number;
+  groupKey: string;
+};
 
 const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ 
   groupedProducts, 
@@ -23,18 +27,34 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
 }) => {
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  const dataSource: TableRow[] = [];
-  for (const groupTitle in groupedProducts) {
-    const groupProducts = groupedProducts[groupTitle];
-    dataSource.push({
-      isGroupHeader: true,
-      key: `header-${groupTitle}`,
-      title: groupTitle,
-      count: groupProducts.length,
+  // Prepare data source with expand/collapse functionality
+  const dataSource: TableRow[] = useMemo(() => {
+    const result: TableRow[] = [];
+    Object.entries(groupedProducts).forEach(([groupTitle, groupProducts]) => {
+      result.push({
+        isGroupHeader: true,
+        key: `header-${groupTitle}`,
+        title: groupTitle,
+        count: groupProducts.length,
+        groupKey: groupTitle,
+      });
+      // Only add group items if the group is expanded
+      if (expandedGroups.includes(groupTitle)) {
+        result.push(...groupProducts);
+      }
     });
-    dataSource.push(...groupProducts);
-  }
+    return result;
+  }, [groupedProducts, expandedGroups]);
+
+  const handleGroupToggle = (groupKey: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupKey) 
+        ? prev.filter(key => key !== groupKey)
+        : [...prev, groupKey]
+    );
+  };
 
   return (
     <div className="content-panel">
@@ -43,26 +63,31 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
         dataSource={dataSource}
         rowKey={(record) => ('isGroupHeader' in record ? record.key : record.id)}
         pagination={false}
+        scroll={{ x: 'max-content' }}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
         onRow={(record) => ({
           onClick: () => {
             if ('isGroupHeader' in record) return;
             navigate(`/product/${record.id}`);
           },
-          style: { cursor: 'pointer' },
+          style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
         })}
         components={{
           body: {
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
-                const { title, count } = props.children[0].props.record;
+                const { title, count, groupKey } = props.children[0].props.record;
+                const isExpanded = expandedGroups.includes(groupKey);
                 return (
-                  <tr {...props}>
+                  <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
                       <GroupHeader 
                         title={title}
                         count={count}
                         contextType="products"
+                        isExpanded={isExpanded}
+                        onToggle={() => handleGroupToggle(groupKey)}
+                        isExpandable={true}
                       />
                     </td>
                   </tr>

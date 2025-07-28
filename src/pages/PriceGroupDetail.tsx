@@ -41,18 +41,23 @@ const PriceGroupDetail: React.FC = () => {
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
-  // Column visibility state for PricePointTable - use centralized defaults
+  // Column visibility state for PricePointTable - hide currencyType, pricingRule, and quantityRange by default
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      defaultVisibility[col.key] = true;
+      // Hide currencyType, pricingRule, and quantityRange by default
+      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
+        defaultVisibility[col.key] = false;
+      } else {
+        defaultVisibility[col.key] = true;
+      }
     });
     return defaultVisibility;
   });
 
   // Column order state for PricePointTable - use centralized defaults
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
-    PRICE_POINT_COLUMNS.map(col => col.key)
+    DEFAULT_PRICE_POINT_COLUMNS
   );
 
 
@@ -110,21 +115,25 @@ const PriceGroupDetail: React.FC = () => {
 
   // Group core currencies vs others
   const {
+    searchQuery: pricePointSearchQuery,
     setSearchQuery: setPricePointSearchQuery,
-    currencyFilter, 
+    currencyFilter,
     setCurrencyFilter,
+    currencyFilters,
+    setCurrencyFilters,
     currencyOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
-    groupBy: pricePointGroupBy, 
+    groupBy: pricePointGroupBy,
     setGroupBy: setPricePointGroupBy,
     filteredPricePoints,
     groupedPricePoints: groupedPricePointsData,
-  } = usePricePointFilters(priceGroup.pricePoints);
+  } = usePricePointFilters(priceGroup?.pricePoints || []);
 
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
     setCurrencyFilter(null);
+    setCurrencyFilters([]);
   };
 
   return (
@@ -141,23 +150,42 @@ const PriceGroupDetail: React.FC = () => {
         }
       />
 
-      {/* SKUs Using This Price Group */}
-      <PageSection 
-        title={toSentenceCase("SKUs using this price group")}
-      >
-        <SkuListTable skus={skusWithPriceGroup} product={product} hidePriceGroupColumn={true} />
+      {/* General Section */}
+      <PageSection title={toSentenceCase('General')}>
+        <AttributeGroup>
+          <AttributeDisplay
+            layout="horizontal"
+            label="Billing Cycle"
+          >
+            {skusWithPriceGroup[0]?.billingCycle}
+          </AttributeDisplay>
+          <AttributeDisplay
+            layout="horizontal"
+            label="Channel"
+          >
+            {skusWithPriceGroup[0]?.salesChannel}
+          </AttributeDisplay>
+          <AttributeDisplay
+            layout="horizontal"
+            label="Used in SKUs"
+          >
+            <Space size={4}>
+              {skusWithPriceGroup.map((sku, index) => (
+                <React.Fragment key={sku.id}>
+                  <a onClick={() => navigate(`/product/${productId}/sku/${sku.id}`)}>
+                    {sku.id}
+                  </a>
+                  {index < skusWithPriceGroup.length - 1 && <span>, </span>}
+                </React.Fragment>
+              ))}
+            </Space>
+          </AttributeDisplay>
+        </AttributeGroup>
       </PageSection>
 
       {/* Price Points */}
       <PageSection 
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{toSentenceCase("Price points")}</span>
-            <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-              currencies
-            </Typography.Text>
-          </div>
-        }
+        title={toSentenceCase("Price points")}
       >
         <FilterBar
           search={{
@@ -168,8 +196,12 @@ const PriceGroupDetail: React.FC = () => {
             {
               placeholder: "All currencies",
               options: currencyOptions,
-              value: currencyFilter,
-              onChange: setCurrencyFilter,
+              multiSelect: true,
+              multiValue: currencyFilters,
+              onMultiChange: (values: string[]) => setCurrencyFilters(values),
+              // Required for TypeScript interface compatibility
+              value: null,
+              onChange: () => {},
             },
           ]}
           onClearAll={clearAllPricePointFilters}
@@ -182,7 +214,7 @@ const PriceGroupDetail: React.FC = () => {
             groupBy: {
               value: pricePointGroupBy,
               setter: setPricePointGroupBy,
-              options: ['None', 'Core / Long Tail'],
+              options: ['None', 'Category'],
             },
             columnOptions,
             visibleColumns,
@@ -190,9 +222,9 @@ const PriceGroupDetail: React.FC = () => {
             columnOrder,
             setColumnOrder,
           }}
-          displayMode="drawer"
-          filterSize="middle"
-          searchAndViewSize="middle"
+          displayMode="inline"
+          filterSize="large"
+          searchAndViewSize="large"
         />
         <PricePointTable 
           pricePoints={filteredPricePoints} 

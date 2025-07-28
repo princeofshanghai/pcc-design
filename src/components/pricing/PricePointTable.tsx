@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Table, Typography, theme, Tag, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -23,6 +23,7 @@ type TableRow = PricePoint | {
   key: string;
   title: string;
   count: number;
+  groupKey: string;
 };
 
 /**
@@ -279,7 +280,7 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return aEquiv - bEquiv;
       });
     
-    case 'Currency type':
+    case 'Category':
       return sorted.sort((a, b) => {
         const aType = getCurrencyType(a.currencyCode);
         const bType = getCurrencyType(b.currencyCode);
@@ -314,10 +315,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
-  columnOrder = ['id', 'currency', 'currencyType', 'amount', 'pricingRule', 'quantityRange', 'usdEquivalent', 'effectiveDate'],
+  columnOrder = ['id', 'currency', 'amount', 'usdEquivalent', 'validity'],
   sortOrder = 'None',
 }) => {
   const { token } = theme.useToken();
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {
@@ -354,34 +356,34 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('id'),
       dataIndex: 'id',
       key: 'id',
+      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
           <CopyableId id={record.id || ''} size="small" />
         );
       },
-            } : null,
-      currency: {
-        title: getColumnLabel('currency'),
-        dataIndex: 'currencyCode',
-        key: 'currency',
-        // Currency column always visible and has minimum width
-        fixed: 'left',
-        width: 100,
-        render: (_: any, record: any) => {
-          if ('isGroupHeader' in record) return null;
-          return (
-            <div>
-              <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
-            </div>
-          );
-        },
-        className: visibleColumns.id === true ? '' : 'table-col-first',
+    } : null,
+    currency: {
+      title: getColumnLabel('currency'),
+      dataIndex: 'currencyCode',
+      key: 'currency',
+      width: 100,
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <div>
+            <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
+          </div>
+        );
       },
+      className: visibleColumns.id === true ? '' : 'table-col-first',
+    },
     currencyType: visibleColumns.currencyType === true ? {
       title: getColumnLabel('currencyType'),
       dataIndex: 'currencyCode',
       key: 'currencyType',
+      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -394,7 +396,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       dataIndex: 'amount',
       key: 'amount',
       width: 120,
-      // Amount is important, keep visible on all screens
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return formatAmount(record);
@@ -405,8 +406,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       dataIndex: 'pricingRule',
       key: 'pricingRule',
       width: 130,
-      // Hide on screens smaller than 768px (tablet)
-      responsive: ['md'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -442,8 +441,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('quantityRange'),
       key: 'quantityRange',
       width: 140,
-      // Hide on screens smaller than 1024px (desktop)
-      responsive: ['lg'],
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -490,6 +487,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     usdEquivalent: showUsdEquivalent ? {
       title: getColumnLabel('usdEquivalent'),
       key: 'usdEquivalent',
+      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
@@ -518,8 +516,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ 
-              color: isInherited ? token.colorTextTertiary : token.colorText,
-              fontSize: isInherited ? '12px' : '13px'
+              color: isInherited ? token.colorTextTertiary : token.colorText
             }}>
               {validityText}
             </span>
@@ -547,6 +544,14 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       .filter(Boolean)
   );
 
+  const handleGroupToggle = (groupKey: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupKey) 
+        ? prev.filter(key => key !== groupKey)
+        : [...prev, groupKey]
+    );
+  };
+
   // Prepare data source with sorting applied
   const dataSource: TableRow[] = useMemo(() => {
     if (groupedPricePoints) {
@@ -559,8 +564,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           key: `header-${groupTitle}`,
           title: groupTitle,
           count: sortedPoints.length,
+          groupKey: groupTitle,
         });
-        result.push(...sortedPoints);
+        // Only add group items if the group is expanded
+        if (expandedGroups.includes(groupTitle)) {
+          result.push(...sortedPoints);
+        }
       });
       return result;
     } else {
@@ -568,7 +577,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       const sortedPoints = sortPricePoints(pricePoints, sortOrder, allPricePoints);
       return sortedPoints;
     }
-  }, [pricePoints, groupedPricePoints, sortOrder, allPricePoints]);
+  }, [pricePoints, groupedPricePoints, sortOrder, allPricePoints, expandedGroups]);
 
   return (
     <div className="content-panel">
@@ -577,16 +586,14 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : `${record.currencyCode}-${record.amount}`)}
         pagination={false}
-        // Enable horizontal scrolling for responsive behavior
         scroll={{ x: 'max-content' }}
-        // Use smaller size on mobile devices
-        size={window.innerWidth < 768 ? 'small' : 'middle'}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
         components={{
           body: {
             row: (props: any) => {
               if (props.children[0]?.props?.record?.isGroupHeader) {
-                const { title, count } = props.children[0].props.record;
+                const { title, count, groupKey } = props.children[0].props.record;
+                const isExpanded = expandedGroups.includes(groupKey);
                 return (
                   <tr {...props} className="ant-table-row-group-header">
                     <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
@@ -594,6 +601,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
                         title={title}
                         count={count}
                         contextType="currencies"
+                        isExpanded={isExpanded}
+                        onToggle={() => handleGroupToggle(groupKey)}
+                        isExpandable={true}
                       />
                     </td>
                   </tr>

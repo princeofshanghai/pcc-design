@@ -1,5 +1,6 @@
 import React from 'react';
 import { Typography, theme } from 'antd';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { toSentenceCase, toTitleCase } from '../../utils/formatters';
 
 const { Text } = Typography;
@@ -8,12 +9,18 @@ interface GroupHeaderProps {
   title: string;
   count: number;
   contextType: 'products' | 'skus' | 'price groups' | 'currencies' | 'price points';
+  isExpanded?: boolean;
+  onToggle?: () => void;
+  isExpandable?: boolean;
 }
 
 const GroupHeader: React.FC<GroupHeaderProps> = ({ 
   title, 
   count, 
-  contextType 
+  contextType,
+  isExpanded = false,
+  onToggle,
+  isExpandable = false
 }) => {
   const { token } = theme.useToken();
 
@@ -38,26 +45,58 @@ const GroupHeader: React.FC<GroupHeaderProps> = ({
 
   const subtitle = `${count} ${getContextText(count, contextType)}`;
 
+  const handleClick = () => {
+    if (isExpandable && onToggle) {
+      onToggle();
+    }
+  };
+
   return (
-    <div>
-      <Text style={{ 
-        fontSize: token.fontSizeHeading3, 
-        fontWeight: 500,
-        display: 'block',
-        lineHeight: 1.2
-      }}>
-        {displayTitle}
-      </Text>
-      <Text 
-        type="secondary" 
-        style={{ 
-          fontSize: token.fontSizeSM,
+    <div 
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px',
+        cursor: isExpandable ? 'pointer' : 'default'
+      }}
+      onClick={handleClick}
+    >
+      {isExpandable && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          color: token.colorTextSecondary
+        }}>
+          {isExpanded ? (
+            <ChevronDown size={14} />
+          ) : (
+            <ChevronRight size={14} />
+          )}
+        </div>
+      )}
+      <div>
+        <Text style={{ 
+          fontSize: token.fontSizeHeading3, 
+          fontWeight: 500,
           display: 'block',
-          marginTop: '2px'
-        }}
-      >
-        {subtitle}
-      </Text>
+          lineHeight: 1.2
+        }}>
+          {displayTitle}
+        </Text>
+        <Text 
+          type="secondary" 
+          style={{ 
+            fontSize: token.fontSizeSM,
+            display: 'block',
+            marginTop: '2px'
+          }}
+        >
+          {subtitle}
+        </Text>
+      </div>
     </div>
   );
 };

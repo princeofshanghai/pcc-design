@@ -44,10 +44,13 @@
 
 /* Detail Page Layout Styles */
 .detail-page-header-section {
-  /* Use calc to extend beyond container without scrollbar issues */
-  width: calc(100% + 48px); /* 24px on each side to match Content margin */
-  margin-left: -24px;
-  margin-right: -24px;
+  /* Use viewport units to extend to true full width */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
 }
 
 /* Tab Styling - Now follows normal layout flow */

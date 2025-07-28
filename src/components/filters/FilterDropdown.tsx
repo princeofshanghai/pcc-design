@@ -151,7 +151,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         optionFilterProp="label"
         size={size}
         dropdownStyle={dropdownStyle}
-        maxTagCount="responsive"
+        maxTagCount={2}
       >
         {options.map(opt => {
           if ('options' in opt) {

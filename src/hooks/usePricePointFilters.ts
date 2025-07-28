@@ -7,14 +7,27 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState<string | null>(null);
   
+  // Multi-select currency filter
+  const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
+  
   // View options
   const [sortOrder, setSortOrder] = useState('None');
   const [groupBy, setGroupBy] = useState('None');
 
-  // Get unique currencies for filter options
+  // Get unique currencies for filter options with counts
   const currencyOptions = useMemo(() => {
-    const currencies = [...new Set(initialPricePoints.map(p => p.currencyCode))];
-    return currencies.sort().map(currency => ({ label: currency, value: currency }));
+    // Count occurrences of each currency
+    const currencyCounts = initialPricePoints.reduce((acc, point) => {
+      acc[point.currencyCode] = (acc[point.currencyCode] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Create options with counts in the label
+    const currencies = Object.keys(currencyCounts).sort();
+    return currencies.map(currency => ({ 
+      label: `${currency} (${currencyCounts[currency]})`, 
+      value: currency 
+    }));
   }, [initialPricePoints]);
 
   // Apply filters and search
@@ -28,13 +41,15 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       );
     }
 
-    // Apply currency filter
-    if (currencyFilter) {
+    // Apply currency filter - use multiselect if active, otherwise single-select
+    if (currencyFilters.length > 0) {
+      filtered = filtered.filter(point => currencyFilters.includes(point.currencyCode));
+    } else if (currencyFilter) {
       filtered = filtered.filter(point => point.currencyCode === currencyFilter);
     }
 
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -67,7 +82,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const groupedPricePoints = useMemo(() => {
     if (groupBy === 'None') return null;
 
-    if (groupBy === 'Core / Long Tail') {
+    if (groupBy === 'Category') {
       const { core, longTail } = categorizePricePoints(filteredPricePoints);
       const groups: Record<string, PricePoint[]> = {};
       
@@ -90,6 +105,8 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setSearchQuery,
     currencyFilter,
     setCurrencyFilter,
+    currencyFilters,
+    setCurrencyFilters,
     currencyOptions,
     
     // View controls

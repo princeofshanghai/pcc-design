@@ -33,10 +33,7 @@ const DigitalGoodsTable: React.FC<DigitalGoodsTableProps> = ({ digitalGoods }) =
         dataSource={dataSource}
         rowKey="key"
         pagination={false}
-        // Enable horizontal scrolling for responsive behavior
         scroll={{ x: 'max-content' }}
-        // Use smaller size on mobile devices
-        size={window.innerWidth < 768 ? 'small' : 'middle'}
       />
     </div>
   );

@@ -230,6 +230,8 @@ const SkuDetail: React.FC = () => {
           setSearchQuery: setPricePointSearchQuery,
           currencyFilter, 
           setCurrencyFilter,
+          currencyFilters,
+          setCurrencyFilters,
           currencyOptions,
           sortOrder: pricePointSortOrder,
           setSortOrder,
@@ -242,6 +244,7 @@ const SkuDetail: React.FC = () => {
         const clearAllPricePointFilters = () => {
           setPricePointSearchQuery('');
           setCurrencyFilter(null);
+          setCurrencyFilters([]);
         };
 
         return (
@@ -299,8 +302,12 @@ const SkuDetail: React.FC = () => {
                   {
                     placeholder: "All currencies",
                     options: currencyOptions,
-                    value: currencyFilter,
-                    onChange: setCurrencyFilter,
+                    multiSelect: true,
+                    multiValue: currencyFilters,
+                    onMultiChange: (values: string[]) => setCurrencyFilters(values),
+                    // Required for TypeScript interface compatibility
+                    value: null,
+                    onChange: () => {},
                   },
                 ]}
                 onClearAll={clearAllPricePointFilters}
@@ -313,12 +320,12 @@ const SkuDetail: React.FC = () => {
                   groupBy: {
                     value: pricePointGroupBy,
                     setter: setPricePointGroupBy,
-                    options: ['None', 'Core / Long Tail'],
+                    options: ['None', 'Category'],
                   },
                 }}
-                displayMode="drawer"
-                filterSize="middle"
-                searchAndViewSize="middle"
+                displayMode="inline"
+                filterSize="large"
+                searchAndViewSize="large"
               />
               <PricePointTable 
                 pricePoints={filteredPricePoints} 

@@ -153,21 +153,12 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGro
         dataSource={skus}
         rowKey="id"
         pagination={false}
-        // Enable horizontal scrolling for responsive behavior
         scroll={{ x: 'max-content' }}
-        // Use smaller size on mobile devices
-        size={window.innerWidth < 768 ? 'small' : 'middle'}
         onRow={(record) => ({
           onClick: () => {
             navigate(`/product/${product.id}/sku/${record.id}`);
           },
           style: { cursor: 'pointer' },
-          onMouseEnter: (e) => {
-            e.currentTarget.style.backgroundColor = '#f5f5f5';
-          },
-          onMouseLeave: (e) => {
-            e.currentTarget.style.backgroundColor = '';
-          },
         })}
       />
     </div>

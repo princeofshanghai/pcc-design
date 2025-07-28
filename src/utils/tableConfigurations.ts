@@ -15,7 +15,7 @@ export const DEFAULT_PRICE_GROUP_COLUMNS = ['name', 'channel', 'billingCycle', '
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'ID', required: true },
   { key: 'currency', label: 'Currency', required: true },
-  { key: 'currencyType', label: 'Currency type', required: false },
+  { key: 'currencyType', label: 'Category', required: false },
   { key: 'amount', label: 'Amount', required: false },
   { key: 'pricingRule', label: 'Pricing rule', required: false },
   { key: 'quantityRange', label: 'Quantity range', required: false },
@@ -23,7 +23,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'validity', label: 'Validity', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'currencyType', 'amount', 'pricingRule', 'quantityRange', 'usdEquivalent', 'validity'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'validity'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
@@ -43,6 +43,7 @@ export const PRICE_POINT_SORT_OPTIONS = [
   'Currency (Z-A)',
   'Amount (Low to High)',
   'Amount (High to Low)',
+  'Category',
   'Validity (Earliest to Latest)',
   'Validity (Latest to Earliest)',
 ];

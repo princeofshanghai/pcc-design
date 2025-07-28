@@ -172,7 +172,15 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       grouped[key] = sortPriceGroups(grouped[key]);
     });
 
-    return grouped;
+    // Apply alphabetical ordering to group keys consistent with ViewOptions.tsx
+    const sortedGroups: Record<string, typeof sortedPriceGroups> = {};
+    Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(groupKey => {
+        sortedGroups[groupKey] = grouped[groupKey];
+      });
+
+    return sortedGroups;
   }, [sortedPriceGroups, groupBy, sortOrder]);
 
   // Generate filter options from initial SKU data

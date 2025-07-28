@@ -93,7 +93,96 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
         groups['Long Tail'] = sortPricePoints(longTail);
       }
       
-      return groups;
+      // Apply alphabetical ordering to group keys consistent with other groupings
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(categoryKey => {
+          sortedGroups[categoryKey] = groups[categoryKey];
+        });
+      
+      return sortedGroups;
+    }
+
+    if (groupBy === 'Currency') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const currency = point.currencyCode;
+        if (!groups[currency]) {
+          groups[currency] = [];
+        }
+        groups[currency].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(currency => {
+          sortedGroups[currency] = sortPricePoints(groups[currency]);
+        });
+      
+      return sortedGroups;
+    }
+
+    if (groupBy === 'Validity') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        // Create a validity range string for grouping
+        const validFrom = point.validFrom || '';
+        const validTo = point.validTo || '';
+        let validityKey: string;
+        
+        if (!validFrom && !validTo) {
+          validityKey = 'No validity specified';
+        } else if (!validTo) {
+          validityKey = `${validFrom} - Present`;
+        } else {
+          validityKey = `${validFrom} - ${validTo}`;
+        }
+        
+        if (!groups[validityKey]) {
+          groups[validityKey] = [];
+        }
+        groups[validityKey].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(validityKey => {
+          sortedGroups[validityKey] = sortPricePoints(groups[validityKey]);
+        });
+      
+      return sortedGroups;
+    }
+
+    if (groupBy === 'Pricing rule') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const rule = point.pricingRule || 'NONE';
+        // Format the rule for display
+        const ruleKey = rule === 'NONE' ? 'None' : rule.charAt(0).toUpperCase() + rule.slice(1).toLowerCase();
+        
+        if (!groups[ruleKey]) {
+          groups[ruleKey] = [];
+        }
+        groups[ruleKey].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(ruleKey => {
+          sortedGroups[ruleKey] = sortPricePoints(groups[ruleKey]);
+        });
+      
+      return sortedGroups;
     }
 
     return null;

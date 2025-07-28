@@ -118,7 +118,15 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       grouped[key] = sortProducts(grouped[key]);
     });
 
-    return grouped;
+    // Apply alphabetical ordering to group keys consistent with ViewOptions.tsx
+    const sortedGroups: Record<string, Product[]> = {};
+    Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(groupKey => {
+        sortedGroups[groupKey] = grouped[groupKey];
+      });
+
+    return sortedGroups;
   }, [filteredProducts, groupBy, sortOrder]);
 
   const productCount = sortedProducts.length;

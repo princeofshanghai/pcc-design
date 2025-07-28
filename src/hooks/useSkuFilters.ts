@@ -100,7 +100,15 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
       grouped[key] = sortSkus(grouped[key]);
     });
 
-    return grouped;
+    // Apply alphabetical ordering to group keys consistent with ViewOptions.tsx
+    const sortedGroups: Record<string, Sku[]> = {};
+    Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(groupKey => {
+        sortedGroups[groupKey] = grouped[groupKey];
+      });
+
+    return sortedGroups;
   }, [sortedSkus, groupBy, sortOrder]);
 
   const skuCount = sortedSkus.length;

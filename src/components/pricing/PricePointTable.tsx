@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Typography, theme, Tag, Tooltip } from 'antd';
+import { Table, Typography, theme, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
@@ -339,13 +339,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     return allPricePoints.find(point => point.currencyCode === 'USD');
   }, [allPricePoints]);
 
-  // Get common dates for inheritance detection
-  const commonDates = useMemo(() => {
-    const allPoints = groupedPricePoints 
-      ? Object.values(groupedPricePoints).flat()
-      : pricePoints;
-    return getCommonDates(allPoints);
-  }, [pricePoints, groupedPricePoints]);
+
 
   // Check if USD Equivalent column should be visible
   const showUsdEquivalent = visibleColumns.usdEquivalent !== false && usdPricePoint;

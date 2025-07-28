@@ -228,8 +228,6 @@ const SkuDetail: React.FC = () => {
         // Use the same filtering logic as PriceGroupDetail
         const {
           setSearchQuery: setPricePointSearchQuery,
-          currencyFilter, 
-          setCurrencyFilter,
           currencyFilters,
           setCurrencyFilters,
           currencyOptions,
@@ -243,7 +241,6 @@ const SkuDetail: React.FC = () => {
 
         const clearAllPricePointFilters = () => {
           setPricePointSearchQuery('');
-          setCurrencyFilter(null);
           setCurrencyFilters([]);
         };
 

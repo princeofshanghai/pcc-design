@@ -15,9 +15,9 @@ import {
   FilterBar,
   CopyableId
 } from '../components';
-import { SkuListTable } from '../components';
+
 import PricePointTable from '../components/pricing/PricePointTable';
-import { formatValidityRange, toSentenceCase } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
   PRICE_POINT_SORT_OPTIONS,
@@ -115,10 +115,7 @@ const PriceGroupDetail: React.FC = () => {
 
   // Group core currencies vs others
   const {
-    searchQuery: pricePointSearchQuery,
     setSearchQuery: setPricePointSearchQuery,
-    currencyFilter,
-    setCurrencyFilter,
     currencyFilters,
     setCurrencyFilters,
     currencyOptions,
@@ -132,7 +129,6 @@ const PriceGroupDetail: React.FC = () => {
 
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
-    setCurrencyFilter(null);
     setCurrencyFilters([]);
   };
 

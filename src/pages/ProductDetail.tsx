@@ -335,8 +335,8 @@ const ProductDetail: React.FC = () => {
               },
             }}
             displayMode="drawer"
-            filterSize="middle"
-            searchAndViewSize="middle"
+            filterSize="large"
+            searchAndViewSize="large"
           />
           {finalGroupedSkus ? (
             <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} />

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Space, theme } from 'antd';
-import { ArrowLeft } from 'lucide-react';
+import { Typography, Space, theme, Button, Avatar, Tooltip } from 'antd';
+import { ArrowLeft, Edit } from 'lucide-react';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import CopyableId from '../shared/CopyableId';
@@ -23,7 +23,39 @@ interface PageHeaderProps {
   subtitle?: React.ReactNode;
   // New prop to control optical alignment
   enableOpticalAlignment?: boolean;
+  // New props for last updated info and edit button
+  lastUpdatedBy?: { name: string; avatar?: string };
+  lastUpdatedAt?: Date;
+  onEdit?: () => void;
 }
+
+// Helper function to format date for display (shortened)
+const formatDateShort = (date: Date): string => {
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInHours < 1) {
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    return diffInMinutes < 1 ? 'Just now' : `${diffInMinutes}m ago`;
+  } else if (diffInHours < 24) {
+    return `${diffInHours}h ago`;
+  } else if (diffInDays < 7) {
+    return `${diffInDays}d ago`;
+  } else {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+  }
+};
+
+// Helper function to format full UTC date for tooltip
+const formatDateFullUTC = (date: Date): string => {
+  return date.toUTCString();
+};
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
   icon, 
@@ -36,7 +68,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   tagContent, 
   onBack, 
   actions,
-  subtitle}) => {
+  subtitle,
+  lastUpdatedBy,
+  lastUpdatedAt,
+  onEdit}) => {
   const { token } = theme.useToken();
 
   return (
@@ -108,13 +143,52 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             </div>
           )}
           
-          {/* Row 2: Title + Tag */}
-          <Space align="center" size="middle">
-            <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
-              {title}
-            </Title>
-            {tagContent}
-          </Space>
+          {/* Row 2: Title + Tag (left) + Last Updated + Edit Button (right) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <Space align="center" size="middle">
+              <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
+                {title}
+              </Title>
+              {tagContent}
+            </Space>
+            
+            {/* Right side: Last Updated + Edit Button */}
+            <Space align="center" size="middle">
+              {lastUpdatedBy && lastUpdatedAt && (
+                <Space align="center" size={8}>
+                  <Text type="secondary" style={{ fontSize: '13px' }}>
+                    Last updated
+                  </Text>
+                  <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy.name}`}>
+                    <Space align="center" size={6}>
+                      <Text style={{ fontSize: '13px' }}>
+                        {formatDateShort(lastUpdatedAt)}
+                      </Text>
+                      <Avatar 
+                        size={20} 
+                        src={lastUpdatedBy.avatar}
+                        style={{ 
+                          fontSize: '10px',
+                          cursor: 'pointer' // Will be used for popover later
+                        }}
+                      >
+                        {lastUpdatedBy.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </Space>
+                  </Tooltip>
+                </Space>
+              )}
+              
+              {onEdit && (
+                <Button 
+                  icon={<Edit size={14} />}
+                  onClick={onEdit}
+                >
+                  Edit
+                </Button>
+              )}
+            </Space>
+          </div>
           
           {/* Row 3: Channels and Billing Cycles (or fallback to subtitle) */}
           {(channels.length > 0 || billingCycles.length > 0) ? (

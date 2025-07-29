@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
-import LobTag from '../attributes/LobTag';
-import FolderTag from '../attributes/FolderTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import './ProductListItem.css';
 
@@ -54,13 +52,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
         <div onClick={(e) => e.stopPropagation()}>
           <CopyableId id={product.id} size="small" />
         </div>
-        {/* Always show LOB and Folder tags */}
-        <div style={{ marginTop: '8px' }}>
-          <Space size={0}>
-            <LobTag lob={product.lob} />
-            <FolderTag folder={product.folder} lob={product.lob} />
-          </Space>
-        </div>
+
         {/* Show channel pills */}
         {uniqueChannels.length > 0 && (
           <div style={{ marginTop: '8px' }}>

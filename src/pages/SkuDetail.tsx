@@ -409,7 +409,9 @@ const SkuDetail: React.FC = () => {
         title={sku.id}
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={sku.status} />}
-        subtitle={<CopyableId id={sku.id} size="small" />}
+        rightAlignedId={sku.id}
+        channels={[sku.salesChannel]}
+        billingCycles={[sku.billingCycle]}
       />
 
       <Tabs defaultActiveKey="overview" items={tabItems} />

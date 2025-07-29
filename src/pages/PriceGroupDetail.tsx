@@ -132,6 +132,10 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters([]);
   };
 
+  // Extract unique channels and billing cycles from associated SKUs
+  const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
+  const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
@@ -141,9 +145,9 @@ const PriceGroupDetail: React.FC = () => {
         title={priceGroup.name}
         onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
-        subtitle={
-          <CopyableId id={priceGroup.id || ''} size="small" />
-        }
+        rightAlignedId={priceGroup.id || ''}
+        channels={uniqueChannels}
+        billingCycles={uniqueBillingCycles}
       />
 
       {/* General Section */}

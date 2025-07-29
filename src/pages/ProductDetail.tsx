@@ -22,7 +22,6 @@ import {
   ChangeRequestForm,
   ChangeRequestPreview,
   ActivityFeedItem,
-  CopyableId,
   DetailPageLayout
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
@@ -544,6 +543,10 @@ const ProductDetail: React.FC = () => {
     setConfigurationData(null);
   };
 
+  // Extract unique channels and billing cycles from all SKUs
+  const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
+  const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
+
   const pageHeader = (
     <PageHeader
       icon={<Box />}
@@ -552,9 +555,9 @@ const ProductDetail: React.FC = () => {
       title={product.name}
       onBack={() => navigate(-1)}
       tagContent={<StatusTag status={product.status} />}
-      subtitle={
-        <CopyableId id={product.id} size="small" />
-      }
+      rightAlignedId={product.id}
+      channels={uniqueChannels}
+      billingCycles={uniqueBillingCycles}
     />
   );
 

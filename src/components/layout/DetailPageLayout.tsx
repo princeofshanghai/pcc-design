@@ -47,7 +47,7 @@ const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
           // Removed padding: '0 24px' - Layout's Content already provides 24px margin
         }}>
           {/* Header */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '48px' }}>
             {header}
           </div>
           
@@ -67,7 +67,7 @@ const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
       </div>
       
       {/* Tab Content Section */}
-      <div style={{ marginTop: '32px' }}>
+      <div style={{ marginTop: '48px' }}>
         {activeTabContent}
       </div>
     </div>

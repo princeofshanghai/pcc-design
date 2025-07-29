@@ -1,7 +1,6 @@
 import React from 'react';
 import { Avatar, Tooltip } from 'antd';
 import { TEAM_MEMBERS, getFullNameFromLdap, getUserLdap } from '../../utils/users';
-import type { TeamMember } from '../../utils/users';
 
 interface UserAvatarProps {
   /** Either full name or LDAP username */

@@ -12,8 +12,7 @@ import {
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  FilterBar,
-  CopyableId
+  FilterBar
 } from '../components';
 import SalesChannelDisplay from '../components/attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../components/attributes/BillingCycleDisplay';

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Typography, Tooltip, theme, Space } from 'antd';
+import { Tooltip, theme } from 'antd';
 import type { Status } from '../../utils/types';
 import { CheckCircle2, Archive, XCircle } from 'lucide-react';
 
-const { Text } = Typography;
 
 interface StatusTagProps {
   status: Status;
@@ -11,37 +10,94 @@ interface StatusTagProps {
   size?: number;
 }
 
-type ColorToken = 'colorSuccessText' | 'colorTextSecondary' | 'colorErrorText';
+type ColorConfig = {
+  icon: React.FC<any>;
+  description: string;
+  backgroundColor: string;
+  textColor: string;
+  borderColor: string;
+};
 
-const statusConfig: Record<Status, { icon: React.FC<any>; description: string; colorToken: ColorToken }> = {
+const statusConfig: Record<Status, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' | 'error' }> = {
   Active: {
     icon: CheckCircle2,
     description: 'Product is actively being sold.',
-    colorToken: 'colorSuccessText',
+    antColorType: 'success',
   },
   Legacy: {
     icon: Archive,
     description: 'Product is no longer being sold, but still has grandfathered customers.',
-    colorToken: 'colorTextSecondary',
+    antColorType: 'default',
   },
   Retired: {
     icon: XCircle,
     description: 'Product is no longer being sold and has no grandfathered customers.',
-    colorToken: 'colorErrorText',
+    antColorType: 'error',
   },
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 14 }) => {
+const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 13 }) => {
   const { token } = theme.useToken();
-  const { icon: Icon, description, colorToken } = statusConfig[status];
-  const color = token[colorToken];
+  const { icon: Icon, description, antColorType } = statusConfig[status];
+  
+  // Get Ant Design color tokens based on status
+  const getColorConfig = (): ColorConfig => {
+    switch (antColorType) {
+      case 'success':
+        return {
+          icon: Icon,
+          description,
+          backgroundColor: token.colorSuccessBg,
+          textColor: token.colorSuccessText,
+          borderColor: token.colorSuccessBorder,
+        };
+      case 'error':
+        return {
+          icon: Icon,
+          description,
+          backgroundColor: token.colorErrorBg,
+          textColor: token.colorErrorText,
+          borderColor: token.colorErrorBorder,
+        };
+      default: // 'default'
+        return {
+          icon: Icon,
+          description,
+          backgroundColor: token.colorFillTertiary,
+          textColor: token.colorTextSecondary,
+          borderColor: token.colorBorder,
+        };
+    }
+  };
+
+  const colorConfig = getColorConfig();
 
   return (
     <Tooltip title={description}>
-      <Space size={4} style={{ alignItems: 'center' }}>
-        <Icon size={size} color={color} />
-        {showLabel && <Text style={{ lineHeight: '1' }}>{status}</Text>}
-      </Space>
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: '3px 8px 3px 7px', // Match SalesChannelDisplay padding
+          backgroundColor: colorConfig.backgroundColor,
+          border: `1px solid ${colorConfig.borderColor}`,
+          borderRadius: '50px', // Match SalesChannelDisplay border radius
+          width: 'fit-content'
+        }}
+      >
+        <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
+          <Icon size={size} />
+        </span>
+        {showLabel && (
+          <span style={{ 
+            color: colorConfig.textColor,
+            fontSize: '13px' // Match SalesChannelDisplay text size
+          }}>
+            {status}
+          </span>
+        )}
+      </div>
     </Tooltip>
   );
 };

@@ -256,7 +256,7 @@ const SkuDetail: React.FC = () => {
                 </AttributeDisplay>
 
                 <AttributeDisplay label="Price Group ID" layout="horizontal">
-                  <CopyableId id={priceGroup.id || ''} size="small" />
+                  <CopyableId id={priceGroup.id || ''} />
                 </AttributeDisplay>
                 
                 {priceGroup.status && (

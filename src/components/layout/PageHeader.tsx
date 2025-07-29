@@ -139,7 +139,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 )}
               </Space>
               {rightAlignedId && (
-                <CopyableId id={rightAlignedId} size="small" />
+                <CopyableId id={rightAlignedId} />
               )}
             </div>
           )}

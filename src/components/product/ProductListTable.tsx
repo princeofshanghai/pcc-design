@@ -33,7 +33,7 @@ export const getProductListTableColumns = (
         <div>
           <div style={{ fontWeight: 500 }}>{name}</div>
           <div onClick={(e) => e.stopPropagation()} style={{ marginTop: '4px' }}>
-            <CopyableId id={record.id} size="small" />
+            <CopyableId id={record.id} />
           </div>
         </div>
       ),
@@ -48,7 +48,7 @@ export const getProductListTableColumns = (
       render: (folder: string, record: Product) => (
         <div>
           <div>{folder}</div>
-          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>{toSentenceCase(record.lob)}</div>
+          <div style={{ fontSize: '13px', color: '#8c8c8c' }}>{toSentenceCase(record.lob)}</div>
         </div>
       ),
     } : null,

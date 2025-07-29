@@ -5,10 +5,9 @@ import './CopyableId.css';
 
 interface CopyableIdProps {
   id: string;
-  size?: 'small' | 'medium';
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -24,39 +23,34 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, size = 'small' }) => {
     );
   };
 
-  const isMedium = size === 'medium';
-
   return (
-    <div
-      onClick={handleCopy}
-      className="copyable-id-tag"
+    <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
-        padding: isMedium ? '4px 8px' : '2px 6px',
-        backgroundColor: token.colorBgContainer,
-        border: `1px solid ${token.colorBorder}`,
-        borderRadius: token.borderRadius,
-        cursor: 'pointer',
         fontFamily: token.fontFamilyCode,
-        fontSize: isMedium ? 13 : 12,
-        lineHeight: isMedium ? '16px' : '14px',
-        color: token.colorText,
-        transition: 'all 0.2s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = token.colorBgTextHover;
-        e.currentTarget.style.borderColor = token.colorPrimary;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = token.colorBgContainer;
-        e.currentTarget.style.borderColor = token.colorBorder;
+        fontSize: '13px',
+        color: token.colorTextSecondary,
       }}
     >
       <span>{id}</span>
-      <Copy size={isMedium ? 12 : 10} style={{ opacity: 0.6 }} />
-    </div>
+      <Copy 
+        size={12} 
+        style={{ 
+          cursor: 'pointer',
+          opacity: 0.6,
+          transition: 'opacity 0.2s ease'
+        }}
+        onClick={handleCopy}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '0.6';
+        }}
+      />
+    </span>
   );
 };
 

@@ -353,7 +353,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <CopyableId id={record.id || ''} size="small" />
+                      <CopyableId id={record.id || ''} />
         );
       },
     } : null,

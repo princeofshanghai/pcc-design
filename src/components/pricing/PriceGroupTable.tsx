@@ -168,7 +168,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
               )}
             </div>
             <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <CopyableId id={record.priceGroup.id || ''} size="small" />
+              <CopyableId id={record.priceGroup.id || ''} />
             </div>
           </div>
         );

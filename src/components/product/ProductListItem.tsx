@@ -50,7 +50,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
           <StatusTag status={product.status} showLabel={false} size={16} />
         </Space>
         <div onClick={(e) => e.stopPropagation()}>
-          <CopyableId id={product.id} size="small" />
+                      <CopyableId id={product.id} />
         </div>
 
         {/* Show channel pills */}

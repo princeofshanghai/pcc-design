@@ -15,6 +15,8 @@ import {
   FilterBar,
   CopyableId
 } from '../components';
+import SalesChannelDisplay from '../components/attributes/SalesChannelDisplay';
+import BillingCycleDisplay from '../components/attributes/BillingCycleDisplay';
 
 import PricePointTable from '../components/pricing/PricePointTable';
 import { toSentenceCase } from '../utils/formatters';
@@ -174,13 +176,13 @@ const PriceGroupDetail: React.FC = () => {
             layout="horizontal"
             label="Billing Cycle"
           >
-            {skusWithPriceGroup[0]?.billingCycle}
+                            <BillingCycleDisplay billingCycle={skusWithPriceGroup[0]?.billingCycle} />
           </AttributeDisplay>
           <AttributeDisplay
             layout="horizontal"
             label="Channel"
           >
-            {skusWithPriceGroup[0]?.salesChannel}
+            <SalesChannelDisplay channel={skusWithPriceGroup[0]?.salesChannel} />
           </AttributeDisplay>
         </AttributeGroup>
       </PageSection>

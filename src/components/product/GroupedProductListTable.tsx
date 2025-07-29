@@ -23,7 +23,7 @@ type TableRow = Product | {
 const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ 
   groupedProducts, 
   visibleColumns = {},
-  columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
+  columnOrder = ['name', 'folder', 'channel', 'skus', 'status']
 }) => {
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;

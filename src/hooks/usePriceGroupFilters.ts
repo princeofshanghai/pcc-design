@@ -5,6 +5,7 @@ import { toSentenceCase } from '../utils/formatters';
 export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
+  const [channelFilters, setChannelFilters] = useState<SalesChannel[]>([]);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
@@ -35,8 +36,12 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       );
     }
 
-    // Channel filter
-    if (channelFilter) {
+    // Channel filter - use multiselect if active, otherwise single-select
+    if (channelFilters.length > 0) {
+      filtered = filtered.filter((group: { skus: any[] }) => 
+        group.skus.some((sku: any) => channelFilters.includes(sku.salesChannel))
+      );
+    } else if (channelFilter) {
       filtered = filtered.filter((group: { skus: any[] }) => 
         group.skus.some((sku: any) => sku.salesChannel === channelFilter)
       );
@@ -50,7 +55,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     }
 
     return filtered;
-  }, [priceGroupMap, searchQuery, channelFilter, billingCycleFilter]);
+  }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter]);
 
   // Helper function to sort price groups
   const sortPriceGroups = (priceGroups: typeof filteredPriceGroups) => {
@@ -75,23 +80,47 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         return b.skus.length - a.skus.length; 
       }
       if (sortOrder === 'Channel (A-Z)') {
-        const aChannel = a.skus[0]?.salesChannel || '';
-        const bChannel = b.skus[0]?.salesChannel || '';
+        // Get primary channel (most common) for each price group
+        const getChannelCounts = (skus: any[]) => skus.reduce((acc: Record<string, number>, sku: any) => {
+          acc[sku.salesChannel] = (acc[sku.salesChannel] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const aChannel = Object.entries(getChannelCounts(a.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
+        const bChannel = Object.entries(getChannelCounts(b.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
         return aChannel.localeCompare(bChannel);
       }
       if (sortOrder === 'Channel (Z-A)') {
-        const aChannel = a.skus[0]?.salesChannel || '';
-        const bChannel = b.skus[0]?.salesChannel || '';
+        // Get primary channel (most common) for each price group
+        const getChannelCounts = (skus: any[]) => skus.reduce((acc: Record<string, number>, sku: any) => {
+          acc[sku.salesChannel] = (acc[sku.salesChannel] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const aChannel = Object.entries(getChannelCounts(a.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
+        const bChannel = Object.entries(getChannelCounts(b.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
         return bChannel.localeCompare(aChannel);
       }
       if (sortOrder === 'Billing Cycle (A-Z)') {
-        const aCycle = a.skus[0]?.billingCycle || '';
-        const bCycle = b.skus[0]?.billingCycle || '';
+        // Get primary billing cycle (most common) for each price group
+        const getCycleCounts = (skus: any[]) => skus.reduce((acc: Record<string, number>, sku: any) => {
+          acc[sku.billingCycle] = (acc[sku.billingCycle] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const aCycle = Object.entries(getCycleCounts(a.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
+        const bCycle = Object.entries(getCycleCounts(b.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
         return aCycle.localeCompare(bCycle);
       }
       if (sortOrder === 'Billing Cycle (Z-A)') {
-        const aCycle = a.skus[0]?.billingCycle || '';
-        const bCycle = b.skus[0]?.billingCycle || '';
+        // Get primary billing cycle (most common) for each price group
+        const getCycleCounts = (skus: any[]) => skus.reduce((acc: Record<string, number>, sku: any) => {
+          acc[sku.billingCycle] = (acc[sku.billingCycle] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const aCycle = Object.entries(getCycleCounts(a.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
+        const bCycle = Object.entries(getCycleCounts(b.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
         return bCycle.localeCompare(aCycle);
       }
       if (sortOrder === 'USD Price (Low to High)') {
@@ -186,7 +215,10 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   // Generate filter options from initial SKU data
   const channelOptions = useMemo(() => {
     const channels = Array.from(new Set(initialSkus.map(sku => sku.salesChannel))).sort();
-    return channels.map(channel => ({ value: channel, label: toSentenceCase(channel) }));
+    return channels.map(channel => ({ 
+      value: channel, 
+      label: channel === 'iOS' ? 'iOS' : toSentenceCase(channel) 
+    }));
   }, [initialSkus]);
 
   const billingCycleOptions = useMemo(() => {
@@ -200,6 +232,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     // States and Setters
     searchQuery, setSearchQuery,
     channelFilter, setChannelFilter,
+    channelFilters, setChannelFilters,
     billingCycleFilter, setBillingCycleFilter,
     groupBy, setGroupBy,
     sortOrder, setSortOrder,

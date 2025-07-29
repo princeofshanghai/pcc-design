@@ -14,6 +14,7 @@ import {
   ChangeRequestPreview,
   ExperimentalBadge
 } from '../components';
+import SalesChannelDisplay from '../components/attributes/SalesChannelDisplay';
 import { updateChangeRequestStatus, getNextStatusOptions } from '../utils/configurationUtils';
 import { getUserLdap } from '../utils/users';
 import { GitPullRequestArrow, Copy, ExternalLink, Clock, User, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
@@ -229,7 +230,7 @@ const ChangeRequestDetail: React.FC = () => {
                             <Card size="small" title="Change Request Settings">
               <AttributeGroup>
                 <AttributeDisplay layout="horizontal" label="Sales Channel">
-                  <Tag color="blue">{configRequest.salesChannel}</Tag>
+                  <SalesChannelDisplay channel={configRequest.salesChannel} />
                 </AttributeDisplay>
                 <AttributeDisplay layout="horizontal" label="Billing Cycle">
                   <Tag color="purple">{configRequest.billingCycle}</Tag>

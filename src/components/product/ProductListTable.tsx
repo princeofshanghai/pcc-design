@@ -1,9 +1,10 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -17,7 +18,7 @@ interface ProductListTableProps {
 export const getProductListTableColumns = (
   _navigate: (path: string) => void, 
   visibleColumns: ColumnVisibility = {},
-  columnOrder: ColumnOrder = ['name', 'lob', 'folder', 'skus', 'status']
+  columnOrder: ColumnOrder = ['name', 'folder', 'channel', 'skus', 'status']
 ): ColumnsType<Product> => {
   // Define all possible columns
   const allColumnsMap: Record<string, any> = {
@@ -27,7 +28,7 @@ export const getProductListTableColumns = (
       key: 'name',
       // Name column always visible and has minimum width
       fixed: 'left',
-      width: 280,
+      minWidth: 200,
       render: (name: string, record: Product) => (
         <div>
           <div style={{ fontWeight: 500 }}>{name}</div>
@@ -38,29 +39,41 @@ export const getProductListTableColumns = (
       ),
       className: 'table-col-first',
     },
-    lob: visibleColumns.lob !== false ? {
-      title: 'LOB',
-      dataIndex: 'lob',
-      key: 'lob',
-      width: 120,
-      // Hide on screens smaller than 768px (tablet)
-      responsive: ['md'],
-      render: (lob: Product['lob']) => <span>{toSentenceCase(lob)}</span>,
-    } : null,
     folder: visibleColumns.folder !== false ? {
       title: 'Folder',
       dataIndex: 'folder',
       key: 'folder',
-      width: 150,
       // Hide on screens smaller than 1024px (desktop)
       responsive: ['lg'],
-      render: (folder: string) => <span>{folder}</span>,
+      render: (folder: string, record: Product) => (
+        <div>
+          <div>{folder}</div>
+          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>{toSentenceCase(record.lob)}</div>
+        </div>
+      ),
+    } : null,
+    channel: visibleColumns.channel !== false ? {
+      title: 'Channel',
+      dataIndex: 'channel',
+      key: 'channel',
+      // Hide on screens smaller than 768px (tablet)
+      responsive: ['md'],
+      render: (_: any, record: Product) => {
+        if (!record.skus || record.skus.length === 0) return null;
+        const uniqueChannels = [...new Set(record.skus.map(sku => sku.salesChannel))];
+        return (
+          <Space size={4} wrap>
+            {uniqueChannels.map(channel => (
+              <SalesChannelDisplay key={channel} channel={channel} />
+            ))}
+          </Space>
+        );
+      },
     } : null,
     skus: visibleColumns.skus !== false ? {
       title: 'SKUs',
       dataIndex: 'skus',
       key: 'skus',
-      width: 80,
       // Hide on screens smaller than 576px (mobile)
       responsive: ['sm'],
       render: (skus: any[]) => skus.length,
@@ -69,7 +82,6 @@ export const getProductListTableColumns = (
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
       // Status is important, keep visible on all screens
       render: (status: Product['status']) => <StatusTag status={status} />,
     } : null,
@@ -86,7 +98,7 @@ export const getProductListTableColumns = (
 const ProductListTable: React.FC<ProductListTableProps> = ({ 
   products, 
   visibleColumns = {},
-  columnOrder = ['name', 'lob', 'folder', 'skus', 'status']
+  columnOrder = ['name', 'folder', 'channel', 'skus', 'status']
 }) => {
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder);

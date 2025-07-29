@@ -38,7 +38,6 @@ export const getChangeRequestListTableColumns = (navigate: (path: string) => voi
       title: 'Request ID',
       dataIndex: 'id',
       key: 'id',
-      width: 150,
       render: (id: string) => (
         <Space onClick={(e) => e.stopPropagation()}>
           <Text>{id}</Text>

@@ -30,6 +30,10 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'None',
   'Name (A-Z)',
   'Name (Z-A)',
+  'Channel (A-Z)',
+  'Channel (Z-A)',
+  'Billing Cycle (A-Z)',
+  'Billing Cycle (Z-A)',
   'USD Price (Low to High)',
   'USD Price (High to Low)',
   'Validity (Earliest to Latest)',
@@ -49,22 +53,34 @@ export const PRICE_POINT_SORT_OPTIONS = [
 ];
 
 export const SKU_COLUMNS: ColumnConfig[] = [
-  { key: 'skuId', label: 'SKU ID', required: true },
-  { key: 'name', label: 'Name', required: false },
-  { key: 'salesChannel', label: 'Sales channel', required: false },
+  { key: 'id', label: 'SKU ID', required: true },
+  { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
-  { key: 'usdPrice', label: 'USD price', required: false },
   { key: 'priceGroup', label: 'Price group', required: false },
-  { key: 'currencies', label: 'Currencies', required: false },
-  { key: 'validity', label: 'Validity', required: false },
   { key: 'lix', label: 'LIX', required: false },
+  { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
-  { key: 'origin', label: 'Origin', required: false },
 ];
 
-export const DEFAULT_SKU_COLUMNS = ['skuId', 'name', 'salesChannel', 'billingCycle', 'usdPrice', 'priceGroup', 'currencies', 'validity', 'lix', 'status', 'origin'];
+export const DEFAULT_SKU_COLUMNS = ['id', 'channel', 'billingCycle', 'priceGroup', 'lix', 'validity', 'status'];
 
-export const SKU_SORT_OPTIONS = ['None', 'Validity']; // SKUs have simpler sorting
+export const SKU_SORT_OPTIONS = [
+  'None', 
+  'Validity', 
+  'Channel (A-Z)', 
+  'Channel (Z-A)', 
+  'Billing Cycle (A-Z)', 
+  'Billing Cycle (Z-A)'
+];
+
+// Group by options for SKUs
+export const SKU_GROUP_BY_OPTIONS = [
+  'None',
+  'Status', 
+  'Channel',
+  'Billing Cycle',
+  'LIX Key'
+];
 
 // Helper to get column label, using fallback if not found
 export const getColumnLabel = (columnKey: string): string => {

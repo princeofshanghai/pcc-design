@@ -350,7 +350,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('id'),
       dataIndex: 'id',
       key: 'id',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -362,7 +361,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('currency'),
       dataIndex: 'currencyCode',
       key: 'currency',
-      width: 100,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -377,7 +375,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('currencyType'),
       dataIndex: 'currencyCode',
       key: 'currencyType',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -389,7 +386,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('amount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return formatAmount(record);
@@ -399,7 +395,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('pricingRule'),
       dataIndex: 'pricingRule',
       key: 'pricingRule',
-      width: 130,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -434,7 +429,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     quantityRange: visibleColumns.quantityRange === true ? {
       title: getColumnLabel('quantityRange'),
       key: 'quantityRange',
-      width: 140,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -481,7 +475,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     usdEquivalent: showUsdEquivalent ? {
       title: getColumnLabel('usdEquivalent'),
       key: 'usdEquivalent',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
@@ -496,7 +489,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     validity: visibleColumns.validity !== false ? {
       title: getColumnLabel('validity'),
       key: 'validity',
-      width: 180,
       render: (_: any, record: PricePoint) => {
         const commonDates = getCommonDates(pricePoints);
         

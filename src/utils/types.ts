@@ -112,7 +112,6 @@ export type ConfigurationRequest = ChangeRequest;
 
 export type Sku = {
   id: string;
-  name: string;
   status: Status;
   salesChannel: SalesChannel;
   billingCycle: BillingCycle;

@@ -29,14 +29,15 @@ import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
-  SKU_SORT_OPTIONS
+  SKU_SORT_OPTIONS,
+  SKU_GROUP_BY_OPTIONS
 } from '../utils/tableConfigurations';
 import { Box, ArrowLeft, Check } from 'lucide-react';
 
 const { Title } = Typography;
 const { Step } = Steps;
 
-const SKU_GROUP_BY_OPTIONS = ['None', 'Price group', 'Validity', 'LIX', 'Status', 'Region', 'Sales channel', 'Billing cycle'];
+
 const PRICE_GROUP_GROUP_BY_OPTIONS = ['None', 'Channel', 'Billing cycle'];
 
 
@@ -74,11 +75,11 @@ const ProductDetail: React.FC = () => {
   // SKU filtering hook
   const {
     setSearchQuery,
-    channelFilter, setChannelFilter, channelOptions,
+    channelFilters, setChannelFilters, channelOptions,
     statusFilter, setStatusFilter, statusOptions,
     billingCycleFilter, setBillingCycleFilter, billingCycleOptions,
     lixKeyFilter, setLixKeyFilter, lixKeyOptions,
-    featuresFilter, setFeaturesFilter, featuresOptions,
+
     sortOrder, setSortOrder,
     groupBy, setGroupBy,
     sortedSkus,
@@ -88,8 +89,8 @@ const ProductDetail: React.FC = () => {
   // Price Group filtering hook
   const {
     setSearchQuery: setPriceGroupSearchQuery,
-    channelFilter: priceGroupChannelFilter, 
-    setChannelFilter: setPriceGroupChannelFilter,
+        channelFilters: priceGroupChannelFilters,
+    setChannelFilters: setPriceGroupChannelFilters,
     billingCycleFilter: priceGroupBillingCycleFilter, 
     setBillingCycleFilter: setPriceGroupBillingCycleFilter,
     groupBy: priceGroupGroupBy, 
@@ -121,16 +122,16 @@ const ProductDetail: React.FC = () => {
 
   const clearAllPriceGroupFilters = () => {
     setPriceGroupSearchQuery('');
-    setPriceGroupChannelFilter(null);
+    setPriceGroupChannelFilters([]);
     setPriceGroupBillingCycleFilter(null);
   };
 
   const clearAllSkuFilters = () => {
-    setChannelFilter(null);
+    setChannelFilters([]);
     setStatusFilter(null);
     setBillingCycleFilter(null);
     setLixKeyFilter(null);
-    setFeaturesFilter(null);
+
   };
 
   // Apply price group filtering if specified in URL
@@ -294,8 +295,17 @@ const ProductDetail: React.FC = () => {
               {
                 placeholder: "All channels",
                 options: channelOptions,
-                value: channelFilter,
-                onChange: (value) => setChannelFilter(value as SalesChannel ?? null),
+                value: channelFilters.length === 1 ? channelFilters[0] : null,
+                onChange: (value) => {
+                  if (value) {
+                    setChannelFilters([value as SalesChannel]);
+                  } else {
+                    setChannelFilters([]);
+                  }
+                },
+                multiSelect: true,
+                multiValue: channelFilters,
+                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
               },
               {
                 placeholder: "All cycles",
@@ -309,12 +319,7 @@ const ProductDetail: React.FC = () => {
                 value: lixKeyFilter,
                 onChange: (value) => setLixKeyFilter(value as string ?? null),
               },
-              {
-                placeholder: "All features",
-                options: featuresOptions,
-                value: featuresFilter,
-                onChange: (value) => setFeaturesFilter(value as 'Standard' | 'Overrides' ?? null),
-              },
+
               {
                 placeholder: "All statuses",
                 options: statusOptions,
@@ -334,7 +339,7 @@ const ProductDetail: React.FC = () => {
                 options: SKU_GROUP_BY_OPTIONS,
               },
             }}
-            displayMode="drawer"
+            displayMode="inline"
             filterSize="large"
             searchAndViewSize="large"
           />
@@ -364,8 +369,12 @@ const ProductDetail: React.FC = () => {
                 {
                   placeholder: "All channels",
                   options: priceGroupChannelOptions,
-                  value: priceGroupChannelFilter,
-                  onChange: setPriceGroupChannelFilter,
+                  multiSelect: true,
+                  multiValue: priceGroupChannelFilters,
+                  onMultiChange: (values: string[]) => setPriceGroupChannelFilters(values as SalesChannel[]),
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
                 },
                 {
                   placeholder: "All billing cycles",

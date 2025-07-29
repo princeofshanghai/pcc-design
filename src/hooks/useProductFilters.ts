@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import type { Product, Status, LOB } from '../utils/types';
+import type { Product, Status, LOB, SalesChannel } from '../utils/types';
 import type { SelectOption } from '../components';
 import { toSentenceCase, toTitleCase } from '../utils/formatters';
 import { matchesMultiSelectFilter, matchesSingleSelectFilter, generateDynamicOptionsWithCounts } from '../utils/filterUtils';
@@ -24,6 +24,7 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
   
   // Multi-select filters (new - demo with status)
   const [statusFilters, setStatusFilters] = useState<Status[]>([]);
+  const [channelFilters, setChannelFilters] = useState<SalesChannel[]>([]);
   
   // View options
   const [groupBy, setGroupBy] = useState<string>('None');
@@ -73,8 +74,17 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       products = matchesSingleSelectFilter(products, statusFilter, p => p.status);
     }
 
+    // Channel filtering - check if product has SKUs with any of the selected channels
+    if (channelFilters.length > 0) {
+      products = products.filter(p => {
+        if (!p.skus || p.skus.length === 0) return false;
+        const productChannels = p.skus.map(sku => sku.salesChannel);
+        return channelFilters.some(channel => productChannels.includes(channel));
+      });
+    }
+
     return products;
-  }, [searchQuery, lobFilter, statusFilter, statusFilters, folderFilter, initialProducts]);
+  }, [searchQuery, lobFilter, statusFilter, statusFilters, channelFilters, folderFilter, initialProducts]);
 
   // Helper function to sort products
   const sortProducts = (products: Product[]) => {
@@ -107,7 +117,26 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
     
     // First group the filtered products
     const grouped = filteredProducts.reduce((acc, product) => {
-      const key = product[groupBy.toLowerCase() as keyof Product] as string;
+      let key: string;
+      
+      if (groupBy === 'Channel') {
+        // For channel grouping, group by the primary channel (most common in SKUs)
+        if (!product.skus || product.skus.length === 0) {
+          key = 'No SKUs';
+        } else {
+          const channelCounts = product.skus.reduce((counts, sku) => {
+            counts[sku.salesChannel] = (counts[sku.salesChannel] || 0) + 1;
+            return counts;
+          }, {} as Record<string, number>);
+          
+          // Find the most common channel
+          key = Object.entries(channelCounts)
+            .sort(([,a], [,b]) => b - a)[0][0];
+        }
+      } else {
+        key = product[groupBy.toLowerCase() as keyof Product] as string;
+      }
+      
       if (!acc[key]) { acc[key] = []; }
       acc[key].push(product);
       return acc;
@@ -204,6 +233,57 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
     }));
   }, [initialProducts, searchQuery, statusFilter, statusFilters, folderFilter]);
 
+  // Generate dynamic channel options with counts
+  const dynamicChannelOptions = useMemo(() => {
+    let productsForChannelOptions = initialProducts;
+
+    // Apply current filters (except channel) to generate accurate counts
+    if (searchQuery) {
+      const lowercasedQuery = searchQuery.toLowerCase();
+      productsForChannelOptions = productsForChannelOptions.filter(p =>
+        p.name.toLowerCase().includes(lowercasedQuery) ||
+        p.id.toLowerCase().includes(lowercasedQuery) ||
+        p.folder.toLowerCase().includes(lowercasedQuery)
+      );
+    }
+    
+    if (lobFilter) { 
+      productsForChannelOptions = productsForChannelOptions.filter(p => p.lob === lobFilter); 
+    }
+    if (folderFilter) { 
+      productsForChannelOptions = productsForChannelOptions.filter(p => p.folder === folderFilter); 
+    }
+    
+    // Status filtering
+    if (statusFilters.length > 0) {
+      productsForChannelOptions = matchesMultiSelectFilter(productsForChannelOptions, statusFilters, p => p.status);
+    } else if (statusFilter) {
+      productsForChannelOptions = matchesSingleSelectFilter(productsForChannelOptions, statusFilter, p => p.status);
+    }
+
+    // Extract all unique channels from products' SKUs
+    const allChannels = new Set<SalesChannel>();
+    productsForChannelOptions.forEach(product => {
+      if (product.skus && product.skus.length > 0) {
+        product.skus.forEach(sku => {
+          allChannels.add(sku.salesChannel);
+        });
+      }
+    });
+
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      Array.from(allChannels).map(channel => ({ channel })),
+      item => item.channel,
+      channel => channel === 'iOS' ? 'iOS' : toSentenceCase(channel)
+    );
+
+    // Format labels WITHOUT counts for channel options
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: option.label  // Remove the count formatting
+    }));
+  }, [initialProducts, searchQuery, statusFilter, statusFilters, lobFilter, folderFilter]);
+
   return {
     // Filter states and setters
     searchQuery,
@@ -212,6 +292,8 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
     setStatusFilter,
     statusFilters,
     setStatusFilters,
+    channelFilters,
+    setChannelFilters,
     lobFilter,
     setLobFilter,
     folderFilter,
@@ -232,5 +314,6 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
     // Dynamic filter options (new)
     dynamicStatusOptions,
     dynamicLobOptions,
+    dynamicChannelOptions,
   };
 }; 

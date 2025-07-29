@@ -39,6 +39,7 @@ export { default as FolderTag } from './attributes/FolderTag';
 export { default as CountTag } from './attributes/CountTag';
 // FolderTabs component removed - no longer used with new navigation
 export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
+export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';
 
 // Filter components
 export { default as FilterBar } from './filters/FilterBar';

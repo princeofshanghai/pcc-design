@@ -3,7 +3,7 @@ import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { Folder } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
-import type { Status, LOB, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
+import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
 import {
   PageHeader,
@@ -15,7 +15,7 @@ import {
 } from '../components';
 import type { ViewMode } from '../components';
 
-const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder'];
+const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder', 'Channel'];
 const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
 
 
@@ -54,8 +54,8 @@ const Home: React.FC = () => {
   // Column visibility state for ProductListTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
     name: true,     // Always visible (required)
-    lob: true,      // Toggleable
     folder: true,   // Toggleable
+    channel: true,  // Toggleable
     skus: true,     // Toggleable
     status: true,   // Toggleable
   });
@@ -63,8 +63,8 @@ const Home: React.FC = () => {
   // Column order state for ProductListTable
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
     'name',
-    'lob',
     'folder',
+    'channel',
     'skus',
     'status'
   ]);
@@ -72,8 +72,8 @@ const Home: React.FC = () => {
   // Column configuration for ProductListTable
   const columnOptions: ColumnConfig[] = [
     { key: 'name', label: 'Name', required: true },
-    { key: 'lob', label: 'LOB', required: false },
     { key: 'folder', label: 'Folder', required: false },
+    { key: 'channel', label: 'Channel', required: false },
     { key: 'skus', label: 'SKUs', required: false },
     { key: 'status', label: 'Status', required: false },
   ];
@@ -83,6 +83,8 @@ const Home: React.FC = () => {
     setStatusFilter,
     statusFilters,
     setStatusFilters,
+    channelFilters,
+    setChannelFilters,
     lobFilter,
     setLobFilter,
     folderFilter,
@@ -97,6 +99,7 @@ const Home: React.FC = () => {
     folderOptions,
     dynamicStatusOptions,
     dynamicLobOptions,
+    dynamicChannelOptions,
   } = useProductFilters(mockProducts, null); // No LOB filtering - using folder-based navigation
 
   // Set folder filter based on URL parameter
@@ -124,6 +127,7 @@ const Home: React.FC = () => {
   const clearAllProductFilters = () => {
     setStatusFilter(null);
     setStatusFilters([]);
+    setChannelFilters([]);
     setLobFilter(null);
     if (!currentFolder) {
       setFolderFilter(null);
@@ -182,6 +186,16 @@ const Home: React.FC = () => {
                   dropdownStyle: { width: '240px' },
                 }
               ] : []),
+              {
+                placeholder: "All channels",
+                options: dynamicChannelOptions,
+                multiSelect: true,
+                multiValue: channelFilters,
+                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
               {
                 placeholder: "All statuses",
                 options: dynamicStatusOptions,

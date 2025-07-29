@@ -6,6 +6,7 @@ import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import LobTag from '../attributes/LobTag';
 import FolderTag from '../attributes/FolderTag';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;
@@ -18,6 +19,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const skuCount = product.skus.length;
+  const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
 
   const handleNavigate = () => {
     navigate(`/product/${product.id}`);
@@ -59,6 +61,16 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
             <FolderTag folder={product.folder} lob={product.lob} />
           </Space>
         </div>
+        {/* Show channel pills */}
+        {uniqueChannels.length > 0 && (
+          <div style={{ marginTop: '8px' }}>
+            <Space size={4} wrap>
+              {uniqueChannels.map(channel => (
+                <SalesChannelDisplay key={channel} channel={channel} />
+              ))}
+            </Space>
+          </div>
+        )}
       </Space>
 
       <Space size={24} align="center">

@@ -2,9 +2,11 @@ import React from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { FlaskConical } from 'lucide-react';
-import type { Sku, Status, Product } from '../../utils/types';
+import type { Sku, Status, Product, SalesChannel, BillingCycle } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
@@ -48,17 +50,20 @@ const getColumnLabel = (key: string): string => {
 
 export const getSkuTableColumns = (product: Product, navigate: (path: string) => void, hidePriceGroupColumn: boolean = false): ColumnsType<Sku> => formatColumnTitles([
   {
-    title: getColumnLabel('name'),
-    dataIndex: 'name',
-    key: 'name',
-    // Name column always visible and has minimum width
+    title: getColumnLabel('id'),
+    dataIndex: 'id',
+    key: 'id',
+    // ID column always visible
     fixed: 'left',
-    width: 280,
-    render: (name: string, record: Sku) => (
+    minWidth: 150,
+    render: (_: string, record: Sku) => (
       <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
         <div>
-          <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {name}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <CopyableId id={record.id} size="medium" />
+              {hasSkuOverrides(record, product) && <OverrideIndicator />}
+            </Space>
             {record.lix?.key && (
               <ExperimentalBadge 
                 lixKey={record.lix.key} 
@@ -67,29 +72,26 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
               />
             )}
           </div>
-          <div>
-            <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <CopyableId id={record.id} size="small" />
-              {hasSkuOverrides(record, product) && <OverrideIndicator />}
-            </Space>
-          </div>
         </div>
       </ExperimentalTableCell>
     ),
     className: 'table-col-first',
   },
   {
-    title: getColumnLabel('validity'),
-    key: 'effectiveDates',
-    width: 160,
-    // Hide on screens smaller than 1024px (desktop)
-    responsive: ['lg' as Breakpoint],
-    render: (_: any, sku: Sku) => formatValidityRange(sku.priceGroup.validFrom, sku.priceGroup.validTo),
+    title: getColumnLabel('channel'),
+    dataIndex: 'salesChannel',
+    key: 'channel',
+    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />,
+  },
+  {
+    title: getColumnLabel('billingCycle'),
+    dataIndex: 'billingCycle',
+    key: 'billingCycle',
+    render: (billingCycle: BillingCycle) => <BillingCycleDisplay billingCycle={billingCycle} />,
   },
   ...(hidePriceGroupColumn ? [] : [{
     title: getColumnLabel('priceGroup'),
     key: 'priceGroupId',
-    width: 180,
     // Hide on screens smaller than 768px (tablet)
     responsive: ['md' as Breakpoint],
     render: (_: any, sku: Sku) => {
@@ -111,7 +113,6 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   {
     title: getColumnLabel('lix'),
     key: 'experimental',
-    width: 140,
     // Hide on screens smaller than 1024px (desktop)
     responsive: ['lg' as Breakpoint],
     render: (_: any, sku: Sku) => {
@@ -131,12 +132,17 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
       );
     },
   },
-
+  {
+    title: getColumnLabel('validity'),
+    key: 'effectiveDates',
+    // Hide on screens smaller than 1024px (desktop)
+    responsive: ['lg' as Breakpoint],
+    render: (_: any, sku: Sku) => formatValidityRange(sku.priceGroup.validFrom, sku.priceGroup.validTo),
+  },
   {
     title: getColumnLabel('status'),
     dataIndex: 'status',
     key: 'status',
-    width: 100,
     // Status is important, keep visible on all screens
     render: (status: Status) => <StatusTag status={status} />, 
   },

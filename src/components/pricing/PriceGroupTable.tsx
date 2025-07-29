@@ -7,6 +7,8 @@ import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -106,9 +108,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
-      // Name column always visible and has minimum width
+      // Name column always visible
       fixed: 'left',
-      width: 300,
+      minWidth: 200,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -125,7 +127,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
                 <Text strong style={{ color: 'white' }}>This price group is part of a SKU experiment</Text>
                 <div style={{ marginTop: 8 }}>
                   <Text style={{ color: 'white', fontSize: '13px' }}>
-                    <strong>SKU:</strong> {firstExperimentalSku.name}
+                    <strong>SKU:</strong> {firstExperimentalSku.id}
                   </Text>
                   <div>
                     <Text style={{ color: 'white', fontSize: '13px' }}>
@@ -177,27 +179,40 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
       key: 'channel',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return record.skus[0].salesChannel;
+        // Get all unique channels from SKUs using this price group
+        const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
+        return (
+          <Space size="small">
+            {uniqueChannels.map((channel: any) => (
+              <SalesChannelDisplay key={channel} channel={channel} />
+            ))}
+          </Space>
+        );
       },
     } : null,
     billingCycle: visibleColumns.billingCycle !== false ? {
       title: getColumnLabel('billingCycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
-      width: 140,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return record.skus[0].billingCycle;
+        // Get all unique billing cycles from SKUs using this price group
+        const uniqueBillingCycles = [...new Set(record.skus.map((sku: Sku) => sku.billingCycle))];
+        return (
+          <Space size="small">
+            {uniqueBillingCycles.map((billingCycle: any) => (
+              <BillingCycleDisplay key={billingCycle} billingCycle={billingCycle} />
+            ))}
+          </Space>
+        );
       },
     } : null,
     usdPrice: visibleColumns.usdPrice !== false ? {
       title: getColumnLabel('usdPrice'),
       dataIndex: 'usdPrice',
       key: 'usdPrice',
-      width: 120,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
@@ -208,7 +223,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('currencies'),
       dataIndex: 'currencies',
       key: 'currencies',
-      width: 100,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.priceGroup.pricePoints.length;
@@ -218,7 +232,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('sku'),
       dataIndex: 'sku',
       key: 'sku',
-      width: 80,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return record.skus.length;
@@ -228,7 +241,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       title: getColumnLabel('validity'),
       dataIndex: 'validity',
       key: 'validity',
-      width: 160,
       render: (_: any, record: any) => {
         return getCommonValidityRange(record.priceGroup.pricePoints);
       },

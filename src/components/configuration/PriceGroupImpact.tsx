@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, Typography, Space, Tag, Alert, Divider } from 'antd';
 import { Plus, RefreshCw, Info } from 'lucide-react';
-import type { Product } from '../../utils/types';
+import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
+import type { Product, BillingCycle } from '../../utils/types';
 
 const { Title, Text } = Typography;
 
@@ -188,7 +189,7 @@ export const PriceGroupImpact: React.FC<PriceGroupImpactProps> = ({
             <div>
               <Text type="secondary">Sales Channel & Billing Cycle: </Text>
               <Tag color="blue">{salesChannel}</Tag>
-              <Tag color="purple">{billingCycle}</Tag>
+                             <BillingCycleDisplay billingCycle={billingCycle as BillingCycle} />
             </div>
             <div>
               <Text type="secondary">Existing Price Groups: </Text>

@@ -5,6 +5,8 @@ import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from './ChangeRequestStatus';
 import { CompactTimeline } from './ChangeRequestTimeline';
 import { getUserLdap } from '../../utils/users';
+import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 
 const { Text, Title } = Typography;
 
@@ -88,8 +90,8 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
                  )}
                </Space>
                <Space wrap>
-                 <Tag color="blue">{request.salesChannel}</Tag>
-                 <Tag color="purple">{request.billingCycle}</Tag>
+                                 <SalesChannelDisplay channel={request.salesChannel} />
+                <BillingCycleDisplay billingCycle={request.billingCycle} />
                  <Tag color="green">${request.priceAmount.toFixed(2)}</Tag>
                 <Text type="secondary" style={{ fontSize: '11px' }}>
                   {formatDate(request.createdDate)}
@@ -162,8 +164,8 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
             <Space direction="vertical" size={4}>
               <Text type="secondary" style={{ fontSize: '12px' }}>Configuration</Text>
               <Space wrap>
-                <Tag color="blue">{request.salesChannel}</Tag>
-                <Tag color="purple">{request.billingCycle}</Tag>
+                <SalesChannelDisplay channel={request.salesChannel} />
+                <BillingCycleDisplay billingCycle={request.billingCycle} />
                 <Tag color="green">${request.priceAmount.toFixed(2)}</Tag>
                 {request.lixKey && (
                   <Tag color="orange">LIX: {request.lixKey}</Tag>

@@ -72,9 +72,6 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
   const skuId = generateSkuId(product, changeRequest);
   const priceGroupId = generatePriceGroupId(changeRequest);
   
-  // Create the SKU name based on product name and configuration
-  const skuName = generateSkuName(product, changeRequest);
-  
   // Create the price group for this configuration
   const priceGroup = {
     id: priceGroupId,
@@ -96,7 +93,6 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
   // Build the preview SKU with product defaults
   const previewSku: Sku = {
     id: skuId,
-    name: skuName,
     status: 'Active', // New SKUs start as Active
     salesChannel: changeRequest.salesChannel,
     billingCycle: changeRequest.billingCycle,

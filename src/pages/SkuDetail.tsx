@@ -412,6 +412,9 @@ const SkuDetail: React.FC = () => {
         rightAlignedId={sku.id}
         channels={[sku.salesChannel]}
         billingCycles={[sku.billingCycle]}
+        lastUpdatedBy="Anthony Homan"
+        lastUpdatedAt={new Date(Date.now() - 45 * 60 * 1000)} // 45 minutes ago
+        onEdit={() => console.log('Edit SKU clicked')}
       />
 
       <Tabs defaultActiveKey="overview" items={tabItems} />

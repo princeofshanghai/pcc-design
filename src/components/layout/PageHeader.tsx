@@ -1,9 +1,10 @@
 import React from 'react';
-import { Typography, Space, theme, Button, Avatar, Tooltip } from 'antd';
+import { Typography, Space, theme, Button, Tooltip } from 'antd';
 import { ArrowLeft, Edit } from 'lucide-react';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import CopyableId from '../shared/CopyableId';
+import UserAvatar from '../shared/UserAvatar';
 import type { SalesChannel, BillingCycle } from '../../utils/types';
 
 const { Title, Text } = Typography;
@@ -24,7 +25,7 @@ interface PageHeaderProps {
   // New prop to control optical alignment
   enableOpticalAlignment?: boolean;
   // New props for last updated info and edit button
-  lastUpdatedBy?: { name: string; avatar?: string };
+  lastUpdatedBy?: string; // Now just the user identifier (full name or LDAP)
   lastUpdatedAt?: Date;
   onEdit?: () => void;
 }
@@ -159,21 +160,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   <Text type="secondary" style={{ fontSize: '13px' }}>
                     Last updated
                   </Text>
-                  <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy.name}`}>
+                  <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
                     <Space align="center" size={6}>
                       <Text style={{ fontSize: '13px' }}>
                         {formatDateShort(lastUpdatedAt)}
                       </Text>
-                      <Avatar 
+                      <UserAvatar 
+                        user={lastUpdatedBy}
                         size={20} 
-                        src={lastUpdatedBy.avatar}
-                        style={{ 
-                          fontSize: '10px',
-                          cursor: 'pointer' // Will be used for popover later
-                        }}
-                      >
-                        {lastUpdatedBy.name.charAt(0).toUpperCase()}
-                      </Avatar>
+                        showTooltip={false} // We're handling tooltip here
+                      />
                     </Space>
                   </Tooltip>
                 </Space>

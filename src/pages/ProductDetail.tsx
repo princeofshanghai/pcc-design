@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Table, Button, Modal, Steps, Row, Col, Badge } from 'antd';
+import { Typography, Space, Tag, Table, Button, Modal, Steps, Row, Col, Badge, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -21,8 +21,7 @@ import {
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
-  ActivityFeedItem,
-  DetailPageLayout
+  ActivityFeedItem
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
@@ -547,29 +546,26 @@ const ProductDetail: React.FC = () => {
   const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
 
-  const pageHeader = (
-    <PageHeader
-      icon={<Box />}
-      iconSize={16}
-      entityType="Product"
-      title={product.name}
-      onBack={() => navigate(-1)}
-      tagContent={<StatusTag status={product.status} />}
-      rightAlignedId={product.id}
-      channels={uniqueChannels}
-      billingCycles={uniqueBillingCycles}
-      lastUpdatedBy="Charles Hu"
-      lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
-      onEdit={() => console.log('Edit product clicked')}
-    />
-  );
-
   return (
-    <>
-      <DetailPageLayout
-        header={pageHeader}
-        tabItems={tabItems}
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <PageHeader
+        icon={<Box />}
+        iconSize={16}
+        entityType="Product"
+        title={product.name}
+        onBack={() => navigate(-1)}
+        tagContent={<StatusTag status={product.status} />}
+        rightAlignedId={product.id}
+        channels={uniqueChannels}
+        billingCycles={uniqueBillingCycles}
+        lastUpdatedBy="Charles Hu"
+        lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
+        onEdit={() => console.log('Edit product clicked')}
+      />
+
+      <Tabs
         defaultActiveKey="overview"
+        items={tabItems}
       />
       
       {/* Configuration Creation Modal */}
@@ -641,7 +637,7 @@ const ProductDetail: React.FC = () => {
           </div>
         )}
       </Modal>
-    </>
+    </Space>
   );
 };
 

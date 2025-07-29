@@ -60,10 +60,10 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
       <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Space size="small" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
               <CopyableId id={record.id} />
-              {hasSkuOverrides(record, product) && <OverrideIndicator />}
-            </Space>
+            </div>
+            {hasSkuOverrides(record, product) && <OverrideIndicator />}
             {record.lix?.key && (
               <ExperimentalBadge 
                 lixKey={record.lix.key} 

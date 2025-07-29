@@ -82,10 +82,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         marginBottom: '24px',
-        position: 'relative' // For absolute positioning of back button
+        gap: '12px' // Add gap between back button and content
       }}
     >
-      {/* Back Button - Positioned outside normal flow */}
+      {/* Back Button - Now part of normal flow */}
       {onBack && (
         <div 
           onClick={onBack}
@@ -98,10 +98,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             borderRadius: '4px',
             transition: 'background-color 0.2s ease',
             color: token.colorTextSecondary,
-            position: 'absolute',
-            left: '-56px', // Position outside the content area
-            top: '0',
-            zIndex: 1
+            flexShrink: 0 // Prevent the button from shrinking
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = token.colorBgTextHover;
@@ -116,7 +113,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </div>
       )}
       
-      {/* Content Area - Now follows normal layout flow */}
+      {/* Content Area - Now flows naturally after back button */}
       <div style={{ flex: 1 }}>
         <Space direction="vertical" size={4} style={{ width: '100%' }}>
           {/* Row 1: Icon + Entity Type (left) + ID (right) */}
@@ -188,8 +185,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           
           {/* Row 3: Channels and Billing Cycles (or fallback to subtitle) */}
           {(channels.length > 0 || billingCycles.length > 0) ? (
-            <div style={{ marginTop: '4px' }}>
-              <Space size={8} wrap>
+            <div style={{ marginTop: '8px' }}>
+              <Space size={4} wrap>
                 {/* Show all unique channels first */}
                 {channels.map(channel => (
                   <SalesChannelDisplay key={channel} channel={channel} />

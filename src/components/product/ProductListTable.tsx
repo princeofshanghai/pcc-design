@@ -32,7 +32,7 @@ export const getProductListTableColumns = (
       render: (name: string, record: Product) => (
         <div>
           <div style={{ fontWeight: 500 }}>{name}</div>
-          <div onClick={(e) => e.stopPropagation()} style={{ marginTop: '4px' }}>
+          <div onClick={(e) => e.stopPropagation()}>
             <CopyableId id={record.id} />
           </div>
         </div>

@@ -150,6 +150,7 @@ const PriceGroupDetail: React.FC = () => {
         lastUpdatedBy="Luxi Kanazir"
         lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago
         onEdit={() => console.log('Edit price group clicked')}
+        compact
       />
 
       {/* General Section */}

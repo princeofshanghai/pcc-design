@@ -98,7 +98,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const renderFilters = () => (
     <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
            style={{ width: '100%' }} 
-           size={displayMode === 'inline' ? 16 : 32}
+           size={displayMode === 'inline' ? 8 : 32}
            wrap={displayMode === 'inline'}>
       {filters.map((filter, index) => (
         <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
@@ -119,10 +119,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
             size={displayMode === 'inline' ? filterSize : 'large'}
             style={{ 
               width: displayMode === 'inline' ? 'auto' : '100%', 
-              minWidth: displayMode === 'inline' ? 160 : 140,
+              minWidth: displayMode === 'inline' ? 140 : 140,
               ...(filter.style || {}) 
             }}
-            dropdownStyle={filter.dropdownStyle}
+            dropdownStyle={{
+              minWidth: '200px', // Ensure dropdown is always wide enough
+              ...filter.dropdownStyle
+            }}
             showOptionTooltip={filter.showOptionTooltip}
           />
         </Space>

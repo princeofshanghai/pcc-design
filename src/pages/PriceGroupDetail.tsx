@@ -149,7 +149,6 @@ const PriceGroupDetail: React.FC = () => {
         billingCycles={uniqueBillingCycles}
         lastUpdatedBy="Luxi Kanazir"
         lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago
-        onEdit={() => console.log('Edit price group clicked')}
         compact
       />
 
@@ -179,25 +178,12 @@ const PriceGroupDetail: React.FC = () => {
               ))}
             </Space>
           </AttributeDisplay>
-          <AttributeDisplay
-            layout="horizontal"
-            label="Billing Cycle"
-          >
-                            <BillingCycleDisplay billingCycle={skusWithPriceGroup[0]?.billingCycle} />
-          </AttributeDisplay>
-          <AttributeDisplay
-            layout="horizontal"
-            label="Channel"
-          >
-            <SalesChannelDisplay channel={skusWithPriceGroup[0]?.salesChannel} />
-          </AttributeDisplay>
         </AttributeGroup>
       </PageSection>
 
       {/* Price Points */}
       <PageSection 
         title={toSentenceCase("Price points")}
-        subtitle={`${filteredPricePoints.length} price point${filteredPricePoints.length !== 1 ? 's' : ''}`}
       >
         <FilterBar
           filterSize="middle"

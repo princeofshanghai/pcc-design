@@ -21,7 +21,9 @@ import PricePointTable from '../components/pricing/PricePointTable';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
-  PRICE_POINT_SORT_OPTIONS} from '../utils/tableConfigurations';
+  PRICE_POINT_SORT_OPTIONS,
+  DEFAULT_PRICE_POINT_COLUMNS
+} from '../utils/tableConfigurations';
 import { DollarSign } from 'lucide-react';
 
 const { Title } = Typography;
@@ -44,8 +46,9 @@ const PriceGroupDetail: React.FC = () => {
   const pricePointDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      // Hide id, currencyType, pricingRule, and quantityRange by default
-      if (col.key === 'id' || col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
+      // Hide currencyType, pricingRule, and quantityRange by default
+      // ID column is now visible by default to match PriceGroupTable pattern
+      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
         defaultVisibility[col.key] = false;
       } else {
         defaultVisibility[col.key] = true;
@@ -59,9 +62,9 @@ const PriceGroupDetail: React.FC = () => {
     return pricePointDefaultVisibility;
   });
 
-  // Column order state for PricePointTable - include all columns so they can be toggled
+  // Column order state for PricePointTable - use default order from table configurations
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
-    PRICE_POINT_COLUMNS.map(col => col.key)
+    DEFAULT_PRICE_POINT_COLUMNS
   );
 
 

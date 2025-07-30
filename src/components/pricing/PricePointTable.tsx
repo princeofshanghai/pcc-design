@@ -356,17 +356,21 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
   // Define all possible columns
   const allColumns: Record<string, any> = {
-    id: visibleColumns.id === true ? {
+    id: {
       title: getColumnLabel('id'),
       dataIndex: 'id',
       key: 'id',
+      // ID column always visible like PriceGroupTable
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-                      <CopyableId id={record.id || ''} />
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <CopyableId id={record.id || ''} variant="prominent" />
+          </div>
         );
       },
-    } : null,
+      className: 'table-col-first',
+    },
     currency: {
       title: getColumnLabel('currency'),
       dataIndex: 'currencyCode',
@@ -379,7 +383,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           </div>
         );
       },
-      className: visibleColumns.id === true ? '' : 'table-col-first',
+      className: visibleColumns.id === true ? '' : '',
     },
     currencyType: visibleColumns.currencyType === true ? {
       title: getColumnLabel('currencyType'),

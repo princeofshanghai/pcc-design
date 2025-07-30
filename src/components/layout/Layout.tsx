@@ -232,26 +232,21 @@ const generateMenuStructure = (collapsed: boolean) => {
 };
 
 const AppLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [manuallyToggled, setManuallyToggled] = useState(false); // Track if user manually toggled
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
-  const { maxWidth } = useLayout();
+  const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
   const { useBreakpoint } = Grid;
   const screens = useBreakpoint();
 
-  // Calculate dynamic max width based on sidebar state and current page width
-  // Add 160px (sidebar width difference) when collapsed
-  const calculateDynamicWidth = (baseWidth: string) => {
-    const widthValue = parseInt(baseWidth);
-    return collapsed ? `${widthValue + 160}px` : baseWidth;
-  };
-
-  // Get the current max width from context (set by individual pages)
-  const dynamicMaxWidth = calculateDynamicWidth(maxWidth);
+  // Sync local collapsed state with context
+  const collapsed = contextCollapsed;
+  
+  // Get standardized content width
+  const contentWidth = getContentWidth();
 
   // Handle responsive sidebar collapse
   useEffect(() => {
@@ -259,15 +254,15 @@ const AppLayout = () => {
     if (screens.lg !== undefined) {
       if (!screens.lg) {
         // Screen is smaller than lg (992px) - auto-collapse
-        setCollapsed(true);
+        setContextCollapsed(true);
         // Reset manual toggle state when going to small screen
         setManuallyToggled(false);
       } else if (screens.lg && !manuallyToggled) {
         // Screen is lg or larger AND user hasn't manually collapsed - auto-expand
-        setCollapsed(false);
+        setContextCollapsed(false);
       }
     }
-  }, [screens.lg, manuallyToggled]);
+  }, [screens.lg, manuallyToggled, setContextCollapsed]);
 
   // Animate label hiding after collapse
   useEffect(() => {
@@ -398,7 +393,9 @@ const AppLayout = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider 
         collapsed={collapsed} 
-        width={240} 
+        width={240}
+        collapsedWidth={64}
+        className="sidebar-container"
         style={{ 
           background: '#fff', 
           borderRight: '1px solid #f0f0f0',
@@ -408,22 +405,22 @@ const AppLayout = () => {
           zIndex: 1000,
           transition: 'width 180ms cubic-bezier(0.4,0,0.2,1)',
           willChange: 'width',
-          scrollbarWidth: 'thin',
-          scrollbarGutter: 'stable',
+          // Remove scrollbar styling - handled by CSS below
         }}
       >
-        {/* Fixed Header Section */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: collapsed ? 'center' : 'space-between',
-          height: 64, 
-          padding: collapsed ? '0 16px' : '0 12px 0 20px',
-          background: '#fff',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-        }}>
+        <div className="sidebar-content-wrapper">
+          {/* Fixed Header Section */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: collapsed ? 'center' : 'space-between',
+            height: 64, 
+            padding: collapsed ? '0 16px' : '0 12px 0 20px',
+            background: '#fff',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+          }}>
           {!collapsed && (
             <Link 
               to="/" 
@@ -455,7 +452,7 @@ const AppLayout = () => {
             icon={<PanelLeft size={18} />}
             onClick={() => {
               const newCollapsed = !collapsed;
-              setCollapsed(newCollapsed);
+              setContextCollapsed(newCollapsed);
               // Mark as manually toggled only on large screens
               // On small screens, we don't track manual toggles since sidebar should stay collapsed
               if (screens.lg) {
@@ -486,8 +483,49 @@ const AppLayout = () => {
           } as React.CSSProperties}
           className={collapsed ? 'collapsed-menu' : 'compact-menu'}
         />
+        </div>
         <style>
           {`
+            /* Modern invisible scrollbar approach */
+            .sidebar-container {
+              scrollbar-width: none; /* Firefox */
+              -ms-overflow-style: none; /* IE/Edge */
+            }
+
+            /* Sidebar content wrapper for proper spacing */
+            .sidebar-content-wrapper {
+              height: 100%;
+              padding-right: 8px; /* Consistent right spacing for expanded state */
+            }
+
+            /* Collapsed state: remove right padding, center content */
+            .sidebar-container.ant-layout-sider-collapsed .sidebar-content-wrapper {
+              padding-right: 0;
+            }
+
+            .sidebar-container::-webkit-scrollbar {
+              width: 0px; /* Chrome/Safari - completely hidden */
+              background: transparent;
+            }
+
+            /* Show subtle overlay scrollbar only on hover */
+            .sidebar-container:hover::-webkit-scrollbar {
+              width: 4px;
+            }
+
+            .sidebar-container:hover::-webkit-scrollbar-track {
+              background: transparent;
+            }
+
+            .sidebar-container:hover::-webkit-scrollbar-thumb {
+              background: rgba(0, 0, 0, 0.2);
+              border-radius: 2px;
+            }
+
+            .sidebar-container:hover::-webkit-scrollbar-thumb:hover {
+              background: rgba(0, 0, 0, 0.4);
+            }
+
             /* Compact menu styling for smaller items */
             .compact-menu {
               --ant-menu-item-height: 32px;
@@ -533,14 +571,19 @@ const AppLayout = () => {
               margin-right: 8px !important;
             }
 
-            .collapsed-menu .ant-menu-item {
+            .collapsed-menu .ant-menu-item,
+            .collapsed-menu .ant-menu-submenu-title {
               text-align: center !important;
               padding: 0 !important;
+              margin: 0 !important;
+              width: 100% !important;
             }
-            .collapsed-menu .ant-menu-item .ant-menu-title-content {
+            .collapsed-menu .ant-menu-item .ant-menu-title-content,
+            .collapsed-menu .ant-menu-submenu-title .ant-menu-title-content {
               display: flex !important;
               justify-content: center !important;
               align-items: center !important;
+              width: 100% !important;
             }
             /* Center the Products icon perfectly when collapsed */
             .collapsed-menu .sidebar-products-menu-item .ant-menu-item-icon {
@@ -603,17 +646,12 @@ const AppLayout = () => {
               flex: 1 !important;
             }
 
-            /* Ensure consistent right spacing by reserving space for scrollbar */
+            /* Clean menu item spacing with wrapper approach */
             .compact-menu .ant-menu-item,
             .compact-menu .ant-menu-submenu-title {
+              margin-left: 8px !important;
               margin-right: 8px !important;
-              padding-right: 24px !important;
               box-sizing: border-box !important;
-            }
-
-            /* Add consistent spacing to menu wrapper */
-            .compact-menu {
-              padding-right: 4px !important;
             }
 
             /* Hover effect for logo/text link */
@@ -623,7 +661,7 @@ const AppLayout = () => {
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 80 : 240, backgroundColor: token.colorBgLayout }}>
+      <Layout style={{ marginLeft: collapsed ? 64 : 240, backgroundColor: token.colorBgLayout }}>
         <Header 
           style={{ 
             background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,
@@ -634,20 +672,21 @@ const AppLayout = () => {
             alignItems: 'center', 
             justifyContent: 'space-between', 
             borderBottom: isScrolled ? '1px solid rgba(240, 240, 240, 0.8)' : '1px solid #f0f0f0', 
-            height: 64,
+            height: 48,
             position: 'fixed',
             top: 0,
             right: 0,
-            left: collapsed ? 80 : 240,
+            left: collapsed ? 64 : 240,
             zIndex: zIndex.header,
             transition: 'all 0.3s ease'
           }}
         >
           <Breadcrumb separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}>{breadcrumbItems}</Breadcrumb>
-          <Space size={16}>
+          <Space size={12}>
             <Button 
               type="primary" 
-              icon={<Plus size={16} />}
+              size="small"
+              icon={<Plus size={14} />}
               onClick={() => {
                 // Placeholder - functionality to be implemented later
                 console.log('New GTM motion clicked');
@@ -655,16 +694,16 @@ const AppLayout = () => {
             >
               New GTM motion
             </Button>
-            <Avatar icon={<User size={20} />} />
+            <Avatar size="small" icon={<User size={16} />} />
           </Space>
         </Header>
         <Content style={{ 
-          margin: '120px 24px 24px 24px', // Top margin to account for fixed header
+          margin: '80px 24px 24px 24px', // Top margin to account for fixed header
           padding: 0, 
           minHeight: 280, 
           background: 'transparent',
         }}>
-          <div style={{ maxWidth: dynamicMaxWidth, margin: '0 auto' }}>
+          <div style={{ maxWidth: contentWidth, width: '100%', margin: '0 auto' }}>
             <Outlet />
           </div>
         </Content>

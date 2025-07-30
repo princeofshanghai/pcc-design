@@ -314,6 +314,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : record.priceGroup.id || Math.random().toString())}

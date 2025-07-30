@@ -3,7 +3,7 @@ import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import { useLayout } from '../context/LayoutContext';
+
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import {
@@ -31,7 +31,6 @@ const { Title } = Typography;
 const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId, setPriceGroupName } = useBreadcrumb();
-  const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
@@ -75,14 +74,7 @@ const PriceGroupDetail: React.FC = () => {
   // Sort options for PricePointTable - use centralized configuration
   const sortOptions = PRICE_POINT_SORT_OPTIONS;
 
-  useEffect(() => {
-    // Set wider max-width for detail pages to accommodate data tables
-    setMaxWidth('1200px');
 
-    return () => {
-      setMaxWidth('1024px'); // Reset to default width
-    };
-  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {
@@ -207,6 +199,8 @@ const PriceGroupDetail: React.FC = () => {
         subtitle={`${filteredPricePoints.length} price point${filteredPricePoints.length !== 1 ? 's' : ''}`}
       >
         <FilterBar
+          filterSize="middle"
+          searchAndViewSize="middle"
           search={{
             placeholder: "Search by currency...",
             onChange: setPricePointSearchQuery,
@@ -243,8 +237,6 @@ const PriceGroupDetail: React.FC = () => {
             defaultVisibleColumns: pricePointDefaultVisibility,
           }}
           displayMode="inline"
-          filterSize="large"
-          searchAndViewSize="large"
         />
         <PricePointTable 
           pricePoints={filteredPricePoints} 

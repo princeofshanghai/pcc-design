@@ -3,7 +3,7 @@ import { Typography, Space, Table, Tabs } from 'antd';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import { useLayout } from '../context/LayoutContext';
+
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { PRICE_POINT_SORT_OPTIONS } from '../utils/tableConfigurations';
@@ -27,20 +27,12 @@ const { Title } = Typography;
 const SkuDetail: React.FC = () => {
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
   const { setProductName, setSkuId } = useBreadcrumb();
-  const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
   const sku = product?.skus.find(s => s.id === skuId);
 
-  useEffect(() => {
-    // Set wider max-width for detail pages to accommodate data tables
-    setMaxWidth('1200px');
 
-    return () => {
-      setMaxWidth('1024px'); // Reset to default width
-    };
-  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {
@@ -291,6 +283,8 @@ const SkuDetail: React.FC = () => {
               title={toSentenceCase("Price points")}
             >
               <FilterBar
+                filterSize="middle"
+                searchAndViewSize="middle"
                 search={{
                   placeholder: "Search by currency...",
                   onChange: setPricePointSearchQuery,
@@ -321,8 +315,6 @@ const SkuDetail: React.FC = () => {
                   },
                 }}
                 displayMode="inline"
-                filterSize="large"
-                searchAndViewSize="large"
               />
               <PricePointTable 
                 pricePoints={filteredPricePoints} 
@@ -400,8 +392,12 @@ const SkuDetail: React.FC = () => {
     },
   ];
 
+  // The error is because Ant Design's <Space> component expects the `size` prop to be one of: "small", "middle", "large", or a number.
+  // "medium" is not a valid value. The closest valid value is "middle".
+  // So, we should change size="medium" to size="middle".
+
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         icon={<SkuIcon />}
         iconSize={16}
@@ -415,6 +411,7 @@ const SkuDetail: React.FC = () => {
         lastUpdatedBy="Anthony Homan"
         lastUpdatedAt={new Date(Date.now() - 45 * 60 * 1000)} // 45 minutes ago
         onEdit={() => console.log('Edit SKU clicked')}
+        compact
       />
 
       <Tabs defaultActiveKey="overview" items={tabItems} />

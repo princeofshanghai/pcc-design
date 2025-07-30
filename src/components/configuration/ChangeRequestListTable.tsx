@@ -100,6 +100,7 @@ const ChangeRequestListTable: React.FC<ChangeRequestListTableProps> = ({ request
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={requests}
         rowKey="id"

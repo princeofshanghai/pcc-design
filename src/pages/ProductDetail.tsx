@@ -8,7 +8,7 @@ import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
 import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import { useLayout } from '../context/LayoutContext';
+
 import {
   PageHeader,
   SkuListTable,
@@ -55,7 +55,6 @@ const renderValue = (value: any, isBoolean = false) => {
 const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { setProductName } = useBreadcrumb();
-  const { setMaxWidth } = useLayout();
   const location = useLocation();
   const product = mockProducts.find(p => p.id === productId);
   const navigate = useNavigate();
@@ -156,15 +155,7 @@ const ProductDetail: React.FC = () => {
     }, {} as Record<string, any[]>) : null) : 
     groupedSkus;
 
-  useEffect(() => {
-    // Set a wider max-width for product detail pages to accommodate data tables
-    setMaxWidth('1200px');
 
-    // Reset to default width when component unmounts
-    return () => {
-      setMaxWidth('1024px'); // Reset to default width
-    };
-  }, [setMaxWidth]);
 
   useEffect(() => {
     if (product) {
@@ -213,6 +204,8 @@ const ProductDetail: React.FC = () => {
             }
         >
           <FilterBar
+            filterSize="middle"
+            searchAndViewSize="middle"
             search={{
               placeholder: "Search by SKU ID or Name...",
               onChange: setSearchQuery,
@@ -267,8 +260,6 @@ const ProductDetail: React.FC = () => {
               },
             }}
             displayMode="inline"
-            filterSize="large"
-            searchAndViewSize="large"
           />
           {finalGroupedSkus ? (
             <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} />
@@ -288,6 +279,8 @@ const ProductDetail: React.FC = () => {
             title="Price groups"
           >
             <FilterBar
+              filterSize="middle"
+              searchAndViewSize="middle"
               search={{
                 placeholder: "Search by ID or Name...",
                 onChange: setPriceGroupSearchQuery,
@@ -330,8 +323,6 @@ const ProductDetail: React.FC = () => {
                 defaultVisibleColumns: priceGroupDefaultVisibility,
               }}
               displayMode="inline"
-              filterSize="large"
-              searchAndViewSize="large"
             />
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 
@@ -542,7 +533,7 @@ const ProductDetail: React.FC = () => {
   const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         icon={<Box />}
         iconSize={16}
@@ -556,6 +547,7 @@ const ProductDetail: React.FC = () => {
         lastUpdatedBy="Charles Hu"
         lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
         onEdit={() => console.log('Edit product clicked')}
+        compact
       />
 
       <Tabs

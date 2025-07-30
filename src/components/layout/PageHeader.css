@@ -1,0 +1,157 @@
+/* Page Header Responsive Styles */
+.page-header {
+  margin-bottom: 24px;
+}
+
+/* Compact variant for when followed by tabs */
+.page-header--compact {
+  margin-bottom: 12px;
+}
+
+.page-header-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.page-header-back-button {
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.page-header-content {
+  grid-row: 1;
+  grid-column: 2;
+  min-width: 0; /* Prevents flex items from overflowing */
+}
+
+.page-header-content--no-back {
+  grid-column: 1 / -1;
+}
+
+.page-header-actions {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.page-header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.page-header-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.page-header-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.page-header-title {
+  margin: 0 !important;
+  font-weight: 500 !important;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.page-header-tag {
+  flex-shrink: 0;
+}
+
+.page-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+
+
+/* Tablet breakpoint (768px and below) */
+@media (max-width: 768px) {
+  .page-header-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .page-header-back-button {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+  }
+  
+  .page-header-content {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  
+  .page-header-content--no-back {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  
+  .page-header-actions {
+    grid-row: 3;
+    grid-column: 1;
+    justify-self: start;
+  }
+  
+  .page-header-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Mobile breakpoint (640px and below) */
+@media (max-width: 640px) {
+  .page-header-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Small mobile breakpoint (480px and below) */
+@media (max-width: 480px) {
+  .page-header-title {
+    font-size: 24px !important;
+  }
+  
+  .page-header-id-mobile {
+    order: -1;
+    width: 100%;
+  }
+  
+  .page-header-last-updated-text {
+    display: none;
+  }
+  
+  .page-header-edit-button {
+    padding: 4px 8px !important;
+  }
+  
+  .page-header-edit-button-text {
+    display: none;
+  }
+}

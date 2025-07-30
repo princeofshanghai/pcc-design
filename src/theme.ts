@@ -14,10 +14,10 @@ const themeConfig: ThemeConfig = {
     fontWeightStrong: 500,
     fontSize: 14,
     fontSizeLG: 14,
-    fontSizeHeading1: 32,
-    fontSizeHeading2: 24,
-    fontSizeHeading3: 20,
-    fontSizeHeading4: 16,
+    fontSizeHeading1: 28,
+    fontSizeHeading2: 20,
+    fontSizeHeading3: 16,
+    fontSizeHeading4: 14,
     lineHeight: 1.5715,
     
     // Colors

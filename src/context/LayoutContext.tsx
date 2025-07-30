@@ -2,16 +2,25 @@ import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 type LayoutContextType = {
-  maxWidth: string;
-  setMaxWidth: (width: string) => void;
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+  getContentWidth: () => string;
 };
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [maxWidth, setMaxWidth] = useState('1024px'); // Default max-width
+  const [collapsed, setCollapsed] = useState(false);
 
-  const value = { maxWidth, setMaxWidth };
+  // Standard width calculation based on sidebar state
+  // Collapsed: 64px sidebar (+176px more space vs expanded 240px)
+  const getContentWidth = () => {
+    const standardWidth = collapsed ? '1576px' : '1400px';
+    const maxWidth = '1800px';
+    return `min(${standardWidth}, ${maxWidth})`;
+  };
+
+  const value = { collapsed, setCollapsed, getContentWidth };
 
   return (
     <LayoutContext.Provider value={value}>

@@ -3,7 +3,7 @@ import { Typography, Space, Card, Row, Col, Button, Tag, Modal, message } from '
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts, mockConfigurationRequests } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-import { useLayout } from '../context/LayoutContext';
+
 import {
   PageHeader,
   PageSection,
@@ -24,7 +24,6 @@ const { Title, Text } = Typography;
 const ChangeRequestDetail: React.FC = () => {
   const { productId, requestId } = useParams<{ productId: string; requestId: string }>();
   const { setProductName } = useBreadcrumb();
-  const { setMaxWidth } = useLayout();
   const navigate = useNavigate();
 
   const product = mockProducts.find(p => p.id === productId);
@@ -38,14 +37,7 @@ const ChangeRequestDetail: React.FC = () => {
   const [configRequest, setConfigRequest] = useState(initialConfigRequest);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
-  useEffect(() => {
-    // Set wider max-width for detail pages
-    setMaxWidth('1200px');
 
-    return () => {
-      setMaxWidth('1024px'); // Reset to default width
-    };
-  }, [setMaxWidth]);
 
   useEffect(() => {
     // Set breadcrumb to show change request icon + ID

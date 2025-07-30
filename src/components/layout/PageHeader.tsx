@@ -6,6 +6,7 @@ import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
 import type { SalesChannel, BillingCycle } from '../../utils/types';
+import './PageHeader.css';
 
 const { Title, Text } = Typography;
 
@@ -28,6 +29,8 @@ interface PageHeaderProps {
   lastUpdatedBy?: string; // Now just the user identifier (full name or LDAP)
   lastUpdatedAt?: Date;
   onEdit?: () => void;
+  // New prop to reduce spacing when followed by tabs
+  compact?: boolean;
 }
 
 // Helper function to format date for display (shortened)
@@ -72,53 +75,40 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   subtitle,
   lastUpdatedBy,
   lastUpdatedAt,
-  onEdit}) => {
+  onEdit,
+  compact = false}) => {
   const { token } = theme.useToken();
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '24px',
-        gap: '12px' // Add gap between back button and content
-      }}
-    >
-      {/* Back Button - Now part of normal flow */}
-      {onBack && (
-        <div 
-          onClick={onBack}
-          style={{
-            cursor: 'pointer',
-            padding: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '4px',
-            transition: 'background-color 0.2s ease',
-            color: token.colorTextSecondary,
-            flexShrink: 0 // Prevent the button from shrinking
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = token.colorBgTextHover;
-            e.currentTarget.style.color = token.colorText;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = token.colorTextSecondary;
-          }}
-        >
-          <ArrowLeft size={20} />
-        </div>
-      )}
-      
-      {/* Content Area - Now flows naturally after back button */}
-      <div style={{ flex: 1 }}>
-        <Space direction="vertical" size={4} style={{ width: '100%' }}>
-          {/* Row 1: Icon + Entity Type (left) + ID (right) */}
+    <div className={`page-header ${compact ? 'page-header--compact' : ''}`}>
+      {/* Container for responsive layout */}
+      <div className="page-header-grid">
+        {/* Back Button */}
+        {onBack && (
+          <div 
+            className="page-header-back-button"
+            onClick={onBack}
+            style={{
+              color: token.colorTextSecondary,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = token.colorBgTextHover;
+              e.currentTarget.style.color = token.colorText;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = token.colorTextSecondary;
+            }}
+          >
+            <ArrowLeft size={20} />
+          </div>
+        )}
+        
+        {/* Main Content Area */}
+        <div className={`page-header-content ${!onBack ? 'page-header-content--no-back' : ''}`}>
+          {/* Top row: Icon + Entity Type + ID (responsive) */}
           {(icon || entityType || rightAlignedId) && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div className="page-header-top-row">
               <Space align="center" size={4}>
                 {icon && (
                   <div style={{ 
@@ -136,69 +126,86 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 )}
               </Space>
               {rightAlignedId && (
-                <CopyableId id={rightAlignedId} />
+                <div className="page-header-id-mobile">
+                  <CopyableId id={rightAlignedId} />
+                </div>
               )}
             </div>
           )}
           
-          {/* Row 2: Title + Tag (left) + Last Updated + Edit Button (right) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Space align="center" size="middle">
-              <Title level={1} style={{ margin: 0, fontWeight: 500 }}>
+          {/* Title row: Title + Tag + Meta info (responsive) */}
+          <div className="page-header-title-row">
+            {/* Left side: Title + Tag */}
+            <div className="page-header-title-left">
+              <Title 
+                level={1} 
+                className="page-header-title"
+              >
                 {title}
               </Title>
-              {tagContent}
-            </Space>
+              {tagContent && (
+                <div className="page-header-tag">
+                  {tagContent}
+                </div>
+              )}
+            </div>
             
-            {/* Right side: Last Updated + Edit Button */}
-            <Space align="center" size="middle">
-              {lastUpdatedBy && lastUpdatedAt && (
-                <Space align="center" size={8}>
-                  <Text type="secondary" style={{ fontSize: '13px' }}>
-                    Last updated
-                  </Text>
-                  <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
-                    <Space align="center" size={6}>
-                      <Text style={{ fontSize: '13px' }}>
-                        {formatDateShort(lastUpdatedAt)}
-                      </Text>
-                      <UserAvatar 
-                        user={lastUpdatedBy}
-                        size={20} 
-                        showTooltip={false} // We're handling tooltip here
-                      />
-                    </Space>
-                  </Tooltip>
-                </Space>
-              )}
-              
-              {onEdit && (
-                <Button 
-                  icon={<Edit size={14} />}
-                  onClick={onEdit}
-                >
-                  Edit
-                </Button>
-              )}
-            </Space>
+            {/* Right side: Last Updated + Edit Button (will wrap on mobile) */}
+            {(lastUpdatedBy && lastUpdatedAt) || onEdit ? (
+              <div className="page-header-meta">
+                {lastUpdatedBy && lastUpdatedAt && (
+                  <Space align="center" size={8}>
+                    <Text 
+                      type="secondary" 
+                      className="page-header-last-updated-text"
+                      style={{ fontSize: '13px' }}
+                    >
+                      Last updated
+                    </Text>
+                    <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
+                      <Space align="center" size={6}>
+                        <Text style={{ fontSize: '13px' }}>
+                          {formatDateShort(lastUpdatedAt)}
+                        </Text>
+                        <UserAvatar 
+                          user={lastUpdatedBy}
+                          size={20} 
+                          showTooltip={false}
+                        />
+                      </Space>
+                    </Tooltip>
+                  </Space>
+                )}
+                
+                {onEdit && (
+                  <Button 
+                    className="page-header-edit-button"
+                    icon={<Edit size={14} />}
+                    onClick={onEdit}
+                  >
+                    <span className="page-header-edit-button-text">
+                      Edit
+                    </span>
+                  </Button>
+                )}
+              </div>
+            ) : null}
           </div>
           
-          {/* Row 3: Channels and Billing Cycles (or fallback to subtitle) */}
+          {/* Bottom row: Channels and Billing Cycles */}
           {(channels.length > 0 || billingCycles.length > 0) ? (
-            <div style={{ marginTop: '8px' }}>
+            <div>
               <Space size={4} wrap>
-                {/* Show all unique channels first */}
                 {channels.map(channel => (
                   <SalesChannelDisplay key={channel} channel={channel} />
                 ))}
-                {/* Then show all unique billing cycles */}
                 {billingCycles.map(cycle => (
                   <BillingCycleDisplay key={cycle} billingCycle={cycle} />
                 ))}
               </Space>
             </div>
           ) : subtitle ? (
-            <div style={{ marginTop: '4px' }}>
+            <div>
               {React.isValidElement(subtitle) ? (
                 subtitle
               ) : (
@@ -206,11 +213,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               )}
             </div>
           ) : null}
-        </Space>
+        </div>
+        
+        {/* Actions - Will wrap to new row on mobile */}
+        {actions && (
+          <div className="page-header-actions">
+            <Space wrap>{actions}</Space>
+          </div>
+        )}
       </div>
-      
-      {/* Actions */}
-      {actions && <Space>{actions}</Space>}
     </div>
   );
 };

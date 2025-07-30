@@ -594,6 +594,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : `${record.currencyCode}-${record.amount}`)}

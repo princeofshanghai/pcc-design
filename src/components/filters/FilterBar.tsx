@@ -73,7 +73,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   viewOptions,
   displayMode = 'drawer', // Default to current behavior
   filterSize = 'middle', // Default filter size
-  searchAndViewSize = 'large', // Default search and view options size
+  searchAndViewSize = 'middle', // Default search and view options size
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;

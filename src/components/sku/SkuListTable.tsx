@@ -159,6 +159,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGro
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={skus}
         rowKey="id"

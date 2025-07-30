@@ -162,7 +162,7 @@ const Home: React.FC = () => {
 
           <FilterBar
             displayMode="inline"
-            filterSize="large"
+            filterSize="middle"
             search={{
               placeholder: "Search by Name, ID, or Folder...",
               onChange: setSearchQuery,

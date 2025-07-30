@@ -69,6 +69,7 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   return (
     <div className="content-panel">
       <Table<TableRow>
+        size="small"
         columns={columns}
         dataSource={dataSource}
         rowKey={(record) => ('isGroupHeader' in record ? record.key : record.id)}

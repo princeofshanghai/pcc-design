@@ -29,6 +29,7 @@ const DigitalGoodsTable: React.FC<DigitalGoodsTableProps> = ({ digitalGoods }) =
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={dataSource}
         rowKey="key"

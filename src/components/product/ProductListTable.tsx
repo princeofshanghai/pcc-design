@@ -106,6 +106,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
   return (
     <div className="content-panel">
       <Table
+        size="small"
         columns={columns}
         dataSource={products}
         rowKey="id"

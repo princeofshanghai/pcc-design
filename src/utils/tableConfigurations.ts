@@ -24,7 +24,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'validity', label: 'Validity', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'validity'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'currencyType', 'amount', 'pricingRule', 'quantityRange', 'usdEquivalent', 'validity'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [

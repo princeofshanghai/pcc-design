@@ -538,8 +538,20 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
+  // Include all possible columns that are visible, not just those in columnOrder
+  const allVisibleColumnKeys = Object.keys(allColumns).filter(key => {
+    const column = allColumns[key];
+    return column !== null && column !== undefined;
+  });
+  
+  // Create ordered list: first use columnOrder, then append any missing visible columns
+  const orderedColumnKeys = [
+    ...columnOrder.filter(key => allVisibleColumnKeys.includes(key)),
+    ...allVisibleColumnKeys.filter(key => !columnOrder.includes(key))
+  ];
+  
   const columns: ColumnsType<any> = formatColumnTitles(
-    columnOrder
+    orderedColumnKeys
       .map(key => allColumns[key])
       .filter(Boolean)
   );

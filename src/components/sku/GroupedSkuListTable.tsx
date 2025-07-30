@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Sku, Product } from '../../utils/types';
@@ -18,6 +18,16 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
   const navigate = useNavigate();
   const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  // Auto-expand all groups when groupedSkus changes (i.e., when grouping is applied)
+  useEffect(() => {
+    if (groupedSkus) {
+      const allGroupKeys = Object.keys(groupedSkus);
+      setExpandedGroups(allGroupKeys);
+    } else {
+      setExpandedGroups([]);
+    }
+  }, [groupedSkus]);
 
   // We need to flatten the grouped data into a single array for the table,
   // inserting header objects along the way.

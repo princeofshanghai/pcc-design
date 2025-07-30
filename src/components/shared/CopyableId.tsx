@@ -5,9 +5,10 @@ import './CopyableId.css';
 
 interface CopyableIdProps {
   id: string;
+  variant?: 'default' | 'prominent';
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default' }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -23,15 +24,32 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id }) => {
     );
   };
 
+  // Different styles based on variant
+  const getTextStyles = () => {
+    if (variant === 'prominent') {
+      return {
+        fontFamily: token.fontFamilyCode,
+        fontSize: '14px',
+        color: token.colorText, // Default/darker text color
+        fontWeight: 500,
+      };
+    }
+    
+    // Default variant (existing behavior)
+    return {
+      fontFamily: token.fontFamilyCode,
+      fontSize: '13px',
+      color: token.colorTextSecondary,
+    };
+  };
+
   return (
     <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
-        fontFamily: token.fontFamilyCode,
-        fontSize: '13px',
-        color: token.colorTextSecondary,
+        ...getTextStyles(),
       }}
     >
       <span>{id}</span>

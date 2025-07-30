@@ -61,7 +61,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <CopyableId id={record.id} />
+              <CopyableId id={record.id} variant="prominent" />
             </div>
             {hasSkuOverrides(record, product) && <OverrideIndicator />}
             {record.lix?.key && (
@@ -103,7 +103,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
               navigate(`/product/${product.id}/price-group/${sku.priceGroup.id}`);
             }}
           >
-            {sku.priceGroup.name}
+            {sku.priceGroup.name || 'Unnamed Price Group'}
           </Typography.Link>
         </div>
       );
@@ -116,7 +116,11 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     // Hide on screens smaller than 1024px (desktop)
     responsive: ['lg' as Breakpoint],
     render: (_: any, sku: Sku) => {
-      if (!sku.lix?.key) return null;
+      if (!sku.lix?.key) {
+        return (
+          <Text type="secondary" style={{ color: '#999' }}>-</Text>
+        );
+      }
       return (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>

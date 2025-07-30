@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -28,6 +28,16 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  // Auto-expand all groups when groupedProducts changes (i.e., when grouping is applied)
+  useEffect(() => {
+    if (groupedProducts) {
+      const allGroupKeys = Object.keys(groupedProducts);
+      setExpandedGroups(allGroupKeys);
+    } else {
+      setExpandedGroups([]);
+    }
+  }, [groupedProducts]);
 
   // Prepare data source with expand/collapse functionality
   const dataSource: TableRow[] = useMemo(() => {

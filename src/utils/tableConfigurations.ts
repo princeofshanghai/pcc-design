@@ -1,7 +1,8 @@
 import type { ColumnConfig } from './types';
 
 export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
-  { key: 'name', label: 'Name', required: true },
+  { key: 'id', label: 'ID', required: true },
+  { key: 'name', label: 'Name', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'usdPrice', label: 'USD price', required: false },
@@ -10,7 +11,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'validity', label: 'Validity', required: false },
 ];
 
-export const DEFAULT_PRICE_GROUP_COLUMNS = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'validity'];
+export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'validity'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'ID', required: true },
@@ -28,6 +29,8 @@ export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEqui
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
   'None',
+  'ID (A-Z)',
+  'ID (Z-A)',
   'Name (A-Z)',
   'Name (Z-A)',
   'Channel (A-Z)',
@@ -38,6 +41,13 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'USD Price (High to Low)',
   'Validity (Earliest to Latest)',
   'Validity (Latest to Earliest)',
+];
+
+// Group by options for price groups
+export const PRICE_GROUP_GROUP_BY_OPTIONS = [
+  'None',
+  'Channel',
+  'Billing Cycle',
 ];
 
 // Sort options for price points

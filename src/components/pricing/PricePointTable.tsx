@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Table, Typography, theme, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -320,6 +320,16 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  // Auto-expand all groups when groupedPricePoints changes (i.e., when grouping is applied)
+  useEffect(() => {
+    if (groupedPricePoints) {
+      const allGroupKeys = Object.keys(groupedPricePoints);
+      setExpandedGroups(allGroupKeys);
+    } else {
+      setExpandedGroups([]);
+    }
+  }, [groupedPricePoints]);
 
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {

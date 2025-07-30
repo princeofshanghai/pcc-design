@@ -58,7 +58,7 @@ export type PricePoint = {
 
 export type PriceGroup = {
   id: string;
-  name: string;
+  name?: string; // Made optional
   status: Status;
   validFrom: string; // When this price group becomes active
   validTo?: string; // When this price group expires (optional)

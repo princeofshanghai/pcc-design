@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Typography, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
@@ -40,18 +40,23 @@ const PriceGroupDetail: React.FC = () => {
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
-  // Column visibility state for PricePointTable - hide currencyType, pricingRule, and quantityRange by default
-  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
+  // Default column visibility configuration for PricePointTable
+  const pricePointDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      // Hide currencyType, pricingRule, and quantityRange by default
-      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
+      // Hide id, currencyType, pricingRule, and quantityRange by default
+      if (col.key === 'id' || col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
         defaultVisibility[col.key] = false;
       } else {
         defaultVisibility[col.key] = true;
       }
     });
     return defaultVisibility;
+  }, []);
+
+  // Column visibility state for PricePointTable
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
+    return pricePointDefaultVisibility;
   });
 
   // Column order state for PricePointTable - include all columns so they can be toggled
@@ -84,7 +89,7 @@ const PriceGroupDetail: React.FC = () => {
       setPriceGroupId(priceGroupId);
     }
     if (priceGroup) {
-      setPriceGroupName(priceGroup.name);
+      setPriceGroupName(priceGroup.name || null);
     }
 
     return () => {
@@ -141,7 +146,7 @@ const PriceGroupDetail: React.FC = () => {
         icon={<DollarSign />}
         iconSize={16}
         entityType="Price group"
-        title={priceGroup.name}
+        title={priceGroup.name || `Price group for ${product.name}`}
         onBack={() => navigate(-1)}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
         rightAlignedId={priceGroup.id || ''}
@@ -232,6 +237,7 @@ const PriceGroupDetail: React.FC = () => {
             setVisibleColumns,
             columnOrder,
             setColumnOrder,
+            defaultVisibleColumns: pricePointDefaultVisibility,
           }}
           displayMode="inline"
           filterSize="large"

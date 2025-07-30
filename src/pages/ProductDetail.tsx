@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
@@ -27,15 +27,13 @@ import {
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
   SKU_SORT_OPTIONS,
-  SKU_GROUP_BY_OPTIONS
-} from '../utils/tableConfigurations';
+  SKU_GROUP_BY_OPTIONS,
+  PRICE_GROUP_GROUP_BY_OPTIONS} from '../utils/tableConfigurations';
 import { Box, ArrowLeft, Check } from 'lucide-react';
 
 const { Title } = Typography;
 const { Step } = Steps;
 
-
-const PRICE_GROUP_GROUP_BY_OPTIONS = ['None', 'Channel', 'Billing cycle'];
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
@@ -102,13 +100,23 @@ const ProductDetail: React.FC = () => {
     billingCycleOptions: priceGroupBillingCycleOptions,
   } = usePriceGroupFilters(product?.skus || []);
 
-  // Column visibility state for PriceGroupTable
-  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(() => {
+  // Default column visibility configuration for PriceGroupTable
+  const priceGroupDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_GROUP_COLUMNS.forEach(col => {
-      defaultVisibility[col.key] = true;
+      // Hide Name column by default
+      if (col.key === 'name') {
+        defaultVisibility[col.key] = false;
+      } else {
+        defaultVisibility[col.key] = true;
+      }
     });
     return defaultVisibility;
+  }, []);
+
+  // Column visibility state for PriceGroupTable
+  const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(() => {
+    return priceGroupDefaultVisibility;
   });
 
   // Column order state for PriceGroupTable
@@ -319,6 +327,7 @@ const ProductDetail: React.FC = () => {
                 setVisibleColumns: setPriceGroupVisibleColumns,
                 columnOrder: priceGroupColumnOrder,
                 setColumnOrder: setPriceGroupColumnOrder,
+                defaultVisibleColumns: priceGroupDefaultVisibility,
               }}
               displayMode="inline"
               filterSize="large"

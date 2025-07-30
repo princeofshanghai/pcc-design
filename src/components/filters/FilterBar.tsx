@@ -55,6 +55,8 @@ interface FilterBarProps {
     // Column ordering options
     columnOrder?: ColumnOrder;
     setColumnOrder?: (order: ColumnOrder) => void;
+    // Default column visibility for this specific context
+    defaultVisibleColumns?: ColumnVisibility;
   };
   // New prop to control how filters are displayed
   displayMode?: 'inline' | 'drawer';
@@ -144,7 +146,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <Col flex="auto">
           {search && (
             <SearchBar
-              placeholder={search.placeholder}
+              placeholder={toSentenceCase(search.placeholder)}
               onChange={search.onChange}
               style={{ ...search.style, width: '100%' }}
               size={searchAndViewSize}
@@ -183,6 +185,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 setVisibleColumns={viewOptions?.setVisibleColumns}
                 columnOrder={viewOptions?.columnOrder}
                 setColumnOrder={viewOptions?.setColumnOrder}
+                defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
                 
                 size={searchAndViewSize}
               />

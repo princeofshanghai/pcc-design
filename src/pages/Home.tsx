@@ -164,7 +164,7 @@ const Home: React.FC = () => {
             displayMode="inline"
             filterSize="large"
             search={{
-              placeholder: "Search by name, ID, or folder...",
+              placeholder: "Search by Name, ID, or Folder...",
               onChange: setSearchQuery,
             }}
             onClearAll={clearAllProductFilters}

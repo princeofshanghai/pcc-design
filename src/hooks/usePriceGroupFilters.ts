@@ -61,11 +61,29 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const sortPriceGroups = (priceGroups: typeof filteredPriceGroups) => {
     const sorted = [...priceGroups];
     sorted.sort((a, b) => {
+      if (sortOrder === 'ID (A-Z)') { 
+        return (a.priceGroup.id || '').localeCompare(b.priceGroup.id || ''); 
+      }
+      if (sortOrder === 'ID (Z-A)') { 
+        return (b.priceGroup.id || '').localeCompare(a.priceGroup.id || ''); 
+      }
       if (sortOrder === 'Name (A-Z)') { 
-        return a.priceGroup.name.localeCompare(b.priceGroup.name); 
+        // Handle optional names: sort missing names to end, then by ID as secondary
+        const aName = a.priceGroup.name || '';
+        const bName = b.priceGroup.name || '';
+        if (!aName && !bName) return (a.priceGroup.id || '').localeCompare(b.priceGroup.id || '');
+        if (!aName) return 1; // a goes to end
+        if (!bName) return -1; // b goes to end
+        return aName.localeCompare(bName); 
       }
       if (sortOrder === 'Name (Z-A)') { 
-        return b.priceGroup.name.localeCompare(a.priceGroup.name); 
+        // Handle optional names: sort missing names to end, then by ID as secondary
+        const aName = a.priceGroup.name || '';
+        const bName = b.priceGroup.name || '';
+        if (!aName && !bName) return (b.priceGroup.id || '').localeCompare(a.priceGroup.id || '');
+        if (!aName) return 1; // a goes to end
+        if (!bName) return -1; // b goes to end
+        return bName.localeCompare(aName); 
       }
       if (sortOrder === 'Price points (Low to High)') { 
         return a.priceGroup.pricePoints.length - b.priceGroup.pricePoints.length; 

@@ -112,6 +112,8 @@ interface ViewOptionsProps {
   // Column ordering props
   columnOrder?: ColumnOrder;
   setColumnOrder?: (order: ColumnOrder) => void;
+  // Default column visibility for this specific context
+  defaultVisibleColumns?: ColumnVisibility;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -130,6 +132,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   setVisibleColumns,
   columnOrder,
   setColumnOrder,
+  defaultVisibleColumns,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -155,11 +158,14 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       setSortOrder('None');
     }
     if (setVisibleColumns && columnOptions) {
-      const defaultVisibility: ColumnVisibility = {};
+      // Use contextual default if provided, otherwise fall back to "all visible" default
+      const resetVisibility: ColumnVisibility = {};
       columnOptions.forEach(col => {
-        defaultVisibility[col.key] = true;
+        resetVisibility[col.key] = defaultVisibleColumns ? 
+          (defaultVisibleColumns[col.key] ?? true) : 
+          true;
       });
-      setVisibleColumns(defaultVisibility);
+      setVisibleColumns(resetVisibility);
     }
     if (setColumnOrder && columnOptions) {
       const defaultOrder = columnOptions.map(col => col.key);
@@ -170,7 +176,18 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
 
   // Check if any non-default column visibility is active
   const hasColumnChanges = columnOptions && visibleColumns ? 
-    columnOptions.some(col => !col.required && !visibleColumns[col.key]) : false;
+    columnOptions.some(col => {
+      if (col.required) return false; // Required columns don't count as changes
+      
+      // Use contextual default if provided, otherwise fall back to "all visible" default
+      const contextualDefault = defaultVisibleColumns ? 
+        (defaultVisibleColumns[col.key] ?? true) : 
+        true;
+      
+      // Column is considered changed if current visibility differs from contextual default
+      const currentVisibility = visibleColumns[col.key] ?? true;
+      return currentVisibility !== contextualDefault;
+    }) : false;
 
   // Check if column order has been modified from default
   const hasColumnOrderChanges = columnOptions && columnOrder ? 

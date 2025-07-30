@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Table, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
@@ -104,12 +104,28 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
 
   // Define all possible columns
   const allColumnsMap: Record<string, any> = {
-    name: {
+    id: {
+      title: getColumnLabel('id'),
+      dataIndex: 'id',
+      key: 'id',
+      // ID column always visible
+      fixed: 'left',
+      minWidth: 150,
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        return (
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
+          </div>
+        );
+      },
+      className: 'table-col-first',
+    },
+    name: visibleColumns.name !== false ? {
       title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
-      // Name column always visible
-      fixed: 'left',
       minWidth: 200,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -155,26 +171,22 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         };
         
         return (
-          <div>
-            <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {record.priceGroup.name}
-              {firstExperimentalSku && (
-                <ExperimentalBadge 
-                  lixKey={firstExperimentalSku.lix.key} 
-                  lixTreatment={firstExperimentalSku.lix.treatment} 
-                  variant="compact"
-                  customTooltipContent={getPriceGroupTooltipContent()}
-                />
-              )}
-            </div>
-            <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <CopyableId id={record.priceGroup.id || ''} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontWeight: 500 }}>
+              {record.priceGroup.name || '-'}
+            </span>
+            {firstExperimentalSku && (
+              <ExperimentalBadge 
+                lixKey={firstExperimentalSku.lix.key} 
+                lixTreatment={firstExperimentalSku.lix.treatment} 
+                variant="compact"
+                customTooltipContent={getPriceGroupTooltipContent()}
+              />
+            )}
           </div>
         );
       },
-      className: 'table-col-first',
-    },
+    } : null,
     channel: visibleColumns.channel !== false ? {
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
@@ -255,6 +267,16 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   );
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  // Auto-expand all groups when groupedPriceGroups changes (i.e., when grouping is applied)
+  useEffect(() => {
+    if (groupedPriceGroups) {
+      const allGroupKeys = Object.keys(groupedPriceGroups);
+      setExpandedGroups(allGroupKeys);
+    } else {
+      setExpandedGroups([]);
+    }
+  }, [groupedPriceGroups]);
 
   // Prepare data source
   const dataSource: TableRow[] = useMemo(() => {

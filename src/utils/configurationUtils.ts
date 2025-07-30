@@ -106,8 +106,7 @@ export function generatePreviewSku(product: Product, changeRequest: Configuratio
     paymentFailurePaidToPaidGracePeriod: product.paymentFailurePaidToPaidGracePeriod,
     seatMin: product.seatMin,
     seatMax: product.seatMax,
-    features: [...product.features], // Copy product features
-    tags: product.tags ? [...product.tags] : undefined // Copy product tags if they exist
+    features: [...product.features] // Copy product features
   };
   
   // Add LIX information if this is an experimental configuration

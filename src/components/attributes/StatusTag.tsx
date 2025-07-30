@@ -87,7 +87,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
         }}
       >
         <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
-          <Icon size={size} />
+          <Icon size={size} strokeWidth={3} />
         </span>
         {showLabel && (
           <span style={{ 

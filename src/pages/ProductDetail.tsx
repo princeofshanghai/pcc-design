@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Tag, Table, Button, Modal, Steps, Row, Col, Badge, Tabs } from 'antd';
+import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -21,8 +21,7 @@ import {
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
-  ActivityFeedItem
-} from '../components';
+  ActivityFeedItem} from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_GROUP_COLUMNS, 
@@ -38,7 +37,6 @@ const { Step } = Steps;
 
 const PRICE_GROUP_GROUP_BY_OPTIONS = ['None', 'Channel', 'Billing cycle'];
 
-
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
     return value ? 'Yes' : 'No';
@@ -52,6 +50,9 @@ const renderValue = (value: any, isBoolean = false) => {
   }
   return value;
 };
+
+
+
 
 const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -171,96 +172,16 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
-  const groupedTags = (product.tags || []).reduce((acc, tag) => {
-    if (!acc[tag.type]) {
-      acc[tag.type] = [];
-    }
-    acc[tag.type].push(tag.value);
-    return acc;
-  }, {} as Record<string, string[]>);
-
   const tabItems = [
     {
       key: 'overview',
       label: 'Overview',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection title={toSentenceCase('General')}>
+          <PageSection title={toSentenceCase('Overview')}>
             <AttributeGroup>
-              <AttributeDisplay
-                layout="horizontal"
-                label="Product Name"
-              >
-                {product.name}
-              </AttributeDisplay>
-              <AttributeDisplay
-                layout="horizontal"
-                label="Description"
-              >
-                {product.description}
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelDisplay model={product.billingModel} />
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          {/* Moved Configuration section from Other tab */}
-          <PageSection title={toSentenceCase('Configuration')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          {/* Moved Tags section from Other tab */}
-          {product.tags && product.tags.length > 0 && (
-            <PageSection title={toSentenceCase('Tags')}>
-              <AttributeGroup>
-                {Object.entries(groupedTags).map(([type, values]) => (
-                  <AttributeDisplay layout="horizontal" key={type} label={toSentenceCase(type)}>
-                    <Space size={[0, 8]} wrap>
-                      {values.map(value => <Tag key={value}>{value}</Tag>)}
-                    </Space>
-                  </AttributeDisplay>
-                ))}
-              </AttributeGroup>
-            </PageSection>
-          )}
-          {/* Moved Links section from Other tab */}
-          <PageSection title="Links">
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
-                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
-                  {product.postPurchaseLandingUrl}
-                </a>
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          {/* Moved Visibility section from Other tab */}
-          <PageSection title="Visibility">
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Name">{product.name}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Description">{product.description}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
         </Space>
@@ -434,6 +355,71 @@ const ProductDetail: React.FC = () => {
             <span style={{ color: '#888' }}>No features listed for this product.</span>
           )}
         </PageSection>
+      ),
+    },
+    // Configurations tab
+    {
+      key: 'configurations',
+      label: 'Configurations',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* Product Setup Section */}
+          <PageSection title={toSentenceCase('Product Setup')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelDisplay model={product.billingModel} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Business Rules Section */}
+          <PageSection title={toSentenceCase('Business Rules')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Visibility Controls Section */}
+          <PageSection title={toSentenceCase('Visibility Controls')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Links & Resources Section */}
+          <PageSection title={toSentenceCase('Links & Resources')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                  {product.postPurchaseLandingUrl}
+                </a>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+        </Space>
       ),
     },
     {

@@ -29,30 +29,6 @@ export type RefundPolicy = {
   description: string;
 };
 
-// --- Smart Tag Definitions ---
-export type SalesFunnelValue = 'Premium Chooser' | 'Solution Builder' | 'Admin Center' | 'Web CTA' | 'None';
-export type CustomerTypeValue = 'Individual member' | 'Enterprise customer';
-export type ContractTypeValue = 'Evergreen' | 'Fixed time';
-
-export type SalesFunnelTag = {
-  type: 'Sales Top of Funnel';
-  value: SalesFunnelValue;
-};
-
-export type CustomerTypeTag = {
-  type: 'Customer Type';
-  value: CustomerTypeValue;
-};
-
-export type ContractTypeTag = {
-  type: 'Contract Type';
-  value: ContractTypeValue;
-};
-
-// The main Tag type is a union of all possible specific tags
-export type Tag = SalesFunnelTag | CustomerTypeTag | ContractTypeTag;
-// --- End Smart Tag Definitions ---
-
 // Column configuration for table visibility controls
 export type ColumnConfig = {
   key: string;           // Unique identifier for the column
@@ -126,7 +102,6 @@ export type Sku = {
   seatMin?: number;
   seatMax?: number;
   features?: string[];
-  tags?: Tag[];
   lix?: {
     key: string;
     treatment: string;
@@ -179,7 +154,6 @@ export type Product = {
   confirmationCtaUrl?: string;
   contactUsUrl?: string;
   accountLink?: string;
-  tags?: Tag[];
   changeRequests?: ChangeRequest[];
   // Legacy field for backward compatibility during migration
   configurationRequests?: ConfigurationRequest[];

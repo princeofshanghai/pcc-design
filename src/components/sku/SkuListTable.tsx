@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space, Typography } from 'antd';
+import { Table, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { FlaskConical } from 'lucide-react';
 import type { Sku, Status, Product, SalesChannel, BillingCycle } from '../../utils/types';

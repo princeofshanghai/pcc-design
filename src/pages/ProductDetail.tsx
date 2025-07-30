@@ -546,7 +546,6 @@ const ProductDetail: React.FC = () => {
         billingCycles={uniqueBillingCycles}
         lastUpdatedBy="Charles Hu"
         lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
-        onEdit={() => console.log('Edit product clicked')}
         compact
       />
 

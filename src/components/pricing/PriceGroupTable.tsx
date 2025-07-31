@@ -228,7 +228,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        return usd ? formatCurrency(usd) : 'N/A';
+        return usd ? formatCurrency(usd) : (
+          <Text type="secondary">No USD price</Text>
+        );
       },
     } : null,
     currencies: visibleColumns.currencies !== false ? {

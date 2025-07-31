@@ -34,10 +34,12 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const filteredPricePoints = useMemo(() => {
     let filtered = [...initialPricePoints];
 
-    // Apply search filter
+    // Apply search filter - search by currency code or price point ID
     if (searchQuery) {
+      const lowercaseQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(point =>
-        point.currencyCode.toLowerCase().includes(searchQuery.toLowerCase())
+        point.currencyCode.toLowerCase().includes(lowercaseQuery) ||
+        (point.id || '').toLowerCase().includes(lowercaseQuery)
       );
     }
 

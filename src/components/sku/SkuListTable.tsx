@@ -103,7 +103,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
               navigate(`/product/${product.id}/price-group/${sku.priceGroup.id}`);
             }}
           >
-            {sku.priceGroup.name || 'Unnamed Price Group'}
+            {sku.priceGroup.id}
           </Typography.Link>
         </div>
       );

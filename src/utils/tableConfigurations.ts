@@ -48,6 +48,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'None',
   'Channel',
   'Billing Cycle',
+  'Validity',
 ];
 
 // Sort options for price points

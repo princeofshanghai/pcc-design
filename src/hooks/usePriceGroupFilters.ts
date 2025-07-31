@@ -1,6 +1,61 @@
 import { useState, useMemo } from 'react';
-import type { Sku, SalesChannel } from '../utils/types';
-import { toSentenceCase } from '../utils/formatters';
+import type { Sku, SalesChannel, PricePoint } from '../utils/types';
+import { formatValidityRange, toSentenceCase } from '../utils/formatters';
+
+/**
+ * Determines the common validity range for a price group based on its price points
+ */
+const getCommonValidityRange = (pricePoints: PricePoint[]): string => {
+  if (!pricePoints || pricePoints.length === 0) return 'N/A';
+
+  // Count frequency of valid from dates
+  const validFromCounts: Record<string, number> = {};
+  const validToCounts: Record<string, number> = {};
+  
+  pricePoints.forEach(point => {
+    const validFrom = point.validFrom || '';
+    const validTo = point.validTo || '';
+    
+    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
+    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
+  });
+
+  // Find most common valid from date
+  const validFromEntries = Object.entries(validFromCounts);
+  const mostCommonValidFromEntry = validFromEntries.reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  );
+  const mostCommonValidFrom = mostCommonValidFromEntry[0];
+  const validFromFrequency = mostCommonValidFromEntry[1];
+
+  // Find most common valid to date
+  const validToEntries = Object.entries(validToCounts);
+  const mostCommonValidToEntry = validToEntries.reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  );
+  const mostCommonValidTo = mostCommonValidToEntry[0];
+  const validToFrequency = mostCommonValidToEntry[1];
+
+  // Check if dates are mixed
+  const hasMultipleValidFromDates = validFromEntries.length > 1;
+  const hasMultipleValidToDates = validToEntries.length > 1;
+  
+  // If valid from dates vary significantly, show "Mixed validity"
+  if (hasMultipleValidFromDates && validFromFrequency < pricePoints.length * 0.7) {
+    return 'Mixed validity';
+  }
+  
+  // If valid to dates vary significantly, but valid from dates are consistent
+  if (hasMultipleValidToDates && validToFrequency < pricePoints.length * 0.7) {
+    return formatValidityRange(mostCommonValidFrom, undefined) + ' - Mixed validity end dates';
+  }
+  
+  // Use most common dates
+  return formatValidityRange(
+    mostCommonValidFrom || undefined, 
+    mostCommonValidTo || undefined
+  );
+};
 
 export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -204,6 +259,9 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
           return acc;
         }, {} as Record<string, number>);
         groupKey = Object.entries(cycleCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0];
+      } else if (groupBy === 'Validity') {
+        // Group by validity range of the price group
+        groupKey = getCommonValidityRange(group.priceGroup.pricePoints);
       } else {
         groupKey = 'Other';
       }

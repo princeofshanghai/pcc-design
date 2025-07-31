@@ -14,8 +14,7 @@ import {
   AttributeGroup,
   FilterBar
 } from '../components';
-import SalesChannelDisplay from '../components/attributes/SalesChannelDisplay';
-import BillingCycleDisplay from '../components/attributes/BillingCycleDisplay';
+
 
 import PricePointTable from '../components/pricing/PricePointTable';
 import { toSentenceCase } from '../utils/formatters';
@@ -189,7 +188,7 @@ const PriceGroupDetail: React.FC = () => {
           filterSize="middle"
           searchAndViewSize="middle"
           search={{
-            placeholder: "Search by currency...",
+            placeholder: "Search by currency or ID...",
             onChange: setPricePointSearchQuery,
           }}
           filters={[

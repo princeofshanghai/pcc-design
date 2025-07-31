@@ -286,7 +286,7 @@ const SkuDetail: React.FC = () => {
                 filterSize="middle"
                 searchAndViewSize="middle"
                 search={{
-                  placeholder: "Search by currency...",
+                  placeholder: "Search by currency or ID...",
                   onChange: setPricePointSearchQuery,
                 }}
                 filters={[

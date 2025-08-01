@@ -29,6 +29,7 @@ export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
 export { default as PricePointTable } from './pricing/PricePointTable';
 
+
 // Attribute components
 export { default as AttributeDisplay } from './attributes/AttributeDisplay';
 export { default as AttributeGroup } from './attributes/AttributeGroup';

@@ -4,6 +4,7 @@ import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_POINT_COLUMNS, DEFAULT_PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
+import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import type { ColumnsType } from 'antd/es/table';
@@ -43,6 +44,82 @@ const coreCurrencies = new Set([
   'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'SGD', 'HKD', 'CNY', 'INR',
   'DKK', 'NOK', 'SEK', 'BRL', 'NZD', 'ZAR', 'AED', 'PLN', 'SAR', 'MXN', 'EGP', 'TRY'
 ]);
+
+/**
+ * Currency names mapping for tooltips
+ */
+const currencyNames: Record<string, string> = {
+  'AED': 'UAE Dirham',
+  'ARS': 'Argentine Peso',
+  'AUD': 'Australian Dollar',
+  'BDT': 'Bangladeshi Taka',
+  'BGN': 'Bulgarian Lev',
+  'BIF': 'Burundian Franc',
+  'BYN': 'Belarusian Ruble',
+  'BRL': 'Brazilian Real',
+  'CAD': 'Canadian Dollar',
+  'CHF': 'Swiss Franc',
+  'CLP': 'Chilean Peso',
+  'CNY': 'Chinese Yuan',
+  'COP': 'Colombian Peso',
+  'CRC': 'Costa Rican Colon',
+  'CZK': 'Czech Koruna',
+  'DJF': 'Djiboutian Franc',
+  'DKK': 'Danish Krone',
+  'EGP': 'Egyptian Pound',
+  'EUR': 'Euro',
+  'GBP': 'British Pound',
+  'GNF': 'Guinean Franc',
+  'GTQ': 'Guatemalan Quetzal',
+  'HKD': 'Hong Kong Dollar',
+  'HNL': 'Honduran Lempira',
+  'HUF': 'Hungarian Forint',
+  'IDR': 'Indonesian Rupiah',
+  'ILS': 'Israeli New Shekel',
+  'INR': 'Indian Rupee',
+  'JOD': 'Jordanian Dinar',
+  'JPY': 'Japanese Yen',
+  'KES': 'Kenyan Shilling',
+  'KMF': 'Comorian Franc',
+  'KRW': 'South Korean Won',
+  'KWD': 'Kuwaiti Dinar',
+  'LBP': 'Lebanese Pound',
+  'LKR': 'Sri Lankan Rupee',
+  'MAD': 'Moroccan Dirham',
+  'MGA': 'Malagasy Ariary',
+  'MXN': 'Mexican Peso',
+  'MYR': 'Malaysian Ringgit',
+  'NGN': 'Nigerian Naira',
+  'NOK': 'Norwegian Krone',
+  'NZD': 'New Zealand Dollar',
+  'PEN': 'Peruvian Sol',
+  'PHP': 'Philippine Peso',
+  'PKR': 'Pakistani Rupee',
+  'PLN': 'Polish Zloty',
+  'PYG': 'Paraguayan Guarani',
+  'QAR': 'Qatari Riyal',
+  'RON': 'Romanian Leu',
+  'RSD': 'Serbian Dinar',
+  'RUB': 'Russian Ruble',
+  'RWF': 'Rwandan Franc',
+  'SAR': 'Saudi Riyal',
+  'SEK': 'Swedish Krona',
+  'SGD': 'Singapore Dollar',
+  'THB': 'Thai Baht',
+  'TRY': 'Turkish Lira',
+  'TWD': 'Taiwan Dollar',
+  'TZS': 'Tanzanian Shilling',
+  'UAH': 'Ukrainian Hryvnia',
+  'UGX': 'Ugandan Shilling',
+  'USD': 'US Dollar',
+  'UYU': 'Uruguayan Peso',
+  'VND': 'Vietnamese Dong',
+  'VUV': 'Vanuatu Vatu',
+  'XAF': 'Central African CFA Franc',
+  'XOF': 'West African CFA Franc',
+  'XPF': 'CFP Franc',
+  'ZAR': 'South African Rand',
+};
 
 /**
  * Determines if a currency is core or long tail
@@ -377,16 +454,19 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'currency',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
+        const currencyName = currencyNames[record.currencyCode];
         return (
           <div>
-            <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
+            <Tooltip title={currencyName || record.currencyCode}>
+              <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
+            </Tooltip>
           </div>
         );
       },
       className: visibleColumns.id === true ? '' : '',
     },
     currencyType: visibleColumns.currencyType === true ? {
-      title: getColumnLabel('currencyType'),
+      title: getColumnTitleWithTooltip('Category', 'Classifies currencies as Core (widely used) or Long Tail (limited usage)'),
       dataIndex: 'currencyCode',
       key: 'currencyType',
       render: (_: any, record: any) => {
@@ -487,7 +567,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     usdEquivalent: showUsdEquivalent ? {
-      title: getColumnLabel('usdEquivalent'),
+      title: getColumnTitleWithTooltip('USD equivalent', 'How much this amount is worth in USD, relative to the USD price'),
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;

@@ -72,6 +72,17 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
 
   const colorConfig = getColorConfig();
 
+  // If showLabel is false, render just the icon without background
+  if (!showLabel) {
+    return (
+      <Tooltip title={description}>
+        <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
+          <Icon size={size} strokeWidth={3} />
+        </span>
+      </Tooltip>
+    );
+  }
+
   return (
     <Tooltip title={description}>
       <div
@@ -89,14 +100,12 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
         <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
           <Icon size={size} strokeWidth={3} />
         </span>
-        {showLabel && (
-          <span style={{ 
-            color: colorConfig.textColor,
-            fontSize: '13px' // Match SalesChannelDisplay text size
-          }}>
-            {status}
-          </span>
-        )}
+        <span style={{ 
+          color: colorConfig.textColor,
+          fontSize: '13px' // Match SalesChannelDisplay text size
+        }}>
+          {status}
+        </span>
       </div>
     </Tooltip>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs } from 'antd';
+import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, Alert } from 'antd';
 import { mockProducts } from '../utils/mock-data';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
@@ -191,7 +191,14 @@ const ProductDetail: React.FC = () => {
       key: 'skus',
       label: 'SKUs',
       children: (
-                  <PageSection
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Alert
+            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+            description="This SKU management interface is part of post-MVP development. Please ignore for current epic."
+            type="warning"
+            showIcon
+          />
+          <PageSection
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>{toSentenceCase('SKUs')}</span>
@@ -266,7 +273,8 @@ const ProductDetail: React.FC = () => {
           ) : (
             <SkuListTable skus={finalSortedSkus} product={product} />
           )}
-        </PageSection>
+          </PageSection>
+        </Space>
       ),
     },
     // New Pricing tab
@@ -339,22 +347,30 @@ const ProductDetail: React.FC = () => {
       key: 'features',
       label: 'Features',
       children: (
-        <PageSection title={toSentenceCase('Features')}>
-          {product.features && product.features.length > 0 ? (
-            <div className="content-panel">
-              <Table
-                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
-                pagination={false}
-                size="small"
-                rowKey="key"
-                showHeader={false}
-              />
-            </div>
-          ) : (
-            <span style={{ color: '#888' }}>No features listed for this product.</span>
-          )}
-        </PageSection>
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Alert
+            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+            description="This feature management interface is part of post-MVP development. Please ignore for current epic."
+            type="warning"
+            showIcon
+          />
+          <PageSection title={toSentenceCase('Features')}>
+            {product.features && product.features.length > 0 ? (
+              <div className="content-panel">
+                <Table
+                  columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                  dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
+                  pagination={false}
+                  size="small"
+                  rowKey="key"
+                  showHeader={false}
+                />
+              </div>
+            ) : (
+              <span style={{ color: '#888' }}>No features listed for this product.</span>
+            )}
+          </PageSection>
+        </Space>
       ),
     },
     // Configurations tab
@@ -440,24 +456,51 @@ const ProductDetail: React.FC = () => {
         );
       })(),
       children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          {/* Needs Attention Section */}
-          <PageSection 
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>🔥 {toSentenceCase('Needs Attention')}</span>
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Alert
+            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+            description="This activity tracking interface is part of post-MVP development. Please ignore for current epic."
+            type="warning"
+            showIcon
+          />
+          <Space direction="vertical" size={48} style={{ width: '100%' }}>
+            {/* Needs Attention Section */}
+            <PageSection 
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>🔥 {toSentenceCase('Needs Attention')}</span>
 
-              </div>
-            }
-          >
-            {(() => {
-              const pendingRequests = product.configurationRequests?.filter(request => 
-                ['Draft', 'Pending Review', 'In EI'].includes(request.status)
-              ) || [];
-              
-              return pendingRequests.length > 0 ? (
+                </div>
+              }
+            >
+              {(() => {
+                const pendingRequests = product.configurationRequests?.filter(request => 
+                  ['Draft', 'Pending Review', 'In EI'].includes(request.status)
+                ) || [];
+                
+                return pendingRequests.length > 0 ? (
+                  <Space direction="vertical" style={{ width: '100%' }} size="small">
+                    {pendingRequests.map((request) => (
+                      <ActivityFeedItem
+                        key={request.id}
+                        request={request}
+                        onViewDetails={(requestId) => {
+                          navigate(`/product/${product.id}/configuration/${requestId}`);
+                        }}
+                      />
+                    ))}
+                  </Space>
+                ) : (
+                  <span style={{ color: '#888' }}>No pending change requests for this product.</span>
+                );
+              })()}
+            </PageSection>
+            
+            {/* Recent Activity Section */}
+            <PageSection title={`📅 ${toSentenceCase('Recent Activity')}`}>
+              {product.configurationRequests && product.configurationRequests.length > 0 ? (
                 <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  {pendingRequests.map((request) => (
+                  {product.configurationRequests.map((request) => (
                     <ActivityFeedItem
                       key={request.id}
                       request={request}
@@ -468,29 +511,10 @@ const ProductDetail: React.FC = () => {
                   ))}
                 </Space>
               ) : (
-                <span style={{ color: '#888' }}>No pending change requests for this product.</span>
-              );
-            })()}
-          </PageSection>
-          
-          {/* Recent Activity Section */}
-          <PageSection title={`📅 ${toSentenceCase('Recent Activity')}`}>
-            {product.configurationRequests && product.configurationRequests.length > 0 ? (
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
-                {product.configurationRequests.map((request) => (
-                  <ActivityFeedItem
-                    key={request.id}
-                    request={request}
-                    onViewDetails={(requestId) => {
-                      navigate(`/product/${product.id}/configuration/${requestId}`);
-                    }}
-                  />
-                ))}
-              </Space>
-            ) : (
-              <span style={{ color: '#888' }}>No activity found for this product.</span>
-            )}
-          </PageSection>
+                <span style={{ color: '#888' }}>No activity found for this product.</span>
+              )}
+            </PageSection>
+          </Space>
         </Space>
       ),
     },

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
 import { formatCurrency, formatValidityRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
+
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
@@ -92,7 +93,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'effectiveDate'],
+  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'validity'],
 }) => {
   const navigate = useNavigate();
 

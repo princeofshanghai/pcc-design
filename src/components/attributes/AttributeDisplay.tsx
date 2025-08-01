@@ -35,7 +35,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
 
   if (layout === 'horizontal') {
     return (
-      <Row align="top" style={{ paddingBottom: '12px' }}>
+      <Row align="top" style={{ paddingBottom: '8px' }}>
         <Col span={6}>{labelContent}</Col>
         <Col span={16}>
           <div style={{ fontSize: '14px' }}>{children}</div>

@@ -151,35 +151,6 @@ const PriceGroupDetail: React.FC = () => {
         compact
       />
 
-      {/* General Section */}
-      <PageSection title={toSentenceCase('General')}>
-        <AttributeGroup>
-          <AttributeDisplay
-            layout="horizontal"
-            label="Associated product"
-          >
-            <a onClick={() => navigate(`/product/${productId}`)}>
-              {productId}
-            </a>
-          </AttributeDisplay>
-          <AttributeDisplay
-            layout="horizontal"
-            label="Associated SKUs"
-          >
-            <Space size={4}>
-              {skusWithPriceGroup.map((sku, index) => (
-                <React.Fragment key={sku.id}>
-                  <a onClick={() => navigate(`/product/${productId}/sku/${sku.id}`)}>
-                    {sku.id}
-                  </a>
-                  {index < skusWithPriceGroup.length - 1 && <span>, </span>}
-                </React.Fragment>
-              ))}
-            </Space>
-          </AttributeDisplay>
-        </AttributeGroup>
-      </PageSection>
-
       {/* Price Points */}
       <PageSection 
         title={toSentenceCase("Price points")}

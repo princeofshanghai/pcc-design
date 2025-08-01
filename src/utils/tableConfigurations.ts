@@ -6,8 +6,8 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'usdPrice', label: 'USD price', required: false },
-  { key: 'currencies', label: 'Currencies', required: false },
-  { key: 'sku', label: 'SKU', required: false },
+  { key: 'currencies', label: 'Price points', required: false },
+  { key: 'sku', label: 'SKUs', required: false },
   { key: 'validity', label: 'Validity', required: false },
 ];
 

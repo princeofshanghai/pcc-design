@@ -63,6 +63,12 @@ const ProductDetail: React.FC = () => {
   const [isConfigurationModalOpen, setIsConfigurationModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [configurationData, setConfigurationData] = useState<Partial<ConfigurationRequest> | null>(null);
+  
+  // Alert dismissal state
+  const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
+  const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
+  const [activityAlertDismissed, setActivityAlertDismissed] = useState(false);
+  const [pricingAlertDismissed, setPricingAlertDismissed] = useState(false);
 
   // Check for URL query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -192,12 +198,16 @@ const ProductDetail: React.FC = () => {
       label: 'SKUs',
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Alert
-            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-            description="This SKU management interface is part of post-MVP development. Please ignore for current epic."
-            type="warning"
-            showIcon
-          />
+          {!skuAlertDismissed && (
+            <Alert
+              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+              description="This SKU management interface is part of post-MVP development. Please ignore for current epic."
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setSkuAlertDismissed(true)}
+            />
+          )}
           <PageSection
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -283,6 +293,16 @@ const ProductDetail: React.FC = () => {
       label: 'Pricing',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {!pricingAlertDismissed && (
+            <Alert
+              message="Note from Charles (design): MVP vs Future State"
+              description="SKU column is future state, replace column with LIX for MVP"
+              type="info"
+              showIcon
+              closable
+              onClose={() => setPricingAlertDismissed(true)}
+            />
+          )}
           <PageSection 
             title="Price groups"
           >
@@ -348,12 +368,16 @@ const ProductDetail: React.FC = () => {
       label: 'Features',
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Alert
-            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-            description="This feature management interface is part of post-MVP development. Please ignore for current epic."
-            type="warning"
-            showIcon
-          />
+          {!featuresAlertDismissed && (
+            <Alert
+              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+              description="This feature management interface is part of post-MVP development. Please ignore for current epic."
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setFeaturesAlertDismissed(true)}
+            />
+          )}
           <PageSection title={toSentenceCase('Features')}>
             {product.features && product.features.length > 0 ? (
               <div className="content-panel">
@@ -457,12 +481,16 @@ const ProductDetail: React.FC = () => {
       })(),
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Alert
-            message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-            description="This activity tracking interface is part of post-MVP development. Please ignore for current epic."
-            type="warning"
-            showIcon
-          />
+          {!activityAlertDismissed && (
+            <Alert
+              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
+              description="This activity tracking interface is part of post-MVP development. Please ignore for current epic."
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setActivityAlertDismissed(true)}
+            />
+          )}
           <Space direction="vertical" size={48} style={{ width: '100%' }}>
             {/* Needs Attention Section */}
             <PageSection 

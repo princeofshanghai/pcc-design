@@ -6,6 +6,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   
   // Multi-select currency filter
   const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
@@ -50,12 +51,31 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       filtered = filtered.filter(point => point.currencyCode === currencyFilter);
     }
 
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter(point => point.status === statusFilter);
+    }
+
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
-    if (sortOrder === 'None') return pricePoints;
+    if (sortOrder === 'None') {
+      // Smart default sort: USD first, Active before Expired, then alphabetical
+      return [...pricePoints].sort((a, b) => {
+        // 1. USD always first
+        if (a.currencyCode === 'USD' && b.currencyCode !== 'USD') return -1;
+        if (b.currencyCode === 'USD' && a.currencyCode !== 'USD') return 1;
+        
+        // 2. Active before expired
+        if (a.status === 'Active' && b.status === 'Expired') return -1;
+        if (b.status === 'Active' && a.status === 'Expired') return 1;
+        
+        // 3. Alphabetical within same status
+        return a.currencyCode.localeCompare(b.currencyCode);
+      });
+    }
 
     const sorted = [...pricePoints];
     
@@ -200,6 +220,8 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setCurrencyFilter,
     currencyFilters,
     setCurrencyFilters,
+    statusFilter,
+    setStatusFilter,
     currencyOptions,
     
     // View controls

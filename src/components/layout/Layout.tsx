@@ -397,7 +397,7 @@ const AppLayout = () => {
         collapsedWidth={64}
         className="sidebar-container"
         style={{ 
-          background: '#fff', 
+          background: token.colorBgLayout, 
           borderRight: '1px solid #f0f0f0',
           position: 'fixed',
           height: '100vh',
@@ -416,7 +416,7 @@ const AppLayout = () => {
             justifyContent: collapsed ? 'center' : 'space-between',
             height: 64, 
             padding: collapsed ? '0 16px' : '0 12px 0 20px',
-            background: '#fff',
+            background: token.colorBgLayout,
             position: 'sticky',
             top: 0,
             zIndex: 10,
@@ -475,6 +475,7 @@ const AppLayout = () => {
           style={{ 
             border: 'none',
             padding: '6px 0px',
+            background: token.colorBgLayout,
             ...(collapsed && {
               '--ant-menu-item-padding-horizontal': '0px',
               '--ant-menu-item-height': '32px',
@@ -658,10 +659,17 @@ const AppLayout = () => {
             .sidebar-logo-link:hover {
               background-color: rgba(0, 0, 0, 0.04) !important;
             }
+
+            /* Ensure all menu and submenu backgrounds are consistent */
+            .sidebar-container .ant-menu,
+            .sidebar-container .ant-menu-sub,
+            .sidebar-container .ant-menu-submenu .ant-menu {
+              background: transparent !important;
+            }
           `}
         </style>
       </Sider>
-      <Layout style={{ marginLeft: collapsed ? 64 : 240, backgroundColor: token.colorBgLayout }}>
+      <Layout style={{ marginLeft: collapsed ? 64 : 240, backgroundColor: token.colorBgContainer }}>
         <Header 
           style={{ 
             background: isScrolled ? 'rgba(255, 255, 255, 0.8)' : token.colorBgContainer,

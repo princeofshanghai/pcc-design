@@ -322,7 +322,19 @@ const getCommonDates = (pricePoints: PricePoint[]): { validFrom: string; validTo
  */
 const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints: PricePoint[]): PricePoint[] => {
   if (!sortOrder || sortOrder === 'None') {
-    return points;
+    // Smart default sort: USD first, Active before Expired, then alphabetical
+    return [...points].sort((a, b) => {
+      // 1. USD always first
+      if (a.currencyCode === 'USD' && b.currencyCode !== 'USD') return -1;
+      if (b.currencyCode === 'USD' && a.currencyCode !== 'USD') return 1;
+      
+      // 2. Active before expired
+      if (a.status === 'Active' && b.status === 'Expired') return -1;
+      if (b.status === 'Active' && a.status === 'Expired') return 1;
+      
+      // 3. Alphabetical within same status
+      return a.currencyCode.localeCompare(b.currencyCode);
+    });
   }
 
   const sorted = [...points];

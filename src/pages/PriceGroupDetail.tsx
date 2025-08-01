@@ -116,6 +116,8 @@ const PriceGroupDetail: React.FC = () => {
     setSearchQuery: setPricePointSearchQuery,
     currencyFilters,
     setCurrencyFilters,
+    statusFilter,
+    setStatusFilter,
     currencyOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
@@ -128,11 +130,18 @@ const PriceGroupDetail: React.FC = () => {
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
     setCurrencyFilters([]);
+    setStatusFilter(null);
   };
 
   // Extract unique channels and billing cycles from associated SKUs
   const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
+
+  // Status filter options
+  const statusOptions = [
+    { label: 'Active', value: 'Active' },
+    { label: 'Expired', value: 'Expired' }
+  ];
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
@@ -172,6 +181,12 @@ const PriceGroupDetail: React.FC = () => {
               // Required for TypeScript interface compatibility
               value: null,
               onChange: () => {},
+            },
+            {
+              placeholder: "All statuses",
+              options: statusOptions,
+              value: statusFilter,
+              onChange: (value) => setStatusFilter(value ?? null),
             },
           ]}
           onClearAll={clearAllPricePointFilters}

@@ -1,7 +1,7 @@
 import type { ColumnConfig } from './types';
 
 export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
-  { key: 'id', label: 'ID', required: true },
+  { key: 'id', label: 'Price ID', required: true },
   { key: 'name', label: 'Name', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
@@ -14,7 +14,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
 export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'validity'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
-  { key: 'id', label: 'ID', required: true },
+  { key: 'id', label: 'Price point ID', required: true },
   { key: 'currency', label: 'Currency', required: true },
   { key: 'currencyType', label: 'Category', required: false },
   { key: 'amount', label: 'Amount', required: false },
@@ -55,12 +55,14 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
 export const PRICE_POINT_SORT_OPTIONS = [
   'None',
   'Currency (A-Z)',
-  'Currency (Z-A)',
-  'Amount (Low to High)',
-  'Amount (High to Low)',
+  'Currency (Z-A)', 
+  'Amount (Low to high)',
+  'Amount (High to low)',
+  'USD equivalent (High to low)',
+  'USD equivalent (Low to high)',
   'Category',
-  'Validity (Earliest to Latest)',
-  'Validity (Latest to Earliest)',
+  'Validity (Earliest to latest)',
+  'Validity (Latest to earliest)',
 ];
 
 export const SKU_COLUMNS: ColumnConfig[] = [
@@ -93,12 +95,24 @@ export const SKU_GROUP_BY_OPTIONS = [
   'LIX Key'
 ];
 
+export const PRODUCT_COLUMNS: ColumnConfig[] = [
+  { key: 'id', label: 'Product ID', required: true },
+  { key: 'name', label: 'Name', required: true },
+  { key: 'folder', label: 'Folder', required: false },
+  { key: 'channel', label: 'Channel', required: false },
+  { key: 'skus', label: 'SKUs', required: false },
+  { key: 'status', label: 'Status', required: false },
+];
+
+export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'skus', 'status'];
+
 // Helper to get column label, using fallback if not found
 export const getColumnLabel = (columnKey: string): string => {
   const allColumns = [
     ...PRICE_GROUP_COLUMNS,
     ...PRICE_POINT_COLUMNS,
     ...SKU_COLUMNS,
+    ...PRODUCT_COLUMNS,
   ];
   
   const column = allColumns.find(col => col.key === columnKey);

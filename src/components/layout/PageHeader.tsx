@@ -15,7 +15,7 @@ interface PageHeaderProps {
   iconSize?: number;
   entityType?: string;
   title?: React.ReactNode;
-  rightAlignedId?: string; // New prop for ID that goes on row 1
+  rightAlignedId?: string; // ID that appears inline with entity type
   channels?: SalesChannel[]; // New prop for channels
   billingCycles?: BillingCycle[]; // New prop for billing cycles
   tagContent?: React.ReactNode;
@@ -106,7 +106,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         
         {/* Main Content Area */}
         <div className={`page-header-content ${!onBack ? 'page-header-content--no-back' : ''}`}>
-          {/* Top row: Icon + Entity Type + ID (responsive) */}
+          {/* Top row: Icon + Entity Type + ID (inline) */}
           {(icon || entityType || rightAlignedId) && (
             <div className="page-header-top-row">
               <Space align="center" size={4}>
@@ -124,12 +124,19 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     {entityType}
                   </Text>
                 )}
+                {rightAlignedId && (
+                  <>
+                    <div style={{ 
+                      color: token.colorBorderSecondary,
+                      fontSize: '14px',
+                      margin: '0 4px'
+                    }}>
+                      |
+                    </div>
+                    <CopyableId id={rightAlignedId} />
+                  </>
+                )}
               </Space>
-              {rightAlignedId && (
-                <div className="page-header-id-mobile">
-                  <CopyableId id={rightAlignedId} />
-                </div>
-              )}
             </div>
           )}
           

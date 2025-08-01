@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Select, Tooltip } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { useTruncationDetection } from '../../hooks/useTruncationDetection';
@@ -134,8 +134,34 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   showOptionTooltip = false, 
   dropdownStyle 
 }) => {
+  // State for managing search input independently
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  
   // Apply sentence casing to placeholder for consistency
   const formattedPlaceholder = toSentenceCase(placeholder);
+  
+  // Determine what placeholder to show based on state
+  const getDisplayPlaceholder = () => {
+    if (isOpen && !searchValue) {
+      return 'Search...';
+    }
+    return formattedPlaceholder;
+  };
+  
+  // Handle search input changes
+  const handleSearch = (searchText: string) => {
+    setSearchValue(searchText);
+  };
+  
+  // Handle dropdown visibility changes
+  const handleDropdownVisibleChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      // Reset search when dropdown closes
+      setSearchValue('');
+    }
+  };
 
   // Multi-select mode
   if (multiSelect) {
@@ -144,10 +170,19 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         mode="multiple"
         value={multiValue}
         onChange={onMultiChange}
-        placeholder={formattedPlaceholder}
-        style={{ minWidth: 140, ...style }}
+        placeholder={getDisplayPlaceholder()}
+        style={{ 
+          minWidth: 140, 
+          ...style,
+          ...(isOpen && !searchValue && {
+            color: 'rgba(0,0,0,.25)'
+          })
+        }}
         allowClear
         showSearch
+        searchValue={searchValue}
+        onSearch={handleSearch}
+        onDropdownVisibleChange={handleDropdownVisibleChange}
         optionFilterProp="label"
         size={size}
         dropdownStyle={dropdownStyle}
@@ -180,10 +215,19 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     <Select
       value={value}
       onChange={onChange}
-      placeholder={formattedPlaceholder}
-      style={{ minWidth: 140, ...style }}
+      placeholder={getDisplayPlaceholder()}
+      style={{ 
+        minWidth: 140, 
+        ...style,
+        ...(isOpen && !searchValue && {
+          color: 'rgba(0,0,0,.25)'
+        })
+      }}
       allowClear
       showSearch
+      searchValue={searchValue}
+      onSearch={handleSearch}
+      onDropdownVisibleChange={handleDropdownVisibleChange}
       optionFilterProp="label"
       size={size}
       dropdownStyle={dropdownStyle}

@@ -7,6 +7,7 @@ import { PRICE_POINT_COLUMNS, DEFAULT_PRICE_POINT_COLUMNS } from '../../utils/ta
 import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
+import PricePointStatusTag from '../attributes/PricePointStatusTag';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -441,8 +442,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.id || ''} variant="prominent" />
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center' }}>
+            <CopyableId id={record.id || ''} variant="prominent" muted={record.status === 'Expired'} />
+            <PricePointStatusTag pricePoint={record} />
           </div>
         );
       },
@@ -458,7 +460,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return (
           <div>
             <Tooltip title={currencyName || record.currencyCode}>
-              <Text style={{ fontWeight: 500 }}>{record.currencyCode}</Text>
+              <Text style={{ 
+                fontWeight: 500,
+                color: record.status === 'Expired' ? '#c1c1c1' : undefined
+              }}>
+                {record.currencyCode}
+              </Text>
             </Tooltip>
           </div>
         );
@@ -472,7 +479,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Text style={{ fontWeight: 500 }}>{getCurrencyType(record.currencyCode)}</Text>
+          <Text style={{ 
+            fontWeight: 500,
+            color: record.status === 'Expired' ? '#c1c1c1' : undefined
+          }}>
+            {getCurrencyType(record.currencyCode)}
+          </Text>
         );
       },
     } : null,
@@ -482,7 +494,13 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'amount',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return formatAmount(record);
+        return (
+          <Text style={{
+            color: record.status === 'Expired' ? '#c1c1c1' : undefined
+          }}>
+            {formatAmount(record)}
+          </Text>
+        );
       },
     },
     pricingRule: visibleColumns.pricingRule === true ? {
@@ -515,7 +533,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const rule = record.pricingRule || 'NONE';
         return (
           <Tooltip title={getPricingRuleTooltip(rule)}>
-            <Text>{formatPricingRule(rule)}</Text>
+            <Text style={{
+              color: record.status === 'Expired' ? '#c1c1c1' : undefined
+            }}>
+              {formatPricingRule(rule)}
+            </Text>
           </Tooltip>
         );
       },
@@ -561,7 +583,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const rangeText = formatQuantityRange(record);
         return (
           <Tooltip title={getQuantityRangeTooltip(record)}>
-            <Text>{rangeText}</Text>
+            <Text style={{
+              color: record.status === 'Expired' ? '#c1c1c1' : undefined
+            }}>
+              {rangeText}
+            </Text>
           </Tooltip>
         );
       },
@@ -574,7 +600,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
         const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
         return (
-          <Text style={{ color: percentage === 100 ? token.colorTextSecondary : token.colorText }}>
+          <Text style={{ 
+            color: record.status === 'Expired' 
+              ? '#c1c1c1' 
+              : (percentage === 100 ? token.colorTextSecondary : token.colorText)
+          }}>
             {formatUsdEquivalent(percentage)}
           </Text>
         );
@@ -591,27 +621,16 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           record.validFrom === commonDates.validFrom &&
           (record.validTo || '') === (commonDates.validTo || '');
 
-        const validityText = formatValidityRange(record.validFrom, record.validTo);
+        const validityText = isInherited ? 'Same as price group' : formatValidityRange(record.validFrom, record.validTo);
 
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ 
-              color: isInherited ? token.colorTextTertiary : token.colorText
-            }}>
-              {validityText}
-            </span>
-            {isInherited && (
-              <Tooltip title="Inherited from Price Group">
-                <span style={{ 
-                  color: token.colorTextTertiary, 
-                  fontSize: '10px',
-                  fontStyle: 'italic'
-                }}>
-                  (inherited)
-                </span>
-              </Tooltip>
-            )}
-          </div>
+          <span style={{ 
+            color: record.status === 'Expired' 
+              ? '#c1c1c1' 
+              : (isInherited ? token.colorTextTertiary : token.colorText)
+          }}>
+            {validityText}
+          </span>
         );
       },
     } : undefined,
@@ -677,7 +696,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         size="small"
         columns={columns}
         dataSource={dataSource}
-        rowKey={record => ('isGroupHeader' in record ? record.key : `${record.currencyCode}-${record.amount}`)}
+        rowKey={record => ('isGroupHeader' in record ? record.key : record.id || `${record.currencyCode}-${record.amount}-${record.validFrom || 'no-date'}`)}
         pagination={false}
         scroll={{ x: 'max-content' }}
         rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}

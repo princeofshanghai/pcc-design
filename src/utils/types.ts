@@ -48,6 +48,7 @@ export type PricePoint = {
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
   validFrom: string; // Mandatory validity start date
   validTo?: string; // Optional validity end date
+  status?: 'Active' | 'Expired'; // Automatically calculated based on validFrom dates within currency+pricingRule groups
   // Pricing rule fields
   pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
   minQuantity?: number;

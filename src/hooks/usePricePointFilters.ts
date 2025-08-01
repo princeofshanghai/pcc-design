@@ -60,12 +60,14 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     const sorted = [...pricePoints];
     
     switch (sortOrder) {
-      case 'Amount (High to Low)':
+      case 'Amount (High to low)':
         return sorted.sort((a, b) => b.amount - a.amount);
-      case 'Amount (Low to High)':
+      case 'Amount (Low to high)':
         return sorted.sort((a, b) => a.amount - b.amount);
-      case 'Alphabetical A-Z':
+      case 'Currency (A-Z)':
         return sorted.sort((a, b) => a.currencyCode.localeCompare(b.currencyCode));
+      case 'Currency (Z-A)':
+        return sorted.sort((a, b) => b.currencyCode.localeCompare(a.currencyCode));
       default:
         return sorted;
     }

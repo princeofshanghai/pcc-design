@@ -5,6 +5,7 @@ import type { Product, ConfigurationRequest } from './types';
 // @ts-ignore - PriceGroup type is used in inline object definitions
 import type { PriceGroup } from './types';
 import { TEAM_MEMBERS } from './users';
+import { processPricePointStatuses } from './pricingUtils';
 
 // PriceGroup type is used in inline object definitions below
 
@@ -40,7 +41,7 @@ export const folderStructure = {
 
 export const mockConfigurationRequests: ConfigurationRequest[] = [];
 
-export const mockProducts: Product[] = [
+const rawMockProducts: Product[] = [
   {
     id: '5095285',
     name: 'Premium Career',
@@ -120,7 +121,7 @@ export const mockProducts: Product[] = [
 
 
 // Premium Career SKUs - cleared for new realistic data
-const premiumCareerProduct = mockProducts.find(p => p.id === '5095285');
+const premiumCareerProduct = rawMockProducts.find((p: Product) => p.id === '5095285');
 if (premiumCareerProduct) {
   premiumCareerProduct.skus = [
     {
@@ -1242,12 +1243,833 @@ if (premiumCareerProduct) {
       origin: "manual",
       createdBy: "System",
       createdDate: "2021-03-01T08:00:00Z"
+    },
+    {
+      id: "8435009",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Quarterly",
+      priceGroup: {
+        id: "117005",
+        status: "Active",
+        validFrom: "2025-03-04T08:00:00Z",
+        pricePoints: [
+          { 
+            id: "6721135", 
+            currencyCode: "USD", 
+            amount: 89.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721145", 
+            currencyCode: "BRL", 
+            amount: 158.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721155", 
+            currencyCode: "INR", 
+            amount: 1906.75, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721165", 
+            currencyCode: "ZAR", 
+            amount: 487.8, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721175", 
+            currencyCode: "JPY", 
+            amount: 8182, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721185", 
+            currencyCode: "EUR", 
+            amount: 57, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721195", 
+            currencyCode: "AUD", 
+            amount: 114.52, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721205", 
+            currencyCode: "CAD", 
+            amount: 108.54, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721215", 
+            currencyCode: "GBP", 
+            amount: 57.48, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721225", 
+            currencyCode: "DKK", 
+            amount: 343.18, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721235", 
+            currencyCode: "SEK", 
+            amount: 631.18, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721245", 
+            currencyCode: "NOK", 
+            amount: 496.78, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721255", 
+            currencyCode: "CHF", 
+            amount: 83.54, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721265", 
+            currencyCode: "SGD", 
+            amount: 105.53, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721275", 
+            currencyCode: "HKD", 
+            amount: 620.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721285", 
+            currencyCode: "NZD", 
+            amount: 78.23, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721295", 
+            currencyCode: "MXN", 
+            amount: 1163.77, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721305", 
+            currencyCode: "AED", 
+            amount: 205.69, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721315", 
+            currencyCode: "PHP", 
+            amount: 3149.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721325", 
+            currencyCode: "CZK", 
+            amount: 1283.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721335", 
+            currencyCode: "PEN", 
+            amount: 203.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721345", 
+            currencyCode: "SAR", 
+            amount: 195.63, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721355", 
+            currencyCode: "MYR", 
+            amount: 248.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721365", 
+            currencyCode: "CLP", 
+            amount: 43487.37, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721375", 
+            currencyCode: "RON", 
+            amount: 224.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721385", 
+            currencyCode: "PLN", 
+            amount: 165.83, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721395", 
+            currencyCode: "PKR", 
+            amount: 9674.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721405", 
+            currencyCode: "ARS", 
+            amount: 4049.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721415", 
+            currencyCode: "TRY", 
+            amount: 210.99, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721425", 
+            currencyCode: "EGP", 
+            amount: 1124.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721435", 
+            currencyCode: "BDT", 
+            amount: 5607.42, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721445", 
+            currencyCode: "BGN", 
+            amount: 95.98, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721455", 
+            currencyCode: "BYN", 
+            amount: 134.38, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721465", 
+            currencyCode: "COP", 
+            amount: 220340.25, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721475", 
+            currencyCode: "CRC", 
+            amount: 37602.24, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721485", 
+            currencyCode: "GTQ", 
+            amount: 509.49, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721495", 
+            currencyCode: "HNL", 
+            amount: 1649.82, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721505", 
+            currencyCode: "HUF", 
+            amount: 16144.66, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721515", 
+            currencyCode: "IDR", 
+            amount: 1027813.83, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721525", 
+            currencyCode: "ILS", 
+            amount: 231.55, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721535", 
+            currencyCode: "JOD", 
+            amount: 45.33, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721545", 
+            currencyCode: "KES", 
+            amount: 7058.49, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721555", 
+            currencyCode: "KRW", 
+            amount: 74357.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721565", 
+            currencyCode: "KWD", 
+            amount: 20.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721575", 
+            currencyCode: "LBP", 
+            amount: 100912.62, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721585", 
+            currencyCode: "LKR", 
+            amount: 13004.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721595", 
+            currencyCode: "MAD", 
+            amount: 647.98, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721605", 
+            currencyCode: "NGN", 
+            amount: 26176.55, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721615", 
+            currencyCode: "QAR", 
+            amount: 245.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721625", 
+            currencyCode: "RSD", 
+            amount: 7041.58, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721635", 
+            currencyCode: "RUB", 
+            amount: 4838.38, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721645", 
+            currencyCode: "THB", 
+            amount: 2170.59, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721655", 
+            currencyCode: "TWD", 
+            amount: 1923.72, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721665", 
+            currencyCode: "TZS", 
+            amount: 150222.34, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721675", 
+            currencyCode: "UAH", 
+            amount: 1749.58, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721685", 
+            currencyCode: "UYU", 
+            amount: 2782.24, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721695", 
+            currencyCode: "VND", 
+            amount: 1577797.02, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6721705", 
+            currencyCode: "XOF", 
+            amount: 40814.97, 
+            validFrom: "2025-03-04T08:00:00Z",
+            validTo: "2025-03-11",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884785", 
+            currencyCode: "BDT", 
+            amount: 5736.5, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884795", 
+            currencyCode: "BGN", 
+            amount: 99.98, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884805", 
+            currencyCode: "BYN", 
+            amount: 139.98, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884815", 
+            currencyCode: "COP", 
+            amount: 228592.44, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884825", 
+            currencyCode: "CRC", 
+            amount: 38248.65, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884835", 
+            currencyCode: "GTQ", 
+            amount: 516.94, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884845", 
+            currencyCode: "HNL", 
+            amount: 1687.8, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884855", 
+            currencyCode: "HUF", 
+            amount: 17414.15, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884865", 
+            currencyCode: "IDR", 
+            amount: 1040402.7, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884875", 
+            currencyCode: "ILS", 
+            amount: 238.44, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884885", 
+            currencyCode: "JOD", 
+            amount: 46.53, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884895", 
+            currencyCode: "KES", 
+            amount: 7243.94, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884905", 
+            currencyCode: "KRW", 
+            amount: 75109.06, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884915", 
+            currencyCode: "KWD", 
+            amount: 20.97, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884925", 
+            currencyCode: "LBP", 
+            amount: 102148.62, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884935", 
+            currencyCode: "LKR", 
+            amount: 13004.97, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884945", 
+            currencyCode: "MAD", 
+            amount: 674.98, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884955", 
+            currencyCode: "NGN", 
+            amount: 26324.62, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884965", 
+            currencyCode: "QAR", 
+            amount: 245.97, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884975", 
+            currencyCode: "RSD", 
+            amount: 7334.98, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884985", 
+            currencyCode: "RUB", 
+            amount: 5039.98, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6884995", 
+            currencyCode: "THB", 
+            amount: 2181.28, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885005", 
+            currencyCode: "TWD", 
+            amount: 1928.54, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885015", 
+            currencyCode: "TZS", 
+            amount: 155252.52, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885025", 
+            currencyCode: "UAH", 
+            amount: 1822.48, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885035", 
+            currencyCode: "UYU", 
+            amount: 2923.75, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885045", 
+            currencyCode: "VND", 
+            amount: 1581751.4, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          },
+          { 
+            id: "6885055", 
+            currencyCode: "XOF", 
+            amount: 40814.97, 
+            validFrom: "2025-03-12",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: "System",
+      createdDate: "2025-03-04T08:00:00Z"
     }
   ];
 }
 
 // Add SKUs to Recruiter Lite product with slab pricing examples
-const recruiterLiteProduct = mockProducts.find(p => p.id === '5083684');
+const recruiterLiteProduct = rawMockProducts.find((p: Product) => p.id === '5083684');
 if (recruiterLiteProduct) {
   recruiterLiteProduct.skus = [
     {
@@ -1410,6 +2232,18 @@ if (recruiterLiteProduct) {
       origin: "manual",
       createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
       createdDate: "2024-02-15T10:00:00Z"
-    }
+        }
   ];
-} 
+}
+
+// Process all price points to calculate statuses and auto-fill validTo dates
+export const mockProducts: Product[] = rawMockProducts.map(product => ({
+  ...product,
+  skus: product.skus.map(sku => ({
+    ...sku,
+    priceGroup: {
+      ...sku.priceGroup,
+      pricePoints: processPricePointStatuses(sku.priceGroup.pricePoints)
+    }
+  }))
+}));

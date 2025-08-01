@@ -16,7 +16,7 @@ import {
 import type { ViewMode } from '../components';
 
 const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder', 'Channel'];
-const SORT_OPTIONS = ['None', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
+const SORT_OPTIONS = ['None', 'Product ID (A-Z)', 'Product ID (Z-A)', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
 
 
 // Helper function to convert URL folder names back to actual folder names
@@ -53,6 +53,7 @@ const Home: React.FC = () => {
 
   // Column visibility state for ProductListTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
+    id: true,       // Always visible (required)
     name: true,     // Always visible (required)
     folder: true,   // Toggleable
     channel: true,  // Toggleable
@@ -62,6 +63,7 @@ const Home: React.FC = () => {
 
   // Column order state for ProductListTable
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
+    'id',
     'name',
     'folder',
     'channel',
@@ -71,6 +73,7 @@ const Home: React.FC = () => {
 
   // Column configuration for ProductListTable
   const columnOptions: ColumnConfig[] = [
+    { key: 'id', label: 'Product ID', required: true },
     { key: 'name', label: 'Name', required: true },
     { key: 'folder', label: 'Folder', required: false },
     { key: 'channel', label: 'Channel', required: false },

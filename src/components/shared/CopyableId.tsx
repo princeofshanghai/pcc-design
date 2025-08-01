@@ -6,9 +6,10 @@ import './CopyableId.css';
 interface CopyableIdProps {
   id: string;
   variant?: 'default' | 'prominent';
+  muted?: boolean;
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default' }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted = false }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -24,13 +25,16 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default' }) => {
     );
   };
 
-  // Different styles based on variant
+  // Different styles based on variant and muted state
   const getTextStyles = () => {
+    // Use even lighter gray when muted
+    const mutedColor = '#c1c1c1'; // Lighter than token.colorTextTertiary
+    
     if (variant === 'prominent') {
       return {
         fontFamily: token.fontFamilyCode,
         fontSize: '14px',
-        color: token.colorText, // Default/darker text color
+        color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
       };
     }
@@ -39,7 +43,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default' }) => {
     return {
       fontFamily: token.fontFamilyCode,
       fontSize: '13px',
-      color: token.colorTextSecondary,
+      color: muted ? mutedColor : token.colorTextSecondary,
     };
   };
 

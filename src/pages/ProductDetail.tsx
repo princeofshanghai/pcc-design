@@ -304,7 +304,7 @@ const ProductDetail: React.FC = () => {
             />
           )}
           <PageSection 
-            title="Price groups"
+            title="Prices"
           >
             <FilterBar
               filterSize="middle"

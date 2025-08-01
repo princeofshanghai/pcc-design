@@ -90,6 +90,8 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
   const sortProducts = (products: Product[]) => {
     const sorted = [...products];
     sorted.sort((a, b) => {
+      if (sortOrder === 'Product ID (A-Z)') { return a.id.localeCompare(b.id); }
+      if (sortOrder === 'Product ID (Z-A)') { return b.id.localeCompare(a.id); }
       if (sortOrder === 'Name (A-Z)') { return a.name.localeCompare(b.name); }
       if (sortOrder === 'Name (Z-A)') { return b.name.localeCompare(a.name); }
       if (sortOrder === 'LOB (A-Z)') { return a.lob.localeCompare(b.lob); }

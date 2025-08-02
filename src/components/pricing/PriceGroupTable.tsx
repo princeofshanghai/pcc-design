@@ -20,6 +20,7 @@ interface PriceGroupTableProps {
   productId: string;
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
+  currentTab?: string; // Add current tab to remember where we came from
 }
 
 type TableRow = {
@@ -93,7 +94,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'sku', 'validity'],
+  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'],
+  currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
 
@@ -243,13 +245,30 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         return record.priceGroup.pricePoints.length;
       },
     } : null,
-    sku: visibleColumns.sku !== false ? {
-      title: getColumnLabel('sku'),
-      dataIndex: 'sku',
-      key: 'sku',
+    lix: visibleColumns.lix !== false ? {
+      title: getColumnLabel('lix'),
+      dataIndex: 'lix',
+      key: 'lix',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return record.skus.length;
+        
+        // Find the first SKU with LIX data
+        const skuWithLix = record.skus.find((sku: Sku) => sku.lix?.key);
+        
+        if (!skuWithLix) {
+          return <Text type="secondary">-</Text>;
+        }
+        
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <Text style={{ fontWeight: 500 }}>
+              {skuWithLix.lix.key}
+            </Text>
+            <Text type="secondary" style={{ fontSize: '13px' }}>
+              {skuWithLix.lix.treatment}
+            </Text>
+          </div>
+        );
       },
     } : null,
     validity: visibleColumns.validity !== false ? {
@@ -327,7 +346,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         onRow={(record) => ({
           onClick: () => {
             if ('isGroupHeader' in record) return;
-            navigate(`/product/${productId}/price-group/${record.priceGroup.id}`);
+            // Include current tab in URL so back navigation knows where to return
+            navigate(`/product/${productId}/price-group/${record.priceGroup.id}?from=${currentTab}`);
           },
           style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
         })}

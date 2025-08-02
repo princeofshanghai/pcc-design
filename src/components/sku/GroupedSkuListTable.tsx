@@ -9,12 +9,13 @@ import { type ColumnsType } from 'antd/es/table';
 interface GroupedSkuListTableProps {
   groupedSkus: Record<string, Sku[]>;
   product: Product;
+  currentTab?: string; // Add current tab to remember where we came from
 }
 
 // A special type to handle rows that can be either a real Sku or a group header
 type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: number; groupKey: string };
 
-const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product }) => {
+const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, currentTab = 'skus' }) => {
   const navigate = useNavigate();
   const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
@@ -68,7 +69,8 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
         onRow={(record) => ({
           onClick: () => {
             if ('isGroupHeader' in record) return;
-            navigate(`/product/${product.id}/sku/${record.id}`);
+            // Include current tab in URL so back navigation knows where to return
+            navigate(`/product/${product.id}/sku/${record.id}?from=${currentTab}`);
           },
           style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
         })}

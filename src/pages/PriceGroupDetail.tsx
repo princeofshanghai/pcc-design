@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Typography, Space } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
@@ -10,8 +10,6 @@ import {
   PageHeader,
   StatusTag,
   PageSection,
-  AttributeDisplay,
-  AttributeGroup,
   FilterBar
 } from '../components';
 
@@ -31,6 +29,11 @@ const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId, setPriceGroupName } = useBreadcrumb();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the tab we came from (for smart back navigation)
+  const searchParams = new URLSearchParams(location.search);
+  const fromTab = searchParams.get('from') || 'overview';
 
   const product = mockProducts.find(p => p.id === productId);
   
@@ -150,7 +153,14 @@ const PriceGroupDetail: React.FC = () => {
         iconSize={16}
         entityType="Price group"
         title={priceGroup.name || `Price group for ${product.name}`}
-        onBack={() => navigate(-1)}
+        onBack={() => {
+          // Smart back navigation - return to the tab we came from
+          if (fromTab === 'overview') {
+            navigate(`/product/${productId}`);
+          } else {
+            navigate(`/product/${productId}?tab=${fromTab}`);
+          }
+        }}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
         rightAlignedId={priceGroup.id || ''}
         channels={uniqueChannels}

@@ -20,6 +20,7 @@ interface SkuListTableProps {
   skus: Sku[];
   product: Product;
   hidePriceGroupColumn?: boolean;
+  currentTab?: string; // Add current tab to remember where we came from
 }
 
 // Helper function to check if a SKU has any overrides
@@ -152,7 +153,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
   },
 ]);
 
-const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGroupColumn = false }) => {
+const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGroupColumn = false, currentTab = 'skus' }) => {
   const navigate = useNavigate();
   const columns = getSkuTableColumns(product, navigate, hidePriceGroupColumn);
 
@@ -167,7 +168,8 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGro
         scroll={{ x: 'max-content' }}
         onRow={(record) => ({
           onClick: () => {
-            navigate(`/product/${product.id}/sku/${record.id}`);
+            // Include current tab in URL so back navigation knows where to return
+            navigate(`/product/${product.id}/sku/${record.id}?from=${currentTab}`);
           },
           style: { cursor: 'pointer' },
         })}

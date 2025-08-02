@@ -2061,6 +2061,10 @@ if (premiumCareerProduct) {
       revenueRecognition: "Accrual",
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      lix: {
+        key: "premium-quarterly-billing-2025",
+        treatment: "treatment"
+      },
       origin: "manual",
       createdBy: "System",
       createdDate: "2025-03-04T08:00:00Z"

@@ -1,7 +1,12 @@
 .attribute-group-body {
-  padding: 20px 24px;
+  padding: 20px 0 20px 0;
 }
 
 .attribute-group-body > *:last-child {
   padding-bottom: 0 !important;
+}
+
+/* Remove bottom border specifically for attribute groups */
+.content-panel:has(.attribute-group-body) {
+  border-bottom: none !important;
 } 

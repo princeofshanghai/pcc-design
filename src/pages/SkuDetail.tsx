@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Typography, Space, Table, Tabs } from 'antd';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
@@ -28,6 +28,11 @@ const SkuDetail: React.FC = () => {
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
   const { setProductName, setSkuId } = useBreadcrumb();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the tab we came from (for smart back navigation)
+  const searchParams = new URLSearchParams(location.search);
+  const fromTab = searchParams.get('from') || 'overview';
 
   const product = mockProducts.find(p => p.id === productId);
   const sku = product?.skus.find(s => s.id === skuId);
@@ -403,7 +408,14 @@ const SkuDetail: React.FC = () => {
         iconSize={16}
         entityType="SKU"
         title={sku.id}
-        onBack={() => navigate(-1)}
+        onBack={() => {
+          // Smart back navigation - return to the tab we came from
+          if (fromTab === 'overview') {
+            navigate(`/product/${productId}`);
+          } else {
+            navigate(`/product/${productId}?tab=${fromTab}`);
+          }
+        }}
         tagContent={<StatusTag status={sku.status} />}
         rightAlignedId={sku.id}
         channels={[sku.salesChannel]}

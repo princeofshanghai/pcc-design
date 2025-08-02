@@ -58,6 +58,11 @@ const ProductDetail: React.FC = () => {
   const location = useLocation();
   const product = mockProducts.find(p => p.id === productId);
   const navigate = useNavigate();
+
+  // Get URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'overview';
+  const priceGroupFilter = searchParams.get('priceGroupFilter');
   
   // Configuration workflow state
   const [isConfigurationModalOpen, setIsConfigurationModalOpen] = useState(false);
@@ -68,11 +73,6 @@ const ProductDetail: React.FC = () => {
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
   const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
   const [activityAlertDismissed, setActivityAlertDismissed] = useState(false);
-  const [pricingAlertDismissed, setPricingAlertDismissed] = useState(false);
-
-  // Check for URL query parameters
-  const searchParams = new URLSearchParams(location.search);
-  const priceGroupFilter = searchParams.get('priceGroupFilter');
 
   // SKU filtering hook
   const {
@@ -200,8 +200,7 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {!skuAlertDismissed && (
             <Alert
-              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-              description="This SKU management interface is part of post-MVP development. Please ignore for current epic."
+              message="Note from Charles - WIP exploration only, don't build"
               type="warning"
               showIcon
               closable
@@ -279,9 +278,9 @@ const ProductDetail: React.FC = () => {
             displayMode="inline"
           />
           {finalGroupedSkus ? (
-            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} />
+            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} currentTab={currentTab} />
           ) : (
-            <SkuListTable skus={finalSortedSkus} product={product} />
+            <SkuListTable skus={finalSortedSkus} product={product} currentTab={currentTab} />
           )}
           </PageSection>
         </Space>
@@ -293,16 +292,6 @@ const ProductDetail: React.FC = () => {
       label: 'Pricing',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          {!pricingAlertDismissed && (
-            <Alert
-              message="Note from Charles (design): MVP vs Future State"
-              description="SKU column is future state, replace column with LIX for MVP"
-              type="info"
-              showIcon
-              closable
-              onClose={() => setPricingAlertDismissed(true)}
-            />
-          )}
           <PageSection 
             title="Prices"
           >
@@ -358,6 +347,7 @@ const ProductDetail: React.FC = () => {
               productId={product.id}
               visibleColumns={priceGroupVisibleColumns}
               columnOrder={priceGroupColumnOrder}
+              currentTab={currentTab}
             />
           </PageSection>
         </Space>
@@ -370,8 +360,7 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {!featuresAlertDismissed && (
             <Alert
-              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-              description="This feature management interface is part of post-MVP development. Please ignore for current epic."
+              message="Note from Charles - WIP exploration only, don't build"
               type="warning"
               showIcon
               closable
@@ -483,8 +472,7 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {!activityAlertDismissed && (
             <Alert
-              message="Note from Charles (design): Post-MVP Feature - Work in Progress"
-              description="This activity tracking interface is part of post-MVP development. Please ignore for current epic."
+              message="Note from Charles - WIP exploration only, don't build"
               type="warning"
               showIcon
               closable
@@ -602,8 +590,20 @@ const ProductDetail: React.FC = () => {
       />
 
       <Tabs
-        defaultActiveKey="overview"
+        activeKey={currentTab}
         items={tabItems}
+        onChange={(key) => {
+          // Update URL when tab changes
+          const newSearchParams = new URLSearchParams(location.search);
+          if (key === 'overview') {
+            // Remove tab parameter for overview (default)
+            newSearchParams.delete('tab');
+          } else {
+            newSearchParams.set('tab', key);
+          }
+          const newSearch = newSearchParams.toString();
+          navigate(`/product/${productId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+        }}
       />
       
       {/* Configuration Creation Modal */}

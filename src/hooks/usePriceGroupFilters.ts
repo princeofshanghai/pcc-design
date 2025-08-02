@@ -112,6 +112,32 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     return filtered;
   }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter]);
 
+  // Helper function to get billing cycle priority (for default sort)
+  const getBillingCyclePriority = (cycle: string): number => {
+    switch (cycle.toLowerCase()) {
+      case 'monthly': return 1;
+      case 'annual': return 2;
+      case 'quarterly': return 3;
+      default: return 999; // Unknown cycles go to end
+    }
+  };
+
+  // Helper function to get primary channel from a price group's SKUs
+  const getPrimaryChannel = (skus: any[]): string => {
+    if (skus.length === 0) return '';
+    // Get all unique channels and return the first one alphabetically for consistency
+    const uniqueChannels = [...new Set(skus.map(sku => sku.salesChannel))];
+    return uniqueChannels.sort()[0] || '';
+  };
+
+  // Helper function to get primary billing cycle from a price group's SKUs
+  const getPrimaryBillingCycle = (skus: any[]): string => {
+    if (skus.length === 0) return '';
+    // Get all unique billing cycles and return the one with highest priority
+    const uniqueCycles = [...new Set(skus.map(sku => sku.billingCycle))];
+    return uniqueCycles.sort((a, b) => getBillingCyclePriority(a) - getBillingCyclePriority(b))[0] || '';
+  };
+
   // Helper function to sort price groups
   const sortPriceGroups = (priceGroups: typeof filteredPriceGroups) => {
     const sorted = [...priceGroups];
@@ -220,7 +246,33 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         const bDate = new Date(b.priceGroup.validFrom).getTime();
         return bDate - aDate;
       }
-      return 0;
+      
+      // Default multi-level sort when sortOrder is 'None' or unrecognized
+      // 1. Primary: Validity (most recent first)
+      const aValidFrom = a.priceGroup.validFrom ? new Date(a.priceGroup.validFrom).getTime() : 0;
+      const bValidFrom = b.priceGroup.validFrom ? new Date(b.priceGroup.validFrom).getTime() : 0;
+      if (aValidFrom !== bValidFrom) {
+        return bValidFrom - aValidFrom; // Most recent first (descending)
+      }
+      
+      // 2. Secondary: Channel (A-Z)
+      const aChannel = getPrimaryChannel(a.skus);
+      const bChannel = getPrimaryChannel(b.skus);
+      if (aChannel !== bChannel) {
+        return aChannel.localeCompare(bChannel);
+      }
+      
+      // 3. Tertiary: Billing Cycle (Monthly, Annual, Quarterly)
+      const aBillingCycle = getPrimaryBillingCycle(a.skus);
+      const bBillingCycle = getPrimaryBillingCycle(b.skus);
+      const aPriority = getBillingCyclePriority(aBillingCycle);
+      const bPriority = getBillingCyclePriority(bBillingCycle);
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      
+      // 4. Final fallback: ID (for consistency)
+      return (a.priceGroup.id || '').localeCompare(b.priceGroup.id || '');
     });
     return sorted;
   };

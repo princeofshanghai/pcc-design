@@ -228,10 +228,10 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       lob => toSentenceCase(lob)
     );
 
-    // Format labels WITHOUT counts for LOB options
+    // Format labels with counts for LOB options
     return optionsWithCounts.map(option => ({
       value: option.value,
-      label: option.label  // Remove the count formatting
+      label: `${option.label} (${option.count})`
     }));
   }, [initialProducts, searchQuery, statusFilter, statusFilters, folderFilter]);
 
@@ -279,10 +279,10 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       channel => channel === 'iOS' ? 'iOS' : toSentenceCase(channel)
     );
 
-    // Format labels WITHOUT counts for channel options
+    // Format labels with counts for channel options
     return optionsWithCounts.map(option => ({
       value: option.value,
-      label: option.label  // Remove the count formatting
+      label: `${option.label} (${option.count})`
     }));
   }, [initialProducts, searchQuery, statusFilter, statusFilters, lobFilter, folderFilter]);
 

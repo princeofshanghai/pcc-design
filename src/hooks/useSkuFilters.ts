@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { Sku, SalesChannel, Status, Product } from '../utils/types';
 import { toSentenceCase } from '../utils/formatters';
+import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
 export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -112,16 +113,52 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
 
   const skuCount = sortedSkus.length;
 
-  // Generate dynamic options for filters based on the *initial* list
-  const channelOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.salesChannel))].map(c => ({ 
-    value: c, 
-    label: c === 'iOS' ? 'iOS' : toSentenceCase(c) 
-  })), [initialSkus]);
-  const statusOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.status))].map(s => ({ value: s, label: toSentenceCase(s) })), [initialSkus]);
-  const billingCycleOptions = useMemo(() => [...new Set(initialSkus.map(sku => sku.billingCycle))].map(bc => ({ value: bc, label: toSentenceCase(bc) })), [initialSkus]);
+  // Generate dynamic options for filters based on the *initial* list with counts
+  const channelOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.salesChannel,
+      channel => channel === 'iOS' ? 'iOS' : toSentenceCase(channel)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialSkus]);
+
+  const statusOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.status,
+      status => toSentenceCase(status)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialSkus]);
+
+  const billingCycleOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.billingCycle,
+      cycle => toSentenceCase(cycle)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialSkus]);
   const lixKeyOptions = useMemo(() => {
-    const keys = initialSkus.map(sku => sku.lix?.key ?? 'No LIX');
-    return [...new Set(keys)].map(key => ({ value: key, label: key }));
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.lix?.key ?? 'No LIX',
+      key => key
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
   }, [initialSkus]);
 
 

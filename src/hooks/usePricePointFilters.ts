@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { PricePoint } from '../utils/types';
-import { categorizePricePoints } from '../utils/formatters';
+import { categorizePricePoints, toSentenceCase } from '../utils/formatters';
+import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
 export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   // Filter states
@@ -28,6 +29,19 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     return currencies.map(currency => ({ 
       label: `${currency} (${currencyCounts[currency]})`, 
       value: currency 
+    }));
+  }, [initialPricePoints]);
+
+  // Get unique status options with counts
+  const statusOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialPricePoints,
+      point => point.status || 'Unspecified',
+      status => toSentenceCase(status)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
     }));
   }, [initialPricePoints]);
 
@@ -252,6 +266,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     statusFilter,
     setStatusFilter,
     currencyOptions,
+    statusOptions,
     
     // View controls
     sortOrder,

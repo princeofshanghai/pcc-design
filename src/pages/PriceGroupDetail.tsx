@@ -76,6 +76,7 @@ const PriceGroupDetail: React.FC = () => {
     statusFilter,
     setStatusFilter,
     currencyOptions,
+    statusOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy,
@@ -187,11 +188,7 @@ const PriceGroupDetail: React.FC = () => {
   const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
 
-  // Status filter options
-  const statusOptions = [
-    { label: 'Active', value: 'Active' },
-    { label: 'Expired', value: 'Expired' }
-  ];
+
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={48}>

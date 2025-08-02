@@ -227,7 +227,10 @@ const SkuDetail: React.FC = () => {
           setSearchQuery: setPricePointSearchQuery,
           currencyFilters,
           setCurrencyFilters,
+          statusFilter,
+          setStatusFilter,
           currencyOptions,
+          statusOptions,
           sortOrder: pricePointSortOrder,
           setSortOrder,
           groupBy: pricePointGroupBy, 
@@ -239,6 +242,7 @@ const SkuDetail: React.FC = () => {
         const clearAllPricePointFilters = () => {
           setPricePointSearchQuery('');
           setCurrencyFilters([]);
+          setStatusFilter(null);
         };
 
         return (
@@ -304,6 +308,12 @@ const SkuDetail: React.FC = () => {
                     // Required for TypeScript interface compatibility
                     value: null,
                     onChange: () => {},
+                  },
+                  {
+                    placeholder: "All statuses",
+                    options: statusOptions,
+                    value: statusFilter,
+                    onChange: (value) => setStatusFilter(value ?? null),
                   },
                 ]}
                 onClearAll={clearAllPricePointFilters}

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { Sku, SalesChannel, PricePoint } from '../utils/types';
 import { formatValidityRange, toSentenceCase } from '../utils/formatters';
+import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
 /**
  * Determines the common validity range for a price group based on its price points
@@ -366,18 +367,29 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     return sortedGroups;
   }, [sortedPriceGroups, groupBy, sortOrder]);
 
-  // Generate filter options from initial SKU data
+  // Generate filter options from initial SKU data with counts
   const channelOptions = useMemo(() => {
-    const channels = Array.from(new Set(initialSkus.map(sku => sku.salesChannel))).sort();
-    return channels.map(channel => ({ 
-      value: channel, 
-      label: channel === 'iOS' ? 'iOS' : toSentenceCase(channel) 
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.salesChannel,
+      channel => channel === 'iOS' ? 'iOS' : toSentenceCase(channel)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
     }));
   }, [initialSkus]);
 
   const billingCycleOptions = useMemo(() => {
-    const cycles = Array.from(new Set(initialSkus.map(sku => sku.billingCycle))).sort();
-    return cycles.map(cycle => ({ value: cycle, label: toSentenceCase(cycle) }));
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus,
+      sku => sku.billingCycle,
+      cycle => toSentenceCase(cycle)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
   }, [initialSkus]);
 
   const priceGroupCount = filteredPriceGroups.length;

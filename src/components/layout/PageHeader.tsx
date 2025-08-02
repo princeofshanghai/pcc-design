@@ -18,6 +18,7 @@ interface PageHeaderProps {
   rightAlignedId?: string; // ID that appears inline with entity type
   channels?: SalesChannel[]; // New prop for channels
   billingCycles?: BillingCycle[]; // New prop for billing cycles
+  validityText?: string; // New prop for validity period text
   tagContent?: React.ReactNode;
   onBack?: () => void;
   actions?: React.ReactNode;
@@ -69,6 +70,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   rightAlignedId,
   channels = [],
   billingCycles = [],
+  validityText,
   tagContent, 
   onBack, 
   actions,
@@ -199,8 +201,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             ) : null}
           </div>
           
-          {/* Bottom row: Channels and Billing Cycles */}
-          {(channels.length > 0 || billingCycles.length > 0) ? (
+          {/* Bottom row: Channels, Billing Cycles, and Validity */}
+          {(channels.length > 0 || billingCycles.length > 0 || validityText) ? (
             <div>
               <Space size={4} wrap>
                 {channels.map(channel => (
@@ -209,6 +211,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 {billingCycles.map(cycle => (
                   <BillingCycleDisplay key={cycle} billingCycle={cycle} />
                 ))}
+                {validityText && (
+                  <Text 
+                    style={{ 
+                      fontSize: '13px', 
+                      color: token.colorTextSecondary,
+                      fontWeight: 500 
+                    }}
+                  >
+                    {validityText}
+                  </Text>
+                )}
               </Space>
             </div>
           ) : subtitle ? (

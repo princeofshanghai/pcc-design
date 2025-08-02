@@ -16,7 +16,7 @@ import {
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
-import { toSentenceCase } from '../utils/formatters';
+import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
   PRICE_POINT_SORT_OPTIONS,
@@ -187,6 +187,9 @@ const PriceGroupDetail: React.FC = () => {
   // Extract unique channels and billing cycles from associated SKUs
   const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
+  
+  // Format the validity period for display
+  const validityText = priceGroup ? formatValidityRange(priceGroup.validFrom, priceGroup.validTo) : null;
 
 
 
@@ -209,6 +212,7 @@ const PriceGroupDetail: React.FC = () => {
         rightAlignedId={priceGroup.id || ''}
         channels={uniqueChannels}
         billingCycles={uniqueBillingCycles}
+        validityText={validityText || undefined}
         lastUpdatedBy="Luxi Kanazir"
         lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago
         compact

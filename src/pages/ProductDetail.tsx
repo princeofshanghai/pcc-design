@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, Alert } from 'antd';
 import { mockProducts } from '../utils/mock-data';
+import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
@@ -56,8 +57,19 @@ const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { setProductName } = useBreadcrumb();
   const location = useLocation();
-  const product = mockProducts.find(p => p.id === productId);
+  const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const navigate = useNavigate();
+
+  // Load enhanced product data with price groups from JSON files
+  useEffect(() => {
+    if (productId) {
+      loadProductWithPricing(productId).then(enhancedProduct => {
+        if (enhancedProduct) {
+          setProduct(enhancedProduct);
+        }
+      });
+    }
+  }, [productId]);
 
   // Get URL parameters
   const searchParams = new URLSearchParams(location.search);

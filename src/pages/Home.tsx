@@ -3,6 +3,7 @@ import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { Folder } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
+import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
 import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
 import {
@@ -47,6 +48,12 @@ const urlToFolderName = (urlFolder: string): string => {
 const Home: React.FC = () => {
   const { folderName } = useParams<{ folderName?: string }>();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [enhancedProducts, setEnhancedProducts] = useState(mockProducts);
+
+  // Load enhanced data on component mount
+  useEffect(() => {
+    loadProductsWithAccurateCounts().then(setEnhancedProducts);
+  }, []);
 
   // Convert URL folder name to actual folder name for filtering
   const currentFolder = folderName ? urlToFolderName(folderName) : null;
@@ -103,7 +110,7 @@ const Home: React.FC = () => {
     dynamicStatusOptions,
     dynamicLobOptions,
     dynamicChannelOptions,
-  } = useProductFilters(mockProducts, null); // No LOB filtering - using folder-based navigation
+  } = useProductFilters(enhancedProducts, null); // No LOB filtering - using folder-based navigation
 
   // Set folder filter based on URL parameter
   useEffect(() => {

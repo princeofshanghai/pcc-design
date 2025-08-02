@@ -246,6 +246,28 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         const bDate = new Date(b.priceGroup.validFrom).getTime();
         return bDate - aDate;
       }
+      if (sortOrder === 'LIX Key (A-Z)') {
+        // Get LIX key from the first SKU with LIX data, handle missing LIX keys
+        const aLixKey = a.skus.find((sku: any) => sku.lix?.key)?.lix?.key || '';
+        const bLixKey = b.skus.find((sku: any) => sku.lix?.key)?.lix?.key || '';
+        
+        // Sort missing LIX keys to the end
+        if (!aLixKey && !bLixKey) return (a.priceGroup.id || '').localeCompare(b.priceGroup.id || '');
+        if (!aLixKey) return 1; // a goes to end
+        if (!bLixKey) return -1; // b goes to end
+        return aLixKey.localeCompare(bLixKey);
+      }
+      if (sortOrder === 'LIX Key (Z-A)') {
+        // Get LIX key from the first SKU with LIX data, handle missing LIX keys
+        const aLixKey = a.skus.find((sku: any) => sku.lix?.key)?.lix?.key || '';
+        const bLixKey = b.skus.find((sku: any) => sku.lix?.key)?.lix?.key || '';
+        
+        // Sort missing LIX keys to the end
+        if (!aLixKey && !bLixKey) return (b.priceGroup.id || '').localeCompare(a.priceGroup.id || '');
+        if (!aLixKey) return 1; // a goes to end
+        if (!bLixKey) return -1; // b goes to end
+        return bLixKey.localeCompare(aLixKey);
+      }
       
       // Default multi-level sort when sortOrder is 'None' or unrecognized
       // 1. Primary: Validity (most recent first)
@@ -314,6 +336,10 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       } else if (groupBy === 'Validity') {
         // Group by validity range of the price group
         groupKey = getCommonValidityRange(group.priceGroup.pricePoints);
+      } else if (groupBy === 'LIX Key') {
+        // Group by LIX experiment key
+        const skuWithLix = group.skus.find((sku: any) => sku.lix?.key);
+        groupKey = skuWithLix?.lix?.key || 'No LIX Experiment';
       } else {
         groupKey = 'Other';
       }

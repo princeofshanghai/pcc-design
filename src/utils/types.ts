@@ -53,7 +53,7 @@ export type PricePoint = {
   pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
   minQuantity?: number;
   maxQuantity?: number;
-  priceType?: string; // e.g., 'BASE_AMOUNT'
+  priceType?: 'BASE_AMOUNT' | 'BASE_PRICER' | string; // Price type from data
   isTaxInclusive?: boolean;
 };
 

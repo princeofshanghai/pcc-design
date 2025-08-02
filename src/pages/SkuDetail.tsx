@@ -316,7 +316,7 @@ const SkuDetail: React.FC = () => {
                   groupBy: {
                     value: pricePointGroupBy,
                     setter: setPricePointGroupBy,
-                    options: ['None', 'Category', 'Currency', 'Pricing rule', 'Validity'],
+                    options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
                   },
                 }}
                 displayMode="inline"

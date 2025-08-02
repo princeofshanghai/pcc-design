@@ -15,7 +15,7 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Standard width calculation based on sidebar state
   // Collapsed: 64px sidebar (+176px more space vs expanded 240px)
   const getContentWidth = () => {
-    const standardWidth = collapsed ? '1576px' : '1400px';
+    const standardWidth = collapsed ? '1696px' : '1520px';
     const maxWidth = '1800px';
     return `min(${standardWidth}, ${maxWidth})`;
   };

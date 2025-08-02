@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Typography, Space } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
+import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
@@ -35,7 +36,30 @@ const PriceGroupDetail: React.FC = () => {
   const searchParams = new URLSearchParams(location.search);
   const fromTab = searchParams.get('from') || 'overview';
 
-  const product = mockProducts.find(p => p.id === productId);
+  const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Load enhanced product data with price groups from JSON files
+  useEffect(() => {
+    if (productId) {
+      setIsLoading(true);
+      setError(null);
+      loadProductWithPricing(productId)
+        .then(enhancedProduct => {
+          console.log('Enhanced product loaded:', enhancedProduct);
+          if (enhancedProduct) {
+            setProduct(enhancedProduct);
+          }
+          setIsLoading(false);
+        })
+        .catch(err => {
+          console.error('Error loading product with pricing:', err);
+          setError(err.message || 'Failed to load product data');
+          setIsLoading(false);
+        });
+    }
+  }, [productId]);
   
   // Find all SKUs that use this price group
   const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
@@ -43,13 +67,30 @@ const PriceGroupDetail: React.FC = () => {
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
+  // IMPORTANT: All hooks must be called before any conditional returns
+  // Price point filtering hook - must always be called even if priceGroup is null
+  const {
+    setSearchQuery: setPricePointSearchQuery,
+    currencyFilters,
+    setCurrencyFilters,
+    statusFilter,
+    setStatusFilter,
+    currencyOptions,
+    sortOrder: pricePointSortOrder,
+    setSortOrder: setPricePointSortOrder,
+    groupBy: pricePointGroupBy,
+    setGroupBy: setPricePointGroupBy,
+    filteredPricePoints,
+    groupedPricePoints: groupedPricePointsData,
+  } = usePricePointFilters(priceGroup?.pricePoints || []);
+
   // Default column visibility configuration for PricePointTable
   const pricePointDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      // Hide currencyType, pricingRule, and quantityRange by default
+      // Hide currencyType, pricingRule, quantityRange, and priceType by default
       // ID column is now visible by default to match PriceGroupTable pattern
-      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange') {
+      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
         defaultVisibility[col.key] = false;
       } else {
         defaultVisibility[col.key] = true;
@@ -96,6 +137,25 @@ const PriceGroupDetail: React.FC = () => {
     };
   }, [product, priceGroupId, setProductName, setPriceGroupId, priceGroup, setPriceGroupName]);
 
+  if (isLoading) {
+    return (
+      <div>
+        <Title level={2}>Loading...</Title>
+        <p>Loading price group data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Title level={2}>Error Loading Data</Title>
+        <p>{error}</p>
+        <p>Please check the browser console for more details.</p>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div>
@@ -110,25 +170,12 @@ const PriceGroupDetail: React.FC = () => {
       <div>
         <Title level={2}>Price Group Not Found</Title>
         <p>The requested price group could not be found in this product.</p>
+        <p>Available price groups: {product.skus.map(sku => sku.priceGroup.id).join(', ')}</p>
       </div>
     );
   }
 
-  // Group core currencies vs others
-  const {
-    setSearchQuery: setPricePointSearchQuery,
-    currencyFilters,
-    setCurrencyFilters,
-    statusFilter,
-    setStatusFilter,
-    currencyOptions,
-    sortOrder: pricePointSortOrder,
-    setSortOrder: setPricePointSortOrder,
-    groupBy: pricePointGroupBy,
-    setGroupBy: setPricePointGroupBy,
-    filteredPricePoints,
-    groupedPricePoints: groupedPricePointsData,
-  } = usePricePointFilters(priceGroup?.pricePoints || []);
+  // Helper function for clearing filters
 
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
@@ -209,7 +256,7 @@ const PriceGroupDetail: React.FC = () => {
             groupBy: {
               value: pricePointGroupBy,
               setter: setPricePointGroupBy,
-              options: ['None', 'Category', 'Currency', 'Pricing rule', 'Validity'],
+              options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
             },
             columnOptions,
             visibleColumns,

@@ -20,6 +20,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'amount', label: 'Amount', required: false },
   { key: 'pricingRule', label: 'Pricing rule', required: false },
   { key: 'quantityRange', label: 'Quantity range', required: false },
+  { key: 'priceType', label: 'Price type', required: false },
   { key: 'usdEquivalent', label: 'USD equivalent', required: false },
   { key: 'validity', label: 'Validity', required: false },
 ];
@@ -39,6 +40,8 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'Billing Cycle (Z-A)',
   'USD Price (Low to High)',
   'USD Price (High to Low)',
+  'LIX Key (A-Z)',
+  'LIX Key (Z-A)',
   'Validity (Earliest to Latest)',
   'Validity (Latest to Earliest)',
 ];
@@ -48,6 +51,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'None',
   'Channel',
   'Billing Cycle',
+  'LIX Key',
   'Validity',
 ];
 
@@ -61,6 +65,8 @@ export const PRICE_POINT_SORT_OPTIONS = [
   'USD equivalent (High to low)',
   'USD equivalent (Low to high)',
   'Category',
+  'Price type (A-Z)',
+  'Price type (Z-A)',
   'Validity (Earliest to latest)',
   'Validity (Latest to earliest)',
 ];

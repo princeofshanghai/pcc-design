@@ -396,6 +396,20 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return bDate - aDate;
       });
     
+    case 'Price type (A-Z)':
+      return sorted.sort((a, b) => {
+        const aType = a.priceType || '';
+        const bType = b.priceType || '';
+        return aType.localeCompare(bType);
+      });
+    
+    case 'Price type (Z-A)':
+      return sorted.sort((a, b) => {
+        const aType = a.priceType || '';
+        const bType = b.priceType || '';
+        return bType.localeCompare(aType);
+      });
+    
     default:
       return sorted;
   }
@@ -599,6 +613,44 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
               color: record.status === 'Expired' ? '#c1c1c1' : undefined
             }}>
               {rangeText}
+            </Text>
+          </Tooltip>
+        );
+      },
+    } : null,
+    priceType: visibleColumns.priceType === true ? {
+      title: getColumnLabel('priceType'),
+      dataIndex: 'priceType',
+      key: 'priceType',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        const getPriceTypeTooltip = (type: string): string => {
+          switch (type) {
+            case 'BASE_AMOUNT':
+              return 'Base pricing with specific currency amounts';
+            case 'BASE_PRICER':
+              return 'Configuration-only entry without specific amounts';
+            default:
+              return 'Price type not specified';
+          }
+        };
+        
+        const formatPriceType = (type: string): string => {
+          if (!type) return '-';
+          // Convert BASE_AMOUNT to "Base Amount", BASE_PRICER to "Base Pricer"
+          return type.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ');
+        };
+        
+        const priceType = record.priceType || '';
+        return (
+          <Tooltip title={getPriceTypeTooltip(priceType)}>
+            <Text style={{
+              color: record.status === 'Expired' ? '#c1c1c1' : undefined
+            }}>
+              {formatPriceType(priceType)}
             </Text>
           </Tooltip>
         );

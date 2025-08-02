@@ -209,6 +209,35 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       return sortedGroups;
     }
 
+    if (groupBy === 'Price type') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const priceType = point.priceType || '';
+        // Format the price type for display (BASE_AMOUNT -> "Base Amount")
+        const typeKey = priceType ? 
+          priceType.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ') : 
+          'Unspecified';
+        
+        if (!groups[typeKey]) {
+          groups[typeKey] = [];
+        }
+        groups[typeKey].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(typeKey => {
+          sortedGroups[typeKey] = sortPricePoints(groups[typeKey]);
+        });
+      
+      return sortedGroups;
+    }
+
     return null;
   }, [filteredPricePoints, groupBy, sortOrder]);
 

@@ -1,0 +1,252 @@
+// Demo-optimized data loading system for PCC prototype
+// Designed for smooth UX demonstration with 500+ products
+
+import type { Product, PriceGroup, PricePoint } from './types';
+
+// Cache management for demo performance
+const productListCache = new Map<string, any>();
+const priceGroupCache = new Map<string, any>();
+const pricePointCache = new Map<string, any>();
+
+/**
+ * Load basic product catalog (fast initial load)
+ * This is what powers the main product list view
+ */
+export async function loadProductCatalog(): Promise<Product[]> {
+  const cacheKey = 'product-catalog';
+  
+  if (productListCache.has(cacheKey)) {
+    return productListCache.get(cacheKey);
+  }
+
+  try {
+    const response = await fetch('/data/products.json');
+    if (!response.ok) {
+      throw new Error('Failed to load product catalog');
+    }
+    
+    const products = await response.json();
+    productListCache.set(cacheKey, products);
+    return products;
+  } catch (error) {
+    console.error('Error loading product catalog:', error);
+    // Graceful fallback to existing embedded data
+    const { mockProducts } = await import('./mock-data');
+    return mockProducts;
+  }
+}
+
+/**
+ * Load price groups for a specific product (product detail view)
+ * Only loads when user clicks into a product
+ */
+export async function loadProductPriceGroups(productId: string): Promise<any[]> {
+  const cacheKey = `price-groups-${productId}`;
+  
+  if (priceGroupCache.has(cacheKey)) {
+    return priceGroupCache.get(cacheKey);
+  }
+
+  try {
+    const response = await fetch(`/data/price-groups/${productId}.json`);
+    if (!response.ok) {
+      console.warn(`No price groups found for product ${productId}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    priceGroupCache.set(cacheKey, data.priceGroups || []);
+    return data.priceGroups || [];
+  } catch (error) {
+    console.error(`Error loading price groups for product ${productId}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Load price points for a specific price group (price group detail view)
+ * Only loads when user drills down to price group level
+ */
+export async function loadPriceGroupPoints(priceGroupId: string): Promise<PricePoint[]> {
+  const cacheKey = `price-points-${priceGroupId}`;
+  
+  if (pricePointCache.has(cacheKey)) {
+    return pricePointCache.get(cacheKey);
+  }
+
+  try {
+    const response = await fetch(`/data/price-points/${priceGroupId}.json`);
+    if (!response.ok) {
+      console.warn(`No price points found for price group ${priceGroupId}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    pricePointCache.set(cacheKey, data.pricePoints || []);
+    return data.pricePoints || [];
+  } catch (error) {
+    console.error(`Error loading price points for price group ${priceGroupId}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Enhanced product loading with smart lazy loading
+ * Combines basic product info with price groups only when needed
+ */
+export async function loadProductWithPricing(productId: string): Promise<Product | null> {
+  try {
+    // First try to load from enhanced data system
+    const priceGroups = await loadProductPriceGroups(productId);
+    
+    if (priceGroups.length > 0) {
+      // We have JSON price groups, use them
+      const { mockProducts } = await import('./mock-data');
+      const baseProduct = mockProducts.find(p => p.id === productId);
+      
+      if (!baseProduct) {
+        return null;
+      }
+
+      // Create SKUs from price groups (one SKU per price group for demo purposes)
+      const enhancedSkus = priceGroups.map((priceGroup: any) => {
+        return {
+          id: `sku-${priceGroup.id}`,
+          status: priceGroup.status,
+          salesChannel: priceGroup.channel || 'Desktop',
+          billingCycle: priceGroup.billingCycle || 'Monthly',
+          // Add LIX data to SKU if available
+          lix: priceGroup.lixKey ? {
+            key: priceGroup.lixKey,
+            treatment: priceGroup.lixTreatment
+          } : undefined,
+          priceGroup: {
+            id: priceGroup.id,
+            name: priceGroup.name || null, // Don't generate fake names
+            status: priceGroup.status,
+            validFrom: priceGroup.validFrom,
+            validTo: priceGroup.validTo,
+            pricePoints: priceGroup.pricePoints || []
+          },
+          revenueRecognition: "Accrual",
+          switcherLogic: [],
+          refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+          origin: "json",
+          createdBy: "Demo System",
+          createdDate: new Date().toISOString()
+        };
+      });
+
+      return {
+        ...baseProduct,
+        skus: enhancedSkus
+      };
+    } else {
+      // Fallback to existing embedded data
+      const { mockProducts } = await import('./mock-data');
+      return mockProducts.find(p => p.id === productId) || null;
+    }
+
+  } catch (error) {
+    console.error(`Error loading product ${productId} with pricing:`, error);
+    // Graceful fallback to embedded data
+    const { mockProducts } = await import('./mock-data');
+    return mockProducts.find(p => p.id === productId) || null;
+  }
+}
+
+/**
+ * Load products with accurate SKU counts for the product list view
+ * This ensures SKU counts match what users see in Product Detail
+ */
+export async function loadProductsWithAccurateCounts(): Promise<Product[]> {
+  const cacheKey = 'products-with-counts';
+  
+  if (productListCache.has(cacheKey)) {
+    return productListCache.get(cacheKey);
+  }
+
+  try {
+    // Start with base products
+    const { mockProducts } = await import('./mock-data');
+    
+    // For each product, check if it has JSON price group data and update SKU count
+    const productsWithAccurateCounts = await Promise.all(
+      mockProducts.map(async (product) => {
+        try {
+          const priceGroups = await loadProductPriceGroups(product.id);
+          
+          if (priceGroups.length > 0) {
+            // Product has JSON data - SKU count = number of price groups
+            return {
+              ...product,
+              skus: priceGroups.map((priceGroup: any) => ({
+                id: `sku-${priceGroup.id}`,
+                status: priceGroup.status,
+                salesChannel: priceGroup.channel || 'Desktop',
+                billingCycle: priceGroup.billingCycle || 'Monthly',
+                // Lightweight SKU structure for list view performance
+                priceGroup: { id: priceGroup.id, pricePoints: [] },
+                revenueRecognition: "Accrual",
+                switcherLogic: [],
+                refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+                origin: "json"
+              }))
+            };
+          } else {
+            // No JSON data - use original embedded SKU count
+            return product;
+          }
+        } catch (error) {
+          // On error, use original product data
+          return product;
+        }
+      })
+    );
+
+    productListCache.set(cacheKey, productsWithAccurateCounts);
+    return productsWithAccurateCounts;
+  } catch (error) {
+    console.error('Error loading products with accurate counts:', error);
+    // Fallback to original data
+    const { mockProducts } = await import('./mock-data');
+    return mockProducts;
+  }
+}
+
+/**
+ * Clear all caches (useful for demo resets)
+ */
+export function clearDemoCache(): void {
+  productListCache.clear();
+  priceGroupCache.clear();
+  pricePointCache.clear();
+}
+
+/**
+ * Preload commonly accessed data (optional performance boost)
+ */
+export async function preloadDemoData(productIds: string[] = []): Promise<void> {
+  // Preload product catalog
+  await loadProductCatalog();
+  
+  // Optionally preload price groups for specific products
+  if (productIds.length > 0) {
+    await Promise.all(productIds.map(loadProductPriceGroups));
+  }
+}
+
+/**
+ * Demo stats for performance monitoring
+ */
+export function getDemoStats(): {
+  productsLoaded: number;
+  priceGroupsLoaded: number;
+  pricePointsLoaded: number;
+} {
+  return {
+    productsLoaded: productListCache.size,
+    priceGroupsLoaded: priceGroupCache.size,
+    pricePointsLoaded: pricePointCache.size
+  };
+}

@@ -15,7 +15,7 @@ export async function loadProductPricingData(productId: string): Promise<any> {
   }
 
   try {
-    const response = await fetch(`/data/products/${productId}.json`);
+    const response = await fetch(`/data/price-groups/${productId}.json`);
     if (!response.ok) {
       console.warn(`No pricing data found for product ${productId}`);
       return { productId, priceGroups: [] };

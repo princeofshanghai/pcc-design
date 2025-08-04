@@ -44,6 +44,16 @@ const themeConfig: ThemeConfig = {
     },
     Select: {
       colorTextPlaceholder: 'rgba(0, 0, 0, 0.92)',
+    },
+    
+    Message: {
+      colorBgElevated: '#2f2f2f',  // Dark background
+      colorText: '#ffffff',        // White text
+      colorTextSecondary: '#bfbfbf', // Light gray secondary text
+      colorIcon: '#ffffff',        // White icons
+      colorSuccess: '#52c41a',     // Success icon color
+      colorError: '#ff4d4f',       // Error icon color
+      borderRadiusLG: 8,           // Rounded corners
     }
   },
 };

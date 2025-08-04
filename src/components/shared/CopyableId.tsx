@@ -1,6 +1,6 @@
 import React from 'react';
 import { message, theme } from 'antd';
-import { Copy } from 'lucide-react';
+import { Copy, CheckCircle } from 'lucide-react';
 import './CopyableId.css';
 
 interface CopyableIdProps {
@@ -16,7 +16,26 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
     e.stopPropagation();
     navigator.clipboard.writeText(id).then(
       () => {
-        message.success('Copied to clipboard!');
+        message.success({
+          content: (
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle size={16} color="#52c41a" />
+                <span>Copied to clipboard</span>
+              </div>
+              <div style={{ 
+                color: '#bfbfbf', 
+                fontSize: '12px', 
+                marginTop: '4px', 
+                marginLeft: '24px' // Align with text above (icon width + gap)
+              }}>
+                {id}
+              </div>
+            </div>
+          ),
+          duration: 2.5,
+          icon: null, // Remove default icon since we're using custom one
+        });
       },
       (err) => {
         message.error('Failed to copy');

@@ -71,9 +71,34 @@ const ChangeRequestDetail: React.FC = () => {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // TODO: Show success toast
-    console.log('Copied to clipboard:', text);
+    navigator.clipboard.writeText(text).then(
+      () => {
+        message.success({
+          content: (
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle size={16} color="#52c41a" />
+                <span>Copied to clipboard</span>
+              </div>
+              <div style={{ 
+                color: '#bfbfbf', 
+                fontSize: '12px', 
+                marginTop: '4px', 
+                marginLeft: '24px' // Align with text above (icon width + gap)
+              }}>
+                {text}
+              </div>
+            </div>
+          ),
+          duration: 2.5,
+          icon: null, // Remove default icon since we're using custom one
+        });
+      },
+      (err) => {
+        message.error('Failed to copy');
+        console.error('Could not copy text: ', err);
+      }
+    );
   };
 
   const handleStatusUpdate = (newStatus: 'Pending Review' | 'In EI' | 'Live' | 'Failed') => {

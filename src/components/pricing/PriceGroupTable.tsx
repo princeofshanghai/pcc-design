@@ -1,13 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography, Tag } from 'antd';
+import { Table, Space, Typography, Tag, Dropdown, Button, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import { Ellipsis } from 'lucide-react';
+import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
+import { formatCurrency, toSentenceCase, formatColumnTitles, formatValidityRange } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
+import PriceGroupExperimentalIndicator from '../configuration/PriceGroupExperimentalIndicator';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';
@@ -34,14 +36,52 @@ type TableRow = {
   groupKey: string;
 };
 
+/**
+ * Determines the overall validity range for a price group based on its price points
+ */
+const getValidityRange = (pricePoints: PricePoint[]): string => {
+  if (!pricePoints || pricePoints.length === 0) return 'N/A';
 
+  const validFromDates = pricePoints
+    .map(p => p.validFrom)
+    .filter((date): date is string => Boolean(date))
+    .map(date => new Date(date).getTime());
+    
+  const validToDates = pricePoints
+    .map(p => p.validTo)
+    .filter((date): date is string => Boolean(date))
+    .map(date => new Date(date).getTime());
+
+  if (validFromDates.length === 0) return 'No validity data';
+
+  const earliestFrom = new Date(Math.min(...validFromDates));
+  const latestTo = validToDates.length > 0 ? 
+    new Date(Math.max(...validToDates)) : null;
+
+  // Check if all price points have same validity
+  const uniqueValidityPeriods = new Set(
+    pricePoints.map(p => `${p.validFrom}-${p.validTo || ''}`)
+  );
+
+  const baseRange = formatValidityRange(
+    earliestFrom.toISOString(), 
+    latestTo?.toISOString()
+  );
+
+  // Add indicator if there are mixed validity periods
+  if (uniqueValidityPeriods.size > 1) {
+    return `${baseRange} (${uniqueValidityPeriods.size} periods)`;
+  }
+
+  return baseRange;
+};
 
 const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ 
   priceGroups, 
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix'],
+  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'],
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
@@ -66,7 +106,10 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
+              <PriceGroupExperimentalIndicator skus={record.skus} />
+            </div>
           </div>
         );
       },
@@ -230,15 +273,101 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-
+    validity: visibleColumns.validity !== false ? {
+      title: getColumnLabel('validity'),
+      dataIndex: 'validity',
+      key: 'validity',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        return getValidityRange(record.priceGroup.pricePoints);
+      },
+    } : null,
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
-  const columns: ColumnsType<any> = formatColumnTitles(
+  const baseColumns: ColumnsType<any> = formatColumnTitles(
     columnOrder
       .map(key => allColumnsMap[key])
       .filter(Boolean)
   );
+
+  // Create overflow menu for each row
+  const createRowMenu = (record: any) => {
+    if ('isGroupHeader' in record) return { items: [] };
+
+    return {
+      items: [
+        {
+          key: 'view',
+          label: 'View price',
+          onClick: () => {
+            navigate(`/product/${productId}/price-group/${record.priceGroup.id}?from=${currentTab}`);
+          },
+        },
+        {
+          key: 'clone',
+          label: 'Clone price',
+          onClick: () => {
+            Modal.info({
+              title: 'Clone Price',
+              content: (
+                <div>
+                  <p>This would create a copy of price group <strong>{record.priceGroup.id}</strong>.</p>
+                  <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                    You would be able to modify the cloned price group with different settings.
+                  </p>
+                </div>
+              ),
+              okText: 'Got it',
+              width: 400,
+            });
+          },
+        },
+      ],
+    };
+  };
+
+  // Action column (always visible, fixed to right)
+  const actionColumn = {
+    title: '', // No column title
+    key: 'actions',
+    fixed: 'right' as const,
+    width: 48,
+    render: (_: any, record: any) => {
+      if ('isGroupHeader' in record) return null;
+
+      return (
+        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <Dropdown menu={createRowMenu(record)} trigger={['click']} placement="bottomRight">
+            <Button 
+              icon={<Ellipsis size={16} />} 
+              size="small"
+              type="text"
+              style={{ 
+                border: 'none',
+                background: 'transparent',
+                padding: '4px',
+                height: '24px',
+                width: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f5f5f5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            />
+          </Dropdown>
+        </div>
+      );
+    },
+  };
+
+  // Combine base columns with action column
+  const columns: ColumnsType<any> = [...baseColumns, actionColumn];
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 

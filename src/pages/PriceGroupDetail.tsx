@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space, Button, Modal, Tooltip } from 'antd';
+import { Typography, Space, Button, Modal, Tooltip, Tag } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
@@ -27,7 +27,7 @@ import {
   PRICE_POINT_SORT_OPTIONS,
   DEFAULT_PRICE_POINT_COLUMNS
 } from '../utils/tableConfigurations';
-import { DollarSign, Download } from 'lucide-react';
+import { DollarSign, Download, Pencil } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -193,6 +193,35 @@ const PriceGroupDetail: React.FC = () => {
   const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
   
+  // Check if this price group has mobile channels (iOS or GPB)
+  const hasMobileChannels = uniqueChannels.some(channel => channel === 'iOS' || channel === 'GPB');
+  
+  // Mock app data for mobile channels - based on actual app store listings
+  const getAppInfo = (channel: string) => {
+    switch (channel) {
+      case 'iOS':
+        return {
+          name: 'LinkedIn: Network & Job Finder', // From App Store
+          icon: 'https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg'
+        };
+      case 'GPB':
+        return {
+          name: 'LinkedIn: Jobs & Business News', // From Google Play Store  
+          icon: 'https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg'
+        };
+      default:
+        return null;
+    }
+  };
+  
+  // Get app info for mobile channels
+  const appInfo = hasMobileChannels ? 
+    uniqueChannels
+      .filter(channel => channel === 'iOS' || channel === 'GPB')
+      .map(channel => ({ channel, ...getAppInfo(channel) }))
+      .filter(info => info.name && info.icon) 
+    : [];
+  
   // Get LIX key and treatment from the first SKU's lix property
   const firstSku = skusWithPriceGroup[0];
   const lixKey = firstSku?.lix?.key;
@@ -251,6 +280,38 @@ const PriceGroupDetail: React.FC = () => {
               ))}
             </Space>
           </AttributeDisplay>
+          
+          {appInfo.length > 0 && (
+            <AttributeDisplay layout="horizontal" label="App">
+              <Space size="small">
+                {appInfo.map(app => (
+                  <Space key={app.channel} size={6} align="center">
+                    <img 
+                      src={app.icon} 
+                      alt={`${app.name} icon`}
+                      style={{ 
+                        width: 24, 
+                        height: 24, 
+                        borderRadius: '4px',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <span>{app.name}</span>
+                  </Space>
+                ))}
+              </Space>
+            </AttributeDisplay>
+          )}
+          
+          {hasMobileChannels && (
+            <AttributeDisplay layout="horizontal" label="External product identifier">
+              <Tag 
+                style={{ fontSize: '11px', margin: 0, padding: '0 6px', lineHeight: '18px' }}
+              >
+                ext_prod_id
+              </Tag>
+            </AttributeDisplay>
+          )}
 
           <AttributeDisplay layout="horizontal" label="Experiment">
             {(lixKey || lixTreatment) ? (
@@ -392,6 +453,30 @@ const PriceGroupDetail: React.FC = () => {
                   }}
                 >
                   Export
+                </Button>,
+                <Button 
+                  key="edit"
+                  type="primary"
+                  ghost
+                  icon={<Pencil size={16} />}
+                  size="middle"
+                  onClick={() => {
+                    Modal.info({
+                      title: 'Edit Price Points',
+                      content: (
+                        <div>
+                          <p>This would allow you to edit price points for <strong>{priceGroup?.name}</strong>.</p>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                            You would be able to modify amounts, validity periods, quantity ranges, and other price point properties.
+                          </p>
+                        </div>
+                      ),
+                      okText: 'Got it',
+                      width: 400,
+                    });
+                  }}
+                >
+                  Edit price points
                 </Button>
               ]}
         />

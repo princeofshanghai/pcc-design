@@ -8,9 +8,10 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'usdPrice', label: 'USD price', required: false },
   { key: 'currencies', label: 'Price points', required: false },
   { key: 'lix', label: 'Experiments', required: false },
+  { key: 'validity', label: 'Validity', required: false },
 ];
 
-export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix'];
+export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price point ID', required: true },

@@ -296,20 +296,13 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       } else if (option.includes('(High to Low)') || option.includes('High to Low') || option.includes('(High to low)') || option.includes('High to low')) {
         baseField = option.replace(/\s*\(High to Low\)|\s*High to Low|\s*\(High to low\)|\s*High to low/g, '').trim();
         isAscending = false;
-      } else if (option.includes('(Earliest to Latest)') || option.includes('Earliest to Latest') || option.includes('(Earliest to latest)') || option.includes('Earliest to latest')) {
-        baseField = option.replace(/\s*\(Earliest to Latest\)|\s*Earliest to Latest|\s*\(Earliest to latest\)|\s*Earliest to latest/g, '').trim();
-        isAscending = true;
-      } else if (option.includes('(Latest to Earliest)') || option.includes('Latest to Earliest') || option.includes('(Latest to earliest)') || option.includes('Latest to earliest')) {
-        baseField = option.replace(/\s*\(Latest to Earliest\)|\s*Latest to Earliest|\s*\(Latest to earliest\)|\s*Latest to earliest/g, '').trim();
-        isAscending = false;
+
       } else {
         // Non-directional or single option - try to detect if it could have directions
         baseField = option;
         if (option.toLowerCase().includes('name') || 
             option.toLowerCase().includes('alphabetical') ||
-            option.toLowerCase().includes('date') ||
-            option.toLowerCase().includes('amount') ||
-            option.toLowerCase().includes('effective')) {
+            option.toLowerCase().includes('amount')) {
           // These could potentially have directions, treat as ascending by default
           isAscending = true;
         } else {

@@ -64,6 +64,7 @@ export { ChangeRequestTimeline, CompactTimeline } from './configuration/ChangeRe
 export { RequestHistoryItem } from './configuration/RequestHistoryItem';
 export { ActivityFeedItem } from './activity/ActivityFeedItem';
 export { ExperimentalBadge, ExperimentalSkuIndicator, ExperimentalTableCell } from './configuration/ExperimentalBadge';
+export { PriceGroupExperimentalIndicator } from './configuration/PriceGroupExperimentalIndicator';
 export { ChangeRequestOrigin, OriginTableCell, InlineOrigin } from './configuration/ChangeRequestOrigin';
 export { PriceGroupLink, PriceGroupTableCell, InlinePriceGroup, PriceGroupRelationship } from './configuration/PriceGroupLink';
 

@@ -5,7 +5,7 @@ import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
-import { toSentenceCase, formatValidityRange } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 import { PRICE_POINT_SORT_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
@@ -266,11 +266,7 @@ const SkuDetail: React.FC = () => {
                   </AttributeDisplay>
                 )}
                 
-                {(priceGroup.validFrom || priceGroup.validTo) && (
-                  <AttributeDisplay label="Effective Period" layout="horizontal">
-                    {formatValidityRange(priceGroup.validFrom, priceGroup.validTo)}
-                  </AttributeDisplay>
-                )}
+
 
                 {otherSkusCount > 0 && (
                   <AttributeDisplay label="Other SKUs" layout="horizontal">

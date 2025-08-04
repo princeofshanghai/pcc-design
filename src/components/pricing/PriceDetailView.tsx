@@ -1,7 +1,7 @@
 import React from 'react';
 import { List, Typography, Space, Button } from 'antd';
 import type { Sku, PricePoint, Product } from '../../utils/types';
-import { formatCurrency, formatValidityRange } from '../../utils/formatters';
+import { formatCurrency } from '../../utils/formatters';
 import StatusTag from '../attributes/StatusTag';
 
 import DetailSection from '../layout/DetailSection';
@@ -33,10 +33,9 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
     </Space>
   );
 
-  // Build subtitle with Price Group ID and validity
+  // Build subtitle with Price Group ID
   const subtitleParts = [
-    `Price Group ${price.id}`,
-    (price.validFrom || price.validTo) && formatValidityRange(price.validFrom, price.validTo)
+    `Price Group ${price.id}`
   ].filter(Boolean);
 
   return (

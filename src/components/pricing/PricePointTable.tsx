@@ -284,38 +284,7 @@ const formatUsdEquivalent = (percentage: number | null): string => {
   return `${percentage.toFixed(1)}%`;
 };
 
-/**
- * Determines the "common" dates for this price point group for inheritance detection
- */
-const getCommonDates = (pricePoints: PricePoint[]): { validFrom: string; validTo?: string } => {
-  if (!pricePoints || pricePoints.length === 0) return { validFrom: '' };
 
-  // Count frequency of valid from dates
-  const validFromCounts: Record<string, number> = {};
-  const validToCounts: Record<string, number> = {};
-  
-  pricePoints.forEach(point => {
-    const validFrom = point.validFrom || '';
-    const validTo = point.validTo || '';
-    
-    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
-    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
-  });
-
-  // Find most common dates
-  const mostCommonValidFrom = Object.entries(validFromCounts).reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  )[0];
-  
-  const mostCommonValidTo = Object.entries(validToCounts).reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  )[0];
-
-  return { 
-    validFrom: mostCommonValidFrom,
-    validTo: mostCommonValidTo || undefined
-  };
-};
 
 /**
  * Sorts price points based on the selected sort order
@@ -678,20 +647,13 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       title: getColumnLabel('validity'),
       key: 'validity',
       render: (_: any, record: PricePoint) => {
-        const commonDates = getCommonDates(pricePoints);
-        
-        // Check if this record's dates match the "common" dates (indicating inheritance)
-        const isInherited = 
-          record.validFrom === commonDates.validFrom &&
-          (record.validTo || '') === (commonDates.validTo || '');
-
-        const validityText = isInherited ? 'Same as price group' : formatValidityRange(record.validFrom, record.validTo);
+        const validityText = formatValidityRange(record.validFrom, record.validTo);
 
         return (
           <span style={{ 
             color: record.status === 'Expired' 
               ? '#c1c1c1' 
-              : (isInherited ? token.colorTextTertiary : token.colorText)
+              : token.colorText
           }}>
             {validityText}
           </span>

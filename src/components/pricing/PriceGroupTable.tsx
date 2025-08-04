@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Table, Space, Typography, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
-import { formatCurrency, formatValidityRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 
 import GroupHeader from '../shared/GroupHeader';
@@ -34,67 +34,14 @@ type TableRow = {
   groupKey: string;
 };
 
-/**
- * Determines the common validity range for a price group based on its price points
- */
-const getCommonValidityRange = (pricePoints: PricePoint[]): string => {
-  if (!pricePoints || pricePoints.length === 0) return 'N/A';
 
-  // Count frequency of valid from dates
-  const validFromCounts: Record<string, number> = {};
-  const validToCounts: Record<string, number> = {};
-  
-  pricePoints.forEach(point => {
-    const validFrom = point.validFrom || '';
-    const validTo = point.validTo || '';
-    
-    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
-    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
-  });
-
-  // Find most common valid from date
-  const validFromEntries = Object.entries(validFromCounts);
-  const mostCommonValidFromEntry = validFromEntries.reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  );
-  const mostCommonValidFrom = mostCommonValidFromEntry[0];
-  const validFromFrequency = mostCommonValidFromEntry[1];
-
-  // Find most common valid to date
-  const validToEntries = Object.entries(validToCounts);
-  const mostCommonValidToEntry = validToEntries.reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  );
-  const mostCommonValidTo = mostCommonValidToEntry[0];
-  const validToFrequency = mostCommonValidToEntry[1];
-
-  // Check if dates are mixed
-  const hasMultipleValidFromDates = validFromEntries.length > 1;
-  const hasMultipleValidToDates = validToEntries.length > 1;
-  
-  // If valid from dates vary significantly, show "Mixed validity"
-  if (hasMultipleValidFromDates && validFromFrequency < pricePoints.length * 0.7) {
-    return 'Mixed validity';
-  }
-  
-  // If valid to dates vary significantly, but valid from dates are consistent
-  if (hasMultipleValidToDates && validToFrequency < pricePoints.length * 0.7) {
-    return formatValidityRange(mostCommonValidFrom, undefined) + ' - Mixed validity end dates';
-  }
-  
-  // Use most common dates
-  return formatValidityRange(
-    mostCommonValidFrom || undefined, 
-    mostCommonValidTo || undefined
-  );
-};
 
 const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ 
   priceGroups, 
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'],
+  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix'],
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
@@ -283,14 +230,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    validity: visibleColumns.validity !== false ? {
-      title: getColumnLabel('validity'),
-      dataIndex: 'validity',
-      key: 'validity',
-      render: (_: any, record: any) => {
-        return getCommonValidityRange(record.priceGroup.pricePoints);
-      },
-    } : undefined,
+
   };
 
   // Build columns in the specified order, filtering out hidden/null columns

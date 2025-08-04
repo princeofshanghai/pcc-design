@@ -21,7 +21,7 @@ import {
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
-import { toSentenceCase, formatValidityRange } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
   PRICE_POINT_SORT_OPTIONS,
@@ -209,8 +209,7 @@ const PriceGroupDetail: React.FC = () => {
       ) || []
     : [];
   
-  // Format the validity period for display
-  const validityText = priceGroup ? formatValidityRange(priceGroup.validFrom, priceGroup.validTo) : null;
+
 
 
 
@@ -252,11 +251,7 @@ const PriceGroupDetail: React.FC = () => {
               ))}
             </Space>
           </AttributeDisplay>
-          {validityText && (
-            <AttributeDisplay layout="horizontal" label="Validity">
-              {validityText}
-            </AttributeDisplay>
-          )}
+
           <AttributeDisplay layout="horizontal" label="Experiment">
             {(lixKey || lixTreatment) ? (
               <Space size="small" align="center">

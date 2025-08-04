@@ -11,7 +11,7 @@ import OverrideIndicator from '../pricing/OverrideIndicator';
 import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
 import type { ColumnsType } from 'antd/es/table';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
-import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
+import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { SKU_COLUMNS } from '../../utils/tableConfigurations';
 
 const { Text } = Typography;
@@ -137,13 +137,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
       );
     },
   },
-  {
-    title: getColumnLabel('validity'),
-    key: 'effectiveDates',
-    // Hide on screens smaller than 1024px (desktop)
-    responsive: ['lg' as Breakpoint],
-    render: (_: any, sku: Sku) => formatValidityRange(sku.priceGroup.validFrom, sku.priceGroup.validTo),
-  },
+
   {
     title: getColumnLabel('status'),
     dataIndex: 'status',

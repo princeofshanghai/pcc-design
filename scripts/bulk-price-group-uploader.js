@@ -42,8 +42,6 @@ function convertPriceGroupRow(row) {
     id: row.PRICE_GROUP_ID,
     name: row.PRICE_GROUP_NAME || `${channel} ${billingCycle}`,
     status: row.STATUS || 'Active',
-    validFrom: row.VALID_FROM || new Date().toISOString(),
-    validTo: row.VALID_TO || undefined,
     channel: channel,
     billingCycle: billingCycle,
     // Placeholder for price points (populated by price point uploader)

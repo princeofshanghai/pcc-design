@@ -73,7 +73,6 @@ export function groupPricePointsByPriceGroup(rows: any[]): any {
       priceGroups.set(priceGroupId, {
         id: priceGroupId,
         status: 'Active', // You can adjust this based on your needs
-        validFrom: pricePoint.validFrom,
         pricePoints: []
       });
     }

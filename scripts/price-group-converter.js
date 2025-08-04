@@ -40,7 +40,6 @@ function convertPriceGroupRow(row) {
   return {
     id: row.PRICE_ID,
     status: 'Active',
-    validFrom: new Date().toISOString(),
     channel: channel,
     billingCycle: billingCycle,
     pricePoints: [] // Empty for now, will be populated later

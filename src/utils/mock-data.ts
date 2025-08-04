@@ -133,7 +133,6 @@ if (premiumCareerProduct) {
       priceGroup: {
         id: "117004",
         status: "Active",
-        validFrom: "2021-03-01T08:00:00Z",
         pricePoints: [
           { 
             id: "6462461", 
@@ -413,7 +412,6 @@ if (premiumCareerProduct) {
       priceGroup: {
         id: "118003",
         status: "Active",
-        validFrom: "2021-03-01T08:00:00Z",
         pricePoints: [
           { 
             id: "6463041", 
@@ -693,7 +691,6 @@ if (premiumCareerProduct) {
       priceGroup: {
         id: "124001",
         status: "Active",
-        validFrom: "2021-03-01T08:00:00Z",
         pricePoints: [
           { 
             id: "6462471", 
@@ -973,7 +970,6 @@ if (premiumCareerProduct) {
       priceGroup: {
         id: "122002",
         status: "Active",
-        validFrom: "2021-03-01T08:00:00Z",
         pricePoints: [
           { 
             id: "6463051", 
@@ -1253,7 +1249,6 @@ if (premiumCareerProduct) {
       priceGroup: {
         id: "117005",
         status: "Active",
-        validFrom: "2025-03-04T08:00:00Z",
         pricePoints: [
           { 
             id: "6721135", 
@@ -2086,7 +2081,6 @@ if (recruiterLiteProduct) {
         id: "112007",
         name: "RL_FY25_MONTHLY_SLAB",
         status: "Active",
-        validFrom: "2025-01-01",
         pricePoints: [
           { 
             id: "6485069", 
@@ -2148,7 +2142,6 @@ if (recruiterLiteProduct) {
         id: "115003",
         name: "RL_FY25_ANNUAL_SLAB", 
         status: "Active",
-        validFrom: "2025-01-01",
         pricePoints: [
           { 
             id: "6485089", 
@@ -2189,7 +2182,6 @@ if (recruiterLiteProduct) {
         id: "116001",
         name: "RL_FY25_MONTHLY_SIMPLE",
         status: "Active",
-        validFrom: "2025-01-01",
         pricePoints: [
           { 
             id: "6336603", 
@@ -2218,7 +2210,6 @@ if (recruiterLiteProduct) {
         id: "116002",
         name: "RL_FY25_ANNUAL_SIMPLE",
         status: "Active",
-        validFrom: "2025-01-01",
         pricePoints: [
           { 
             id: "6336613", 

@@ -36,12 +36,7 @@ export const useSkuFilters = (initialSkus: Sku[], product?: Product) => {
   const sortSkus = (skus: Sku[]) => {
     const sorted = [...skus];
     sorted.sort((a, b) => {
-      if (sortOrder === 'Validity') {
-        // Use priceGroup.validFrom for sorting by date, handle undefined cases
-        const dateA = a.priceGroup.validFrom ? new Date(a.priceGroup.validFrom).getTime() : 0;
-        const dateB = b.priceGroup.validFrom ? new Date(b.priceGroup.validFrom).getTime() : 0;
-        return dateA - dateB;
-      }
+
       if (sortOrder === 'Channel (A-Z)') {
         return a.salesChannel.localeCompare(b.salesChannel);
       }

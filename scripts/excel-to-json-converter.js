@@ -49,7 +49,6 @@ function groupPricePointsByPriceGroup(rows) {
       priceGroups.set(priceGroupId, {
         id: priceGroupId,
         status: 'Active',
-        validFrom: pricePoint.validFrom,
         pricePoints: []
       });
     }

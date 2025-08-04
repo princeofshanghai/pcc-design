@@ -64,6 +64,8 @@ interface FilterBarProps {
   filterSize?: 'small' | 'middle' | 'large';
   // New prop to control search bar and view options size
   searchAndViewSize?: 'small' | 'middle' | 'large';
+  // New prop for custom action buttons
+  actions?: React.ReactNode[];
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -74,6 +76,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   displayMode = 'drawer', // Default to current behavior
   filterSize = 'middle', // Default filter size
   searchAndViewSize = 'middle', // Default search and view options size
+  actions = [], // Default to empty array
 }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
@@ -193,6 +196,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 size={searchAndViewSize}
               />
             )}
+
+            {actions.map((action, index) => (
+              <React.Fragment key={index}>
+                {action}
+              </React.Fragment>
+            ))}
           </Space>
         </Col>
       </Row>

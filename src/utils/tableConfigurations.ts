@@ -7,7 +7,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'usdPrice', label: 'USD price', required: false },
   { key: 'currencies', label: 'Price points', required: false },
-  { key: 'lix', label: 'LIX', required: false },
+  { key: 'lix', label: 'Experiments', required: false },
   { key: 'validity', label: 'Validity', required: false },
 ];
 
@@ -40,8 +40,8 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'Billing Cycle (Z-A)',
   'USD Price (Low to High)',
   'USD Price (High to Low)',
-  'LIX Key (A-Z)',
-  'LIX Key (Z-A)',
+  'Experiment (A-Z)',
+  'Experiment (Z-A)',
   'Validity (Earliest to Latest)',
   'Validity (Latest to Earliest)',
 ];
@@ -51,7 +51,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'None',
   'Channel',
   'Billing Cycle',
-  'LIX Key',
+  'Experiment',
   'Validity',
 ];
 

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, Alert } from 'antd';
+// Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
+// Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
+import { Download, Check, X, Box, ArrowLeft } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -19,6 +22,8 @@ import {
   AttributeGroup,
   StatusTag,
   BillingModelDisplay,
+  SalesChannelDisplay,
+  BillingCycleDisplay,
   FilterBar,
   ChangeRequestForm,
   ChangeRequestPreview,
@@ -30,7 +35,7 @@ import {
   SKU_SORT_OPTIONS,
   SKU_GROUP_BY_OPTIONS,
   PRICE_GROUP_GROUP_BY_OPTIONS} from '../utils/tableConfigurations';
-import { Box, ArrowLeft, Check } from 'lucide-react';
+
 
 const { Title } = Typography;
 const { Step } = Steps;
@@ -38,7 +43,21 @@ const { Step } = Steps;
 
 const renderValue = (value: any, isBoolean = false) => {
   if (isBoolean) {
-    return value ? 'Yes' : 'No';
+    return (
+      <Space size="small" align="center">
+        {value ? (
+          <>
+            <Check size={14} style={{ color: '#52c41a' }} />
+            <span>Yes</span>
+          </>
+        ) : (
+          <>
+            <X size={14} style={{ color: '#ff4d4f' }} />
+            <span>No</span>
+          </>
+        )}
+      </Space>
+    );
   }
   if (Array.isArray(value)) {
     return (
@@ -107,6 +126,8 @@ const ProductDetail: React.FC = () => {
     setChannelFilters: setPriceGroupChannelFilters,
     billingCycleFilter: priceGroupBillingCycleFilter, 
     setBillingCycleFilter: setPriceGroupBillingCycleFilter,
+    experimentFilter: priceGroupExperimentFilter,
+    setExperimentFilter: setPriceGroupExperimentFilter,
     groupBy: priceGroupGroupBy, 
     setGroupBy: setPriceGroupGroupBy,
     sortOrder: priceGroupSortOrder, 
@@ -115,6 +136,7 @@ const ProductDetail: React.FC = () => {
     groupedPriceGroups,
     channelOptions: priceGroupChannelOptions,
     billingCycleOptions: priceGroupBillingCycleOptions,
+    experimentOptions: priceGroupExperimentOptions,
   } = usePriceGroupFilters(product?.skus || []);
 
   // Default column visibility configuration for PriceGroupTable
@@ -148,6 +170,7 @@ const ProductDetail: React.FC = () => {
     setPriceGroupSearchQuery('');
     setPriceGroupChannelFilters([]);
     setPriceGroupBillingCycleFilter(null);
+    setPriceGroupExperimentFilter(null);
   };
 
   const clearAllSkuFilters = () => {
@@ -189,16 +212,43 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
+  // Extract unique channels and billing cycles from all SKUs
+  const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
+  const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
+
   const tabItems = [
     {
       key: 'overview',
       label: 'Overview',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection title={toSentenceCase('Overview')}>
+          <PageSection title={toSentenceCase('Public name and description')}>
             <AttributeGroup>
               <AttributeDisplay layout="horizontal" label="Name">{product.name}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Description">{product.description}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+
+          <PageSection title={toSentenceCase('Details')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelDisplay model={product.billingModel} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Supported channels">
+                <Space size="small">
+                  {uniqueChannels.map(channel => (
+                    <SalesChannelDisplay key={channel} channel={channel} />
+                  ))}
+                </Space>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Supported billing cycles">
+                <Space size="small">
+                  {uniqueBillingCycles.map(cycle => (
+                    <BillingCycleDisplay key={cycle} billingCycle={cycle} />
+                  ))}
+                </Space>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
         </Space>
@@ -331,6 +381,12 @@ const ProductDetail: React.FC = () => {
                   value: priceGroupBillingCycleFilter,
                   onChange: setPriceGroupBillingCycleFilter,
                 },
+                {
+                  placeholder: "All experiments",
+                  options: priceGroupExperimentOptions,
+                  value: priceGroupExperimentFilter,
+                  onChange: setPriceGroupExperimentFilter,
+                },
               ]}
               onClearAll={clearAllPriceGroupFilters}
               viewOptions={{
@@ -352,6 +408,30 @@ const ProductDetail: React.FC = () => {
                 defaultVisibleColumns: priceGroupDefaultVisibility,
               }}
               displayMode="inline"
+              actions={[
+                <Button 
+                  key="export"
+                  icon={<Download size={16} />}
+                  size="middle"
+                  onClick={() => {
+                    Modal.info({
+                      title: 'Export Price Groups',
+                      content: (
+                        <div>
+                          <p>This would export all price group data for <strong>{product?.name}</strong> to CSV format.</p>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                            Includes: Price group IDs, names, channels, billing cycles, USD prices, currency counts, and validity periods.
+                          </p>
+                        </div>
+                      ),
+                      okText: 'Got it',
+                      width: 400,
+                    });
+                  }}
+                >
+                  Export
+                </Button>
+              ]}
             />
             <PriceGroupTable 
               priceGroups={filteredPriceGroups} 
@@ -398,22 +478,12 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // Configurations tab
+    // Settings tab
     {
       key: 'configurations',
-      label: 'Configurations',
+      label: 'Settings',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          {/* Product Setup Section */}
-          <PageSection title={toSentenceCase('Product Setup')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelDisplay model={product.billingModel} />
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          
           {/* Business Rules Section */}
           <PageSection title={toSentenceCase('Business Rules')}>
             <AttributeGroup>
@@ -580,10 +650,6 @@ const ProductDetail: React.FC = () => {
     setConfigurationData(null);
   };
 
-  // Extract unique channels and billing cycles from all SKUs
-  const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
-  const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
-
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
@@ -594,8 +660,6 @@ const ProductDetail: React.FC = () => {
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={product.status} />}
         rightAlignedId={product.id}
-        channels={uniqueChannels}
-        billingCycles={uniqueBillingCycles}
         lastUpdatedBy="Charles Hu"
         lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
         compact

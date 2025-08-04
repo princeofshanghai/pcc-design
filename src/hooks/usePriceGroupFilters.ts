@@ -63,6 +63,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
   const [channelFilters, setChannelFilters] = useState<SalesChannel[]>([]);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
+  const [experimentFilter, setExperimentFilter] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
@@ -110,8 +111,15 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       );
     }
 
+    // Experiment filter (by LIX key)
+    if (experimentFilter) {
+      filtered = filtered.filter((group: { skus: any[] }) => 
+        group.skus.some((sku: any) => sku.lix?.key === experimentFilter)
+      );
+    }
+
     return filtered;
-  }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter]);
+  }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter, experimentFilter]);
 
   // Helper function to get billing cycle priority (for default sort)
   const getBillingCyclePriority = (cycle: string): number => {
@@ -337,10 +345,10 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       } else if (groupBy === 'Validity') {
         // Group by validity range of the price group
         groupKey = getCommonValidityRange(group.priceGroup.pricePoints);
-      } else if (groupBy === 'LIX Key') {
-        // Group by LIX experiment key
+      } else if (groupBy === 'Experiment') {
+        // Group by experiment key
         const skuWithLix = group.skus.find((sku: any) => sku.lix?.key);
-        groupKey = skuWithLix?.lix?.key || 'No LIX Experiment';
+        groupKey = skuWithLix?.lix?.key || 'No Experiment';
       } else {
         groupKey = 'Other';
       }
@@ -392,6 +400,18 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     }));
   }, [initialSkus]);
 
+  const experimentOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialSkus.filter(sku => sku.lix?.key), // Only include SKUs with LIX keys
+      sku => sku.lix?.key || '',
+      lixKey => lixKey
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialSkus]);
+
   const priceGroupCount = filteredPriceGroups.length;
 
   return {
@@ -400,6 +420,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     channelFilter, setChannelFilter,
     channelFilters, setChannelFilters,
     billingCycleFilter, setBillingCycleFilter,
+    experimentFilter, setExperimentFilter,
     groupBy, setGroupBy,
     sortOrder, setSortOrder,
 
@@ -411,5 +432,6 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     // Filter Options
     channelOptions,
     billingCycleOptions,
+    experimentOptions,
   };
 }; 

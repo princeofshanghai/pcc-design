@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space } from 'antd';
+import { Typography, Space, Button, Modal, Tooltip } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
@@ -11,7 +11,12 @@ import {
   PageHeader,
   StatusTag,
   PageSection,
-  FilterBar
+  FilterBar,
+  AttributeDisplay,
+  AttributeGroup,
+  SalesChannelDisplay,
+  BillingCycleDisplay,
+  BillingModelDisplay
 } from '../components';
 
 
@@ -22,7 +27,7 @@ import {
   PRICE_POINT_SORT_OPTIONS,
   DEFAULT_PRICE_POINT_COLUMNS
 } from '../utils/tableConfigurations';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Download } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -188,6 +193,22 @@ const PriceGroupDetail: React.FC = () => {
   const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
   
+  // Get LIX key and treatment from the first SKU's lix property
+  const firstSku = skusWithPriceGroup[0];
+  const lixKey = firstSku?.lix?.key;
+  const lixTreatment = firstSku?.lix?.treatment;
+  
+  // Find other price groups with the same LIX key (excluding current one)
+  const otherPriceGroupsInExperiment = lixKey ? 
+    product?.skus
+      .filter(sku => sku.lix?.key === lixKey && sku.priceGroup.id !== priceGroupId)
+      .map(sku => sku.priceGroup)
+      .filter((priceGroup, index, self) => 
+        // Remove duplicates based on price group ID
+        index === self.findIndex(pg => pg.id === priceGroup.id)
+      ) || []
+    : [];
+  
   // Format the validity period for display
   const validityText = priceGroup ? formatValidityRange(priceGroup.validFrom, priceGroup.validTo) : null;
 
@@ -210,13 +231,100 @@ const PriceGroupDetail: React.FC = () => {
         }}
         tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
         rightAlignedId={priceGroup.id || ''}
-        channels={uniqueChannels}
-        billingCycles={uniqueBillingCycles}
-        validityText={validityText || undefined}
         lastUpdatedBy="Luxi Kanazir"
         lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago
         compact
       />
+
+      {/* Details Section */}
+      <PageSection title={toSentenceCase('Details')}>
+        <AttributeGroup>
+          <AttributeDisplay layout="horizontal" label="Configuration">
+            <Space size="small">
+              {product?.billingModel && (
+                <BillingModelDisplay model={product.billingModel} />
+              )}
+              {uniqueChannels.map(channel => (
+                <SalesChannelDisplay key={channel} channel={channel} />
+              ))}
+              {uniqueBillingCycles.map(cycle => (
+                <BillingCycleDisplay key={cycle} billingCycle={cycle} />
+              ))}
+            </Space>
+          </AttributeDisplay>
+          {validityText && (
+            <AttributeDisplay layout="horizontal" label="Validity">
+              {validityText}
+            </AttributeDisplay>
+          )}
+          <AttributeDisplay layout="horizontal" label="Experiment">
+            {(lixKey || lixTreatment) ? (
+              <Space size="small" align="center">
+                {lixKey && (
+                  <Tooltip title="LIX Key" mouseEnterDelay={0.5}>
+                    <span style={{ 
+                      fontFamily: 'monospace', 
+                      fontSize: '13px', 
+                      backgroundColor: '#f5f5f5', 
+                      padding: '2px 6px', 
+                      borderRadius: '4px',
+                      cursor: 'default'
+                    }}>
+                      {lixKey}
+                    </span>
+                  </Tooltip>
+                )}
+                {lixKey && lixTreatment && <span>/</span>}
+                {lixTreatment && (
+                  <Tooltip title="LIX Treatment" mouseEnterDelay={0.5}>
+                    <span style={{ 
+                      fontFamily: 'monospace', 
+                      fontSize: '13px', 
+                      backgroundColor: '#f5f5f5', 
+                      padding: '2px 6px', 
+                      borderRadius: '4px',
+                      cursor: 'default'
+                    }}>
+                      {lixTreatment}
+                    </span>
+                  </Tooltip>
+                )}
+              </Space>
+            ) : (
+              <span style={{ color: '#999' }}>None</span>
+            )}
+          </AttributeDisplay>
+          {otherPriceGroupsInExperiment.length > 0 && (
+            <AttributeDisplay layout="horizontal" label="Other prices in experiment">
+              <Space size="small" wrap>
+                {otherPriceGroupsInExperiment.map(pg => (
+                  <a
+                    key={pg.id}
+                    href={`/product/${productId}/price-group/${pg.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/product/${productId}/price-group/${pg.id}`);
+                    }}
+                    style={{
+                      color: '#1890ff',
+                      textDecoration: 'none',
+                      fontSize: '13px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = 'underline';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = 'none';
+                    }}
+                  >
+                    {pg.id}
+                  </a>
+                ))}
+              </Space>
+            </AttributeDisplay>
+          )}
+        </AttributeGroup>
+      </PageSection>
 
       {/* Price Points */}
       <PageSection 
@@ -267,6 +375,30 @@ const PriceGroupDetail: React.FC = () => {
             defaultVisibleColumns: pricePointDefaultVisibility,
           }}
           displayMode="inline"
+                        actions={[
+                <Button 
+                  key="export"
+                  icon={<Download size={16} />}
+                  size="middle"
+                  onClick={() => {
+                    Modal.info({
+                      title: 'Export Price Points',
+                      content: (
+                        <div>
+                          <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                            Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
+                          </p>
+                        </div>
+                      ),
+                      okText: 'Got it',
+                      width: 400,
+                    });
+                  }}
+                >
+                  Export
+                </Button>
+              ]}
         />
         <PricePointTable 
           pricePoints={filteredPricePoints} 

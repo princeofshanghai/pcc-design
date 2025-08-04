@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography } from 'antd';
+import { Table, Space, Typography, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
 import { formatCurrency, formatValidityRange, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
@@ -200,9 +200,21 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
         return (
           <Space size="small">
-            {uniqueChannels.map((channel: any) => (
-              <SalesChannelDisplay key={channel} channel={channel} />
-            ))}
+            {uniqueChannels.map((channel: any) => {
+              const isMobileChannel = channel === 'iOS' || channel === 'GPB';
+              return (
+                <Space key={channel} size={4}>
+                  <SalesChannelDisplay channel={channel} />
+                  {isMobileChannel && (
+                    <Tag 
+                      style={{ fontSize: '11px', margin: 0, padding: '0 6px', lineHeight: '18px' }}
+                    >
+                      ext_prod_id
+                    </Tag>
+                  )}
+                </Space>
+              );
+            })}
           </Space>
         );
       },

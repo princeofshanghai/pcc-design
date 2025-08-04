@@ -277,7 +277,7 @@ const findMatchingUsdPricePoint = (pricePoint: PricePoint, allPricePoints: Price
  * @returns A formatted percentage string.
  */
 const formatUsdEquivalent = (percentage: number | null): string => {
-  if (percentage === null) return '';
+  if (percentage === null) return 'N/A';
   if (percentage === 100) return '100%';
   
   // Show 1 decimal place for non-100% values
@@ -456,7 +456,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
 
   // Check if USD Equivalent column should be visible
-  const showUsdEquivalent = visibleColumns.usdEquivalent !== false && usdPricePoint;
+  const showUsdEquivalent = visibleColumns.usdEquivalent !== false;
 
   // Define all possible columns
   const allColumns: Record<string, any> = {
@@ -663,13 +663,16 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         if ('isGroupHeader' in record) return null;
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
         const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
+        const formattedValue = formatUsdEquivalent(percentage);
         return (
           <Text style={{ 
             color: record.status === 'Expired' 
               ? '#c1c1c1' 
-              : (percentage === 100 ? token.colorTextSecondary : token.colorText)
+              : percentage === null 
+                ? token.colorTextTertiary 
+                : (percentage === 100 ? token.colorTextSecondary : token.colorText)
           }}>
-            {formatUsdEquivalent(percentage)}
+            {formattedValue}
           </Text>
         );
       },

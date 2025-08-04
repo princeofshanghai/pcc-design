@@ -691,8 +691,6 @@ const AppLayout = () => {
         >
           <Breadcrumb 
             separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}
-            responsive={true}
-            maxCount={2}
           >
             {breadcrumbItems}
           </Breadcrumb>

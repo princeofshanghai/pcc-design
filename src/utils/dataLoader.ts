@@ -1,5 +1,4 @@
 // Utility for loading product pricing data from JSON files
-import type { PriceGroup } from './types';
 
 // Cache to avoid loading the same data multiple times
 const priceDataCache = new Map<string, any>();

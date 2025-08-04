@@ -1,7 +1,7 @@
 // Demo-optimized data loading system for PCC prototype
 // Designed for smooth UX demonstration with 500+ products
 
-import type { Product, PriceGroup, PricePoint } from './types';
+import type { Product, PricePoint, RevenueRecognition, RefundPolicyId } from './types';
 
 // Cache management for demo performance
 const productListCache = new Map<string, any>();
@@ -128,10 +128,10 @@ export async function loadProductWithPricing(productId: string): Promise<Product
             validTo: priceGroup.validTo,
             pricePoints: priceGroup.pricePoints || []
           },
-          revenueRecognition: "Accrual",
+          revenueRecognition: "Accrual" as RevenueRecognition,
           switcherLogic: [],
-          refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
-          origin: "json",
+          refundPolicy: { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
+                origin: "manual" as const,
           createdBy: "Demo System",
           createdDate: new Date().toISOString()
         };
@@ -186,11 +186,16 @@ export async function loadProductsWithAccurateCounts(): Promise<Product[]> {
                 salesChannel: priceGroup.channel || 'Desktop',
                 billingCycle: priceGroup.billingCycle || 'Monthly',
                 // Lightweight SKU structure for list view performance
-                priceGroup: { id: priceGroup.id, pricePoints: [] },
-                revenueRecognition: "Accrual",
+                priceGroup: { 
+                  id: priceGroup.id, 
+                  status: priceGroup.status || 'Active',
+                  validFrom: priceGroup.validFrom || new Date().toISOString(),
+                  pricePoints: [] 
+                },
+                revenueRecognition: "Accrual" as RevenueRecognition,
                 switcherLogic: [],
-                refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
-                origin: "json"
+                refundPolicy: { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
+                origin: "manual" as const
               }))
             };
           } else {

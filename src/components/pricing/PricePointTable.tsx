@@ -448,10 +448,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       : pricePoints;
   }, [pricePoints, groupedPricePoints]);
 
-  // Find USD price point for calculations (keeping for backward compatibility)
-  const usdPricePoint = useMemo(() => {
-    return allPricePoints.find(point => point.currencyCode === 'USD');
-  }, [allPricePoints]);
+  // USD price point calculation removed - no longer needed
 
 
 

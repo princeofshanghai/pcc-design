@@ -159,8 +159,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               )}
             </div>
             
-            {/* Right side: Last Updated + Edit Button (will wrap on mobile) */}
-            {(lastUpdatedBy && lastUpdatedAt) || onEdit ? (
+            {/* Right side: Last Updated + Edit Button + Actions (will wrap on mobile) */}
+            {(lastUpdatedBy && lastUpdatedAt) || onEdit || actions ? (
               <div className="page-header-meta">
                 {lastUpdatedBy && lastUpdatedAt && (
                   <Space align="center" size={8}>
@@ -196,6 +196,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                       Edit
                     </span>
                   </Button>
+                )}
+
+                {actions && (
+                  <Space wrap>{actions}</Space>
                 )}
               </div>
             ) : null}
@@ -234,13 +238,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             </div>
           ) : null}
         </div>
-        
-        {/* Actions - Will wrap to new row on mobile */}
-        {actions && (
-          <div className="page-header-actions">
-            <Space wrap>{actions}</Space>
-          </div>
-        )}
       </div>
     </div>
   );

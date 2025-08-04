@@ -37,10 +37,7 @@
   grid-column: 1 / -1;
 }
 
-.page-header-actions {
-  grid-row: 1;
-  grid-column: 3;
-}
+/* .page-header-actions removed - actions now integrated into .page-header-meta */
 
 .page-header-top-row {
   display: flex;
@@ -112,11 +109,7 @@
     grid-column: 1;
   }
   
-  .page-header-actions {
-    grid-row: 3;
-    grid-column: 1;
-    justify-self: start;
-  }
+  /* .page-header-actions removed - actions now integrated into .page-header-meta */
   
   .page-header-meta {
     width: 100%;

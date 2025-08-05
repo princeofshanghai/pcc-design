@@ -216,7 +216,15 @@ const generateMenuStructure = (collapsed: boolean) => {
       ),
       icon: <GitPullRequestArrow size={14} />
     },
-
+    {
+      key: 'storybook',
+      label: (
+        <SidebarMenuItem text={toSentenceCase("Storybook")} collapsed={collapsed}>
+          <Link to="/storybook">{toSentenceCase("Storybook")}</Link>
+        </SidebarMenuItem>
+      ),
+      icon: <SquareSlash size={14} />
+    },
     {
       key: 'picasso-npi',
       label: (

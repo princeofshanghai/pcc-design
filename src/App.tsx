@@ -11,6 +11,7 @@ import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
 import ChangeRequestDetail from './pages/ChangeRequestDetail';
 import ChangeRequestsList from './pages/ChangeRequestsList';
+import Storybook from './pages/Storybook';
 
 
 // The following placeholder pages are missing. 
@@ -45,7 +46,7 @@ function App() {
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
                 <Route path="/change-requests" element={<ChangeRequestsList />} />
-        
+                <Route path="/storybook" element={<Storybook />} />
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
               </Route>
             </Routes>

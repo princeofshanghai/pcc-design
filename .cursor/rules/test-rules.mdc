@@ -57,3 +57,8 @@ alwaysApply: false
 5. ✅ Remember this rule for next time
 
 **The goal:** Never let unused variable errors reach production deployment.
+
+
+## Confirmation that you've used the rule
+
+When you read this rule, in your responses, say that you read it and reference this file. You can say "Read @test-rules.mdc"

@@ -63,3 +63,7 @@ You use **React 19 with TypeScript**, **Vite** for build tooling, **Ant Design (
 - Never guess backend behavior — just stub it.
 - Never leave incomplete or non-functional UI.
 - Never import unapproved libraries.
+
+## Confirmation that you've used the rule
+
+When you read this rule, in your responses, say that you read it and reference this file. You can say "Read @dev-rules.mdc"

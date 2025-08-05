@@ -413,6 +413,7 @@ const ProductDetail: React.FC = () => {
                   options: priceGroupExperimentOptions,
                   value: priceGroupExperimentFilter,
                   onChange: setPriceGroupExperimentFilter,
+                  dropdownStyle: { minWidth: '320px' },
                 },
               ]}
               onClearAll={clearAllPriceGroupFilters}

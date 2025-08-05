@@ -2,6 +2,7 @@
 // Designed for smooth UX demonstration with 500+ products
 
 import type { Product, PricePoint, RevenueRecognition, RefundPolicyId } from './types';
+import { processPricePointStatuses } from './pricingUtils';
 
 // Cache management for demo performance
 const productListCache = new Map<string, any>();
@@ -82,8 +83,9 @@ export async function loadPriceGroupPoints(priceGroupId: string): Promise<PriceP
     }
     
     const data = await response.json();
-    pricePointCache.set(cacheKey, data.pricePoints || []);
-    return data.pricePoints || [];
+    const processedPoints = processPricePointStatuses(data.pricePoints || []);
+    pricePointCache.set(cacheKey, processedPoints);
+    return processedPoints;
   } catch (error) {
     console.error(`Error loading price points for price group ${priceGroupId}:`, error);
     return [];
@@ -126,7 +128,7 @@ export async function loadProductWithPricing(productId: string): Promise<Product
             status: priceGroup.status,
             validFrom: priceGroup.validFrom,
             validTo: priceGroup.validTo,
-            pricePoints: priceGroup.pricePoints || []
+            pricePoints: processPricePointStatuses(priceGroup.pricePoints || [])
           },
           revenueRecognition: "Accrual" as RevenueRecognition,
           switcherLogic: [],

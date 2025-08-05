@@ -227,10 +227,13 @@ const SkuDetail: React.FC = () => {
           setSearchQuery: setPricePointSearchQuery,
           currencyFilters,
           setCurrencyFilters,
+          regionFilters,
+          setRegionFilters,
           statusFilter,
           setStatusFilter,
           currencyOptions,
           statusOptions,
+          regionOptions,
           sortOrder: pricePointSortOrder,
           setSortOrder,
           groupBy: pricePointGroupBy, 
@@ -242,6 +245,7 @@ const SkuDetail: React.FC = () => {
         const clearAllPricePointFilters = () => {
           setPricePointSearchQuery('');
           setCurrencyFilters([]);
+          setRegionFilters([]);
           setStatusFilter(null);
         };
 
@@ -306,6 +310,16 @@ const SkuDetail: React.FC = () => {
                     onChange: () => {},
                   },
                   {
+                    placeholder: "All regions",
+                    options: regionOptions,
+                    multiSelect: true,
+                    multiValue: regionFilters,
+                    onMultiChange: (values: any[]) => setRegionFilters(values),
+                    // Required for TypeScript interface compatibility
+                    value: null,
+                    onChange: () => {},
+                  },
+                  {
                     placeholder: "All statuses",
                     options: statusOptions,
                     value: statusFilter,
@@ -322,7 +336,7 @@ const SkuDetail: React.FC = () => {
                   groupBy: {
                     value: pricePointGroupBy,
                     setter: setPricePointGroupBy,
-                    options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
+                    options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
                   },
                 }}
                 displayMode="inline"

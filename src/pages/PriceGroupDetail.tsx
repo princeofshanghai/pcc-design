@@ -78,10 +78,13 @@ const PriceGroupDetail: React.FC = () => {
     setSearchQuery: setPricePointSearchQuery,
     currencyFilters,
     setCurrencyFilters,
+    regionFilters,
+    setRegionFilters,
     statusFilter,
     setStatusFilter,
     currencyOptions,
     statusOptions,
+    regionOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy,
@@ -94,9 +97,9 @@ const PriceGroupDetail: React.FC = () => {
   const pricePointDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      // Hide currencyType, pricingRule, quantityRange, and priceType by default
+      // Hide currencyType, region, pricingRule, quantityRange, and priceType by default
       // ID column is now visible by default to match PriceGroupTable pattern
-      if (col.key === 'currencyType' || col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
+      if (col.key === 'currencyType' || col.key === 'region' || col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
         defaultVisibility[col.key] = false;
       } else {
         defaultVisibility[col.key] = true;
@@ -186,6 +189,7 @@ const PriceGroupDetail: React.FC = () => {
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
     setCurrencyFilters([]);
+    setRegionFilters([]);
     setStatusFilter(null);
   };
 
@@ -405,6 +409,16 @@ const PriceGroupDetail: React.FC = () => {
               onChange: () => {},
             },
             {
+              placeholder: "All regions",
+              options: regionOptions,
+              multiSelect: true,
+              multiValue: regionFilters,
+              onMultiChange: (values: any[]) => setRegionFilters(values),
+              // Required for TypeScript interface compatibility
+              value: null,
+              onChange: () => {},
+            },
+            {
               placeholder: "All statuses",
               options: statusOptions,
               value: statusFilter,
@@ -421,7 +435,7 @@ const PriceGroupDetail: React.FC = () => {
             groupBy: {
               value: pricePointGroupBy,
               setter: setPricePointGroupBy,
-              options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
+              options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
             },
             columnOptions,
             visibleColumns,

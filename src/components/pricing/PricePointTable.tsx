@@ -5,6 +5,7 @@ import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_POINT_COLUMNS, DEFAULT_PRICE_POINT_COLUMNS } from '../../utils/tableConfigurations';
 import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
+import { getCurrencyRegion, getRegionDisplayName } from '../../utils/regionUtils';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PricePointStatusTag from '../attributes/PricePointStatusTag';
@@ -351,6 +352,30 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return a.currencyCode.localeCompare(b.currencyCode);
       });
     
+    case 'Region (A-Z)':
+      return sorted.sort((a, b) => {
+        const aRegion = getCurrencyRegion(a.currencyCode);
+        const bRegion = getCurrencyRegion(b.currencyCode);
+        
+        // Sort by region first, then by currency within each region
+        if (aRegion !== bRegion) {
+          return aRegion.localeCompare(bRegion);
+        }
+        return a.currencyCode.localeCompare(b.currencyCode);
+      });
+    
+    case 'Region (Z-A)':
+      return sorted.sort((a, b) => {
+        const aRegion = getCurrencyRegion(a.currencyCode);
+        const bRegion = getCurrencyRegion(b.currencyCode);
+        
+        // Sort by region first (reverse), then by currency within each region
+        if (aRegion !== bRegion) {
+          return bRegion.localeCompare(aRegion);
+        }
+        return a.currencyCode.localeCompare(b.currencyCode);
+      });
+    
     case 'Validity (Earliest to latest)':
       return sorted.sort((a, b) => {
         const aDate = new Date(a.validFrom || '').getTime();
@@ -495,6 +520,25 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         );
       },
     },
+    region: visibleColumns.region === true ? {
+      title: getColumnTitleWithTooltip('Region', 'Geographic region based on currency (NAMER, EMEA, APAC, LATAM, Other)'),
+      dataIndex: 'currencyCode',
+      key: 'region',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        const region = getCurrencyRegion(record.currencyCode);
+        const regionDisplayName = getRegionDisplayName(region);
+        return (
+          <Tooltip title={regionDisplayName}>
+            <Text style={{
+              color: record.status === 'Expired' ? '#c1c1c1' : undefined
+            }}>
+              {region}
+            </Text>
+          </Tooltip>
+        );
+      },
+    } : null,
     pricingRule: visibleColumns.pricingRule === true ? {
       title: getColumnLabel('pricingRule'),
       dataIndex: 'pricingRule',

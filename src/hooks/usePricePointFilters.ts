@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { PricePoint } from '../utils/types';
 import { categorizePricePoints, toSentenceCase } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
+import { getCurrencyRegion, getAllRegions, getRegionDisplayName, type GeographicRegion } from '../utils/regionUtils';
 
 export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   // Filter states
@@ -9,8 +10,9 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const [currencyFilter, setCurrencyFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   
-  // Multi-select currency filter
+  // Multi-select filters
   const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
+  const [regionFilters, setRegionFilters] = useState<GeographicRegion[]>([]);
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');
@@ -45,6 +47,23 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     }));
   }, [initialPricePoints]);
 
+  // Get unique region options with counts
+  const regionOptions = useMemo(() => {
+    // Count occurrences of each region
+    const regionCounts = initialPricePoints.reduce((acc, point) => {
+      const region = getCurrencyRegion(point.currencyCode);
+      acc[region] = (acc[region] || 0) + 1;
+      return acc;
+    }, {} as Record<GeographicRegion, number>);
+
+    // Create options with counts in the label, sorted by region name
+    const regions = getAllRegions().filter(region => regionCounts[region] > 0);
+    return regions.map(region => ({ 
+      label: `${region} (${regionCounts[region]})`, 
+      value: region 
+    }));
+  }, [initialPricePoints]);
+
   // Apply filters and search
   const filteredPricePoints = useMemo(() => {
     let filtered = [...initialPricePoints];
@@ -70,8 +89,15 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       filtered = filtered.filter(point => point.status === statusFilter);
     }
 
+    // Apply region filter
+    if (regionFilters.length > 0) {
+      filtered = filtered.filter(point => 
+        regionFilters.includes(getCurrencyRegion(point.currencyCode))
+      );
+    }
+
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, regionFilters]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -252,6 +278,29 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       return sortedGroups;
     }
 
+    if (groupBy === 'Region') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const region = getCurrencyRegion(point.currencyCode);
+        
+        if (!groups[region]) {
+          groups[region] = [];
+        }
+        groups[region].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(regionKey => {
+          sortedGroups[regionKey] = sortPricePoints(groups[regionKey]);
+        });
+      
+      return sortedGroups;
+    }
+
     return null;
   }, [filteredPricePoints, groupBy, sortOrder]);
 
@@ -263,10 +312,13 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setCurrencyFilter,
     currencyFilters,
     setCurrencyFilters,
+    regionFilters,
+    setRegionFilters,
     statusFilter,
     setStatusFilter,
     currencyOptions,
     statusOptions,
+    regionOptions,
     
     // View controls
     sortOrder,

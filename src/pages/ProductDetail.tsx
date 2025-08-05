@@ -9,7 +9,7 @@ import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
+import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder, BillingModel, BillingCycle } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
@@ -39,6 +39,11 @@ import {
 
 const { Title } = Typography;
 const { Step } = Steps;
+
+// Complete lists of all possible values
+const ALL_BILLING_MODELS: BillingModel[] = ['Subscription', 'One-time', 'Usage'];
+const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
+const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
 
 
 const renderValue = (value: any, isBoolean = false) => {
@@ -223,7 +228,7 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title={toSentenceCase('Public name and description')}
+            title={toSentenceCase('General')}
             actions={
               <Button 
                 type="primary"
@@ -251,32 +256,81 @@ const ProductDetail: React.FC = () => {
             }
           >
             <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Name">{product.name}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Description">{product.description}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-
-          <PageSection title={toSentenceCase('Details')}>
-            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Public name">{product.name}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Public description">{product.description}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
                 <BillingModelDisplay model={product.billingModel} />
               </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Supported channels">
-                <Space size="small">
-                  {uniqueChannels.map(channel => (
-                    <SalesChannelDisplay key={channel} channel={channel} />
-                  ))}
-                </Space>
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Supported billing cycles">
-                <Space size="small">
-                  {uniqueBillingCycles.map(cycle => (
-                    <BillingCycleDisplay key={cycle} billingCycle={cycle} />
-                  ))}
-                </Space>
-              </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
+              {product.code && (
+                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
+              )}
+              {product.family && (
+                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
+              )}
             </AttributeGroup>
+          </PageSection>
+
+          <PageSection title={toSentenceCase('Configurations')}>
+            <Table
+              dataSource={ALL_SALES_CHANNELS.map(channel => ({
+                key: channel,
+                channel,
+              }))}
+              columns={[
+                {
+                  title: 'Channel',
+                  dataIndex: 'channel',
+                  key: 'channel',
+                  width: 120,
+                  render: (channel: SalesChannel) => {
+                    const channelIsSupported = product.skus.some(sku => sku.salesChannel === channel);
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <SalesChannelDisplay channel={channel} muted={!channelIsSupported} />
+                      </div>
+                    );
+                  },
+                },
+                {
+                  title: 'Billing Cycles',
+                  key: 'cycles',
+                  render: (_, record) => {
+                    const channelIsSupported = product.skus.some(sku => sku.salesChannel === record.channel);
+                    
+                    if (!channelIsSupported) {
+                      return (
+                        <span style={{ color: '#999999', fontSize: '14px' }}>
+                          This product is not currently sold through this channel
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <Space size="small">
+                        {ALL_BILLING_CYCLES.map(cycle => {
+                          const hasConfiguration = product.skus.some(sku => 
+                            sku.salesChannel === record.channel && sku.billingCycle === cycle
+                          );
+                          return (
+                            <BillingCycleDisplay 
+                              key={cycle}
+                              billingCycle={cycle} 
+                              muted={!hasConfiguration}
+                            />
+                          );
+                        })}
+                      </Space>
+                    );
+                  },
+                },
+              ]}
+              pagination={false}
+              size="small"
+              showHeader={false}
+              className="content-panel"
+              style={{ border: 'none' }}
+            />
           </PageSection>
         </Space>
       ),

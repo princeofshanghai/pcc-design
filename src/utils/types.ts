@@ -132,6 +132,9 @@ export type Product = {
   seatMin: number;
   seatMax: number;
   features: string[];
+  // Legacy attributes
+  code?: string;
+  family?: string;
   // Optional miscellaneous attributes
   isVisibleOnBillingEmails?: boolean;
   isVisibleOnRenewalEmails?: boolean;

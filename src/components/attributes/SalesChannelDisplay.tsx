@@ -4,6 +4,7 @@ import type { SalesChannel } from '../../utils/types';
 
 interface SalesChannelDisplayProps {
   channel: SalesChannel;
+  muted?: boolean;
 }
 
 // Apple iOS icon (simplified Apple logo)
@@ -41,9 +42,9 @@ const colorMapping: Record<SalesChannel, string> = {
   Field: '#666666',   // neutral gray
 };
 
-const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ channel }) => {
+const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ channel, muted = false }) => {
   const icon = iconMapping[channel];
-  const color = colorMapping[channel];
+  const color = muted ? '#999999' : colorMapping[channel];
 
   return (
     <div style={{
@@ -51,15 +52,16 @@ const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ channel }) =>
       alignItems: 'center',
       gap: '4px',
       padding: '3px 8px 3px 7px',
-      border: '1px solid #d9d9d9',
+      border: `1px solid ${muted ? '#e8e8e8' : '#d9d9d9'}`,
       borderRadius: '50px',
-      backgroundColor: '#fff',
-      width: 'fit-content'
+      backgroundColor: muted ? '#f9f9f9' : '#fff',
+      width: 'fit-content',
+      opacity: muted ? 0.6 : 1
     }}>
       <span style={{ color: color, display: 'flex', alignItems: 'center' }}>
         {icon}
       </span>
-      <span style={{ color: '#000', fontSize: '13px' }}>{channel}</span>
+      <span style={{ color: muted ? '#999999' : '#000', fontSize: '13px' }}>{channel}</span>
     </div>
   );
 };

@@ -217,19 +217,19 @@ const generateMenuStructure = (collapsed: boolean) => {
       icon: <GitPullRequestArrow size={14} />
     },
     {
-      key: 'storybook',
+      key: 'picasso-npi',
       label: (
-        <SidebarMenuItem text={toSentenceCase("Storybook")} collapsed={collapsed}>
-          <Link to="/storybook">{toSentenceCase("Storybook")}</Link>
+        <SidebarMenuItem text={toSentenceCase("Picasso NPI")} collapsed={collapsed}>
+          <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={14} />
     },
     {
-      key: 'picasso-npi',
+      key: 'storybook',
       label: (
-        <SidebarMenuItem text={toSentenceCase("Picasso NPI")} collapsed={collapsed}>
-          <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
+        <SidebarMenuItem text={toSentenceCase("Storybook")} collapsed={collapsed}>
+          <Link to="/storybook">{toSentenceCase("Storybook")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={14} />

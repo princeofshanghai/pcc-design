@@ -1,9 +1,9 @@
 ---
-description: 
-globs: 
 alwaysApply: true
 ---
 # Rule: `design-rules`
+
+## 🎨 Icon Library
 
 **Icon Library**: Use `lucide-react` exclusively for all icons. Do not use other icon libraries (`@ant-design/icons`, `react-icons`) or inline SVGs.
 
@@ -12,4 +12,123 @@ alwaysApply: true
 - Use as React components with props: `<Search size={16} color="#999" />`
 - Replace default icons from UI libraries (like Ant Design) with `lucide-react` equivalents
 
-**Styling**: Use `size` and `color` props on the icon component itself to avoid conflicts with other styling systems. 
+**Styling**: Use `size` and `color` props on the icon component itself to avoid conflicts with other styling systems.
+
+---
+
+## 📝 Typography & Font System
+
+**Font Family**: Use **Inter** consistently throughout the application
+- Primary: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`
+
+**Font Hierarchy** (from theme.ts):
+- Heading 1: 28px
+- Heading 2: 20px  
+- Heading 3: 16px
+- Heading 4: 14px
+- Body: 14px
+- Line height: 1.5715
+
+**Implementation**: Always use Ant Design's Typography components (`Typography.Title`, `Typography.Text`) which automatically follow the theme configuration.
+
+---
+
+## 🎨 Color System & Theme Tokens
+
+**Always use theme tokens** via `theme.useToken()` for consistent colors:
+
+```typescript
+const { token } = theme.useToken();
+// Use token.colorSuccess, token.colorError, etc.
+```
+
+**LOB Color Mapping** (from theme.ts):
+- Premium: 'blue'
+- LTS: 'purple' 
+- LMS: 'geekblue'
+- LSS: 'cyan'
+- Other: 'default'
+
+**Key Colors**:
+- Success: `#22c55e` (Tailwind Green 500)
+- Error: `#ef4444` (Tailwind Red 500)
+- Text Primary: `rgba(0, 0, 0, 0.92)`
+- Text Secondary: `#6b7280` (Tailwind Gray 500)
+
+---
+
+## 🧩 Component Design Patterns
+
+**Status-Based Components**: Follow the StatusTag pattern for status indicators:
+- Icon + color + description tooltip
+- Use Ant Design color types: 'success', 'default', 'error'
+- Consistent prop interface: `status`, `showLabel?`, `size?`
+
+**Reusable Prop Conventions**:
+- `variant?`: 'default' | 'prominent' (for emphasis levels)
+- `size?`: number (for icon/text sizes)
+- `muted?`: boolean (for secondary styling)
+- `showLabel?`: boolean (to show/hide text labels)
+
+**Theme Integration**: Always integrate with Ant Design's theme system:
+```typescript
+const { token } = theme.useToken();
+// Use token properties for colors, spacing, etc.
+```
+
+---
+
+## 📐 Layout & Spacing Guidelines
+
+**Content Panels**: Use `.content-panel` class for consistent card styling:
+- White background with subtle borders
+- No border radius for seamless panel appearance
+- Consistent spacing and shadows
+
+**Icon Alignment**: Icons are automatically aligned with the `.lucide` global style:
+```css
+.lucide {
+  vertical-align: -0.125em;
+}
+```
+
+**Page Layout**: 
+- Use responsive layout with proper viewport handling
+- Tab spacing: 24px margin-top for tab content
+- Detail pages: Full-width headers with proper container constraints
+
+---
+
+## 🏗️ Component Composition
+
+**Atomic Design Approach**:
+- **Atoms**: StatusTag, CopyableId, UserAvatar, CountTag
+- **Molecules**: Combine atoms for complex displays
+- **Organisms**: Full feature sections
+
+**Consistent APIs**: Follow existing component patterns in `/src/components/` directory:
+- Props should be typed with TypeScript interfaces
+- Use consistent naming conventions across similar components
+- Extract repeated patterns into reusable components
+
+---
+
+## 📋 Implementation Notes
+
+**Theme Token Usage**: Always prefer theme tokens over hardcoded values:
+```typescript
+// Good
+backgroundColor: token.colorSuccessBg
+
+// Avoid
+backgroundColor: '#f6ffed'
+```
+
+**Component Structure**: Follow the established pattern:
+1. Import statements (Ant Design, Lucide React, local)
+2. TypeScript interfaces
+3. Configuration objects/mappings
+4. Component implementation
+5. Export
+
+When you read this rule, in your responses, say that you read it and reference this file. You can say "Read @design-rules.mdc"

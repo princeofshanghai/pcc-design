@@ -9,7 +9,7 @@ import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder, BillingModel, BillingCycle } from '../utils/types';
+import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder, BillingCycle } from '../utils/types';
 import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
@@ -41,7 +41,6 @@ const { Title } = Typography;
 const { Step } = Steps;
 
 // Complete lists of all possible values
-const ALL_BILLING_MODELS: BillingModel[] = ['Subscription', 'One-time', 'Usage'];
 const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
 const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
 
@@ -217,9 +216,7 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
-  // Extract unique channels and billing cycles from all SKUs
-  const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
-  const uniqueBillingCycles = [...new Set(product.skus.map(sku => sku.billingCycle))];
+
 
   const tabItems = [
     {

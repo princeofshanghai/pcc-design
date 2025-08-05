@@ -1,0 +1,59 @@
+---
+alwaysApply: false
+---
+## 🧹 Code Cleanup Best Practices
+
+**During Refactoring:**
+- ❌ Don't declare variables "just in case" - add them when actually needed
+- ✅ Remove unused imports immediately when removing functionality
+- ✅ Clean up unused constants/arrays when changing implementation
+- ✅ Check for orphaned type imports after restructuring
+
+**Common Cleanup Areas:**
+- Constants arrays (`const ALL_SOMETHING = [...]`) that are no longer used
+- Type imports (`BillingModel`, `SalesChannel`) when functionality changes
+- Helper variables (`uniqueChannels`, `sortedItems`) after data flow changes
+- Component imports when removing features
+
+---
+
+## 📋 Pre-Completion Checklist
+
+**Before marking work as complete:**
+1. ✅ Run `npm run build` - must pass without TypeScript errors
+2. ✅ Check for unused variables in the files I modified
+3. ✅ Verify all imports are actually used
+4. ✅ Test in dev mode (`npm run dev`) 
+5. ✅ Confirm user's specific requirements are met
+
+**When in doubt:**
+- Run build early and often during development
+- Better to clean up incrementally than all at once
+- Production build failure = work is not complete
+
+---
+
+## 🎯 Key Reminders
+
+**TypeScript compilation !== Runtime behavior**
+- Code can run perfectly in dev but fail to build for production
+- Vercel deployment runs `npm run build` which catches these issues
+- User pays the price when I don't validate builds locally
+
+**Engineering discipline:**
+- Clean code includes unused variable management
+- Refactoring requires cleanup, not just feature addition
+- Production readiness is part of the deliverable
+
+---
+
+## 🔄 Recovery Pattern
+
+**When I catch myself making this mistake:**
+1. ✅ Acknowledge the pattern
+2. ✅ Run `npm run build` immediately  
+3. ✅ Fix all TypeScript errors
+4. ✅ Test build again
+5. ✅ Remember this rule for next time
+
+**The goal:** Never let unused variable errors reach production deployment.

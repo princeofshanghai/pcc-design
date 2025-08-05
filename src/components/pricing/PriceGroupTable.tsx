@@ -48,6 +48,7 @@ const getValidityRange = (pricePoints: PricePoint[]): string => {
     .map(date => new Date(date).getTime());
     
   const validToDates = pricePoints
+    .filter(p => p.status === 'Active')  // Only look at active price points for business validity
     .map(p => p.validTo)
     .filter((date): date is string => Boolean(date))
     .map(date => new Date(date).getTime());

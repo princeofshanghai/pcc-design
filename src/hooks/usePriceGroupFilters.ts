@@ -58,6 +58,23 @@ const getCommonValidityRange = (pricePoints: PricePoint[]): string => {
   );
 };
 
+/**
+ * Gets the earliest validFrom date from price points for sorting purposes
+ * Returns timestamp (number) for easy comparison
+ */
+const getEarliestValidFrom = (pricePoints: PricePoint[]): number => {
+  if (!pricePoints || pricePoints.length === 0) return 0;
+  
+  const validFromDates = pricePoints
+    .map(p => p.validFrom)
+    .filter((date): date is string => Boolean(date))
+    .map(date => new Date(date).getTime());
+    
+  if (validFromDates.length === 0) return 0;
+  
+  return Math.min(...validFromDates);
+};
+
 export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
@@ -279,9 +296,9 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       }
       
       // Default multi-level sort when sortOrder is 'None' or unrecognized
-      // 1. Primary: Validity (most recent first)
-      const aValidFrom = a.priceGroup.validFrom ? new Date(a.priceGroup.validFrom).getTime() : 0;
-      const bValidFrom = b.priceGroup.validFrom ? new Date(b.priceGroup.validFrom).getTime() : 0;
+      // 1. Primary: Validity (most recent first) - calculated from price points
+      const aValidFrom = getEarliestValidFrom(a.priceGroup.pricePoints);
+      const bValidFrom = getEarliestValidFrom(b.priceGroup.pricePoints);
       if (aValidFrom !== bValidFrom) {
         return bValidFrom - aValidFrom; // Most recent first (descending)
       }

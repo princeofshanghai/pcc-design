@@ -188,6 +188,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 
                 {onEdit && (
                   <Button 
+                    type="default"
                     className="page-header-edit-button"
                     icon={<Edit size={14} />}
                     onClick={onEdit}

@@ -512,8 +512,6 @@ const ProductDetail: React.FC = () => {
                 </Button>,
                 <Button 
                   key="new"
-                  type="primary"
-                  ghost
                   icon={<Plus size={16} />}
                   size="middle"
                   onClick={() => {

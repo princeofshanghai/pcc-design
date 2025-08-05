@@ -470,8 +470,6 @@ const PriceGroupDetail: React.FC = () => {
                 </Button>,
                 <Button 
                   key="edit"
-                  type="primary"
-                  ghost
                   icon={<Pencil size={16} />}
                   size="middle"
                   onClick={() => {

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import type { PricePoint } from '../utils/types';
 import { categorizePricePoints, toSentenceCase } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
-import { getCurrencyRegion, getAllRegions, getRegionDisplayName, type GeographicRegion } from '../utils/regionUtils';
+import { getCurrencyRegion, getAllRegions, type GeographicRegion } from '../utils/regionUtils';
 
 export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   // Filter states

@@ -228,8 +228,6 @@ const ProductDetail: React.FC = () => {
             title={toSentenceCase('General')}
             actions={
               <Button 
-                type="primary"
-                ghost
                 icon={<Pencil size={16} />}
                 size="middle"
                 onClick={() => {
@@ -248,7 +246,7 @@ const ProductDetail: React.FC = () => {
                   });
                 }}
               >
-                Edit
+                Edit name and description
               </Button>
             }
           >
@@ -764,29 +762,6 @@ const ProductDetail: React.FC = () => {
         lastUpdatedBy="Charles Hu"
         lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
         compact
-        actions={
-          <Button 
-            icon={<Upload size={16} />}
-            size="middle"
-            onClick={() => {
-              Modal.info({
-                title: 'Upload Prices',
-                content: (
-                  <div>
-                    <p>This would allow you to upload price data for <strong>{product?.name}</strong>.</p>
-                    <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
-                      You would be able to upload CSV or Excel files containing price group configurations and price points.
-                    </p>
-                  </div>
-                ),
-                okText: 'Got it',
-                width: 400,
-              });
-            }}
-          >
-            Upload prices
-          </Button>
-        }
       />
 
       <Tabs

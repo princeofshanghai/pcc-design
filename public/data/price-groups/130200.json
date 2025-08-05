@@ -1,0 +1,23 @@
+{
+  "productId": "130200",
+  "priceGroups": [
+    {
+      "id": "130001",
+      "status": "Active",
+      "channel": "Field",
+      "billingCycle": "Annual",
+      "pricePoints": [
+        {
+          "id": "7001001",
+          "currencyCode": "USD",
+          "amount": 8399.88,
+          "validFrom": "2025-01-01T08:00:00.000Z",
+          "pricingRule": "NONE",
+          "priceType": "BASE_AMOUNT",
+          "isTaxInclusive": false,
+          "status": "Active"
+        }
+      ]
+    }
+  ]
+}

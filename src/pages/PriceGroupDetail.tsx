@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space, Button, Modal, Tooltip, Tag } from 'antd';
+import { Typography, Space, Button, Modal, Tooltip, Tag, Alert } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
@@ -200,6 +200,10 @@ const PriceGroupDetail: React.FC = () => {
   // Check if this price group has mobile channels (iOS or GPB)
   const hasMobileChannels = uniqueChannels.some(channel => channel === 'iOS' || channel === 'GPB');
   
+  // Check if this price group is exclusively mobile channels (iOS and/or GPB only)
+  const isMobileOnlyPriceGroup = uniqueChannels.length > 0 && 
+    uniqueChannels.every(channel => channel === 'iOS' || channel === 'GPB');
+  
   // Mock app data for mobile channels - based on actual app store listings
   const getAppInfo = (channel: string) => {
     switch (channel) {
@@ -390,115 +394,164 @@ const PriceGroupDetail: React.FC = () => {
       <PageSection 
         title={toSentenceCase("Price points")}
       >
-        <FilterBar
-          filterSize="middle"
-          searchAndViewSize="middle"
-          search={{
-            placeholder: "Search by currency or ID...",
-            onChange: setPricePointSearchQuery,
-          }}
-          filters={[
-            {
-              placeholder: "All currencies",
-              options: currencyOptions,
-              multiSelect: true,
-              multiValue: currencyFilters,
-              onMultiChange: (values: string[]) => setCurrencyFilters(values),
-              // Required for TypeScript interface compatibility
-              value: null,
-              onChange: () => {},
-            },
-            {
-              placeholder: "All regions",
-              options: regionOptions,
-              multiSelect: true,
-              multiValue: regionFilters,
-              onMultiChange: (values: any[]) => setRegionFilters(values),
-              // Required for TypeScript interface compatibility
-              value: null,
-              onChange: () => {},
-            },
-            {
-              placeholder: "All statuses",
-              options: statusOptions,
-              value: statusFilter,
-              onChange: (value) => setStatusFilter(value ?? null),
-            },
-          ]}
-          onClearAll={clearAllPricePointFilters}
-          viewOptions={{
-            sortOrder: {
-              value: pricePointSortOrder,
-              setter: setPricePointSortOrder,
-              options: sortOptions,
-            },
-            groupBy: {
-              value: pricePointGroupBy,
-              setter: setPricePointGroupBy,
-              options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
-            },
-            columnOptions,
-            visibleColumns,
-            setVisibleColumns,
-            columnOrder,
-            setColumnOrder,
-            defaultVisibleColumns: pricePointDefaultVisibility,
-          }}
-          displayMode="inline"
-                        actions={[
-                <Button 
-                  key="export"
-                  icon={<Download size={16} />}
-                  size="middle"
-                  onClick={() => {
-                    Modal.info({
-                      title: 'Export Price Points',
-                      content: (
-                        <div>
-                          <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
-                            Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
-                          </p>
-                        </div>
-                      ),
-                      okText: 'Got it',
-                      width: 400,
-                    });
-                  }}
-                >
-                  Export
-                </Button>,
-                <Button 
-                  key="edit"
-                  icon={<Pencil size={16} />}
-                  size="middle"
-                  onClick={() => {
-                    Modal.info({
-                      title: 'Edit Price Points',
-                      content: (
-                        <div>
-                          <p>This would allow you to edit price points for <strong>{priceGroup?.name}</strong>.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
-                            You would be able to modify amounts, validity periods, quantity ranges, and other price point properties.
-                          </p>
-                        </div>
-                      ),
-                      okText: 'Got it',
-                      width: 400,
-                    });
-                  }}
-                >
-                  Edit price points
-                </Button>
-              ]}
-        />
-        <PricePointTable 
-          pricePoints={filteredPricePoints} 
-          groupedPricePoints={groupedPricePointsData}
-          visibleColumns={visibleColumns}
-          columnOrder={columnOrder}
-          sortOrder={pricePointSortOrder}
-        />
+        {!isMobileOnlyPriceGroup && (
+          <FilterBar
+            filterSize="middle"
+            searchAndViewSize="middle"
+            search={{
+              placeholder: "Search by currency or ID...",
+              onChange: setPricePointSearchQuery,
+            }}
+            filters={[
+              {
+                placeholder: "All currencies",
+                options: currencyOptions,
+                multiSelect: true,
+                multiValue: currencyFilters,
+                onMultiChange: (values: string[]) => setCurrencyFilters(values),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
+              {
+                placeholder: "All regions",
+                options: regionOptions,
+                multiSelect: true,
+                multiValue: regionFilters,
+                onMultiChange: (values: any[]) => setRegionFilters(values),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
+              {
+                placeholder: "All statuses",
+                options: statusOptions,
+                value: statusFilter,
+                onChange: (value) => setStatusFilter(value ?? null),
+              },
+            ]}
+            onClearAll={clearAllPricePointFilters}
+            viewOptions={{
+              sortOrder: {
+                value: pricePointSortOrder,
+                setter: setPricePointSortOrder,
+                options: sortOptions,
+              },
+              groupBy: {
+                value: pricePointGroupBy,
+                setter: setPricePointGroupBy,
+                options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
+              },
+              columnOptions,
+              visibleColumns,
+              setVisibleColumns,
+              columnOrder,
+              setColumnOrder,
+              defaultVisibleColumns: pricePointDefaultVisibility,
+            }}
+            displayMode="inline"
+                          actions={[
+                  <Button 
+                    key="export"
+                    icon={<Download size={16} />}
+                    size="middle"
+                    onClick={() => {
+                      Modal.info({
+                        title: 'Export Price Points',
+                        content: (
+                          <div>
+                            <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
+                            <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                              Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
+                            </p>
+                          </div>
+                        ),
+                        okText: 'Got it',
+                        width: 400,
+                      });
+                    }}
+                  >
+                    Export
+                  </Button>,
+                  <Button 
+                    key="edit"
+                    icon={<Pencil size={16} />}
+                    size="middle"
+                    onClick={() => {
+                      Modal.info({
+                        title: 'Edit Price Points',
+                        content: (
+                          <div>
+                            <p>This would allow you to edit price points for <strong>{priceGroup?.name}</strong>.</p>
+                            <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                              You would be able to modify amounts, validity periods, quantity ranges, and other price point properties.
+                            </p>
+                          </div>
+                        ),
+                        okText: 'Got it',
+                        width: 400,
+                      });
+                    }}
+                  >
+                    Edit price points
+                  </Button>
+                ]}
+          />
+        )}
+        {isMobileOnlyPriceGroup ? (
+          <Alert
+            type="info"
+            showIcon
+            message="Price points are managed externally"
+            description={
+              <div>
+                <p>
+                  To view price points for mobile subscriptions, visit the respective app store platforms 
+                  and search for the subscription that matches the <strong>External product identifier</strong> shown above.
+                </p>
+                <div style={{ marginTop: 12 }}>
+                  <Space direction="vertical" size={4}>
+                    {uniqueChannels.includes('iOS') && (
+                      <div>
+                        <strong>Apple App Store Connect:</strong>{' '}
+                        <a 
+                          href="https://appstoreconnect.apple.com/apps/subscriptions" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#1890ff' }}
+                        >
+                          appstoreconnect.apple.com/apps/subscriptions
+                        </a>
+                      </div>
+                    )}
+                    {uniqueChannels.includes('GPB') && (
+                      <div>
+                        <strong>Google Play Console:</strong>{' '}
+                        <a 
+                          href="https://play.google.com/console/billing/subscriptions" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#1890ff' }}
+                        >
+                          play.google.com/console/billing/subscriptions
+                        </a>
+                      </div>
+                    )}
+                  </Space>
+                </div>
+              </div>
+            }
+            style={{ marginTop: 16 }}
+          />
+        ) : (
+          <PricePointTable 
+            pricePoints={filteredPricePoints} 
+            groupedPricePoints={groupedPricePointsData}
+            visibleColumns={visibleColumns}
+            columnOrder={columnOrder}
+            sortOrder={pricePointSortOrder}
+          />
+        )}
       </PageSection>
     </Space>
   );

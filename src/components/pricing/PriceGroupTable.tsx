@@ -9,7 +9,6 @@ import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
-import PriceGroupExperimentalIndicator from '../configuration/PriceGroupExperimentalIndicator';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';
@@ -107,10 +106,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
-              <PriceGroupExperimentalIndicator skus={record.skus} />
-            </div>
+            <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
           </div>
         );
       },

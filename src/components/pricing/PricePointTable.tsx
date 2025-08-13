@@ -273,16 +273,93 @@ const findMatchingUsdPricePoint = (pricePoint: PricePoint, allPricePoints: Price
 };
 
 /**
- * Formats the USD equivalent percentage for display.
- * @param percentage - The percentage value.
- * @returns A formatted percentage string.
+ * Calculates the absolute USD amount for a price point.
+ * @param pricePoint - The price point to calculate for.
+ * @param usdPricePoint - The USD price point to compare against.
+ * @returns The USD amount as a number, or null if calculation not possible.
  */
-const formatUsdEquivalent = (percentage: number | null): string => {
-  if (percentage === null) return 'N/A';
-  if (percentage === 100) return '100%';
+const calculateUsdAmount = (pricePoint: PricePoint, usdPricePoint: PricePoint): number | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return pricePoint.amount; // USD shows its own amount
+  }
   
-  // Show 1 decimal place for non-100% values
-  return `${percentage.toFixed(1)}%`;
+  if (!usdPricePoint || usdPricePoint.currencyCode !== 'USD') {
+    return null;
+  }
+
+  // If exchange rate is available, use it for precise calculation
+  if (pricePoint.exchangeRate) {
+    // Convert the current price point to USD using exchange rate
+    // exchangeRate represents how many units of the currency = 1 USD
+    const usdAmount = pricePoint.amount / pricePoint.exchangeRate;
+    return usdAmount;
+  }
+
+  // Fallback: If no exchange rate available, use approximate rates for common currencies
+  const approximateRates: Record<string, number> = {
+    'EUR': 0.85,
+    'GBP': 0.75,
+    'CAD': 1.35,
+    'AUD': 1.45,
+    'CHF': 0.90,
+    'JPY': 110.0,
+    'DKK': 6.85,
+    'NOK': 9.90,
+    'SEK': 12.60,
+    'HKD': 7.85,
+    'SGD': 1.35,
+    'BRL': 1.85,
+    'NZD': 1.60,
+    'INR': 83.0,
+    'ZAR': 18.5,
+    'AED': 3.67,
+    'PLN': 4.15,
+    'SAR': 3.75,
+    'MXN': 17.5,
+    'EGP': 31.0,
+    'TRY': 31.5,
+    // Add more common currencies as needed
+    'KRW': 1300.0,
+    'VND': 24000.0,
+    'THB': 35.0,
+    'MYR': 4.6,
+    'PHP': 56.0,
+  };
+
+  const approxRate = approximateRates[pricePoint.currencyCode];
+  if (approxRate) {
+    // Use approximate rate for calculation
+    const usdAmount = pricePoint.amount / approxRate;
+    return usdAmount;
+  }
+
+  // If no exchange rate or approximate rate available, we can't calculate
+  return null;
+};
+
+/**
+ * Formats the USD equivalent with both absolute amount and percentage for display.
+ * @param pricePoint - The price point to format.
+ * @param usdPricePoint - The USD price point to compare against.
+ * @returns A formatted string showing USD amount and percentage.
+ */
+const formatUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoint | null): string => {
+  if (!usdPricePoint) return 'N/A';
+  
+  const usdAmount = calculateUsdAmount(pricePoint, usdPricePoint);
+  const percentage = calculateUsdEquivalent(pricePoint, usdPricePoint);
+  
+  if (usdAmount === null || percentage === null) return 'N/A';
+  
+  // Format USD amount with 2 decimal places
+  const formattedAmount = usdAmount.toFixed(2);
+  
+  if (percentage === 100) {
+    return `${formattedAmount} (100%)`;
+  }
+  
+  // Show 1 decimal place for percentage
+  return `${formattedAmount} (${percentage.toFixed(1)}%)`;
 };
 
 
@@ -672,8 +749,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
+        const formattedValue = formatUsdEquivalent(record, matchingUsdPoint);
         const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
-        const formattedValue = formatUsdEquivalent(percentage);
         return (
           <Text style={{ 
             color: record.status === 'Expired' 

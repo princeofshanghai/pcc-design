@@ -317,7 +317,26 @@ const AppLayout = () => {
   // Function to determine the selected menu key based on current path
   const getSelectedMenuKey = (pathname: string): string[] => {
     if (pathname === '/') return ['all-products'];
-    if (pathname.startsWith('/folder/')) return ['all-products']; // folder pages should highlight "All products"
+    
+    if (pathname.startsWith('/folder/')) {
+      // Extract folder name from URL (e.g., "/folder/all-lms-products" -> "all-lms-products")
+      const folderName = pathname.replace('/folder/', '');
+      
+      // Find which LOB contains this folder by checking the folderStructure
+      for (const [lob, folders] of Object.entries(folderStructure)) {
+        for (const folder of folders) {
+          const folderKey = folder.toLowerCase().replace(/\s+/g, '-');
+          if (folderKey === folderName) {
+            // Return the menu key for this specific folder
+            return [`${lob.toLowerCase()}-${folderKey}`];
+          }
+        }
+      }
+      
+      // Fallback to all-products if folder not found
+      return ['all-products'];
+    }
+    
     if (pathname.startsWith('/product/')) {
       if (pathname.includes('/configuration/')) return ['change-requests'];
       return ['all-products']; // product detail pages should highlight "All products"
@@ -335,7 +354,12 @@ const AppLayout = () => {
   const selectedKeys = getSelectedMenuKey(location.pathname);
 
   // Helper functions to determine which keys belong to each section
-  const catalogKeys = ['products', 'all-products', 'offers', 'offer-groups'];
+  // Generate all possible folder keys dynamically
+  const allFolderKeys = Object.entries(folderStructure).flatMap(([lob, folders]) =>
+    folders.map(folder => `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`)
+  );
+  
+  const catalogKeys = ['products', 'all-products', 'offers', 'offer-groups', ...allFolderKeys];
   const logicKeys = ['rulesets', 'calculation-schemes'];
   const integrationsKeys = ['platform-entity-mapping'];
   const changeManagementKeys = ['change-requests', 'picasso-npi'];

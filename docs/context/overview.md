@@ -1,4 +1,4 @@
-# PCC Vision and Goals
+# PCC project overview
 
 LinkedIn's current product catalog is fragmented, inconsistent, and difficult to manage. With over 500+ products and SKUs, there is no clear source of truth — making it nearly impossible to understand what LinkedIn sells, at what price, through which bundles or offers, and across which markets. This lack of clarity causes delays, confusion, and a heavy dependency on engineering for even minor updates.
 

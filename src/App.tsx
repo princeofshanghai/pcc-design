@@ -11,20 +11,12 @@ import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
 import ChangeRequestDetail from './pages/ChangeRequestDetail';
 import ChangeRequestsList from './pages/ChangeRequestsList';
-import Storybook from './pages/Storybook';
-
-
-// The following placeholder pages are missing. 
-// To prevent import errors and keep the app running, 
-// we'll use simple mock components for now.
-
-const OffersPlaceholder = () => <div>Offers Placeholder</div>;
-const OfferGroupsPlaceholder = () => <div>Offer Groups Placeholder</div>;
-const RulesetsPlaceholder = () => <div>Rulesets Placeholder</div>;
-const CalculationSchemesPlaceholder = () => <div>Calculation Schemes Placeholder</div>;
-// The PicassoNPIPlaceholder import was causing an error because the file doesn't exist.
-// We'll use a simple mock component for now to keep the app running.
-const PicassoNPIPlaceholder = () => <div>Picasso NPI Placeholder</div>;
+import OffersPlaceholder from './pages/OffersPlaceholder';
+import OfferGroupsPlaceholder from './pages/OfferGroupsPlaceholder';
+import RulesetsPlaceholder from './pages/RulesetsPlaceholder';
+import CalculationSchemesPlaceholder from './pages/CalculationSchemesPlaceholder';
+import PicassoNPIPlaceholder from './pages/PicassoNPIPlaceholder';
+import PlatformEntityMappingPlaceholder from './pages/PlatformEntityMappingPlaceholder';
 
 function App() {
   return (
@@ -46,8 +38,8 @@ function App() {
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
                 <Route path="/change-requests" element={<ChangeRequestsList />} />
-                <Route path="/storybook" element={<Storybook />} />
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
+                <Route path="/platform-entity-mapping" element={<PlatformEntityMappingPlaceholder />} />
               </Route>
             </Routes>
           </LayoutProvider>

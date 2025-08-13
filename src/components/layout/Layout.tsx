@@ -11,7 +11,33 @@ import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
 
-
+// Component for section titles in the sidebar
+const SectionTitle: React.FC<{ 
+  title: string; 
+  collapsed: boolean;
+  isFirst?: boolean;
+}> = ({ title, collapsed, isFirst = false }) => {
+  if (collapsed) {
+    return null; // Don't show section titles when collapsed
+  }
+  
+  return (
+    <div 
+      className="sidebar-section-title"
+      style={{
+        fontSize: '12px',
+        fontWeight: 500,
+        color: '#6b7280',
+        padding: '0 24px',
+        marginTop: isFirst ? '24px' : '32px',
+        marginBottom: '8px',
+        textTransform: 'none'
+      }}
+    >
+      {title}
+    </div>
+  );
+};
 
 // Component for sidebar menu items with smart tooltips
 const SidebarMenuItem: React.FC<{
@@ -118,16 +144,16 @@ const SidebarMenuItem: React.FC<{
   return content;
 };
 
-// Helper function to generate menu structure from predefined folder structure
+// Helper function to generate menu structure with sections
 const generateMenuStructure = (collapsed: boolean) => {
-  // Create the menu structure
+  // Create the menu structure with section groupings
   const menuItems = [
-    // Products section at the top (no icon)
+    // Catalog Section
     {
       key: 'products',
       label: 'Products',
-      icon: <Box size={14} />, // add the cube icon back for Products only
-      className: 'sidebar-products-menu-item', // custom class for CSS targeting
+      icon: <Box size={14} />,
+      className: 'sidebar-products-menu-item',
       children: [
         {
           key: 'all-products',
@@ -140,13 +166,13 @@ const generateMenuStructure = (collapsed: boolean) => {
         // Sort LOBs with "Other" always last
         ...Object.entries(folderStructure)
           .sort(([lobA], [lobB]) => {
-            if (lobA === 'Other') return 1; // Other goes to end
-            if (lobB === 'Other') return -1; // Other goes to end
-            return lobA.localeCompare(lobB); // Alphabetical for others
+            if (lobA === 'Other') return 1;
+            if (lobB === 'Other') return -1;
+            return lobA.localeCompare(lobB);
           })
           .map(([lob, folders]) => ({
             key: lob.toLowerCase(),
-            className: 'sidebar-lob-menu-item', // Add this line for custom styling
+            className: 'sidebar-lob-menu-item',
             label: (
               <SidebarMenuItem text={toSentenceCase(lob)} collapsed={collapsed}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -155,7 +181,6 @@ const generateMenuStructure = (collapsed: boolean) => {
                 </span>
               </SidebarMenuItem>
             ),
-            // Sort folders alphabetically
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: (
@@ -170,7 +195,6 @@ const generateMenuStructure = (collapsed: boolean) => {
           }))
       ]
     },
-    // New top-level pages in specified order (no icons)
     {
       key: 'offers',
       label: (
@@ -189,6 +213,7 @@ const generateMenuStructure = (collapsed: boolean) => {
       ),
       icon: <SquareSlash size={14} />
     },
+    // Logic Section
     {
       key: 'rulesets',
       label: (
@@ -207,6 +232,17 @@ const generateMenuStructure = (collapsed: boolean) => {
       ),
       icon: <SquareSlash size={14} />
     },
+    // Integrations Section  
+    {
+      key: 'platform-entity-mapping',
+      label: (
+        <SidebarMenuItem text={toSentenceCase("Platform entity mapping")} collapsed={collapsed}>
+          <Link to="/platform-entity-mapping">{toSentenceCase("Platform entity mapping")}</Link>
+        </SidebarMenuItem>
+      ),
+      icon: <SquareSlash size={14} />
+    },
+    // Change Management Section
     {
       key: 'change-requests',
       label: (
@@ -221,15 +257,6 @@ const generateMenuStructure = (collapsed: boolean) => {
       label: (
         <SidebarMenuItem text={toSentenceCase("Picasso NPI")} collapsed={collapsed}>
           <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
-        </SidebarMenuItem>
-      ),
-      icon: <SquareSlash size={14} />
-    },
-    {
-      key: 'storybook',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Storybook")} collapsed={collapsed}>
-          <Link to="/storybook">{toSentenceCase("Storybook")}</Link>
         </SidebarMenuItem>
       ),
       icon: <SquareSlash size={14} />
@@ -286,6 +313,37 @@ const AppLayout = () => {
 
   // Generate menu structure from mock data
   const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
+
+  // Function to determine the selected menu key based on current path
+  const getSelectedMenuKey = (pathname: string): string[] => {
+    if (pathname === '/') return ['all-products'];
+    if (pathname.startsWith('/folder/')) return ['all-products']; // folder pages should highlight "All products"
+    if (pathname.startsWith('/product/')) {
+      if (pathname.includes('/configuration/')) return ['change-requests'];
+      return ['all-products']; // product detail pages should highlight "All products"
+    }
+    if (pathname === '/offers') return ['offers'];
+    if (pathname === '/offer-groups') return ['offer-groups'];
+    if (pathname === '/rulesets') return ['rulesets'];
+    if (pathname === '/calculation-schemes') return ['calculation-schemes'];
+    if (pathname === '/platform-entity-mapping') return ['platform-entity-mapping'];
+    if (pathname === '/change-requests') return ['change-requests'];
+    if (pathname === '/picasso-npi') return ['picasso-npi'];
+    return []; // no selection for unknown routes
+  };
+
+  const selectedKeys = getSelectedMenuKey(location.pathname);
+
+  // Helper functions to determine which keys belong to each section
+  const catalogKeys = ['products', 'all-products', 'offers', 'offer-groups'];
+  const logicKeys = ['rulesets', 'calculation-schemes'];
+  const integrationsKeys = ['platform-entity-mapping'];
+  const changeManagementKeys = ['change-requests', 'picasso-npi'];
+
+  const getCatalogSelectedKeys = () => selectedKeys.filter(key => catalogKeys.includes(key));
+  const getLogicSelectedKeys = () => selectedKeys.filter(key => logicKeys.includes(key));
+  const getIntegrationsSelectedKeys = () => selectedKeys.filter(key => integrationsKeys.includes(key));
+  const getChangeManagementSelectedKeys = () => selectedKeys.filter(key => changeManagementKeys.includes(key));
 
   // Find the current menu item based on the path
   const currentMenuItem = location.pathname === '/' ? { key: 'all-products', label: 'Products', path: '/' } : null;
@@ -474,24 +532,88 @@ const AppLayout = () => {
             }}
           />
         </div>
-        <Menu 
-          mode="inline" 
-          defaultSelectedKeys={['all-products']}
-          defaultOpenKeys={['products']}
-          items={menuItems}
-          inlineIndent={0}
-          style={{ 
-            border: 'none',
-            padding: '6px 0px',
-            background: token.colorBgLayout,
-            ...(collapsed && {
-              '--ant-menu-item-padding-horizontal': '0px',
-              '--ant-menu-item-height': '32px',
-              '--ant-menu-item-border-radius': '0px'
-            })
-          } as React.CSSProperties}
-          className={collapsed ? 'collapsed-menu' : 'compact-menu'}
-        />
+        <div>
+          {/* Catalog Section */}
+          <SectionTitle title="Catalog" collapsed={collapsed} isFirst={true} />
+          <Menu 
+            mode="inline" 
+            selectedKeys={getCatalogSelectedKeys()}
+            defaultOpenKeys={['products']}
+            items={menuItems.slice(0, 3)} // Products, Offers, Offer Groups
+            inlineIndent={0}
+            style={{ 
+              border: 'none',
+              padding: '0px',
+              background: token.colorBgLayout,
+              ...(collapsed && {
+                '--ant-menu-item-padding-horizontal': '0px',
+                '--ant-menu-item-height': '32px',
+                '--ant-menu-item-border-radius': '0px'
+              })
+            } as React.CSSProperties}
+            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+          />
+          
+          {/* Logic Section */}
+          <SectionTitle title="Logic" collapsed={collapsed} />
+          <Menu 
+            mode="inline" 
+            selectedKeys={getLogicSelectedKeys()}
+            items={menuItems.slice(3, 5)} // Rulesets, Calculation Schemes
+            inlineIndent={0}
+            style={{ 
+              border: 'none',
+              padding: '0px',
+              background: token.colorBgLayout,
+              ...(collapsed && {
+                '--ant-menu-item-padding-horizontal': '0px',
+                '--ant-menu-item-height': '32px',
+                '--ant-menu-item-border-radius': '0px'
+              })
+            } as React.CSSProperties}
+            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+          />
+          
+          {/* Integrations Section */}
+          <SectionTitle title="Integrations" collapsed={collapsed} />
+          <Menu 
+            mode="inline" 
+            selectedKeys={getIntegrationsSelectedKeys()}
+            items={menuItems.slice(5, 6)} // Platform entity mapping
+            inlineIndent={0}
+            style={{ 
+              border: 'none',
+              padding: '0px',
+              background: token.colorBgLayout,
+              ...(collapsed && {
+                '--ant-menu-item-padding-horizontal': '0px',
+                '--ant-menu-item-height': '32px',
+                '--ant-menu-item-border-radius': '0px'
+              })
+            } as React.CSSProperties}
+            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+          />
+          
+          {/* Change Management Section */}
+          <SectionTitle title="Change management" collapsed={collapsed} />
+          <Menu 
+            mode="inline" 
+            selectedKeys={getChangeManagementSelectedKeys()}
+            items={menuItems.slice(6, 8)} // Change Requests, Picasso NPI
+            inlineIndent={0}
+            style={{ 
+              border: 'none',
+              padding: '0px',
+              background: token.colorBgLayout,
+              ...(collapsed && {
+                '--ant-menu-item-padding-horizontal': '0px',
+                '--ant-menu-item-height': '32px',
+                '--ant-menu-item-border-radius': '0px'
+              })
+            } as React.CSSProperties}
+            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+          />
+        </div>
         </div>
         <style>
           {`

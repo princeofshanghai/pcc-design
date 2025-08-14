@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, Alert } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Check, X, Box, ArrowLeft, Plus, Pencil } from 'lucide-react';
+import { Download, Check, X, Box, ArrowLeft, Pencil } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -507,28 +507,6 @@ const ProductDetail: React.FC = () => {
                   }}
                 >
                   Export
-                </Button>,
-                <Button 
-                  key="new"
-                  icon={<Plus size={16} />}
-                  size="middle"
-                  onClick={() => {
-                    Modal.info({
-                      title: 'New Price',
-                      content: (
-                        <div>
-                          <p>This would allow you to create a new price group for <strong>{product?.name}</strong>.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
-                            You would be able to set up pricing for different channels, billing cycles, and currencies.
-                          </p>
-                        </div>
-                      ),
-                      okText: 'Got it',
-                      width: 400,
-                    });
-                  }}
-                >
-                  New price
                 </Button>
               ]}
             />

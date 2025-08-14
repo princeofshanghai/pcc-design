@@ -71,24 +71,28 @@ export function toSentenceCase(str: string): string {
         return word;
       }
       
-      const upperWord = word.toUpperCase();
+      // Extract the core word without punctuation for acronym/proper noun checking
+      const coreWord = word.replace(/[^a-zA-Z]/g, '').toUpperCase();
       
       // Handle plural acronyms (e.g., SKUs)
-      if (upperWord.endsWith('S') && ACRONYMS.has(upperWord.slice(0, -1))) {
-        return upperWord.slice(0, -1) + 's';
+      if (coreWord.endsWith('S') && ACRONYMS.has(coreWord.slice(0, -1))) {
+        // Preserve original punctuation but use acronym casing
+        const acronymPart = coreWord.slice(0, -1) + 's';
+        return word.replace(/[a-zA-Z]+/, acronymPart);
       }
 
       // Handle acronyms - always uppercase
-      if (ACRONYMS.has(upperWord)) {
-        return upperWord;
+      if (ACRONYMS.has(coreWord)) {
+        // Preserve original punctuation but use acronym casing
+        return word.replace(/[a-zA-Z]+/, coreWord);
       }
 
       // Handle proper nouns - preserve exact casing from the set
-      if (PROPER_NOUNS.has(upperWord)) {
+      if (PROPER_NOUNS.has(coreWord)) {
         // Find the exact proper noun from our set to preserve correct casing
         for (const properNoun of PROPER_NOUNS) {
-          if (properNoun.toUpperCase() === upperWord) {
-            return properNoun;
+          if (properNoun.toUpperCase() === coreWord) {
+            return word.replace(/[a-zA-Z]+/, properNoun);
           }
         }
         // Fallback to capitalize first letter

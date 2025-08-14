@@ -7,6 +7,20 @@ export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium' | 'Other';
 
 export type SalesChannel = 'Desktop' | 'Field' | 'iOS' | 'GPB';
 
+export type AttributeDomain = 'CONTRACTS' | 'QUOTING' | 'PRODUCT_CATALOG';
+
+export type AttributeType = 'boolean' | 'set' | 'enum' | 'string' | 'number';
+
+export type Attribute = {
+  id: string;
+  name: string;
+  domain: AttributeDomain;
+  type: AttributeType;
+  defaultValue?: string | boolean | null;
+  description: string;
+  acceptableValues?: string[];
+};
+
 export type BillingCycle = 'Monthly' | 'Quarterly' | 'Annual';
 
 export type BillingModel = 'Subscription' | 'One-time' | 'Usage';

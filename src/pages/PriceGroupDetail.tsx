@@ -27,7 +27,7 @@ import {
   PRICE_POINT_SORT_OPTIONS,
   DEFAULT_PRICE_POINT_COLUMNS
 } from '../utils/tableConfigurations';
-import { DollarSign, Download, Pencil } from 'lucide-react';
+import { DollarSign, Download } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -472,28 +472,6 @@ const PriceGroupDetail: React.FC = () => {
                     }}
                   >
                     Export
-                  </Button>,
-                  <Button 
-                    key="edit"
-                    icon={<Pencil size={16} />}
-                    size="middle"
-                    onClick={() => {
-                      Modal.info({
-                        title: 'Edit Price Points',
-                        content: (
-                          <div>
-                            <p>This would allow you to edit price points for <strong>{priceGroup?.name}</strong>.</p>
-                            <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
-                              You would be able to modify amounts, validity periods, quantity ranges, and other price point properties.
-                            </p>
-                          </div>
-                        ),
-                        okText: 'Got it',
-                        width: 400,
-                      });
-                    }}
-                  >
-                    Edit price points
                   </Button>
                 ]}
           />

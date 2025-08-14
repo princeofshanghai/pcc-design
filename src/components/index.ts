@@ -53,6 +53,9 @@ export { default as CopyableId } from './shared/CopyableId';
 export { default as GroupHeader } from './shared/GroupHeader';
 export { default as UserAvatar } from './shared/UserAvatar';
 
+// Attribute Dictionary components
+export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
+
 // Configuration components
 export { ChangeRequestForm } from './configuration/ChangeRequestForm';
 export { default as ChangeRequestListTable } from './configuration/ChangeRequestListTable';

@@ -1,7 +1,7 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, Plus } from 'lucide-react';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid, Typography } from 'antd';
+import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, BookMarked } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
@@ -10,6 +10,7 @@ import { folderStructure } from '../../utils/mock-data';
 import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
+const { Text } = Typography;
 
 // Component for section titles in the sidebar
 const SectionTitle: React.FC<{ 
@@ -271,6 +272,7 @@ const AppLayout = () => {
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
@@ -348,6 +350,7 @@ const AppLayout = () => {
     if (pathname === '/platform-entity-mapping') return ['platform-entity-mapping'];
     if (pathname === '/change-requests') return ['change-requests'];
     if (pathname === '/picasso-npi') return ['picasso-npi'];
+    if (pathname === '/attribute-dictionary') return [];
     return []; // no selection for unknown routes
   };
 
@@ -386,6 +389,15 @@ const AppLayout = () => {
     breadcrumbItems.push(
       <Breadcrumb.Item key="catalog">
         <Link to="/">Products</Link>
+      </Breadcrumb.Item>
+    );
+  }
+
+  // Handle attribute dictionary page
+  if (location.pathname === '/attribute-dictionary') {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="attribute-dictionary">
+        <Text type="secondary">Attribute dictionary</Text>
       </Breadcrumb.Item>
     );
   }
@@ -848,18 +860,36 @@ const AppLayout = () => {
           >
             {breadcrumbItems}
           </Breadcrumb>
-          <Space size={12}>
-            <Button 
-              type="primary" 
-              size="small"
-              icon={<Plus size={14} />}
-              onClick={() => {
-                // Placeholder - functionality to be implemented later
-                console.log('New GTM motion clicked');
-              }}
-            >
-              New GTM motion
-            </Button>
+          <Space size={16}>
+            <Tooltip title="Attribute dictionary" placement="bottom" overlayStyle={{ zIndex: 9999 }}>
+              <Button
+                type="text"
+                icon={<BookMarked size={16} />}
+                onClick={() => navigate('/attribute-dictionary')}
+                style={{
+                  color: location.pathname === '/attribute-dictionary' ? token.colorPrimary : '#666',
+                  padding: '6px 8px',
+                  height: '32px',
+                  minHeight: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '6px',
+                  backgroundColor: location.pathname === '/attribute-dictionary' ? `${token.colorPrimary}10` : 'transparent',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (location.pathname !== '/attribute-dictionary') {
+                    e.currentTarget.style.backgroundColor = token.colorBgTextHover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (location.pathname !== '/attribute-dictionary') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              />
+            </Tooltip>
             <Avatar size="small" icon={<User size={16} />} />
           </Space>
         </Header>

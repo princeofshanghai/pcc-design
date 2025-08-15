@@ -3,6 +3,7 @@ import { Typography, Space, Table, Tabs } from 'antd';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
+import { colors } from '../theme';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase } from '../utils/formatters';
@@ -384,7 +385,7 @@ const SkuDetail: React.FC = () => {
                 <span style={{ color: '#888' }}>No features listed for this SKU.</span>
               )}
               {isOverridden(sku.features) && (
-                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
+                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: colors.gray[50], borderRadius: '8px', border: `1px solid ${colors.gray[200]}` }}>
                   <OverrideComparison 
                     skuValue={`${sku.features?.length || 0} features`} 
                     productValue={`${product.features?.length || 0} features`} 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Steps, Typography, Space, Tag, Card } from 'antd';
 import { Clock, Eye, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { colors, spacing, borderRadius } from '../../theme';
 import type { ChangeRequestStatus as ChangeRequestStatusType, ConfigurationRequest } from '../../utils/types';
 import { getUserLdap } from '../../utils/users';
 
@@ -18,28 +19,28 @@ const TIMELINE_STAGES = [
     title: 'Draft',
     description: 'Configuration request created',
     icon: <FileText size={16} />,
-    color: '#722ed1'
+    color: colors.purple[500]
   },
   {
     key: 'pending_review',
     title: 'Pending Review',
     description: 'Awaiting approval',
     icon: <Clock size={16} />,
-    color: '#fa8c16'
+    color: colors.orange[500]
   },
   {
     key: 'in_staging',
     title: 'In EI',
     description: 'Testing in EI environment',
     icon: <Eye size={16} />,
-    color: '#1677ff'
+    color: colors.blue[500]
   },
   {
     key: 'live',
     title: 'Live',
     description: 'Deployed to production',
     icon: <CheckCircle size={16} />,
-    color: '#52c41a'
+    color: colors.green[500]
   }
 ] as const;
 
@@ -117,7 +118,7 @@ export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
       status,
       icon: React.cloneElement(stage.icon, { 
         size: 16, 
-        color: isCompleted ? '#52c41a' : isCurrent ? (isFailed ? '#ff4d4f' : stage.color) : '#d9d9d9' 
+        color: isCompleted ? colors.green[500] : isCurrent ? (isFailed ? colors.red[500] : stage.color) : colors.gray[400] 
       })
     };
   });
@@ -144,7 +145,7 @@ export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
             background: '#fafafa', 
             padding: '16px', 
             borderRadius: '8px', 
-            border: '1px solid #d9d9d9' 
+            border: `1px solid ${colors.gray[400]}` 
           }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Text strong>Request Details:</Text>
@@ -173,16 +174,16 @@ export const ChangeRequestTimeline: React.FC<ChangeRequestTimelineProps> = ({
 
         {isFailed && (
           <div style={{ 
-            background: '#fff2f0', 
-            padding: '16px', 
-            borderRadius: '8px', 
-            border: '1px solid #ffccc7' 
+            background: colors.red[50], 
+            padding: `${spacing.xxl}px`, 
+            borderRadius: `${borderRadius.lg}px`, 
+            border: `1px solid ${colors.red[100]}` 
           }}>
             <Space>
-              <XCircle size={16} color="#ff4d4f" />
-              <Text strong style={{ color: '#ff4d4f' }}>Configuration Failed</Text>
+              <XCircle size={16} color={colors.red[500]} />
+              <Text strong style={{ color: colors.red[500] }}>Configuration Failed</Text>
             </Space>
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: spacing.lg }}>
               <Text type="secondary">
                 The configuration request encountered an error during processing. 
                 Please review the configuration and try again, or contact support for assistance.
@@ -225,7 +226,7 @@ export const CompactTimeline: React.FC<CompactTimelineProps> = ({
   const compactItems = TIMELINE_STAGES.map((stage, index) => {
     const isCompleted = index < currentPosition;
     const isCurrent = index === currentPosition;
-    const dotColor = isCompleted ? '#52c41a' : isCurrent ? (isFailed ? '#ff4d4f' : stage.color) : '#d9d9d9';
+    const dotColor = isCompleted ? colors.green[500] : isCurrent ? (isFailed ? colors.red[500] : stage.color) : colors.gray[400];
 
     return {
       title: showLabels ? stage.title : '',

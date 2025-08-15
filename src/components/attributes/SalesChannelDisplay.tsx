@@ -1,5 +1,6 @@
 import React from 'react';
 import { Monitor, Headset } from 'lucide-react';
+import { colors, fontSize, spacing, borderRadius } from '../../theme';
 import type { SalesChannel } from '../../utils/types';
 
 interface SalesChannelDisplayProps {
@@ -18,13 +19,13 @@ const AppleIcon = () => (
 const GooglePlayIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" style={{ verticalAlign: 'middle' }}>
     {/* Blue triangle (left) */}
-    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.61 3,21.09 3,20.5" fill="#01A9FC"/>
+    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.61 3,21.09 3,20.5" fill={colors.linkedin.blue}/>
     {/* Green triangle (top right) */}
-    <path d="M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12" fill="#00D95F"/>
+    <path d="M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12" fill={colors.linkedin.green}/>
     {/* Yellow triangle (right) */}
-    <path d="M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81" fill="#FFBC00"/>
+    <path d="M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81" fill={colors.linkedin.yellow}/>
     {/* Red triangle (bottom right) */}
-    <path d="M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66" fill="#FF5722"/>
+    <path d="M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66" fill={colors.linkedin.red}/>
   </svg>
 );
 
@@ -36,32 +37,32 @@ const iconMapping: Record<SalesChannel, React.ReactNode> = {
 };
 
 const colorMapping: Record<SalesChannel, string> = {
-  Desktop: '#666666', // neutral gray
-  iOS: '#000000',     // Apple's black
+  Desktop: colors.gray[600], // neutral gray
+  iOS: colors.neutral.black,     // Apple's black
   GPB: 'inherit',     // Google Play icon has its own colors
-  Field: '#666666',   // neutral gray
+  Field: colors.gray[600],   // neutral gray
 };
 
 const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ channel, muted = false }) => {
   const icon = iconMapping[channel];
-  const color = muted ? '#999999' : colorMapping[channel];
+  const color = muted ? colors.gray[500] : colorMapping[channel];
 
   return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '4px',
-      padding: '3px 8px 3px 7px',
-      border: `1px solid ${muted ? '#e8e8e8' : '#d9d9d9'}`,
-      borderRadius: '50px',
-      backgroundColor: muted ? '#f9f9f9' : '#fff',
+      gap: `${spacing.sm}px`,
+      padding: spacing.badge,
+      border: `1px solid ${muted ? colors.gray[300] : colors.gray[400]}`,
+      borderRadius: `${borderRadius.pill}px`,
+      backgroundColor: muted ? colors.gray[100] : colors.neutral.white,
       width: 'fit-content',
       opacity: muted ? 0.6 : 1
     }}>
       <span style={{ color: color, display: 'flex', alignItems: 'center' }}>
         {icon}
       </span>
-      <span style={{ color: muted ? '#999999' : '#000', fontSize: '13px' }}>{channel}</span>
+      <span style={{ color: muted ? colors.gray[500] : colors.neutral.black, fontSize: `${fontSize.base}px` }}>{channel}</span>
     </div>
   );
 };

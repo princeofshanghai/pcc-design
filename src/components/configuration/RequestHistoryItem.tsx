@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Typography, Space, Tag, Button, Row, Col, Divider } from 'antd';
 import { ExternalLink, Copy, MoreHorizontal } from 'lucide-react';
+import { colors, spacing, fontSize } from '../../theme';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from './ChangeRequestStatus';
 import { CompactTimeline } from './ChangeRequestTimeline';
@@ -40,30 +41,30 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
   const getStatusColor = () => {
     switch (request.status) {
       case 'Live':
-        return '#f6ffed';
+        return colors.green[50];
       case 'Failed':
-        return '#fff2f0';
+        return colors.red[50];
       case 'In EI':
-        return '#f0f5ff';
+        return colors.blue[50];
       case 'Pending Review':
-        return '#fff7e6';
+        return colors.orange[50];
       default:
-        return '#fafafa';
+        return colors.gray[50];
     }
   };
 
   const getStatusBorderColor = () => {
     switch (request.status) {
       case 'Live':
-        return '#b7eb8f';
+        return colors.green[100];
       case 'Failed':
-        return '#ffccc7';
+        return colors.red[100];
       case 'In EI':
-        return '#91d5ff';
+        return colors.blue[100];
       case 'Pending Review':
-        return '#ffd591';
+        return colors.orange[100];
       default:
-        return '#d9d9d9';
+        return colors.gray[400];
     }
   };
 
@@ -238,20 +239,20 @@ export const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({
         {/* Experimental Configuration Notice */}
         {request.lixKey && (
           <>
-            <Divider style={{ margin: '8px 0' }} />
+            <Divider style={{ margin: `${spacing.lg}px 0` }} />
             <div style={{ 
-              background: '#fff7e6', 
-              padding: '8px 12px', 
-              borderRadius: '4px', 
-              border: '1px solid #ffd591' 
+              background: colors.orange[50], 
+              padding: `${spacing.lg}px ${spacing.xl}px`, 
+              borderRadius: `${spacing.sm}px`, 
+              border: `1px solid ${colors.orange[100]}` 
             }}>
               <Space>
-                <Text strong style={{ color: '#d46b08', fontSize: '12px' }}>
+                <Text strong style={{ color: colors.orange[600], fontSize: `${fontSize.sm}px` }}>
                   Experimental Configuration
                 </Text>
               </Space>
-              <div style={{ marginTop: 4 }}>
-                <Text style={{ fontSize: '11px' }}>
+              <div style={{ marginTop: spacing.sm }}>
+                <Text style={{ fontSize: `${fontSize.xs}px` }}>
                   LIX Key: {request.lixKey}
                   {request.lixTreatment && ` • Treatment: ${request.lixTreatment}`}
                 </Text>

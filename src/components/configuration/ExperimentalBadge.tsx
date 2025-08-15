@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tag, Typography, Space, Tooltip } from 'antd';
 import { FlaskConical, Info, ExternalLink } from 'lucide-react';
+import { colors, spacing, borderRadius, fontSize } from '../../theme';
 
 const { Text } = Typography;
 
@@ -74,10 +75,10 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
   if (variant === 'detailed') {
     return (
       <div style={{ 
-        background: 'linear-gradient(135deg, #fff7e6 0%, #ffeedd 100%)',
-        border: '1px solid #ffd591',
-        borderRadius: '8px',
-        padding: '12px',
+        background: `linear-gradient(135deg, ${colors.orange[50]} 0%, #ffeedd 100%)`,
+        border: `1px solid ${colors.orange[100]}`,
+        borderRadius: `${borderRadius.lg}px`,
+        padding: `${spacing.xl}px`,
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -93,34 +94,34 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
           transform: 'translate(20px, -20px)'
         }} />
         
-        <Space direction="vertical" style={{ width: '100%' }} size={8}>
+        <Space direction="vertical" style={{ width: '100%' }} size={spacing.lg}>
           <Space>
-            <FlaskConical size={16} color="#d46b08" />
-            <Text strong style={{ color: '#d46b08' }}>
+            <FlaskConical size={16} color={colors.orange[600]} />
+            <Text strong style={{ color: colors.orange[600] }}>
               Experimental Change Request
             </Text>
           </Space>
           
-          <Text style={{ fontSize: '13px', color: '#8c8c8c' }}>
+          <Text style={{ fontSize: `${fontSize.base}px`, color: colors.gray[800] }}>
             This change request is part of a LinkedIn experiment for A/B testing and feature validation.
           </Text>
           
-          <Space direction="vertical" size={4}>
+          <Space direction="vertical" size={spacing.sm}>
             <div>
-              <Text style={{ fontSize: '12px', color: '#595959' }}>
+              <Text style={{ fontSize: `${fontSize.sm}px`, color: colors.gray[700] }}>
                 <strong>LIX Key:</strong>
               </Text>
-              <Tag color="orange" style={{ marginLeft: 8, fontFamily: 'monospace' }}>
+              <Tag color="orange" style={{ marginLeft: spacing.lg, fontFamily: 'monospace' }}>
                 {lixKey}
               </Tag>
             </div>
             
             {lixTreatment && (
               <div>
-                <Text style={{ fontSize: '12px', color: '#595959' }}>
+                <Text style={{ fontSize: `${fontSize.sm}px`, color: colors.gray[700] }}>
                   <strong>Treatment:</strong>
                 </Text>
-                <Tag color="blue" style={{ marginLeft: 8, fontFamily: 'monospace' }}>
+                <Tag color="blue" style={{ marginLeft: spacing.lg, fontFamily: 'monospace' }}>
                   {lixTreatment}
                 </Tag>
               </div>
@@ -128,12 +129,12 @@ export const ExperimentalBadge: React.FC<ExperimentalBadgeProps> = ({
           </Space>
           
           {onLearnMore && (
-            <div style={{ marginTop: 4 }}>
+            <div style={{ marginTop: spacing.sm }}>
               <Text 
-                style={{ fontSize: '12px', color: '#1677ff', cursor: 'pointer' }}
+                style={{ fontSize: `${fontSize.sm}px`, color: colors.blue[500], cursor: 'pointer' }}
                 onClick={onLearnMore}
               >
-                <Space size={4}>
+                <Space size={spacing.sm}>
                   <Info size={12} />
                   Learn more about LIX experiments
                   <ExternalLink size={10} />
@@ -201,7 +202,7 @@ export const ExperimentalSkuIndicator: React.FC<ExperimentalSkuIndicatorProps> =
           lixTreatment={lixTreatment} 
           variant="compact" 
         />
-        <Text style={{ fontSize: '11px', color: '#8c8c8c' }}>
+        <Text style={{ fontSize: `${fontSize.xs}px`, color: colors.gray[800] }}>
           Experimental
         </Text>
       </Space>
@@ -209,7 +210,7 @@ export const ExperimentalSkuIndicator: React.FC<ExperimentalSkuIndicatorProps> =
   }
 
   return (
-    <div style={{ marginTop: 4 }}>
+    <div style={{ marginTop: spacing.sm }}>
       <ExperimentalBadge 
         lixKey={lixKey} 
         lixTreatment={lixTreatment} 

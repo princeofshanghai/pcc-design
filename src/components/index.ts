@@ -1,76 +1,107 @@
-// Barrel export file - maintains compatibility during component reorganization
-// All existing imports will continue to work through this file
+/**
+ * Barrel export file for all components
+ * This provides clean, organized imports for all components in the application
+ * 
+ * Usage examples:
+ * import { Layout, PageHeader, StatusTag } from '@/components';
+ * import { ProductListTable, PriceGroupTable } from '@/components';
+ */
 
-// Layout components
+// ============================================
+// LAYOUT COMPONENTS
+// ============================================
 export { default as Layout } from './layout/Layout';
+export { default as AppSidebar } from './layout/AppSidebar';
+export { default as AppHeader } from './layout/AppHeader';
+export { default as AppContent } from './layout/AppContent';
 export { default as PageHeader } from './layout/PageHeader';
 export { default as PageSection } from './layout/PageSection';
 export { default as DetailSection } from './layout/DetailSection';
 export { default as ScrollToTop } from './layout/ScrollToTop';
 
-// Product components
+// ============================================
+// SHARED/UTILITY COMPONENTS
+// ============================================
+export { default as CopyableId } from './shared/CopyableId';
+export { default as UserAvatar } from './shared/UserAvatar';
+export { default as GroupHeader } from './shared/GroupHeader';
+
+// ============================================
+// ATTRIBUTE/TAG COMPONENTS
+// ============================================
+export { default as StatusTag } from './attributes/StatusTag';
+export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
+export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';
+export { default as AttributeDisplay } from './attributes/AttributeDisplay';
+export { default as AttributeGroup } from './attributes/AttributeGroup';
+export { default as CountTag } from './attributes/CountTag';
+export { default as FolderTag } from './attributes/FolderTag';
+export { default as LobTag } from './attributes/LobTag';
+export { default as PricePointStatusTag } from './attributes/PricePointStatusTag';
+
+// ============================================
+// PRODUCT COMPONENTS
+// ============================================
 export { default as ProductList } from './product/ProductList';
 export { default as ProductListItem } from './product/ProductListItem';
 export { default as ProductListTable } from './product/ProductListTable';
 export { default as GroupedProductList } from './product/GroupedProductList';
 export { default as GroupedProductListTable } from './product/GroupedProductListTable';
 
-// SKU components
+// ============================================
+// PRICING COMPONENTS
+// ============================================
+export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
+export { default as PriceDetailView } from './pricing/PriceDetailView';
+export { default as PriceGroupTable } from './pricing/PriceGroupTable';
+export { default as PricePointTable } from './pricing/PricePointTable';
+export { default as OverrideComparison } from './pricing/OverrideComparison';
+export { default as OverrideIndicator } from './pricing/OverrideIndicator';
+
+// ============================================
+// SKU COMPONENTS
+// ============================================
 export { default as SkuListItem } from './sku/SkuListItem';
 export { default as SkuListTable } from './sku/SkuListTable';
 export { default as GroupedSkuListTable } from './sku/GroupedSkuListTable';
 export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
-// Pricing components
-export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
-export { default as OverrideComparison } from './pricing/OverrideComparison';
-export { default as OverrideIndicator } from './pricing/OverrideIndicator';
-export { default as PriceDetailView } from './pricing/PriceDetailView';
-export { default as PriceGroupTable } from './pricing/PriceGroupTable';
-export { default as PricePointTable } from './pricing/PricePointTable';
-
-
-// Attribute components
-export { default as AttributeDisplay } from './attributes/AttributeDisplay';
-export { default as AttributeGroup } from './attributes/AttributeGroup';
-export { default as StatusTag } from './attributes/StatusTag';
-export { default as LobTag } from './attributes/LobTag';
-export { default as FolderTag } from './attributes/FolderTag';
-export { default as CountTag } from './attributes/CountTag';
-export { default as PricePointStatusTag } from './attributes/PricePointStatusTag';
-// FolderTabs component removed - no longer used with new navigation
-export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
-export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';
-
-// Filter components
+// ============================================
+// FILTER COMPONENTS
+// ============================================
 export { default as FilterBar } from './filters/FilterBar';
-export { default as FilterDropdown } from './filters/FilterDropdown';
+export { default as FilterDropdown, type SelectOption } from './filters/FilterDropdown';
 export { default as SearchBar } from './filters/SearchBar';
-export { default as ViewOptions } from './filters/ViewOptions';
+export { default as ViewOptions, type ViewMode } from './filters/ViewOptions';
 
-// Shared/utility components
-export { default as CopyableId } from './shared/CopyableId';
-export { default as GroupHeader } from './shared/GroupHeader';
-export { default as UserAvatar } from './shared/UserAvatar';
-
-// Attribute Dictionary components
-export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
-
-// Configuration components
+// ============================================
+// CONFIGURATION COMPONENTS (Named Exports)
+// ============================================
 export { ChangeRequestForm } from './configuration/ChangeRequestForm';
 export { default as ChangeRequestListTable } from './configuration/ChangeRequestListTable';
+export { ChangeRequestOrigin } from './configuration/ChangeRequestOrigin';
 export { ChangeRequestPreview } from './configuration/ChangeRequestPreview';
+export { ChangeRequestStatus } from './configuration/ChangeRequestStatus';
+export { ChangeRequestTimeline } from './configuration/ChangeRequestTimeline';
+export { ConflictResolutionPanel, ConflictWarning } from './configuration/ConflictWarning';
+export { ExperimentalBadge } from './configuration/ExperimentalBadge';
+export { default as PriceGroupExperimentalIndicator } from './configuration/PriceGroupExperimentalIndicator';
 export { PriceGroupImpact } from './configuration/PriceGroupImpact';
-export { ConflictWarning } from './configuration/ConflictWarning';
-export { ChangeRequestStatus, DetailedChangeRequestStatus } from './configuration/ChangeRequestStatus';
-export { ChangeRequestTimeline, CompactTimeline } from './configuration/ChangeRequestTimeline';
+export { PriceGroupLink } from './configuration/PriceGroupLink';
 export { RequestHistoryItem } from './configuration/RequestHistoryItem';
-export { ActivityFeedItem } from './activity/ActivityFeedItem';
-export { ExperimentalBadge, ExperimentalSkuIndicator, ExperimentalTableCell } from './configuration/ExperimentalBadge';
-export { PriceGroupExperimentalIndicator } from './configuration/PriceGroupExperimentalIndicator';
-export { ChangeRequestOrigin, OriginTableCell, InlineOrigin } from './configuration/ChangeRequestOrigin';
-export { PriceGroupLink, PriceGroupTableCell, InlinePriceGroup, PriceGroupRelationship } from './configuration/PriceGroupLink';
 
-// Export types that might be imported from components
-export type { ViewMode } from './filters/ViewOptions';
-export type { SelectOption } from './filters/FilterDropdown'; 
+// ============================================
+// ACTIVITY COMPONENTS  
+// ============================================
+export { ActivityFeedItem } from './activity/ActivityFeedItem';
+
+// ============================================
+// ATTRIBUTE DICTIONARY COMPONENTS
+// ============================================
+export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
+
+// ============================================
+// TYPE EXPORTS
+// ============================================
+// Re-export shared types for convenience
+export type * from '../types/shared';

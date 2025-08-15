@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors, fontSize, spacing, borderRadius } from '../../theme';
 import type { BillingCycle } from '../../utils/types';
 
 interface BillingCycleDisplayProps {
@@ -11,15 +12,15 @@ const BillingCycleDisplay: React.FC<BillingCycleDisplayProps> = ({ billingCycle,
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '4px',
-      padding: '3px 8px 3px 7px',
-      border: `1px solid ${muted ? '#e8e8e8' : '#d9d9d9'}`,
-      borderRadius: '50px',
-      backgroundColor: muted ? '#f9f9f9' : '#fff',
+      gap: `${spacing.sm}px`,
+      padding: spacing.badge,
+      border: `1px solid ${muted ? colors.gray[300] : colors.gray[400]}`,
+      borderRadius: `${borderRadius.pill}px`,
+      backgroundColor: muted ? colors.gray[100] : colors.neutral.white,
       width: 'fit-content',
       opacity: muted ? 0.6 : 1
     }}>
-      <span style={{ color: muted ? '#999999' : '#000', fontSize: '13px' }}>{billingCycle}</span>
+      <span style={{ color: muted ? colors.gray[500] : colors.neutral.black, fontSize: `${fontSize.base}px` }}>{billingCycle}</span>
     </div>
   );
 };

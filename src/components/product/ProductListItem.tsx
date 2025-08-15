@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Typography, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { colors, spacing, borderRadius, shadows } from '../../theme';
 import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
@@ -27,11 +28,11 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
     <div
       className="product-list-item"
       style={{
-        padding: '20px 32px 20px 24px',
-        border: '1px solid #e8e8e8',
-        borderRadius: '8px',
-        backgroundColor: isHovered ? '#fafafa' : '#ffffff',
-        boxShadow: isHovered ? '0 2px 8px rgba(0, 0, 0, 0.09)' : '0 1px 2px rgba(0, 0, 0, 0.03)',
+        padding: `${spacing.xxl}px ${spacing.xxxxl}px ${spacing.xxl}px ${spacing.xxxl}px`,
+        border: `1px solid ${colors.gray[300]}`,
+        borderRadius: `${borderRadius.lg}px`,
+        backgroundColor: isHovered ? colors.gray[50] : colors.neutral.white,
+        boxShadow: isHovered ? shadows.md : shadows.sm,
         cursor: 'pointer',
         transition: 'box-shadow 0.3s, background-color 0.3s',
         display: 'flex',

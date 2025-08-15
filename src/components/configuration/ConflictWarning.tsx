@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, Typography, Space, Tag, Button, Card, Row, Col } from 'antd';
 import { AlertTriangle, Info, ExternalLink, Clock, RefreshCw } from 'lucide-react';
+import { colors } from '../../theme';
 import type { Product, ConfigurationRequest } from '../../utils/types';
 import { checkDetailedChangeRequestConflicts, getConflictResolutionSuggestions, type ConflictDetail } from '../../utils/configurationUtils';
 
@@ -181,7 +182,7 @@ export const ConflictResolutionPanel: React.FC<ConflictResolutionPanelProps> = (
 
       {/* Resolution Suggestions */}
       {resolutionSuggestions.length > 0 && (
-        <Card size="small" style={{ backgroundColor: '#f6f8fa', border: '1px solid #d1d9e0' }}>
+        <Card size="small" style={{ backgroundColor: colors.neutral[50], border: `1px solid ${colors.neutral[100]}` }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Space>
               <RefreshCw size={16} />
@@ -222,7 +223,7 @@ export const ConflictResolutionPanel: React.FC<ConflictResolutionPanelProps> = (
       </Row>
 
       {/* Current Configuration Summary */}
-      <Card size="small" style={{ backgroundColor: '#fafafa', border: '1px solid #d9d9d9' }}>
+      <Card size="small" style={{ backgroundColor: colors.gray[50], border: `1px solid ${colors.gray[400]}` }}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space>
             <Info size={16} />

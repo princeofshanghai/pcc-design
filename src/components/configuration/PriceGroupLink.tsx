@@ -2,6 +2,7 @@ import React from 'react';
 import { Typography, Space, Button, Tooltip, Badge, Tag } from 'antd';
 import { ExternalLink, Users, DollarSign, Info } from 'lucide-react';
 import type { PriceGroup, Product } from '../../utils/types';
+import { colors } from '../../theme';
 
 const { Text } = Typography;
 
@@ -150,7 +151,7 @@ export const PriceGroupLink: React.FC<PriceGroupLinkProps> = ({
             background: '#fafafa',
             padding: '8px',
             borderRadius: '4px',
-            border: '1px solid #d9d9d9'
+            border: `1px solid ${colors.gray[400]}`
           }}>
             <Space>
               <Users size={14} />

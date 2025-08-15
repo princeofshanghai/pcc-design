@@ -1,9 +1,9 @@
 .product-list-item {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--spacing-xxl);
   align-items: flex-start;
-  padding: 16px 20px;
+  padding: var(--spacing-xxl) var(--spacing-xxxl);
   transition: background-color 0.2s ease;
   flex-wrap: wrap;
 }
@@ -17,7 +17,7 @@
   flex-shrink: 0;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 12px !important;
+  gap: var(--spacing-xl) !important;
 }
 
 .product-name-link {

@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Table, Typography, theme, Tooltip } from 'antd';
+import { colors } from '../../theme';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
@@ -556,7 +557,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
             <Tooltip title={currencyName || record.currencyCode}>
               <Text style={{ 
                 fontWeight: 500,
-                color: record.status === 'Expired' ? '#c1c1c1' : undefined
+                color: record.status === 'Expired' ? colors.gray[900] : undefined
               }}>
                 {record.currencyCode}
               </Text>
@@ -855,7 +856,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
                 const isExpanded = expandedGroups.includes(groupKey);
                 return (
                   <tr {...props} className="ant-table-row-group-header">
-                    <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
+                    <td colSpan={columns.length} style={{ padding: '12px 16px', backgroundColor: colors.gray[50] }}>
                       <GroupHeader 
                         title={title}
                         count={count}

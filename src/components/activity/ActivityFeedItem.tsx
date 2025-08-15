@@ -4,6 +4,7 @@ import { ExternalLink, DollarSign } from 'lucide-react';
 import type { ConfigurationRequest } from '../../utils/types';
 import { ChangeRequestStatus } from '../configuration/ChangeRequestStatus';
 import { getUserLdap } from '../../utils/users';
+import { colors } from '../../theme';
 
 const { Text } = Typography;
 
@@ -68,7 +69,7 @@ export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = (props) => {
       size="small" 
       style={{ 
         backgroundColor: '#ffffff', // Clean white background
-        border: '1px solid #d9d9d9', // Standard Ant border
+        border: `1px solid ${colors.gray[400]}`, // Standard border
         marginBottom: 8
       }}
     >

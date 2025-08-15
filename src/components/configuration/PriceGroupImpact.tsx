@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Typography, Space, Tag, Alert, Divider } from 'antd';
 import { Plus, RefreshCw, Info } from 'lucide-react';
+import { colors, spacing, borderRadius } from '../../theme';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { Product, BillingCycle } from '../../utils/types';
 
@@ -59,8 +60,8 @@ export const PriceGroupImpact: React.FC<PriceGroupImpactProps> = ({
   if (!salesChannel || !billingCycle) {
     return (
       <Card>
-        <Space direction="vertical" align="center" style={{ width: '100%', padding: '20px 0' }}>
-          <Info size={32} color="#d9d9d9" />
+        <Space direction="vertical" align="center" style={{ width: '100%', padding: `${spacing.xxl}px 0` }}>
+          <Info size={32} color={colors.gray[400]} />
           <Text type="secondary">
             Select sales channel and billing cycle to see price group impact
           </Text>
@@ -179,10 +180,10 @@ export const PriceGroupImpact: React.FC<PriceGroupImpactProps> = ({
 
         {/* Summary Information */}
         <div style={{ 
-          background: '#fafafa', 
-          padding: '16px', 
-          borderRadius: '8px', 
-          border: '1px solid #d9d9d9' 
+          background: colors.gray[50], 
+          padding: `${spacing.xxl}px`, 
+          borderRadius: `${borderRadius.lg}px`, 
+          border: `1px solid ${colors.gray[400]}` 
         }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Text strong>Summary:</Text>

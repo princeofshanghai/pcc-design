@@ -6,6 +6,7 @@ import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, 
 import { Download, Check, X, Box, ArrowLeft, Pencil } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
+import { colors } from '../theme';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
@@ -807,7 +808,7 @@ const ProductDetail: React.FC = () => {
             <div style={{ 
               marginTop: '24px', 
               paddingTop: '16px', 
-              borderTop: '1px solid #f0f0f0',
+              borderTop: `1px solid ${colors.gray[200]}`,
               display: 'flex',
               justifyContent: 'space-between'
             }}>

@@ -1,12 +1,186 @@
 /* 
-  This file will contain global CSS overrides and utility styles.
-  We can use this to apply consistent styling tweaks across the application.
+  Global CSS overrides, utility styles, and design system classes.
+  This file provides reusable styles that work consistently across the application.
 */
 
 /* Design System Variables */
 :root {
   /* Optical alignment tokens for detail pages */
   --detail-page-tab-content-offset: 0px; /* Will be calculated based on actual tab positioning */
+  
+  /* Design token CSS variables for easy access */
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 6px;
+  --spacing-lg: 8px;
+  --spacing-xl: 12px;
+  --spacing-xxl: 16px;
+  --spacing-xxxl: 24px;
+  --spacing-xxxxl: 32px;
+  
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 50px;
+  
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 13px;
+  --font-md: 14px;
+  --font-lg: 16px;
+  
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #f0f0f0;
+  --color-gray-300: #e8e8e8;
+  --color-gray-400: #d9d9d9;
+  --color-gray-500: #999999;
+  --color-gray-600: #666666;
+  --color-gray-700: #595959;
+  --color-gray-800: #8c8c8c;
+  --color-gray-900: #c1c1c1;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Flexbox utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+.flex-grow { flex-grow: 1; }
+
+/* Gap utilities */
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+.gap-xxl { gap: var(--spacing-xxl); }
+
+/* Padding utilities */
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+.p-xxl { padding: var(--spacing-xxl); }
+
+.px-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+.px-md { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+.px-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+.px-xl { padding-left: var(--spacing-xl); padding-right: var(--spacing-xl); }
+
+.py-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+.py-md { padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); }
+.py-lg { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+.py-xl { padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl); }
+
+/* Margin utilities */
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+.m-xxl { margin: var(--spacing-xxl); }
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+.mt-xxl { margin-top: var(--spacing-xxl); }
+
+.mb-xs { margin-bottom: var(--spacing-xs); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+.mb-xxl { margin-bottom: var(--spacing-xxl); }
+
+/* Text utilities */
+.text-xs { font-size: var(--font-xs); }
+.text-sm { font-size: var(--font-sm); }
+.text-base { font-size: var(--font-base); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+
+.text-gray-500 { color: var(--color-gray-500); }
+.text-gray-600 { color: var(--color-gray-600); }
+.text-gray-700 { color: var(--color-gray-700); }
+.text-gray-800 { color: var(--color-gray-800); }
+.text-gray-900 { color: var(--color-gray-900); }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+
+/* Border utilities */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-pill { border-radius: var(--radius-pill); }
+
+.border { border: 1px solid var(--color-gray-400); }
+.border-light { border: 1px solid var(--color-gray-300); }
+.border-lighter { border: 1px solid var(--color-gray-200); }
+
+/* Background utilities */
+.bg-white { background-color: #ffffff; }
+.bg-gray-50 { background-color: var(--color-gray-50); }
+.bg-gray-100 { background-color: var(--color-gray-100); }
+.bg-gray-200 { background-color: var(--color-gray-200); }
+
+/* Component-specific utilities */
+.badge-style {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 3px 8px 3px 7px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-base);
+  width: fit-content;
+}
+
+.button-style {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+}
+
+.card-padding {
+  padding: var(--spacing-xl) var(--spacing-xxl);
+}
+
+.table-group-header {
+  padding: var(--spacing-xl) var(--spacing-xxl);
+  background-color: var(--color-gray-50);
+}
+
+/* State utilities */
+.muted {
+  opacity: 0.6;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hover-bg:hover {
+  background-color: var(--color-gray-100);
+}
+
+.transition-colors {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /*
@@ -20,14 +194,14 @@
 }
 
 .table-col-first {
-  padding-left: 24px !important;
+  padding-left: 12px !important;
 }
 
 /* A reusable panel style for consistent cards, tables, and lists */
 .content-panel {
   background: #ffffff;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
+  border-top: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--color-gray-200);
   border-radius: 0;
   overflow: hidden;
   box-shadow: none;

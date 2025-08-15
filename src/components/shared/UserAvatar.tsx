@@ -1,6 +1,7 @@
 import React from 'react';
 import { Avatar, Tooltip } from 'antd';
 import { TEAM_MEMBERS, getFullNameFromLdap, getUserLdap } from '../../utils/users';
+import { colors } from '../../theme';
 
 interface UserAvatarProps {
   /** Either full name or LDAP username */
@@ -15,19 +16,8 @@ interface UserAvatarProps {
   className?: string;
 }
 
-// Predefined colors for consistent avatar colors
-const AVATAR_COLORS = [
-  '#1677ff', // Blue
-  '#52c41a', // Green  
-  '#722ed1', // Purple
-  '#fa8c16', // Orange
-  '#eb2f96', // Magenta
-  '#13c2c2', // Cyan
-  '#f5222d', // Red
-  '#faad14', // Gold
-  '#1890ff', // Light Blue
-  '#52c41a', // Light Green
-];
+// Use consistent avatar colors from theme
+const AVATAR_COLORS = colors.avatar;
 
 // Generate consistent color based on LDAP username
 const getAvatarColor = (ldap: string): string => {
@@ -72,7 +62,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       size={size}
       style={{
         backgroundColor,
-        color: '#ffffff',
+        color: colors.neutral.white,
         fontWeight: 500,
         cursor: showTooltip ? 'pointer' : 'default',
         ...style

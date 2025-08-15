@@ -2,6 +2,7 @@ import React from 'react';
 import { Tooltip, theme } from 'antd';
 import type { Status } from '../../utils/types';
 import { CheckCircle2, Archive, XCircle } from 'lucide-react';
+import { spacing, borderRadius, fontSize } from '../../theme';
 
 
 interface StatusTagProps {
@@ -89,11 +90,11 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '4px',
-          padding: '3px 8px 3px 7px', // Match SalesChannelDisplay padding
+          gap: `${spacing.sm}px`,
+          padding: spacing.badge,
           backgroundColor: colorConfig.backgroundColor,
           border: `1px solid ${colorConfig.borderColor}`,
-          borderRadius: '50px', // Match SalesChannelDisplay border radius
+          borderRadius: `${borderRadius.pill}px`,
           width: 'fit-content'
         }}
       >
@@ -102,7 +103,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
         </span>
         <span style={{ 
           color: colorConfig.textColor,
-          fontSize: '13px' // Match SalesChannelDisplay text size
+          fontSize: `${fontSize.base}px`
         }}>
           {status}
         </span>

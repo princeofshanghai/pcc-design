@@ -1,0 +1,328 @@
+/**
+ * Layout.css - Extracted styles from Layout.tsx component
+ * This file contains all the styling for the main application layout,
+ * including sidebar, header, content area, and navigation.
+ */
+
+/* ============================================
+   LAYOUT STRUCTURE
+   ============================================ */
+
+.app-layout-main {
+  margin-left: 240px; /* Expanded sidebar width */
+  background-color: var(--color-bg-container);
+  transition: margin-left 0.3s ease;
+}
+
+.app-layout-main.collapsed {
+  margin-left: 64px; /* Collapsed sidebar width */
+}
+
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+
+/* Modern invisible scrollbar approach */
+.sidebar-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Sidebar content wrapper for proper spacing */
+.sidebar-content-wrapper {
+  height: 100%;
+  padding-right: var(--spacing-lg); /* Consistent right spacing for expanded state */
+}
+
+/* Collapsed state: remove right padding, center content */
+.sidebar-container.ant-layout-sider-collapsed .sidebar-content-wrapper {
+  padding-right: 0;
+}
+
+.sidebar-container::-webkit-scrollbar {
+  width: 0px; /* Chrome/Safari - completely hidden */
+  background: transparent;
+}
+
+/* Show subtle overlay scrollbar only on hover */
+.sidebar-container:hover::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-container:hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-container:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   MENU STYLES
+   ============================================ */
+
+/* Compact menu styling for smaller items */
+.compact-menu {
+  --ant-menu-item-height: 32px;
+  --ant-menu-item-padding-inline: var(--spacing-xl);
+}
+
+.compact-menu .ant-menu-item,
+.compact-menu .ant-menu-submenu-title {
+  font-size: var(--font-base);
+  height: 32px !important;
+  line-height: 32px !important;
+}
+
+.compact-menu .ant-menu-submenu > .ant-menu-submenu-title {
+  height: 32px !important;
+  line-height: 32px !important;
+}
+
+/* Consistent spacing for all menu items */
+/* Top level items (Products, Offers, etc.) */
+.compact-menu > .ant-menu-item,
+.compact-menu > .ant-menu-submenu > .ant-menu-submenu-title {
+  padding-left: var(--spacing-xxl) !important;
+  padding-right: var(--spacing-xxxl) !important;
+  margin-left: var(--spacing-lg) !important;
+  margin-right: var(--spacing-lg) !important;
+}
+
+/* Level 1 items (All Products, LOB items) */
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-item,
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title {
+  padding-left: var(--spacing-xxl) !important;
+  padding-right: var(--spacing-xxxl) !important;
+  margin-left: var(--spacing-lg) !important;
+  margin-right: var(--spacing-lg) !important;
+}
+
+/* Level 2 items (folder items within LOBs) - slight indent */
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
+  padding-left: 28px !important;
+  padding-right: var(--spacing-xxxl) !important;
+  margin-left: var(--spacing-lg) !important;
+  margin-right: var(--spacing-lg) !important;
+}
+
+.collapsed-menu .ant-menu-item,
+.collapsed-menu .ant-menu-submenu-title {
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.collapsed-menu .ant-menu-item .ant-menu-title-content,
+.collapsed-menu .ant-menu-submenu-title .ant-menu-title-content {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+/* Center the Products icon perfectly when collapsed */
+.collapsed-menu .sidebar-products-menu-item .ant-menu-item-icon {
+  margin-left: 0 !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Animate sidebar label text for smooth expand/collapse */
+.sidebar-label {
+  display: inline-block;
+  transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity, transform;
+}
+
+.ant-menu-title-content .sidebar-label {
+  transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity, transform;
+}
+
+/* Custom style for LOB expandable sections only (not child folders) */
+/* Target ONLY the direct LOB submenu titles, not their children */
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title span {
+  font-size: var(--font-sm) !important;
+  font-weight: 600 !important;
+  color: var(--color-gray-600) !important;
+}
+
+/* Ensure child folders don't inherit LOB styling */
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item,
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item span {
+  font-size: var(--font-base) !important;
+  font-weight: normal !important;
+  color: inherit !important;
+}
+
+/* Fix text truncation in sidebar menu items */
+.ant-menu-title-content {
+  overflow: hidden !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+/* Ensure flex containers in menu items allow truncation */
+.ant-menu-item span[style*="display: flex"] {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Make sure links and text within flex containers can truncate */
+.ant-menu-item span[style*="display: flex"] > span:last-child,
+.ant-menu-item span[style*="display: flex"] > a {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+/* Clean menu item spacing with wrapper approach */
+.compact-menu .ant-menu-item,
+.compact-menu .ant-menu-submenu-title {
+  margin-left: var(--spacing-lg) !important;
+  margin-right: var(--spacing-lg) !important;
+  box-sizing: border-box !important;
+}
+
+/* Hover effect for logo/text link */
+.sidebar-logo-link:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Ensure all menu and submenu backgrounds are consistent */
+.sidebar-container .ant-menu,
+.sidebar-container .ant-menu-sub,
+.sidebar-container .ant-menu-submenu .ant-menu {
+  background: transparent !important;
+}
+
+/* ============================================
+   HEADER STYLES
+   ============================================ */
+
+.app-header {
+  padding: 0 var(--spacing-xxxl) 0 var(--spacing-xxxl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-gray-200);
+  height: 48px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  transition: all 0.3s ease;
+}
+
+.app-header.expanded {
+  left: 240px;
+}
+
+.app-header.collapsed {
+  left: 64px;
+}
+
+.app-header.scrolled {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.app-header.not-scrolled {
+  background: var(--color-bg-container);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ============================================
+   HEADER BUTTON STYLES
+   ============================================ */
+
+.header-button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  height: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.header-button.active {
+  background-color: var(--color-primary-bg);
+}
+
+.header-button.inactive {
+  background-color: transparent;
+}
+
+.header-button.inactive:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================
+   CONTENT AREA STYLES
+   ============================================ */
+
+.app-content {
+  margin: 80px var(--spacing-xxxl) var(--spacing-xxxl) var(--spacing-xxxl); /* Top margin to account for fixed header */
+  padding: 0;
+  min-height: 280px;
+  background: transparent;
+}
+
+.content-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Breadcrumb separator styling */
+.breadcrumb-separator {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .app-layout-main {
+    margin-left: 0;
+  }
+  
+  .app-header.expanded,
+  .app-header.collapsed {
+    left: 0;
+  }
+  
+  .app-content {
+    margin: 80px var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-content {
+    margin: 80px var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  }
+}

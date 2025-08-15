@@ -1,6 +1,7 @@
 import React from 'react';
 import { message, theme } from 'antd';
-import { Copy, CheckCircle } from 'lucide-react';
+import { Copy } from 'lucide-react';
+import { colors, fontSize, spacing } from '../../theme';
 import './CopyableId.css';
 
 interface CopyableIdProps {
@@ -19,14 +20,13 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
         message.success({
           content: (
             <div style={{ textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle size={16} color="#52c41a" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: `${spacing.lg}px` }}>
                 <span>Copied to clipboard</span>
               </div>
               <div style={{ 
-                color: '#bfbfbf', 
-                fontSize: '12px', 
-                marginTop: '4px', 
+                color: token.colorTextSecondary, 
+                fontSize: `${fontSize.sm}px`, 
+                marginTop: `${spacing.sm}px`, 
                 marginLeft: '24px' // Align with text above (icon width + gap)
               }}>
                 {id}
@@ -47,12 +47,12 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
   // Different styles based on variant and muted state
   const getTextStyles = () => {
     // Use even lighter gray when muted
-    const mutedColor = '#c1c1c1'; // Lighter than token.colorTextTertiary
+    const mutedColor = colors.gray[900]; // Lighter than token.colorTextTertiary
     
     if (variant === 'prominent') {
       return {
         fontFamily: token.fontFamilyCode,
-        fontSize: '14px',
+        fontSize: `${fontSize.md}px`,
         color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
       };
@@ -61,7 +61,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
     // Default variant (existing behavior)
     return {
       fontFamily: token.fontFamilyCode,
-      fontSize: '13px',
+      fontSize: `${fontSize.base}px`,
       color: muted ? mutedColor : token.colorTextSecondary,
     };
   };
@@ -71,7 +71,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '4px',
+        gap: `${spacing.sm}px`,
         ...getTextStyles(),
       }}
     >
@@ -95,4 +95,4 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
   );
 };
 
-export default CopyableId; 
+export default CopyableId;

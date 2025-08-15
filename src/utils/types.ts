@@ -1,7 +1,7 @@
 // This file will contain all the TypeScript type definitions for our data structures.
 // Defining these shapes helps us catch errors and ensures consistency across the app.
 
-export type Status = 'Active' | 'Legacy' | 'Retired';
+export type Status = 'Active' | 'Retired';
 
 export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium' | 'Other';
 

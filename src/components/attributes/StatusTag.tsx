@@ -1,11 +1,14 @@
 import React from 'react';
 import { Tooltip, theme } from 'antd';
-import type { Status } from '../../utils/types';
-import { CheckCircle2, Archive, XCircle } from 'lucide-react';
+import { CheckCircle2, ArchiveX } from 'lucide-react';
+import type { Product } from '../../utils/types';
+
+export type ProductStatus = 'Active' | 'Retired';
 
 
 interface StatusTagProps {
-  status: Status;
+  status?: ProductStatus;
+  product?: Product;
   showLabel?: boolean;
   size?: number;
 }
@@ -18,27 +21,84 @@ type ColorConfig = {
   borderColor: string;
 };
 
-const statusConfig: Record<Status, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' | 'error' }> = {
+/**
+ * Calculates the status of a product based on its price groups
+ * Logic: Active if ANY price group is Active, Retired if ALL price groups are Expired
+ */
+const calculateProductStatus = (product: Product): ProductStatus => {
+  if (!product.skus || product.skus.length === 0) {
+    return 'Retired';
+  }
+
+  const now = new Date();
+
+  // Get all unique price groups from SKUs
+  const priceGroups = product.skus.map(sku => sku.priceGroup);
+
+  // Check each price group's status
+  const priceGroupStatuses = priceGroups.map(priceGroup => {
+    if (!priceGroup.pricePoints || priceGroup.pricePoints.length === 0) {
+      return 'Expired';
+    }
+
+    // Check if any price point in this group is active
+    const hasActivePoint = priceGroup.pricePoints.some(pricePoint => {
+      const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
+      const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
+
+      // If no validFrom date, consider it active
+      if (!validFrom) {
+        return true;
+      }
+
+      // If current time is before validFrom, it's not yet active
+      if (now < validFrom) {
+        return false;
+      }
+
+      // If no validTo date, it's active indefinitely
+      if (!validTo) {
+        return true;
+      }
+
+      // If current time is after validTo, it's expired
+      if (now > validTo) {
+        return false;
+      }
+
+      // Otherwise, it's active
+      return true;
+    });
+
+    return hasActivePoint ? 'Active' : 'Expired';
+  });
+
+  // If ANY price group is active, the product is active
+  const hasActivePriceGroups = priceGroupStatuses.some(status => status === 'Active');
+  
+  return hasActivePriceGroups ? 'Active' : 'Retired';
+};
+
+const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
   Active: {
     icon: CheckCircle2,
-    description: 'Product is actively being sold.',
+    description: 'Product has at least one active price group and is available for purchase.',
     antColorType: 'success',
   },
-  Legacy: {
-    icon: Archive,
-    description: 'Product is no longer being sold, but still has grandfathered customers.',
-    antColorType: 'default',
-  },
   Retired: {
-    icon: XCircle,
-    description: 'Product is no longer being sold and has no grandfathered customers.',
-    antColorType: 'error',
+    icon: ArchiveX,
+    description: 'Product has no active price groups and is no longer available for purchase.',
+    antColorType: 'default',
   },
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 13 }) => {
+const StatusTag: React.FC<StatusTagProps> = ({ status, product, showLabel = true, size = 13 }) => {
   const { token } = theme.useToken();
-  const { icon: Icon, description, antColorType } = statusConfig[status];
+  
+  // Calculate status if not provided but product is available
+  const calculatedStatus = status || (product ? calculateProductStatus(product) : 'Active');
+  
+  const { icon: Icon, description, antColorType } = statusConfig[calculatedStatus];
   
   // Get Ant Design color tokens based on status
   const getColorConfig = (): ColorConfig => {
@@ -51,15 +111,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
           textColor: token.colorSuccessText,
           borderColor: token.colorSuccessBorder,
         };
-      case 'error':
-        return {
-          icon: Icon,
-          description,
-          backgroundColor: token.colorErrorBg,
-          textColor: token.colorErrorText,
-          borderColor: token.colorErrorBorder,
-        };
-      default: // 'default'
+      default: // 'default' for retired/neutral
         return {
           icon: Icon,
           description,
@@ -102,9 +154,9 @@ const StatusTag: React.FC<StatusTagProps> = ({ status, showLabel = true, size = 
         </span>
         <span style={{ 
           color: colorConfig.textColor,
-          fontSize: '13px' // Match SalesChannelDisplay text size
+          fontSize: '13px'
         }}>
-          {status}
+          {calculatedStatus}
         </span>
       </div>
     </Tooltip>

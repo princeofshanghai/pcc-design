@@ -481,6 +481,20 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return bType.localeCompare(aType);
       });
     
+    case 'Status (A-Z)':
+      return sorted.sort((a, b) => {
+        const aStatus = a.status || '';
+        const bStatus = b.status || '';
+        return aStatus.localeCompare(bStatus);
+      });
+    
+    case 'Status (Z-A)':
+      return sorted.sort((a, b) => {
+        const aStatus = a.status || '';
+        const bStatus = b.status || '';
+        return bStatus.localeCompare(aStatus);
+      });
+    
     default:
       return sorted;
   }
@@ -536,9 +550,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <div onClick={(e: React.MouseEvent) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center' }}>
-            <CopyableId id={record.id || ''} variant="prominent" muted={record.status === 'Expired'} />
-            <PricePointStatusTag pricePoint={record} />
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <CopyableId id={record.id || ''} variant="prominent" />
           </div>
         );
       },
@@ -555,8 +568,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           <div>
             <Tooltip title={currencyName || record.currencyCode}>
               <Text style={{ 
-                fontWeight: 500,
-                color: record.status === 'Expired' ? '#c1c1c1' : undefined
+                fontWeight: 500
               }}>
                 {record.currencyCode}
               </Text>
@@ -574,8 +586,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return (
           <Text style={{ 
-            fontWeight: 500,
-            color: record.status === 'Expired' ? '#c1c1c1' : undefined
+            fontWeight: 500
           }}>
             {getCurrencyType(record.currencyCode)}
           </Text>
@@ -589,9 +600,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Text style={{
-            color: record.status === 'Expired' ? '#c1c1c1' : undefined
-          }}>
+          <Text>
             {formatAmount(record)}
           </Text>
         );
@@ -607,9 +616,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const regionDisplayName = getRegionDisplayName(region);
         return (
           <Tooltip title={regionDisplayName}>
-            <Text style={{
-              color: record.status === 'Expired' ? '#c1c1c1' : undefined
-            }}>
+            <Text>
               {region}
             </Text>
           </Tooltip>
@@ -646,9 +653,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const rule = record.pricingRule || 'NONE';
         return (
           <Tooltip title={getPricingRuleTooltip(rule)}>
-            <Text style={{
-              color: record.status === 'Expired' ? '#c1c1c1' : undefined
-            }}>
+            <Text>
               {formatPricingRule(rule)}
             </Text>
           </Tooltip>
@@ -696,9 +701,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const rangeText = formatQuantityRange(record);
         return (
           <Tooltip title={getQuantityRangeTooltip(record)}>
-            <Text style={{
-              color: record.status === 'Expired' ? '#c1c1c1' : undefined
-            }}>
+            <Text>
               {rangeText}
             </Text>
           </Tooltip>
@@ -734,9 +737,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const priceType = record.priceType || '';
         return (
           <Tooltip title={getPriceTypeTooltip(priceType)}>
-            <Text style={{
-              color: record.status === 'Expired' ? '#c1c1c1' : undefined
-            }}>
+            <Text>
               {formatPriceType(priceType)}
             </Text>
           </Tooltip>
@@ -753,15 +754,22 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
         return (
           <Text style={{ 
-            color: record.status === 'Expired' 
-              ? '#c1c1c1' 
-              : percentage === null 
-                ? token.colorTextTertiary 
-                : (percentage === 100 ? token.colorTextSecondary : token.colorText)
+            color: percentage === null 
+              ? token.colorTextTertiary 
+              : (percentage === 100 ? token.colorTextSecondary : token.colorText)
           }}>
             {formattedValue}
           </Text>
         );
+      },
+    } : null,
+    status: visibleColumns.status !== false ? {
+      title: getColumnLabel('status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        return <PricePointStatusTag pricePoint={record} />;
       },
     } : null,
     validity: visibleColumns.validity !== false ? {
@@ -771,11 +779,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const validityText = formatValidityRange(record.validFrom, record.validTo);
 
         return (
-          <span style={{ 
-            color: record.status === 'Expired' 
-              ? '#c1c1c1' 
-              : token.colorText
-          }}>
+          <span>
             {validityText}
           </span>
         );

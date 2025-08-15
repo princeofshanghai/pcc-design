@@ -9,7 +9,7 @@ import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import {
   PageHeader,
-  StatusTag,
+  PriceGroupStatusTag,
   PageSection,
   FilterBar,
   AttributeDisplay,
@@ -265,7 +265,7 @@ const PriceGroupDetail: React.FC = () => {
             navigate(`/product/${productId}?tab=${fromTab}`);
           }
         }}
-        tagContent={priceGroup.status && <StatusTag status={priceGroup.status} />}
+        tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
         lastUpdatedBy="Luxi Kanazir"
         lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago

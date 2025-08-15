@@ -132,6 +132,8 @@ const ProductDetail: React.FC = () => {
     setBillingCycleFilter: setPriceGroupBillingCycleFilter,
     experimentFilter: priceGroupExperimentFilter,
     setExperimentFilter: setPriceGroupExperimentFilter,
+    statusFilters: priceGroupStatusFilters,
+    setStatusFilters: setPriceGroupStatusFilters,
     groupBy: priceGroupGroupBy, 
     setGroupBy: setPriceGroupGroupBy,
     sortOrder: priceGroupSortOrder, 
@@ -141,6 +143,7 @@ const ProductDetail: React.FC = () => {
     channelOptions: priceGroupChannelOptions,
     billingCycleOptions: priceGroupBillingCycleOptions,
     experimentOptions: priceGroupExperimentOptions,
+    statusOptions: priceGroupStatusOptions,
   } = usePriceGroupFilters(product?.skus || []);
 
   // Default column visibility configuration for PriceGroupTable
@@ -175,6 +178,7 @@ const ProductDetail: React.FC = () => {
     setPriceGroupChannelFilters([]);
     setPriceGroupBillingCycleFilter(null);
     setPriceGroupExperimentFilter(null);
+    setPriceGroupStatusFilters([]);
   };
 
   const clearAllSkuFilters = () => {
@@ -463,6 +467,16 @@ const ProductDetail: React.FC = () => {
                   value: priceGroupExperimentFilter,
                   onChange: setPriceGroupExperimentFilter,
                   dropdownStyle: { minWidth: '320px' },
+                },
+                {
+                  placeholder: "All statuses",
+                  options: priceGroupStatusOptions,
+                  multiSelect: true,
+                  multiValue: priceGroupStatusFilters,
+                  onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
                 },
               ]}
               onClearAll={clearAllPriceGroupFilters}

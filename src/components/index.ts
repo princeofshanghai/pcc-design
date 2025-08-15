@@ -34,10 +34,11 @@ export { default as PricePointTable } from './pricing/PricePointTable';
 export { default as AttributeDisplay } from './attributes/AttributeDisplay';
 export { default as AttributeGroup } from './attributes/AttributeGroup';
 export { default as StatusTag } from './attributes/StatusTag';
+export { default as PricePointStatusTag } from './attributes/PricePointStatusTag';
+export { default as PriceGroupStatusTag } from './attributes/PriceGroupStatusTag';
 export { default as LobTag } from './attributes/LobTag';
 export { default as FolderTag } from './attributes/FolderTag';
 export { default as CountTag } from './attributes/CountTag';
-export { default as PricePointStatusTag } from './attributes/PricePointStatusTag';
 // FolderTabs component removed - no longer used with new navigation
 export { default as SalesChannelDisplay } from './attributes/SalesChannelDisplay';
 export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';

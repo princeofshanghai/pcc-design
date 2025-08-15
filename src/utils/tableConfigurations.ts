@@ -2,16 +2,15 @@ import type { ColumnConfig } from './types';
 
 export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price ID', required: true },
-  { key: 'name', label: 'Name', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'usdPrice', label: 'USD price', required: false },
   { key: 'currencies', label: 'Price points', required: false },
   { key: 'lix', label: 'Experiments', required: false },
-  { key: 'validity', label: 'Validity', required: false },
+  { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'];
+export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'status'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price point ID', required: true },
@@ -24,17 +23,16 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'priceType', label: 'Price type', required: false },
   { key: 'usdEquivalent', label: 'USD equivalent', required: false },
   { key: 'validity', label: 'Validity', required: false },
+  { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'currencyType', 'amount', 'region', 'pricingRule', 'quantityRange', 'priceType', 'usdEquivalent', 'validity'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'currencyType', 'amount', 'region', 'pricingRule', 'quantityRange', 'priceType', 'usdEquivalent', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
   'None',
   'ID (A-Z)',
   'ID (Z-A)',
-  'Name (A-Z)',
-  'Name (Z-A)',
   'Channel (A-Z)',
   'Channel (Z-A)',
   'Billing Cycle (A-Z)',
@@ -43,8 +41,8 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'USD Price (High to Low)',
   'Experiment (A-Z)',
   'Experiment (Z-A)',
-  'Validity (Earliest to Latest)',
-  'Validity (Latest to Earliest)',
+  'Status (A-Z)',
+  'Status (Z-A)',
 ];
 
 // Group by options for price groups
@@ -53,7 +51,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'Channel',
   'Billing Cycle',
   'Experiment',
-  'Validity',
+  'Status',
 ];
 
 // Sort options for price points
@@ -70,6 +68,8 @@ export const PRICE_POINT_SORT_OPTIONS = [
   'Region (Z-A)',
   'Price type (A-Z)',
   'Price type (Z-A)',
+  'Status (A-Z)',
+  'Status (Z-A)',
   'Validity (Earliest to latest)',
   'Validity (Latest to earliest)',
 ];

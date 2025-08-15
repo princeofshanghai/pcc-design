@@ -1,62 +1,57 @@
 import { useState, useMemo } from 'react';
 import type { Sku, SalesChannel, PricePoint } from '../utils/types';
-import { formatValidityRange, toSentenceCase } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
-/**
- * Determines the common validity range for a price group based on its price points
- */
-const getCommonValidityRange = (pricePoints: PricePoint[]): string => {
-  if (!pricePoints || pricePoints.length === 0) return 'N/A';
+type PriceGroupStatus = 'Active' | 'Expired';
 
-  // Count frequency of valid from dates
-  const validFromCounts: Record<string, number> = {};
-  const validToCounts: Record<string, number> = {};
-  
-  pricePoints.forEach(point => {
-    const validFrom = point.validFrom || '';
-    const validTo = point.validTo || '';
-    
-    validFromCounts[validFrom] = (validFromCounts[validFrom] || 0) + 1;
-    validToCounts[validTo] = (validToCounts[validTo] || 0) + 1;
+/**
+ * Calculates the status of a price group based on its price points
+ * Logic: Active if ANY price point is Active, Expired if ALL price points are Expired
+ */
+const calculatePriceGroupStatus = (pricePoints: PricePoint[]): PriceGroupStatus => {
+  if (!pricePoints || pricePoints.length === 0) {
+    return 'Expired';
+  }
+
+  const now = new Date();
+
+  // Check each price point's status
+  const pricePointStatuses = pricePoints.map(pricePoint => {
+    const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
+    const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
+
+    // If no validFrom date, consider it active
+    if (!validFrom) {
+      return 'Active';
+    }
+
+    // If current time is before validFrom, it's not yet active
+    if (now < validFrom) {
+      return 'Expired';
+    }
+
+    // If no validTo date, it's active indefinitely
+    if (!validTo) {
+      return 'Active';
+    }
+
+    // If current time is after validTo, it's expired
+    if (now > validTo) {
+      return 'Expired';
+    }
+
+    // Otherwise, it's active
+    return 'Active';
   });
 
-  // Find most common valid from date
-  const validFromEntries = Object.entries(validFromCounts);
-  const mostCommonValidFromEntry = validFromEntries.reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  );
-  const mostCommonValidFrom = mostCommonValidFromEntry[0];
-  const validFromFrequency = mostCommonValidFromEntry[1];
-
-  // Find most common valid to date
-  const validToEntries = Object.entries(validToCounts);
-  const mostCommonValidToEntry = validToEntries.reduce((prev, current) => 
-    current[1] > prev[1] ? current : prev
-  );
-  const mostCommonValidTo = mostCommonValidToEntry[0];
-  const validToFrequency = mostCommonValidToEntry[1];
-
-  // Check if dates are mixed
-  const hasMultipleValidFromDates = validFromEntries.length > 1;
-  const hasMultipleValidToDates = validToEntries.length > 1;
+  // If ANY price point is active, the price group is active
+  const hasActivePoints = pricePointStatuses.some(status => status === 'Active');
   
-  // If valid from dates vary significantly, show "Mixed validity"
-  if (hasMultipleValidFromDates && validFromFrequency < pricePoints.length * 0.7) {
-    return 'Mixed validity';
-  }
-  
-  // If valid to dates vary significantly, but valid from dates are consistent
-  if (hasMultipleValidToDates && validToFrequency < pricePoints.length * 0.7) {
-    return formatValidityRange(mostCommonValidFrom, undefined) + ' - Mixed validity end dates';
-  }
-  
-  // Use most common dates
-  return formatValidityRange(
-    mostCommonValidFrom || undefined, 
-    mostCommonValidTo || undefined
-  );
+  return hasActivePoints ? 'Active' : 'Expired';
 };
+
+
 
 /**
  * Gets the earliest validFrom date from price points for sorting purposes
@@ -81,6 +76,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const [channelFilters, setChannelFilters] = useState<SalesChannel[]>([]);
   const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
   const [experimentFilter, setExperimentFilter] = useState<string | null>(null);
+  const [statusFilters, setStatusFilters] = useState<PriceGroupStatus[]>([]);
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
@@ -135,8 +131,16 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       );
     }
 
+    // Status filter (multi-select)
+    if (statusFilters.length > 0) {
+      filtered = filtered.filter((group: { priceGroup: any }) => {
+        const status = calculatePriceGroupStatus(group.priceGroup.pricePoints);
+        return statusFilters.includes(status);
+      });
+    }
+
     return filtered;
-  }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter, experimentFilter]);
+  }, [priceGroupMap, searchQuery, channelFilter, channelFilters, billingCycleFilter, experimentFilter, statusFilters]);
 
   // Helper function to get billing cycle priority (for default sort)
   const getBillingCyclePriority = (cycle: string): number => {
@@ -294,6 +298,16 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         if (!bLixKey) return -1; // b goes to end
         return bLixKey.localeCompare(aLixKey);
       }
+      if (sortOrder === 'Status (A-Z)') {
+        const aStatus = calculatePriceGroupStatus(a.priceGroup.pricePoints);
+        const bStatus = calculatePriceGroupStatus(b.priceGroup.pricePoints);
+        return aStatus.localeCompare(bStatus);
+      }
+      if (sortOrder === 'Status (Z-A)') {
+        const aStatus = calculatePriceGroupStatus(a.priceGroup.pricePoints);
+        const bStatus = calculatePriceGroupStatus(b.priceGroup.pricePoints);
+        return bStatus.localeCompare(aStatus);
+      }
       
       // Default multi-level sort when sortOrder is 'None' or unrecognized
       // 1. Primary: Validity (most recent first) - calculated from price points
@@ -359,9 +373,9 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
           return acc;
         }, {} as Record<string, number>);
         groupKey = Object.entries(cycleCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0];
-      } else if (groupBy === 'Validity') {
-        // Group by validity range of the price group
-        groupKey = getCommonValidityRange(group.priceGroup.pricePoints);
+      } else if (groupBy === 'Status') {
+        // Group by price group status
+        groupKey = calculatePriceGroupStatus(group.priceGroup.pricePoints);
       } else if (groupBy === 'Experiment') {
         // Group by experiment key
         const skuWithLix = group.skus.find((sku: any) => sku.lix?.key);
@@ -429,6 +443,29 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     }));
   }, [initialSkus]);
 
+  const statusOptions = useMemo(() => {
+    // Get all unique price groups and calculate their statuses
+    const uniquePriceGroups = Array.from(new Set(initialSkus.map(sku => sku.priceGroup.id)))
+      .map(id => initialSkus.find(sku => sku.priceGroup.id === id)?.priceGroup)
+      .filter(Boolean);
+
+    const statusCounts: Record<PriceGroupStatus, number> = { Active: 0, Expired: 0 };
+    
+    uniquePriceGroups.forEach(priceGroup => {
+      if (priceGroup && priceGroup.pricePoints) {
+        const status = calculatePriceGroupStatus(priceGroup.pricePoints);
+        statusCounts[status]++;
+      }
+    });
+
+    return Object.entries(statusCounts)
+      .filter(([, count]) => count > 0)
+      .map(([status, count]) => ({
+        value: status,
+        label: `${status} (${count})`
+      }));
+  }, [initialSkus]);
+
   const priceGroupCount = filteredPriceGroups.length;
 
   return {
@@ -438,6 +475,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     channelFilters, setChannelFilters,
     billingCycleFilter, setBillingCycleFilter,
     experimentFilter, setExperimentFilter,
+    statusFilters, setStatusFilters,
     groupBy, setGroupBy,
     sortOrder, setSortOrder,
 
@@ -450,5 +488,6 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     channelOptions,
     billingCycleOptions,
     experimentOptions,
+    statusOptions,
   };
 }; 

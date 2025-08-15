@@ -1,14 +1,14 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography, Tag, Dropdown, Button, Modal } from 'antd';
+import { Table, Space, Typography, Dropdown, Button, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
-import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder, PricePoint } from '../../utils/types';
-import { formatCurrency, toSentenceCase, formatColumnTitles, formatValidityRange } from '../../utils/formatters';
+import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
-import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
+import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';
@@ -35,53 +35,14 @@ type TableRow = {
   groupKey: string;
 };
 
-/**
- * Determines the overall validity range for a price group based on its price points
- */
-const getValidityRange = (pricePoints: PricePoint[]): string => {
-  if (!pricePoints || pricePoints.length === 0) return 'N/A';
 
-  const validFromDates = pricePoints
-    .map(p => p.validFrom)
-    .filter((date): date is string => Boolean(date))
-    .map(date => new Date(date).getTime());
-    
-  const validToDates = pricePoints
-    .filter(p => p.status === 'Active')  // Only look at active price points for business validity
-    .map(p => p.validTo)
-    .filter((date): date is string => Boolean(date))
-    .map(date => new Date(date).getTime());
-
-  if (validFromDates.length === 0) return 'No validity data';
-
-  const earliestFrom = new Date(Math.min(...validFromDates));
-  const latestTo = validToDates.length > 0 ? 
-    new Date(Math.max(...validToDates)) : null;
-
-  // Check if all price points have same validity
-  const uniqueValidityPeriods = new Set(
-    pricePoints.map(p => `${p.validFrom}-${p.validTo || ''}`)
-  );
-
-  const baseRange = formatValidityRange(
-    earliestFrom.toISOString(), 
-    latestTo?.toISOString()
-  );
-
-  // Add indicator if there are mixed validity periods
-  if (uniqueValidityPeriods.size > 1) {
-    return `${baseRange} (${uniqueValidityPeriods.size} periods)`;
-  }
-
-  return baseRange;
-};
 
 const PriceGroupTable: React.FC<PriceGroupTableProps> = ({ 
   priceGroups, 
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['name', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'validity'],
+  columnOrder = ['channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'status'],
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
@@ -112,71 +73,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
       className: 'table-col-first',
     },
-    name: visibleColumns.name !== false ? {
-      title: getColumnLabel('name'),
-      dataIndex: 'name',
-      key: 'name',
-      minWidth: 200,
-      render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
-        
-        // Find experimental SKUs in this price group
-        const experimentalSkus = record.skus.filter((sku: Sku) => sku.lix?.key);
-        const firstExperimentalSku = experimentalSkus[0];
-        
-        const getPriceGroupTooltipContent = () => {
-          if (!firstExperimentalSku) return null;
-          
-          return (
-            <div style={{ maxWidth: 300 }}>
-              <Space direction="vertical" size={4}>
-                <Text strong style={{ color: 'white' }}>This price group is part of a SKU experiment</Text>
-                <div style={{ marginTop: 8 }}>
-                  <Text style={{ color: 'white', fontSize: '13px' }}>
-                    <strong>SKU:</strong> {firstExperimentalSku.id}
-                  </Text>
-                  <div>
-                    <Text style={{ color: 'white', fontSize: '13px' }}>
-                      <strong>LIX Key:</strong> {firstExperimentalSku.lix.key}
-                    </Text>
-                  </div>
-                  {firstExperimentalSku.lix.treatment && (
-                    <div>
-                      <Text style={{ color: 'white', fontSize: '13px' }}>
-                        <strong>Treatment:</strong> {firstExperimentalSku.lix.treatment}
-                      </Text>
-                    </div>
-                  )}
-                  {experimentalSkus.length > 1 && (
-                    <div style={{ marginTop: 4 }}>
-                      <Text style={{ color: 'white', fontSize: '13px' }}>
-                        +{experimentalSkus.length - 1} more experimental SKU{experimentalSkus.length - 1 > 1 ? 's' : ''}
-                      </Text>
-                    </div>
-                  )}
-                </div>
-              </Space>
-            </div>
-          );
-        };
-        
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontWeight: 500 }}>
-              {record.priceGroup.name || '-'}
-            </span>
-            {firstExperimentalSku && (
-              <ExperimentalBadge 
-                lixKey={firstExperimentalSku.lix.key} 
-                lixTreatment={firstExperimentalSku.lix.treatment} 
-                variant="compact"
-                customTooltipContent={getPriceGroupTooltipContent()}
-              />
-            )}
-          </div>
-        );
-      },
-    } : null,
+
     channel: visibleColumns.channel !== false ? {
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
@@ -187,21 +84,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
         return (
           <Space size="small">
-            {uniqueChannels.map((channel: any) => {
-              const isMobileChannel = channel === 'iOS' || channel === 'GPB';
-              return (
-                <Space key={channel} size={4}>
-                  <SalesChannelDisplay channel={channel} />
-                  {isMobileChannel && (
-                    <Tag 
-                      style={{ fontSize: '11px', margin: 0, padding: '0 6px', lineHeight: '18px' }}
-                    >
-                      ext_prod_id
-                    </Tag>
-                  )}
-                </Space>
-              );
-            })}
+            {uniqueChannels.map((channel: any) => (
+              <SalesChannelDisplay key={channel} channel={channel} />
+            ))}
           </Space>
         );
       },
@@ -270,13 +155,13 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    validity: visibleColumns.validity !== false ? {
-      title: getColumnLabel('validity'),
-      dataIndex: 'validity',
-      key: 'validity',
+    status: visibleColumns.status !== false ? {
+      title: getColumnLabel('status'),
+      dataIndex: 'status',
+      key: 'status',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return getValidityRange(record.priceGroup.pricePoints);
+        return <PriceGroupStatusTag priceGroup={record.priceGroup} />;
       },
     } : null,
   };

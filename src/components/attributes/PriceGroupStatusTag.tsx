@@ -1,13 +1,13 @@
 import React from 'react';
 import { Tooltip, theme } from 'antd';
 import { CheckCircle2, ArchiveX } from 'lucide-react';
-import type { PricePoint } from '../../utils/types';
+import type { PriceGroup } from '../../utils/types';
 
-export type PricePointStatus = 'Active' | 'Expired';
+export type PriceGroupStatus = 'Active' | 'Expired';
 
-interface PricePointStatusTagProps {
-  status?: PricePointStatus;
-  pricePoint?: PricePoint;
+interface PriceGroupStatusTagProps {
+  status?: PriceGroupStatus;
+  priceGroup?: PriceGroup;
   showLabel?: boolean;
   size?: number;
 }
@@ -21,60 +21,74 @@ type ColorConfig = {
 };
 
 /**
- * Calculates the status of a price point based on validity dates
+ * Calculates the status of a price group based on its price points
+ * Logic: Active if ANY price point is Active, Expired if ALL price points are Expired
  */
-const calculatePricePointStatus = (pricePoint: PricePoint): PricePointStatus => {
+const calculatePriceGroupStatus = (priceGroup: PriceGroup): PriceGroupStatus => {
+  if (!priceGroup.pricePoints || priceGroup.pricePoints.length === 0) {
+    return 'Expired';
+  }
+
   const now = new Date();
-  const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
-  const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
 
-  // If no validFrom date, consider it active
-  if (!validFrom) {
+  // Check each price point's status
+  const pricePointStatuses = priceGroup.pricePoints.map(pricePoint => {
+    const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
+    const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
+
+    // If no validFrom date, consider it active
+    if (!validFrom) {
+      return 'Active';
+    }
+
+    // If current time is before validFrom, it's not yet active
+    if (now < validFrom) {
+      return 'Expired';
+    }
+
+    // If no validTo date, it's active indefinitely
+    if (!validTo) {
+      return 'Active';
+    }
+
+    // If current time is after validTo, it's expired
+    if (now > validTo) {
+      return 'Expired';
+    }
+
+    // Otherwise, it's active
     return 'Active';
-  }
+  });
 
-  // If current time is before validFrom, it's not yet active (treat as expired)
-  if (now < validFrom) {
-    return 'Expired';
-  }
-
-  // If no validTo date, it's active indefinitely
-  if (!validTo) {
-    return 'Active';
-  }
-
-  // If current time is after validTo, it's expired
-  if (now > validTo) {
-    return 'Expired';
-  }
-
-  // Otherwise, it's active
-  return 'Active';
+  // If ANY price point is active, the price group is active
+  const hasActivePoints = pricePointStatuses.some(status => status === 'Active');
+  
+  return hasActivePoints ? 'Active' : 'Expired';
 };
 
-const statusConfig: Record<PricePointStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
+const statusConfig: Record<PriceGroupStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
   Active: {
     icon: CheckCircle2,
-    description: 'Price point is currently valid and can be used for new purchases.',
+    description: 'Price group has at least one active price point and can be used for new purchases.',
     antColorType: 'success',
   },
   Expired: {
     icon: ArchiveX,
-    description: 'Price point is no longer valid and cannot be used for new purchases.',
+    description: 'Price group has no active price points and cannot be used for new purchases.',
     antColorType: 'default',
   },
 };
 
-const PricePointStatusTag: React.FC<PricePointStatusTagProps> = ({ 
+const PriceGroupStatusTag: React.FC<PriceGroupStatusTagProps> = ({ 
   status, 
-  pricePoint, 
+  priceGroup, 
   showLabel = true, 
   size = 13 
 }) => {
   const { token } = theme.useToken();
   
-  // Calculate status if not provided but pricePoint is available
-  const calculatedStatus = status || (pricePoint ? calculatePricePointStatus(pricePoint) : 'Active');
+  // Calculate status if not provided but priceGroup is available
+  const calculatedStatus = status || (priceGroup ? calculatePriceGroupStatus(priceGroup) : 'Active');
   
   const { icon: Icon, description, antColorType } = statusConfig[calculatedStatus];
   
@@ -141,4 +155,4 @@ const PricePointStatusTag: React.FC<PricePointStatusTagProps> = ({
   );
 };
 
-export default PricePointStatusTag;
+export default PriceGroupStatusTag;

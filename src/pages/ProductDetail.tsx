@@ -751,8 +751,6 @@ const ProductDetail: React.FC = () => {
         onBack={() => navigate(-1)}
         tagContent={<StatusTag status={product.status} />}
         rightAlignedId={product.id}
-        lastUpdatedBy="Charles Hu"
-        lastUpdatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
         compact
       />
 

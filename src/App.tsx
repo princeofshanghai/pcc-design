@@ -12,8 +12,8 @@ const Home = lazy(() => import('./pages/Home'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const SkuDetail = lazy(() => import('./pages/SkuDetail'));
 const PriceGroupDetail = lazy(() => import('./pages/PriceGroupDetail'));
-const ChangeRequestDetail = lazy(() => import('./pages/ChangeRequestDetail'));
-const ChangeRequestsList = lazy(() => import('./pages/ChangeRequestsList'));
+
+const ChangeRequestsPlaceholder = lazy(() => import('./pages/ChangeRequestsPlaceholder'));
 const OffersPlaceholder = lazy(() => import('./pages/OffersPlaceholder'));
 const OfferGroupsPlaceholder = lazy(() => import('./pages/OfferGroupsPlaceholder'));
 const RulesetsPlaceholder = lazy(() => import('./pages/RulesetsPlaceholder'));
@@ -68,11 +68,7 @@ function App() {
                     <PriceGroupDetail />
                   </Suspense>
                 } />
-                <Route path="product/:productId/configuration/:requestId" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <ChangeRequestDetail />
-                  </Suspense>
-                } />
+
                 <Route path="/offers" element={
                   <Suspense fallback={<PageLoader />}>
                     <OffersPlaceholder />
@@ -95,7 +91,7 @@ function App() {
                 } />
                 <Route path="/change-requests" element={
                   <Suspense fallback={<PageLoader />}>
-                    <ChangeRequestsList />
+                    <ChangeRequestsPlaceholder />
                   </Suspense>
                 } />
                 <Route path="/picasso-npi" element={

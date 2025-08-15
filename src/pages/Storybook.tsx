@@ -6,7 +6,7 @@ import { Typography, Space, Card, Divider, Row, Col, theme } from 'antd';
 import StatusTag from '../components/attributes/StatusTag';
 import LobTag from '../components/attributes/LobTag';
 import CountTag from '../components/attributes/CountTag';
-import { ChangeRequestStatus } from '../components/configuration/ChangeRequestStatus';
+
 import OverrideIndicator from '../components/pricing/OverrideIndicator';
 import CopyableId from '../components/shared/CopyableId';
 import UserAvatar from '../components/shared/UserAvatar';
@@ -171,30 +171,7 @@ const Storybook: React.FC = () => {
         </VariationRow>
       </ComponentSection>
 
-      {/* Configuration Section */}
-      <ComponentSection
-        title="Configuration & Workflow"
-        description="Components related to change requests, configurations, and workflow states"
-      >
-        <VariationRow 
-          label="ChangeRequestStatus" 
-          description="Configuration deployment status"
-        >
-          <ChangeRequestStatus status="Pending Review" />
-          <ChangeRequestStatus status="In EI" />
-          <ChangeRequestStatus status="Live" />
-          <ChangeRequestStatus status="Failed" />
-        </VariationRow>
 
-        <VariationRow 
-          label="ChangeRequestStatus Variations" 
-          description="Different display options"
-        >
-          <ChangeRequestStatus status="Pending Review" showIcon={false} />
-          <ChangeRequestStatus status="Live" showLabel={false} />
-          <ChangeRequestStatus status="Failed" tooltip />
-        </VariationRow>
-      </ComponentSection>
 
       {/* Shared/Utility Section */}
       <ComponentSection

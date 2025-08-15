@@ -1,11 +1,11 @@
 import { Layout, Menu, Button, theme, Tooltip, Typography } from 'antd';
-import { PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow } from 'lucide-react';
+import { PanelLeft, Box, SquareSlash, Folder } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { folderStructure } from '../../utils/navigation-config';
 import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
-import { colors } from '../../theme';
+import { colors, spacing } from '../../theme';
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -26,10 +26,10 @@ const SectionTitle: React.FC<{
       style={{
         fontSize: '12px',
         fontWeight: 500,
-        color: '#6b7280',
-        padding: '0 24px',
-        marginTop: isFirst ? '24px' : '32px',
-        marginBottom: '8px',
+        color: colors.gray[500],
+        padding: `0 ${spacing.xxxl}px`,
+        marginTop: isFirst ? `${spacing.xxxl}px` : `${spacing.xxxl + spacing.lg}px`,
+        marginBottom: `${spacing.lg}px`,
         textTransform: 'none'
       }}
     >
@@ -187,7 +187,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/offers">Offers</Link>
         </SidebarMenuItem>
       ),
-      icon: <Tag size={14} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'offer-groups',
@@ -205,7 +205,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/rulesets">Rulesets</Link>
         </SidebarMenuItem>
       ),
-      icon: <GitPullRequestArrow size={14} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'calculation-schemes',
@@ -214,7 +214,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/calculation-schemes">Calculation Schemes</Link>
         </SidebarMenuItem>
       ),
-      icon: <DollarSign size={14} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'platform-entity-mapping',
@@ -223,7 +223,16 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/platform-entity-mapping">Platform Entity Mapping</Link>
         </SidebarMenuItem>
       ),
-      icon: <GitPullRequestArrow size={14} />
+      icon: <SquareSlash size={14} />
+    },
+    {
+      key: 'change-requests',
+      label: (
+        <SidebarMenuItem text="Change Requests" collapsed={collapsed}>
+          <Link to="/change-requests">Change Requests</Link>
+        </SidebarMenuItem>
+      ),
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'picasso-npi',
@@ -232,7 +241,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/picasso-npi">Picasso NPI</Link>
         </SidebarMenuItem>
       ),
-      icon: <Box size={14} />
+      icon: <SquareSlash size={14} />
     }
   ];
 
@@ -246,6 +255,7 @@ interface AppSidebarProps {
   getCatalogSelectedKeys: () => string[];
   getLogicSelectedKeys: () => string[];
   getIntegrationsSelectedKeys: () => string[];
+  getChangeManagementSelectedKeys: () => string[];
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({
@@ -254,7 +264,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   onManualToggle,
   getCatalogSelectedKeys,
   getLogicSelectedKeys,
-  getIntegrationsSelectedKeys
+  getIntegrationsSelectedKeys,
+  getChangeManagementSelectedKeys
 }) => {
   const { token } = theme.useToken();
 
@@ -286,8 +297,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           height: '64px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          padding: collapsed ? '0' : '0 24px 0 24px'
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? `0 ${spacing.xl}px` : `0 ${spacing.xxxl}px`
         }}>
           {!collapsed && (
             <Link 
@@ -296,14 +307,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: `${spacing.xl}px`,
                 textDecoration: 'none',
                 color: 'inherit',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s ease',
-                minWidth: 0,
-                flex: 1
+                minWidth: 0
               }}
             >
               <img 
@@ -336,13 +343,14 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             icon={<PanelLeft size={16} />}
             onClick={onManualToggle}
             style={{
-              width: collapsed ? '100%' : '32px',
+              width: '32px',
               height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: token.colorTextSecondary,
-              flexShrink: 0
+              flexShrink: 0,
+              marginLeft: collapsed ? 0 : 'auto'
             }}
           />
         </div>
@@ -394,7 +402,27 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           <Menu 
             mode="inline" 
             selectedKeys={getIntegrationsSelectedKeys()}
-            items={menuItems.slice(5)} // Platform Entity Mapping, Picasso NPI
+            items={menuItems.slice(5, 6)} // Platform Entity Mapping
+            inlineIndent={0}
+            style={{ 
+              border: 'none',
+              padding: '0px',
+              background: token.colorBgLayout,
+              ...(collapsed && {
+                '--ant-menu-item-padding-horizontal': '0px',
+                '--ant-menu-item-height': '32px',
+                '--ant-menu-item-border-radius': '0px'
+              })
+            } as React.CSSProperties}
+            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+          />
+          
+          {/* Change Management Section */}
+          <SectionTitle title="Change management" collapsed={collapsed} />
+          <Menu 
+            mode="inline" 
+            selectedKeys={getChangeManagementSelectedKeys()}
+            items={menuItems.slice(6, 8)} // Change Requests, Picasso NPI
             inlineIndent={0}
             style={{ 
               border: 'none',

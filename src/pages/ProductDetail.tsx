@@ -1,17 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Modal, Steps, Row, Col, Badge, Tabs, Alert } from 'antd';
+import { Typography, Space, Table, Button, Modal, Tabs, Alert } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Check, X, Box, ArrowLeft, Pencil } from 'lucide-react';
+import { Download, Check, X, Box, Pencil } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
-import { colors } from '../theme';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ConfigurationRequest, ColumnConfig, ColumnVisibility, ColumnOrder, BillingCycle } from '../utils/types';
-import type { ChangeRequestSubmissionResult } from '../utils/configurationUtils';
+import type { SalesChannel, Status, ColumnConfig, ColumnVisibility, ColumnOrder, BillingCycle } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import {
@@ -26,9 +24,7 @@ import {
   SalesChannelDisplay,
   BillingCycleDisplay,
   FilterBar,
-  ChangeRequestForm,
-  ChangeRequestPreview,
-  ActivityFeedItem} from '../components';
+  } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_GROUP_COLUMNS, 
@@ -39,7 +35,6 @@ import {
 
 
 const { Title } = Typography;
-const { Step } = Steps;
 
 // Complete lists of all possible values
 const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
@@ -100,15 +95,11 @@ const ProductDetail: React.FC = () => {
   const currentTab = searchParams.get('tab') || 'overview';
   const priceGroupFilter = searchParams.get('priceGroupFilter');
   
-  // Configuration workflow state
-  const [isConfigurationModalOpen, setIsConfigurationModalOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [configurationData, setConfigurationData] = useState<Partial<ConfigurationRequest> | null>(null);
+
   
   // Alert dismissal state
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
   const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
-  const [activityAlertDismissed, setActivityAlertDismissed] = useState(false);
 
   // SKU filtering hook
   const {
@@ -611,122 +602,9 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    {
-      key: 'activity',
-      label: (() => {
-        const pendingRequests = product.configurationRequests?.filter(request => 
-          ['Draft', 'Pending Review', 'In EI'].includes(request.status)
-        ) || [];
-        
-        return pendingRequests.length > 0 ? (
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <Badge count={pendingRequests.length} size="small" offset={[4, 0]}>
-              Activity
-            </Badge>
-          </div>
-        ) : (
-          'Activity'
-        );
-      })(),
-      children: (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {!activityAlertDismissed && (
-            <Alert
-              message="Note from Charles - WIP exploration only, don't build"
-              type="warning"
-              showIcon
-              closable
-              onClose={() => setActivityAlertDismissed(true)}
-            />
-          )}
-          <Space direction="vertical" size={48} style={{ width: '100%' }}>
-            {/* Needs Attention Section */}
-            <PageSection 
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>🔥 {toSentenceCase('Needs Attention')}</span>
-
-                </div>
-              }
-            >
-              {(() => {
-                const pendingRequests = product.configurationRequests?.filter(request => 
-                  ['Draft', 'Pending Review', 'In EI'].includes(request.status)
-                ) || [];
-                
-                return pendingRequests.length > 0 ? (
-                  <Space direction="vertical" style={{ width: '100%' }} size="small">
-                    {pendingRequests.map((request) => (
-                      <ActivityFeedItem
-                        key={request.id}
-                        request={request}
-                        onViewDetails={(requestId) => {
-                          navigate(`/product/${product.id}/configuration/${requestId}`);
-                        }}
-                      />
-                    ))}
-                  </Space>
-                ) : (
-                  <span style={{ color: '#888' }}>No pending change requests for this product.</span>
-                );
-              })()}
-            </PageSection>
-            
-            {/* Recent Activity Section */}
-            <PageSection title={`📅 ${toSentenceCase('Recent Activity')}`}>
-              {product.configurationRequests && product.configurationRequests.length > 0 ? (
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  {product.configurationRequests.map((request) => (
-                    <ActivityFeedItem
-                      key={request.id}
-                      request={request}
-                      onViewDetails={(requestId) => {
-                        navigate(`/product/${product.id}/configuration/${requestId}`);
-                      }}
-                    />
-                  ))}
-                </Space>
-              ) : (
-                <span style={{ color: '#888' }}>No activity found for this product.</span>
-              )}
-            </PageSection>
-          </Space>
-        </Space>
-      ),
-    },
   ];
 
-  // Handle configuration workflow steps
-  const handleFormSubmit = (formData: Partial<ConfigurationRequest>) => {
-    setConfigurationData(formData);
-    setCurrentStep(1); // Move to preview step
-  };
 
-  const handleConfigurationSuccess = (result: ChangeRequestSubmissionResult) => {
-    // Just log the success - let the form's success modal handle the user interaction
-    console.log('Configuration created successfully:', result);
-    
-    // The form's success modal will handle navigation and modal closure
-    // Don't close the modal here - let the user interact with the success modal first
-  };
-
-  const handlePrevious = () => {
-    setCurrentStep(0);
-  };
-
-  const handleConfirmConfiguration = () => {
-    // TODO: In a real app, this would save the configuration
-    console.log('Configuration confirmed:', configurationData);
-    setIsConfigurationModalOpen(false);
-    setCurrentStep(0);
-    setConfigurationData(null);
-  };
-
-  const handleModalClose = () => {
-    setIsConfigurationModalOpen(false);
-    setCurrentStep(0);
-    setConfigurationData(null);
-  };
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -759,76 +637,7 @@ const ProductDetail: React.FC = () => {
           navigate(`/product/${productId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
         }}
       />
-      
-      {/* Configuration Creation Modal */}
-      <Modal
-        title={
-          <div>
-            <div style={{ marginBottom: '16px' }}>Add prices</div>
-            <Steps current={currentStep} size="small">
-              <Step title="Details" />
-              <Step title="Preview" />
-            </Steps>
-          </div>
-        }
-        open={isConfigurationModalOpen}
-        onCancel={handleModalClose}
-        footer={null}
-        width={1200}
-        zIndex={1100}
-        destroyOnClose={true}
-      >
-        {currentStep === 0 && (
-          <Row gutter={24}>
-            <Col span={14}>
-              <ChangeRequestForm 
-                product={product!}
-                onCancel={handleModalClose}
-                onSubmit={handleFormSubmit}
-                onFieldChange={(formData: any) => setConfigurationData(formData)}
-                onSuccess={handleConfigurationSuccess}
-              />
-            </Col>
-            <Col span={10}>
-              <ChangeRequestPreview 
-                product={product!}
-                configurationData={configurationData ?? {}}
-                isRealTimeUpdate={true}
-              />
-            </Col>
-          </Row>
-        )}
-        
-        {currentStep === 1 && configurationData && (
-          <div>
-            <ChangeRequestPreview 
-              product={product!}
-              configurationData={configurationData}
-            />
-            <div style={{ 
-              marginTop: '24px', 
-              paddingTop: '16px', 
-              borderTop: `1px solid ${colors.gray[200]}`,
-              display: 'flex',
-              justifyContent: 'space-between'
-            }}>
-              <Button 
-                icon={<ArrowLeft size={16} />}
-                onClick={handlePrevious}
-              >
-                Previous
-              </Button>
-              <Button 
-                type="primary"
-                icon={<Check size={16} />}
-                onClick={handleConfirmConfiguration}
-              >
-                Submit Change Request
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+
     </Space>
   );
 };

@@ -8,7 +8,7 @@ import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
-import { ExperimentalBadge } from '../configuration/ExperimentalBadge';
+import { ExperimentalBadge } from '../shared/ExperimentBadge';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';

@@ -114,9 +114,10 @@
 .collapsed-menu .ant-menu-item,
 .collapsed-menu .ant-menu-submenu-title {
   text-align: center !important;
-  padding: 0 !important;
+  padding: 0 var(--spacing-xl) !important; /* Add horizontal padding to prevent edge touching */
   margin: 0 !important;
   width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .collapsed-menu .ant-menu-item .ant-menu-title-content,

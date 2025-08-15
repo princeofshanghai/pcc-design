@@ -151,6 +151,10 @@ const AppLayout = () => {
     return getSelectedMenuKey(location.pathname);
   };
 
+  const getChangeManagementSelectedKeys = () => {
+    return getSelectedMenuKey(location.pathname);
+  };
+
   // Sidebar event handlers
   const handleSidebarCollapse = (collapsed: boolean) => {
     setContextCollapsed(collapsed);
@@ -170,6 +174,7 @@ const AppLayout = () => {
         getCatalogSelectedKeys={getCatalogSelectedKeys}
         getLogicSelectedKeys={getLogicSelectedKeys}
         getIntegrationsSelectedKeys={getIntegrationsSelectedKeys}
+        getChangeManagementSelectedKeys={getChangeManagementSelectedKeys}
       />
       <Layout className={`app-layout-main ${collapsed ? 'collapsed' : ''}`} style={{ backgroundColor: token.colorBgContainer }}>
         <AppHeader

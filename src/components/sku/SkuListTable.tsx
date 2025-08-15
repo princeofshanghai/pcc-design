@@ -8,7 +8,7 @@ import StatusTag from '../attributes/StatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
-import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
+import { ExperimentalBadge, ExperimentalTableCell } from '../shared/ExperimentBadge';
 import type { ColumnsType } from 'antd/es/table';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';

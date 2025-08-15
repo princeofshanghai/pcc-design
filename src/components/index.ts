@@ -25,6 +25,7 @@ export { default as ScrollToTop } from './layout/ScrollToTop';
 export { default as CopyableId } from './shared/CopyableId';
 export { default as UserAvatar } from './shared/UserAvatar';
 export { default as GroupHeader } from './shared/GroupHeader';
+export { ExperimentBadge, ExperimentalBadge, ExperimentalTableCell } from './shared/ExperimentBadge';
 
 // ============================================
 // ATTRIBUTE/TAG COMPONENTS
@@ -74,26 +75,9 @@ export { default as FilterDropdown, type SelectOption } from './filters/FilterDr
 export { default as SearchBar } from './filters/SearchBar';
 export { default as ViewOptions, type ViewMode } from './filters/ViewOptions';
 
-// ============================================
-// CONFIGURATION COMPONENTS (Named Exports)
-// ============================================
-export { ChangeRequestForm } from './configuration/ChangeRequestForm';
-export { default as ChangeRequestListTable } from './configuration/ChangeRequestListTable';
-export { ChangeRequestOrigin } from './configuration/ChangeRequestOrigin';
-export { ChangeRequestPreview } from './configuration/ChangeRequestPreview';
-export { ChangeRequestStatus } from './configuration/ChangeRequestStatus';
-export { ChangeRequestTimeline } from './configuration/ChangeRequestTimeline';
-export { ConflictResolutionPanel, ConflictWarning } from './configuration/ConflictWarning';
-export { ExperimentalBadge } from './configuration/ExperimentalBadge';
-export { default as PriceGroupExperimentalIndicator } from './configuration/PriceGroupExperimentalIndicator';
-export { PriceGroupImpact } from './configuration/PriceGroupImpact';
-export { PriceGroupLink } from './configuration/PriceGroupLink';
-export { RequestHistoryItem } from './configuration/RequestHistoryItem';
 
-// ============================================
-// ACTIVITY COMPONENTS  
-// ============================================
-export { ActivityFeedItem } from './activity/ActivityFeedItem';
+
+
 
 // ============================================
 // ATTRIBUTE DICTIONARY COMPONENTS

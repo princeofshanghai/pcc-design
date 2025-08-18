@@ -254,7 +254,7 @@ const PriceGroupDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
         icon={<DollarSign />}
-        iconSize={16}
+        iconSize={14}
         entityType="Price group"
         title={priceGroup.name || `Price group for ${product.name}`}
         onBack={() => {
@@ -396,7 +396,7 @@ const PriceGroupDetail: React.FC = () => {
       >
         {!isMobileOnlyPriceGroup && (
           <FilterBar
-            filterSize="middle"
+            filterSize="small"
             searchAndViewSize="middle"
             search={{
               placeholder: "Search by currency or ID...",

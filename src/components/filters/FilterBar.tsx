@@ -111,26 +111,28 @@ const FilterBar: React.FC<FilterBarProps> = ({
           {displayMode === 'drawer' && (
             <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
           )}
-          <FilterDropdown
-            placeholder={toSentenceCase(filter.placeholder)}
-            options={filter.options}
-            multiSelect={filter.multiSelect}
-            value={filter.multiSelect ? undefined : filter.value}
-            onChange={filter.multiSelect ? undefined : filter.onChange}
-            multiValue={filter.multiSelect ? filter.multiValue : undefined}
-            onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
-            size={displayMode === 'inline' ? filterSize : 'large'}
-            style={{ 
-              width: displayMode === 'inline' ? 'auto' : '100%', 
-              minWidth: displayMode === 'inline' ? 140 : 140,
-              ...(filter.style || {}) 
-            }}
-            dropdownStyle={{
-              minWidth: '200px', // Ensure dropdown is always wide enough
-              ...filter.dropdownStyle
-            }}
-            showOptionTooltip={filter.showOptionTooltip}
-          />
+          <div className={displayMode === 'inline' ? 'pill-shaped-filter' : ''}>
+            <FilterDropdown
+              placeholder={toSentenceCase(filter.placeholder)}
+              options={filter.options}
+              multiSelect={filter.multiSelect}
+              value={filter.multiSelect ? undefined : filter.value}
+              onChange={filter.multiSelect ? undefined : filter.onChange}
+              multiValue={filter.multiSelect ? filter.multiValue : undefined}
+              onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
+              size={displayMode === 'inline' ? filterSize : 'large'}
+              style={{ 
+                width: displayMode === 'inline' ? 'auto' : '100%', 
+                minWidth: displayMode === 'inline' ? 'auto' : 140,
+                ...(filter.style || {}) 
+              }}
+              dropdownStyle={{
+                minWidth: '200px', // Ensure dropdown is always wide enough
+                ...filter.dropdownStyle
+              }}
+              showOptionTooltip={filter.showOptionTooltip}
+            />
+          </div>
         </Space>
       ))}
       {displayMode === 'inline' && hasFilters && activeFilterCount > 0 && (
@@ -138,7 +140,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
           type="link" 
           danger
           onClick={handleClearAll} 
-          style={{ padding: '0 8px' }}
+          className="pill-shaped-clear-button"
+          style={{ padding: '0 16px' }}
         >
           Clear All
         </Button>

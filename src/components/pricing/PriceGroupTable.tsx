@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography, Dropdown, Button, Modal } from 'antd';
+import { Table, Space, Typography, Dropdown, Button, Modal, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -42,10 +42,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'status'],
+  columnOrder = ['channel', 'billingCycle', 'price', 'lix', 'status'],
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
+  const { token } = theme.useToken();
 
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {
@@ -108,27 +109,56 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    usdPrice: visibleColumns.usdPrice !== false ? {
-      title: getColumnLabel('usdPrice'),
-      dataIndex: 'usdPrice',
-      key: 'usdPrice',
+    price: visibleColumns.price !== false ? {
+      title: getColumnLabel('price'),
+      dataIndex: 'price',
+      key: 'price',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        const usd = record.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        return usd ? formatCurrency(usd) : (
-          <Text type="secondary">No USD price</Text>
+        
+        // Filter for active price points only
+        const activePricePoints = record.priceGroup.pricePoints.filter((p: any) => p.status === 'Active');
+        
+        if (activePricePoints.length === 0) {
+          return (
+            <Text type="secondary">No active price points</Text>
+          );
+        }
+        
+        // Priority order: USD → EUR → CAD → alphabetical
+        const priorities = ['USD', 'EUR', 'CAD'];
+        let displayPrice = null;
+        
+        // Try priority currencies first
+        for (const currency of priorities) {
+          displayPrice = activePricePoints.find((p: any) => p.currencyCode === currency);
+          if (displayPrice) break;
+        }
+        
+        // Fall back to first alphabetically if no priority currency found
+        if (!displayPrice) {
+          const sortedActive = activePricePoints.sort((a: any, b: any) => 
+            a.currencyCode.localeCompare(b.currencyCode)
+          );
+          displayPrice = sortedActive[0];
+        }
+        
+        // Calculate additional active currencies (total active - 1 displayed)
+        const additionalActiveCurrencies = activePricePoints.length - 1;
+        
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+            <div>{formatCurrency(displayPrice)}</div>
+            {additionalActiveCurrencies > 0 && (
+              <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+                +{additionalActiveCurrencies} active currenc{additionalActiveCurrencies !== 1 ? 'ies' : 'y'}
+              </Text>
+            )}
+          </div>
         );
       },
     } : null,
-    currencies: visibleColumns.currencies !== false ? {
-      title: getColumnLabel('currencies'),
-      dataIndex: 'currencies',
-      key: 'currencies',
-      render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
-        return record.priceGroup.pricePoints.length;
-      },
-    } : null,
+
     lix: visibleColumns.lix !== false ? {
       title: getColumnLabel('lix'),
       dataIndex: 'lix',
@@ -144,11 +174,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         }
         
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
             <Text>
               {skuWithLix.lix.key}
             </Text>
-            <Text type="secondary" style={{ fontSize: '13px' }}>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
               {skuWithLix.lix.treatment}
             </Text>
           </div>

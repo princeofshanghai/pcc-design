@@ -23,7 +23,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   }
 
   const labelContent = (
-    <Text type="secondary" style={{ fontSize: '14px', letterSpacing: '0.1px' }}>
+    <Text type="secondary" style={{ fontSize: '13px', letterSpacing: '0.1px' }}>
       {toSentenceCase(label)}
       {tooltip && (
         <Tooltip title={tooltip}>
@@ -38,7 +38,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
       <Row align="top" style={{ paddingBottom: '8px' }}>
         <Col span={4}>{labelContent}</Col>
         <Col span={20}>
-          <div style={{ fontSize: '14px' }}>{children}</div>
+          <div style={{ fontSize: '13px' }}>{children}</div>
         </Col>
       </Row>
     );
@@ -47,7 +47,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   return ( // Vertical layout
     <div style={{ marginBottom: '8px' }}>
       {labelContent}
-      <div style={{ marginTop: '2px', fontSize: '14px' }}>
+      <div style={{ marginTop: '2px', fontSize: '13px' }}>
         {children}
       </div>
     </div>

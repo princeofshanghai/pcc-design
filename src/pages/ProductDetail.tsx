@@ -355,7 +355,7 @@ const ProductDetail: React.FC = () => {
             }
         >
           <FilterBar
-            filterSize="middle"
+            filterSize="small"
             searchAndViewSize="middle"
             search={{
               placeholder: "Search by SKU ID or Name...",
@@ -431,7 +431,7 @@ const ProductDetail: React.FC = () => {
             title="Prices"
           >
             <FilterBar
-              filterSize="middle"
+              filterSize="small"
               searchAndViewSize="middle"
               search={{
                 placeholder: "Search by Price Group ID...",
@@ -635,7 +635,7 @@ const ProductDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         icon={<Box />}
-        iconSize={16}
+        iconSize={14}
         entityType="Product"
         title={product.name}
         onBack={() => navigate(-1)}

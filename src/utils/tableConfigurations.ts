@@ -4,13 +4,12 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price ID', required: true },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
-  { key: 'usdPrice', label: 'USD price', required: false },
-  { key: 'currencies', label: 'Price points', required: false },
+  { key: 'price', label: 'Price', required: false },
   { key: 'lix', label: 'Experiments', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'channel', 'billingCycle', 'usdPrice', 'currencies', 'lix', 'status'];
+export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'channel', 'billingCycle', 'price', 'lix', 'status'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price point ID', required: true },
@@ -37,8 +36,6 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'Channel (Z-A)',
   'Billing Cycle (A-Z)',
   'Billing Cycle (Z-A)',
-  'USD Price (Low to High)',
-  'USD Price (High to Low)',
   'Experiment (A-Z)',
   'Experiment (Z-A)',
   'Status (A-Z)',

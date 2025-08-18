@@ -160,11 +160,11 @@ const Home: React.FC = () => {
   return (
     <div style={{ width: '100%' }}>
       {/* Header and Search Area */}
-      <div style={{ marginBottom: 24 }}>
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <div style={{ marginBottom: 16 }}>
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <PageHeader
             icon={currentFolder ? <Folder /> : undefined}
-            iconSize={16}
+            iconSize={14}
             entityType={currentFolder ? "Folder" : undefined}
             title={pageTitle}
             subtitle={pageSubtitle}
@@ -172,7 +172,7 @@ const Home: React.FC = () => {
 
           <FilterBar
             displayMode="inline"
-            filterSize="middle"
+            filterSize="small"
             search={{
               placeholder: "Search by Name, ID, or Folder...",
               onChange: setSearchQuery,

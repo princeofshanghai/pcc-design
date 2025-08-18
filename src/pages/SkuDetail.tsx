@@ -292,7 +292,7 @@ const SkuDetail: React.FC = () => {
               title={toSentenceCase("Price points")}
             >
               <FilterBar
-                filterSize="middle"
+                filterSize="small"
                 searchAndViewSize="middle"
                 search={{
                   placeholder: "Search by currency or ID...",
@@ -429,7 +429,7 @@ const SkuDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         icon={<SkuIcon />}
-        iconSize={16}
+        iconSize={14}
         entityType="SKU"
         title={sku.id}
         onBack={() => {

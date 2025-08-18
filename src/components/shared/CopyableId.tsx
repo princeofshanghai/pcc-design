@@ -25,7 +25,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
               </div>
               <div style={{ 
                 color: '#bfbfbf', 
-                fontSize: '12px', 
+                fontSize: token.fontSizeSM, 
                 marginTop: '4px', 
                 marginLeft: '24px' // Align with text above (icon width + gap)
               }}>
@@ -52,16 +52,16 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
     if (variant === 'prominent') {
       return {
         fontFamily: token.fontFamilyCode,
-        fontSize: '14px',
+        fontSize: token.fontSize,
         color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
       };
     }
     
-    // Default variant (existing behavior)
+    // Default variant
     return {
       fontFamily: token.fontFamilyCode,
-      fontSize: '13px',
+      fontSize: token.fontSize,
       color: muted ? mutedColor : token.colorTextSecondary,
     };
   };

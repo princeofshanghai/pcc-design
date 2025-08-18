@@ -251,20 +251,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
         const bCycle = Object.entries(getCycleCounts(b.skus)).sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || '';
         return bCycle.localeCompare(aCycle);
       }
-      if (sortOrder === 'USD Price (Low to High)') {
-        const aUsd = a.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        const bUsd = b.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        const aAmount = aUsd?.amount || 0;
-        const bAmount = bUsd?.amount || 0;
-        return aAmount - bAmount;
-      }
-      if (sortOrder === 'USD Price (High to Low)') {
-        const aUsd = a.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        const bUsd = b.priceGroup.pricePoints.find((p: any) => p.currencyCode === 'USD');
-        const aAmount = aUsd?.amount || 0;
-        const bAmount = bUsd?.amount || 0;
-        return bAmount - aAmount;
-      }
+
       if (sortOrder === 'Validity (Earliest to Latest)') {
         const aDate = new Date(a.priceGroup.validFrom).getTime();
         const bDate = new Date(b.priceGroup.validFrom).getTime();

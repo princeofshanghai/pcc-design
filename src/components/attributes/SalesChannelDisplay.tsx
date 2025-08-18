@@ -1,9 +1,11 @@
 import React from 'react';
 import { Monitor, Headset } from 'lucide-react';
 import type { SalesChannel } from '../../utils/types';
+import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
 interface SalesChannelDisplayProps {
   channel: SalesChannel;
+  variant?: ChipVariant;
   muted?: boolean;
 }
 
@@ -29,40 +31,27 @@ const GooglePlayIcon = () => (
 );
 
 const iconMapping: Record<SalesChannel, React.ReactNode> = {
-  Desktop: <Monitor size={13} strokeWidth={3} />,
+  Desktop: <Monitor />,
   iOS: <AppleIcon />,
   GPB: <GooglePlayIcon />,
-  Field: <Headset size={13} strokeWidth={3} />,
+  Field: <Headset />,
 };
 
-const colorMapping: Record<SalesChannel, string> = {
-  Desktop: '#666666', // neutral gray
-  iOS: '#000000',     // Apple's black
-  GPB: 'inherit',     // Google Play icon has its own colors
-  Field: '#666666',   // neutral gray
-};
-
-const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ channel, muted = false }) => {
+const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({ 
+  channel, 
+  variant = 'default',
+  muted = false 
+}) => {
   const icon = iconMapping[channel];
-  const color = muted ? '#999999' : colorMapping[channel];
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px',
-      padding: '3px 8px 3px 7px',
-      border: `1px solid ${muted ? '#e8e8e8' : '#d9d9d9'}`,
-      borderRadius: '50px',
-      backgroundColor: muted ? '#f9f9f9' : '#fff',
-      width: 'fit-content',
-      opacity: muted ? 0.6 : 1
-    }}>
-      <span style={{ color: color, display: 'flex', alignItems: 'center' }}>
-        {icon}
-      </span>
-      <span style={{ color: muted ? '#999999' : '#000', fontSize: '13px' }}>{channel}</span>
-    </div>
+    <BaseChip
+      variant={variant}
+      muted={muted}
+      icon={icon}
+    >
+      {channel}
+    </BaseChip>
   );
 };
 

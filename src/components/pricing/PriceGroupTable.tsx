@@ -85,7 +85,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         return (
           <Space size="small">
             {uniqueChannels.map((channel: any) => (
-              <SalesChannelDisplay key={channel} channel={channel} />
+              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
             ))}
           </Space>
         );
@@ -102,7 +102,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         return (
           <Space size="small">
             {uniqueBillingCycles.map((billingCycle: any) => (
-              <BillingCycleDisplay key={billingCycle} billingCycle={billingCycle} />
+              <BillingCycleDisplay key={billingCycle} billingCycle={billingCycle} variant="small" />
             ))}
           </Space>
         );
@@ -145,7 +145,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <Text style={{ fontWeight: 500 }}>
+            <Text>
               {skuWithLix.lix.key}
             </Text>
             <Text type="secondary" style={{ fontSize: '13px' }}>
@@ -161,7 +161,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'status',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return <PriceGroupStatusTag priceGroup={record.priceGroup} />;
+        return <PriceGroupStatusTag priceGroup={record.priceGroup} variant="small" />;
       },
     } : null,
   };

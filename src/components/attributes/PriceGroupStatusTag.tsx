@@ -1,24 +1,19 @@
 import React from 'react';
-import { Tooltip, theme } from 'antd';
+import { theme } from 'antd';
 import { CheckCircle2, ArchiveX } from 'lucide-react';
 import type { PriceGroup } from '../../utils/types';
+import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
 export type PriceGroupStatus = 'Active' | 'Expired';
 
 interface PriceGroupStatusTagProps {
   status?: PriceGroupStatus;
   priceGroup?: PriceGroup;
+  variant?: ChipVariant;
   showLabel?: boolean;
-  size?: number;
 }
 
-type ColorConfig = {
-  icon: React.FC<any>;
-  description: string;
-  backgroundColor: string;
-  textColor: string;
-  borderColor: string;
-};
+
 
 /**
  * Calculates the status of a price group based on its price points
@@ -82,8 +77,8 @@ const statusConfig: Record<PriceGroupStatus, { icon: React.FC<any>; description:
 const PriceGroupStatusTag: React.FC<PriceGroupStatusTagProps> = ({ 
   status, 
   priceGroup, 
-  showLabel = true, 
-  size = 13 
+  variant = 'default',
+  showLabel = true 
 }) => {
   const { token } = theme.useToken();
   
@@ -92,21 +87,17 @@ const PriceGroupStatusTag: React.FC<PriceGroupStatusTagProps> = ({
   
   const { icon: Icon, description, antColorType } = statusConfig[calculatedStatus];
   
-  // Get Ant Design color tokens based on status
-  const getColorConfig = (): ColorConfig => {
+  // Get color configuration based on status
+  const getColors = () => {
     switch (antColorType) {
       case 'success':
         return {
-          icon: Icon,
-          description,
           backgroundColor: token.colorSuccessBg,
           textColor: token.colorSuccessText,
           borderColor: token.colorSuccessBorder,
         };
       default: // 'default' for expired/neutral
         return {
-          icon: Icon,
-          description,
           backgroundColor: token.colorFillTertiary,
           textColor: token.colorTextSecondary,
           borderColor: token.colorBorder,
@@ -114,44 +105,29 @@ const PriceGroupStatusTag: React.FC<PriceGroupStatusTagProps> = ({
     }
   };
 
-  const colorConfig = getColorConfig();
+  const colors = getColors();
 
   // If showLabel is false, render just the icon without background
   if (!showLabel) {
+    const iconSize = variant === 'small' ? 12 : 14;
     return (
-      <Tooltip title={description}>
-        <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
-          <Icon size={size} strokeWidth={3} />
-        </span>
-      </Tooltip>
+      <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
+        <Icon size={iconSize} strokeWidth={variant === 'small' ? 2.5 : 2} />
+      </span>
     );
   }
 
   return (
-    <Tooltip title={description}>
-      <div
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: '3px 8px 3px 7px',
-          backgroundColor: colorConfig.backgroundColor,
-          border: `1px solid ${colorConfig.borderColor}`,
-          borderRadius: '50px',
-          width: 'fit-content'
-        }}
-      >
-        <span style={{ color: colorConfig.textColor, display: 'flex', alignItems: 'center' }}>
-          <Icon size={size} strokeWidth={3} />
-        </span>
-        <span style={{ 
-          color: colorConfig.textColor,
-          fontSize: '13px'
-        }}>
-          {calculatedStatus}
-        </span>
-      </div>
-    </Tooltip>
+    <BaseChip
+      variant={variant}
+      icon={<Icon />}
+      tooltip={description}
+      backgroundColor={colors.backgroundColor}
+      textColor={colors.textColor}
+      borderColor={colors.borderColor}
+    >
+      {calculatedStatus}
+    </BaseChip>
   );
 };
 

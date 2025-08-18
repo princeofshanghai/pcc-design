@@ -134,7 +134,7 @@ const SkuDetail: React.FC = () => {
               </AttributeDisplay>
               
               <AttributeDisplay label="Status" layout="horizontal">
-                <StatusTag status={sku.status} />
+                <StatusTag status={sku.status} variant="small" />
               </AttributeDisplay>
             </AttributeGroup>
           </PageSection>
@@ -229,8 +229,8 @@ const SkuDetail: React.FC = () => {
           setCurrencyFilters,
           regionFilters,
           setRegionFilters,
-          statusFilter,
-          setStatusFilter,
+          statusFilters,
+          setStatusFilters,
           currencyOptions,
           statusOptions,
           regionOptions,
@@ -246,7 +246,7 @@ const SkuDetail: React.FC = () => {
           setPricePointSearchQuery('');
           setCurrencyFilters([]);
           setRegionFilters([]);
-          setStatusFilter(null);
+          setStatusFilters([]);
         };
 
         return (
@@ -266,7 +266,7 @@ const SkuDetail: React.FC = () => {
                 
                 {priceGroup.status && (
                   <AttributeDisplay label="Status" layout="horizontal">
-                    <StatusTag status={priceGroup.status} />
+                    <StatusTag status={priceGroup.status} variant="small" />
                   </AttributeDisplay>
                 )}
                 
@@ -322,8 +322,12 @@ const SkuDetail: React.FC = () => {
                   {
                     placeholder: "All statuses",
                     options: statusOptions,
-                    value: statusFilter,
-                    onChange: (value) => setStatusFilter(value ?? null),
+                    multiSelect: true,
+                    multiValue: statusFilters,
+                    onMultiChange: (values: string[]) => setStatusFilters(values),
+                    // Required for TypeScript interface compatibility
+                    value: null,
+                    onChange: () => {},
                   },
                 ]}
                 onClearAll={clearAllPricePointFilters}

@@ -1,5 +1,5 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid, Typography } from 'antd';
-import { User, PanelLeft, Box, ChevronRight, Tag, DollarSign, SquareSlash, Folder, GitPullRequestArrow, BookMarked } from 'lucide-react';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
+import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder, BookMarked } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -10,7 +10,7 @@ import { folderStructure } from '../../utils/mock-data';
 import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
-const { Text } = Typography;
+
 
 // Component for section titles in the sidebar
 const SectionTitle: React.FC<{ 
@@ -251,7 +251,7 @@ const generateMenuStructure = (collapsed: boolean) => {
           <Link to="/change-requests">{toSentenceCase("Change Requests")}</Link>
         </SidebarMenuItem>
       ),
-      icon: <GitPullRequestArrow size={14} />
+      icon: <SquareSlash size={14} />
     },
     {
       key: 'picasso-npi',
@@ -340,7 +340,6 @@ const AppLayout = () => {
     }
     
     if (pathname.startsWith('/product/')) {
-      if (pathname.includes('/configuration/')) return ['change-requests'];
       return ['all-products']; // product detail pages should highlight "All products"
     }
     if (pathname === '/offers') return ['offers'];
@@ -393,26 +392,14 @@ const AppLayout = () => {
     );
   }
 
-  // Handle attribute dictionary page
-  if (location.pathname === '/attribute-dictionary') {
-    breadcrumbItems.push(
-      <Breadcrumb.Item key="attribute-dictionary">
-        <Text type="secondary">Attribute dictionary</Text>
-      </Breadcrumb.Item>
-    );
-  }
+  // Handle attribute dictionary page - no breadcrumb needed
 
   if (location.pathname.startsWith('/product/') && productName) {
-    // Check if this is a change request page
-    const isChangeRequestPage = location.pathname.includes('/configuration/');
-    
     // Add Home link first for product pages
     if (!currentMenuItem) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="home">
-          <Link to={isChangeRequestPage ? "/change-requests" : "/"}>
-            {isChangeRequestPage ? "Change requests" : "Products"}
-          </Link>
+          <Link to="/">Products</Link>
         </Breadcrumb.Item>
       );
     }
@@ -420,31 +407,29 @@ const AppLayout = () => {
     const isSkuPage = location.pathname.includes('/sku/');
     const isPriceGroupPage = location.pathname.includes('/price-group/');
     
-    // Don't show product breadcrumb for change request pages
-    if (!isChangeRequestPage) {
-      // Determine product path for linking back
-      let productPath = location.pathname;
-      if (isSkuPage) {
-        productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
-      } else if (isPriceGroupPage) {
-        productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
-      }
-
-      breadcrumbItems.push(
-        <Breadcrumb.Item key="product">
-          <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
-            <Box size={14} />
-            {(isSkuPage || isPriceGroupPage) ? (
-              <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
-                {productName}
-              </Link>
-            ) : (
-              <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
-            )}
-          </Space>
-        </Breadcrumb.Item>
-      );
+    // Show product breadcrumb for all product pages
+    // Determine product path for linking back
+    let productPath = location.pathname;
+    if (isSkuPage) {
+      productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
+    } else if (isPriceGroupPage) {
+      productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
     }
+
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="product">
+        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
+          <Box size={14} />
+          {(isSkuPage || isPriceGroupPage) ? (
+            <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
+              {productName}
+            </Link>
+          ) : (
+            <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+          )}
+        </Space>
+      </Breadcrumb.Item>
+    );
 
     if (isSkuPage && skuId) {
       breadcrumbItems.push(
@@ -468,16 +453,7 @@ const AppLayout = () => {
       );
     }
 
-    if (isChangeRequestPage && productName) {
-      breadcrumbItems.push(
-        <Breadcrumb.Item key="changeRequest">
-          <Space size={4}>
-            <GitPullRequestArrow size={14} />
-            <span>{productName}</span>
-          </Space>
-        </Breadcrumb.Item>
-      );
-    }
+
   }
 
   // Handle scroll effect
@@ -855,41 +831,35 @@ const AppLayout = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <Breadcrumb 
-            separator={<ChevronRight size={16} style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}
-          >
+          <Breadcrumb>
             {breadcrumbItems}
           </Breadcrumb>
           <Space size={16}>
-            <Tooltip title="Attribute dictionary" placement="bottom" overlayStyle={{ zIndex: 9999 }}>
-              <Button
-                type="text"
-                icon={<BookMarked size={16} />}
-                onClick={() => navigate('/attribute-dictionary')}
-                style={{
-                  color: location.pathname === '/attribute-dictionary' ? token.colorPrimary : '#666',
-                  padding: '6px 8px',
-                  height: '32px',
-                  minHeight: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '6px',
-                  backgroundColor: location.pathname === '/attribute-dictionary' ? `${token.colorPrimary}10` : 'transparent',
-                  border: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (location.pathname !== '/attribute-dictionary') {
-                    e.currentTarget.style.backgroundColor = token.colorBgTextHover;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (location.pathname !== '/attribute-dictionary') {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
-              />
-            </Tooltip>
+            <Button
+              type="text"
+              icon={<BookMarked size={16} />}
+              onClick={() => navigate('/attribute-dictionary')}
+              style={{
+                color: token.colorText,
+                padding: '6px 12px',
+                height: '32px',
+                minHeight: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderRadius: '6px',
+                backgroundColor: 'transparent',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = token.colorBgTextHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              Attribute dictionary
+            </Button>
             <Avatar size="small" icon={<User size={16} />} />
           </Space>
         </Header>

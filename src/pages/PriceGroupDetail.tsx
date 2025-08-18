@@ -80,8 +80,8 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters,
     regionFilters,
     setRegionFilters,
-    statusFilter,
-    setStatusFilter,
+    statusFilters,
+    setStatusFilters,
     currencyOptions,
     statusOptions,
     regionOptions,
@@ -190,7 +190,7 @@ const PriceGroupDetail: React.FC = () => {
     setPricePointSearchQuery('');
     setCurrencyFilters([]);
     setRegionFilters([]);
-    setStatusFilter(null);
+    setStatusFilters([]);
   };
 
   // Extract unique channels and billing cycles from associated SKUs
@@ -278,13 +278,13 @@ const PriceGroupDetail: React.FC = () => {
           <AttributeDisplay layout="horizontal" label="Configuration">
             <Space size="small">
               {product?.billingModel && (
-                <BillingModelDisplay model={product.billingModel} />
+                <BillingModelDisplay model={product.billingModel} variant="small" />
               )}
               {uniqueChannels.map(channel => (
-                <SalesChannelDisplay key={channel} channel={channel} />
+                <SalesChannelDisplay key={channel} channel={channel} variant="small" />
               ))}
               {uniqueBillingCycles.map(cycle => (
-                <BillingCycleDisplay key={cycle} billingCycle={cycle} />
+                <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
               ))}
             </Space>
           </AttributeDisplay>
@@ -426,8 +426,12 @@ const PriceGroupDetail: React.FC = () => {
               {
                 placeholder: "All statuses",
                 options: statusOptions,
-                value: statusFilter,
-                onChange: (value) => setStatusFilter(value ?? null),
+                multiSelect: true,
+                multiValue: statusFilters,
+                onMultiChange: (values: string[]) => setStatusFilters(values),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
               },
             ]}
             onClearAll={clearAllPricePointFilters}

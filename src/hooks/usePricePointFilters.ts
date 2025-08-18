@@ -13,6 +13,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   // Multi-select filters
   const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
   const [regionFilters, setRegionFilters] = useState<GeographicRegion[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');
@@ -84,8 +85,10 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       filtered = filtered.filter(point => point.currencyCode === currencyFilter);
     }
 
-    // Apply status filter
-    if (statusFilter) {
+    // Apply status filter - use multiselect if active, otherwise single-select
+    if (statusFilters.length > 0) {
+      filtered = filtered.filter(point => statusFilters.includes(point.status || 'Unspecified'));
+    } else if (statusFilter) {
       filtered = filtered.filter(point => point.status === statusFilter);
     }
 
@@ -97,7 +100,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     }
 
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, regionFilters]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, regionFilters]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -316,6 +319,8 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setRegionFilters,
     statusFilter,
     setStatusFilter,
+    statusFilters,
+    setStatusFilters,
     currencyOptions,
     statusOptions,
     regionOptions,

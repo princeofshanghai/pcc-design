@@ -49,7 +49,7 @@ export const getProductListTableColumns = (
       key: 'name',
       minWidth: 200,
       render: (name: string) => (
-        <div style={{ fontWeight: 500 }}>{name}</div>
+        <div>{name}</div>
       ),
     } : null,
     folder: visibleColumns.folder !== false ? {
@@ -77,7 +77,7 @@ export const getProductListTableColumns = (
         return (
           <Space size={4} wrap>
             {uniqueChannels.map(channel => (
-              <SalesChannelDisplay key={channel} channel={channel} />
+              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
             ))}
           </Space>
         );
@@ -96,7 +96,7 @@ export const getProductListTableColumns = (
       dataIndex: 'status',
       key: 'status',
       // Status is important, keep visible on all screens
-      render: (status: Product['status']) => <StatusTag status={status} />,
+      render: (status: Product['status']) => <StatusTag status={status} variant="small" />,
     } : null,
   };
 

@@ -1,7 +1,7 @@
 // This file will contain all the mock data for the PCC prototype.
 // It will serve as our single source of truth for products, SKUs, etc. 
 
-import type { Product, ConfigurationRequest, Attribute } from './types';
+import type { Product, Attribute } from './types';
 // @ts-ignore - PriceGroup type is used in inline object definitions
 import type { PriceGroup } from './types';
 import { TEAM_MEMBERS } from './users';
@@ -39,7 +39,7 @@ export const folderStructure = {
   ]
 };
 
-export const mockConfigurationRequests: ConfigurationRequest[] = [];
+
 
 export const mockAttributes: Attribute[] = [
   {

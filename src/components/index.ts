@@ -53,24 +53,13 @@ export { default as ViewOptions } from './filters/ViewOptions';
 export { default as CopyableId } from './shared/CopyableId';
 export { default as GroupHeader } from './shared/GroupHeader';
 export { default as UserAvatar } from './shared/UserAvatar';
+export { default as BaseChip } from './shared/BaseChip';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
 
-// Configuration components
-export { ChangeRequestForm } from './configuration/ChangeRequestForm';
-export { default as ChangeRequestListTable } from './configuration/ChangeRequestListTable';
-export { ChangeRequestPreview } from './configuration/ChangeRequestPreview';
-export { PriceGroupImpact } from './configuration/PriceGroupImpact';
-export { ConflictWarning } from './configuration/ConflictWarning';
-export { ChangeRequestStatus, DetailedChangeRequestStatus } from './configuration/ChangeRequestStatus';
-export { ChangeRequestTimeline, CompactTimeline } from './configuration/ChangeRequestTimeline';
-export { RequestHistoryItem } from './configuration/RequestHistoryItem';
-export { ActivityFeedItem } from './activity/ActivityFeedItem';
-export { ExperimentalBadge, ExperimentalSkuIndicator, ExperimentalTableCell } from './configuration/ExperimentalBadge';
-export { PriceGroupExperimentalIndicator } from './configuration/PriceGroupExperimentalIndicator';
-export { ChangeRequestOrigin, OriginTableCell, InlineOrigin } from './configuration/ChangeRequestOrigin';
-export { PriceGroupLink, PriceGroupTableCell, InlinePriceGroup, PriceGroupRelationship } from './configuration/PriceGroupLink';
+// Activity components
+export { default as ActivityFeedItem } from './activity/ActivityFeedItem';
 
 // Export types that might be imported from components
 export type { ViewMode } from './filters/ViewOptions';

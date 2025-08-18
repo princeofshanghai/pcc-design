@@ -769,7 +769,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'status',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return <PricePointStatusTag pricePoint={record} />;
+        return <PricePointStatusTag pricePoint={record} variant="small" />;
       },
     } : null,
     validity: visibleColumns.validity !== false ? {

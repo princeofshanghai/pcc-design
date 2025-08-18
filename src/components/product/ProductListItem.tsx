@@ -47,7 +47,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
           <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
             {product.name}
           </Title>
-          <StatusTag status={product.status} showLabel={false} size={16} />
+          <StatusTag status={product.status} showLabel={false} />
         </Space>
         <div onClick={(e) => e.stopPropagation()}>
                       <CopyableId id={product.id} />

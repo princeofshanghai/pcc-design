@@ -79,4 +79,9 @@
 /* Override the global tabs content margin for detail pages */
 .detail-page-layout .ant-tabs-content {
   margin-top: 0 !important;
+}
+
+/* Table header font size - only affect headers, not cell content */
+.ant-table-thead > tr > th {
+  font-size: 13px !important;
 } 

@@ -101,8 +101,7 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       filtered = filtered.filter((group: { priceGroup: any; skus: any[] }) => 
-        (group.priceGroup.id || '').toLowerCase().includes(lowercasedQuery) ||
-        (group.priceGroup.name || '').toLowerCase().includes(lowercasedQuery)
+        (group.priceGroup.id || '').toLowerCase().includes(lowercasedQuery)
       );
     }
 

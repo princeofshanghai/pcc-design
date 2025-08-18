@@ -78,26 +78,7 @@ export type PriceGroup = {
   pricePoints: PricePoint[];
 };
 
-export type ChangeRequestStatus = 'Pending Review' | 'In EI' | 'Live' | 'Failed';
 
-export type ChangeRequest = {
-  id: string;
-  targetProductId: string;
-  salesChannel: SalesChannel;
-  billingCycle: BillingCycle;
-  priceAmount: number;
-  priceGroupName?: string;
-  lixKey?: string;
-  lixTreatment?: string;
-  status: ChangeRequestStatus;
-  createdBy: string;
-  createdDate: string;
-  generatedSkuId?: string;
-  generatedPriceGroupId?: string;
-};
-
-// Legacy type alias for backward compatibility during migration
-export type ConfigurationRequest = ChangeRequest;
 
 export type Sku = {
   id: string;
@@ -170,7 +151,4 @@ export type Product = {
   confirmationCtaUrl?: string;
   contactUsUrl?: string;
   accountLink?: string;
-  changeRequests?: ChangeRequest[];
-  // Legacy field for backward compatibility during migration
-  configurationRequests?: ConfigurationRequest[];
 }; 

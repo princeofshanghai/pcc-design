@@ -15,11 +15,11 @@ const SkuListItem: React.FC<SkuListItemProps> = ({ sku }) => {
     <Card size="small" style={{ marginBottom: 12 }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         <Space style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <SalesChannelDisplay channel={sku.salesChannel} />
-          <StatusTag status={sku.status} />
+          <SalesChannelDisplay channel={sku.salesChannel} variant="small" />
+          <StatusTag status={sku.status} variant="small" />
         </Space>
         <Space size={[0, 8]} wrap>
-                      <BillingCycleDisplay billingCycle={sku.billingCycle} />
+                      <BillingCycleDisplay billingCycle={sku.billingCycle} variant="small" />
         </Space>
         <CopyableId id={sku.id} />
       </Space>

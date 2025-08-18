@@ -8,7 +8,7 @@ import StatusTag from '../attributes/StatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
-import { ExperimentalBadge, ExperimentalTableCell } from '../configuration/ExperimentalBadge';
+
 import type { ColumnsType } from 'antd/es/table';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
@@ -58,23 +58,14 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     fixed: 'left',
     minWidth: 150,
     render: (_: string, record: Sku) => (
-      <ExperimentalTableCell lixKey={record.lix?.key} lixTreatment={record.lix?.treatment}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <CopyableId id={record.id} variant="prominent" />
-            </div>
-            {hasSkuOverrides(record, product) && <OverrideIndicator />}
-            {record.lix?.key && (
-              <ExperimentalBadge 
-                lixKey={record.lix.key} 
-                lixTreatment={record.lix.treatment} 
-                variant="compact" 
-              />
-            )}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <CopyableId id={record.id} variant="prominent" />
           </div>
+          {hasSkuOverrides(record, product) && <OverrideIndicator />}
         </div>
-      </ExperimentalTableCell>
+      </div>
     ),
     className: 'table-col-first',
   },
@@ -82,13 +73,13 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     title: getColumnLabel('channel'),
     dataIndex: 'salesChannel',
     key: 'channel',
-    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} />,
+    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} variant="small" />,
   },
   {
     title: getColumnLabel('billingCycle'),
     dataIndex: 'billingCycle',
     key: 'billingCycle',
-    render: (billingCycle: BillingCycle) => <BillingCycleDisplay billingCycle={billingCycle} />,
+    render: (billingCycle: BillingCycle) => <BillingCycleDisplay billingCycle={billingCycle} variant="small" />,
   },
   ...(hidePriceGroupColumn ? [] : [{
     title: getColumnLabel('priceGroup'),
@@ -143,7 +134,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     dataIndex: 'status',
     key: 'status',
     // Status is important, keep visible on all screens
-    render: (status: Status) => <StatusTag status={status} />, 
+    render: (status: Status) => <StatusTag status={status} variant="small" />, 
   },
 ]);
 

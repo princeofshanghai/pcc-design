@@ -9,7 +9,6 @@ import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { LayoutProvider } from './context/LayoutContext';
 import SkuDetail from './pages/SkuDetail';
 import PriceGroupDetail from './pages/PriceGroupDetail';
-import ChangeRequestDetail from './pages/ChangeRequestDetail';
 import ChangeRequestsList from './pages/ChangeRequestsList';
 import OffersPlaceholder from './pages/OffersPlaceholder';
 import OfferGroupsPlaceholder from './pages/OfferGroupsPlaceholder';
@@ -33,7 +32,6 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="product/:productId/sku/:skuId" element={<SkuDetail />} />
                 <Route path="product/:productId/price-group/:priceGroupId" element={<PriceGroupDetail />} />
-                <Route path="product/:productId/configuration/:requestId" element={<ChangeRequestDetail />} />
                 <Route path="/offers" element={<OffersPlaceholder />} />
                 <Route path="/offer-groups" element={<OfferGroupsPlaceholder />} />
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />

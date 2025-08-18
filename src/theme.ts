@@ -13,8 +13,9 @@ const themeConfig: ThemeConfig = {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
     fontWeightStrong: 500,
     fontSize: 14,
+    fontSizeSM: 13, // Small font size - used in chip small variant and other small text
     fontSizeLG: 14,
-    fontSizeHeading1: 28,
+    fontSizeHeading1: 25,
     fontSizeHeading2: 20,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,
@@ -44,6 +45,11 @@ const themeConfig: ThemeConfig = {
     },
     Select: {
       colorTextPlaceholder: 'rgba(0, 0, 0, 0.92)',
+    },
+    
+    Table: {
+      headerBg: '#fafafa',
+      headerColor: 'rgba(0, 0, 0, 0.92)',
     },
     
     Message: {

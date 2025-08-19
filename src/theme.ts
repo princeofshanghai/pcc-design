@@ -99,6 +99,12 @@ const themeConfig: ThemeConfig = {
       colorSuccess: TAILWIND_COLORS.green[500],     // Tailwind Green 500 (consistent with main theme)
       colorError: TAILWIND_COLORS.red[500],       // Tailwind Red 500 (consistent with main theme)
       borderRadiusLG: 8,           // Rounded corners
+    },
+    
+    Breadcrumb: {
+      fontSize: 12, // Use fontSizeSM value (12px)
+      colorText: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (primary text)
+      colorTextDescription: TAILWIND_COLORS.gray[500], // Tailwind Gray 500 (secondary text)
     }
   },
 };

@@ -143,7 +143,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({ skus, product, hidePriceGro
   const columns = getSkuTableColumns(product, navigate, hidePriceGroupColumn);
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table
         size="small"
         columns={columns}

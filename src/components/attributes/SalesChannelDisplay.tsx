@@ -2,6 +2,7 @@ import React from 'react';
 import { Monitor, Headset } from 'lucide-react';
 import type { SalesChannel } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
+import { TAILWIND_COLORS } from '../../theme';
 
 interface SalesChannelDisplayProps {
   channel: SalesChannel;
@@ -49,6 +50,7 @@ const SalesChannelDisplay: React.FC<SalesChannelDisplayProps> = ({
       variant={variant}
       muted={muted}
       icon={icon}
+      borderColor={TAILWIND_COLORS.gray[300]} // Match default button border color
     >
       {channel}
     </BaseChip>

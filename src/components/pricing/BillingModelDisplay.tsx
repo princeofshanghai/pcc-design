@@ -2,6 +2,7 @@ import React from 'react';
 import { RefreshCcw, ShoppingBag, ChartNoAxesColumn } from 'lucide-react';
 import type { BillingModel } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
+import { TAILWIND_COLORS } from '../../theme';
 
 interface BillingModelDisplayProps {
   model: BillingModel;
@@ -27,6 +28,7 @@ const BillingModelDisplay: React.FC<BillingModelDisplayProps> = ({
       variant={variant}
       muted={muted}
       icon={icon}
+      borderColor={TAILWIND_COLORS.gray[300]} // Match default button border color
     >
       {model}
     </BaseChip>

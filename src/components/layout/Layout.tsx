@@ -476,7 +476,7 @@ const AppLayout = () => {
         className="sidebar-container"
         style={{ 
           background: token.colorBgLayout, 
-          borderRight: '1px solid #f0f0f0',
+          borderRight: `1px solid ${token.colorBorder}`,
           position: 'fixed',
           height: '100vh',
           overflow: 'auto',
@@ -821,7 +821,7 @@ const AppLayout = () => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between', 
-            borderBottom: isScrolled ? '1px solid rgba(240, 240, 240, 0.8)' : '1px solid #f0f0f0', 
+            borderBottom: `1px solid ${token.colorBorder}`, 
             height: 48,
             position: 'fixed',
             top: 0,

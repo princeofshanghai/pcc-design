@@ -54,6 +54,7 @@ export { default as CopyableId } from './shared/CopyableId';
 export { default as GroupHeader } from './shared/GroupHeader';
 export { default as UserAvatar } from './shared/UserAvatar';
 export { default as BaseChip } from './shared/BaseChip';
+export { default as SecondaryText } from './shared/SecondaryText';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';

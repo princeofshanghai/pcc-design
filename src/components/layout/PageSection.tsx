@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, theme } from 'antd';
 
 const { Title, Text } = Typography;
 
@@ -16,6 +16,8 @@ const PageSection: React.FC<PageSectionProps> = ({
   actions,
   children,
 }) => {
+  const { token } = theme.useToken();
+  
   return (
     <div style={{ width: '100%' }}>
       <div style={{ 
@@ -29,13 +31,21 @@ const PageSection: React.FC<PageSectionProps> = ({
             {title}
           </Title>
           {subtitle && (
-            <Text type="secondary" style={{ fontWeight: 'normal' }}>
+            <Text style={{ fontWeight: 'normal', marginTop: '8px', display: 'block', color: token.colorTextSecondary }}>
               {subtitle}
             </Text>
           )}
         </div>
         {actions && <div>{actions}</div>}
       </div>
+      
+      {/* Divider line below section header */}
+      <div style={{ 
+        width: '100%',
+        borderBottom: `1px solid ${token.colorBorder}`,
+        marginBottom: '16px'
+      }} />
+      
       {children}
     </div>
   );

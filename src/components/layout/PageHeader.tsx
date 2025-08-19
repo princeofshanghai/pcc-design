@@ -122,14 +122,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   </div>
                 )}
                 {entityType && (
-                  <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
+                  <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
                     {entityType}
                   </Text>
                 )}
                 {rightAlignedId && (
                   <>
                     <div style={{ 
-                      color: token.colorBorderSecondary,
+                      color: token.colorBorder,
                       fontSize: '14px',
                       margin: '0 4px'
                     }}>
@@ -234,7 +234,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               {React.isValidElement(subtitle) ? (
                 subtitle
               ) : (
-                <Text type="secondary">{subtitle}</Text>
+                <Text style={{ color: token.colorTextSecondary }}>{subtitle}</Text>
               )}
             </div>
           ) : null}

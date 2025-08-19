@@ -67,7 +67,7 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   };
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table<TableRow>
         size="small"
         columns={columns}

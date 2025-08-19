@@ -32,9 +32,9 @@ const BaseChip: React.FC<BaseChipProps> = ({
       height: 28,
       fontSize: token.fontSize, // 14px
       iconSize: 14,
-      paddingHorizontal: 8,
+      paddingHorizontal: 6,
       paddingVertical: 6,
-      gap: 6,
+      gap: 4,
     },
     small: {
       height: 24,

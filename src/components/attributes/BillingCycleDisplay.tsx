@@ -1,6 +1,7 @@
 import React from 'react';
 import type { BillingCycle } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
+import { TAILWIND_COLORS } from '../../theme';
 
 interface BillingCycleDisplayProps {
   billingCycle: BillingCycle;
@@ -17,6 +18,7 @@ const BillingCycleDisplay: React.FC<BillingCycleDisplayProps> = ({
     <BaseChip
       variant={variant}
       muted={muted}
+      borderColor={TAILWIND_COLORS.gray[300]} // Match default button border color
     >
       {billingCycle}
     </BaseChip>

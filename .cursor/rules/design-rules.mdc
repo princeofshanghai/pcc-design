@@ -80,11 +80,6 @@ const { token } = theme.useToken();
 
 ## 📐 Layout & Spacing Guidelines
 
-**Content Panels**: Use `.content-panel` class for consistent card styling:
-- White background with subtle borders
-- No border radius for seamless panel appearance
-- Consistent spacing and shadows
-
 **Icon Alignment**: Icons are automatically aligned with the `.lucide` global style:
 ```css
 .lucide {

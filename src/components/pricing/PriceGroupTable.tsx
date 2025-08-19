@@ -121,7 +121,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         if (activePricePoints.length === 0) {
           return (
-            <Text type="secondary">No active price points</Text>
+            <Text style={{ color: token.colorTextSecondary }}>No active price points</Text>
           );
         }
         
@@ -150,7 +150,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
             <div>{formatCurrency(displayPrice)}</div>
             {additionalActiveCurrencies > 0 && (
-              <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+              <Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
                 +{additionalActiveCurrencies} active currenc{additionalActiveCurrencies !== 1 ? 'ies' : 'y'}
               </Text>
             )}
@@ -170,7 +170,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         const skuWithLix = record.skus.find((sku: Sku) => sku.lix?.key);
         
         if (!skuWithLix) {
-          return <Text type="secondary">-</Text>;
+          return <Text style={{ color: token.colorTextSecondary }}>-</Text>;
         }
         
         return (
@@ -178,7 +178,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
             <Text>
               {skuWithLix.lix.key}
             </Text>
-            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
+            <Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
               {skuWithLix.lix.treatment}
             </Text>
           </div>
@@ -225,7 +225,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
               content: (
                 <div>
                   <p>This would create a copy of price group <strong>{record.priceGroup.id}</strong>.</p>
-                  <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                  <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
                     You would be able to modify the cloned price group with different settings.
                   </p>
                 </div>
@@ -327,7 +327,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   };
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table
         size="small"
         columns={columns}

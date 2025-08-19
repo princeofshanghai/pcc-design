@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, theme } from 'antd';
 import './DetailSection.css';
 
 const { Title, Text } = Typography;
@@ -19,15 +19,24 @@ const DetailSection: React.FC<DetailSectionProps> = ({
   children,
   noBodyPadding = false,
 }) => {
+  const { token } = theme.useToken();
+  
   return (
-    <div className="content-panel">
+    <div style={{
+      background: token.colorBgContainer,
+      borderTop: `1px solid ${token.colorBorderSecondary}`,
+      borderBottom: `1px solid ${token.colorBorderSecondary}`,
+      borderRadius: 0,
+      overflow: 'hidden',
+      marginTop: '16px'
+    }}>
       <div className={`detail-section-header ${subtitle ? 'with-subtitle' : ''}`}>
         <div className="detail-section-title">
           <Title level={5} style={{ margin: 0 }}>
             {title}
           </Title>
           {subtitle && (
-            <Text type="secondary" style={{ fontWeight: 'normal' }}>
+            <Text style={{ fontWeight: 'normal', color: token.colorTextSecondary }}>
               {subtitle}
             </Text>
           )}

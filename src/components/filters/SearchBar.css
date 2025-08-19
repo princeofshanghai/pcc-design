@@ -1,0 +1,16 @@
+/* SearchBar specific styling - does not affect other Input components */
+.search-bar-input.ant-input-affix-wrapper::placeholder,
+.search-bar-input.ant-input-affix-wrapper .ant-input::placeholder {
+  color: #6b7280 !important; /* Gray-500 placeholder text */
+}
+
+.search-bar-input.ant-input-affix-wrapper:focus,
+.search-bar-input.ant-input-affix-wrapper:hover {
+  border: 1px solid #e5e7eb !important; /* Keep gray-200 border on focus/hover */
+  box-shadow: none !important;
+}
+
+/* Style the clear icon to match other icons */
+.search-bar-input .ant-input-clear-icon {
+  color: #9ca3af; /* Gray-400 to match search icon */
+}

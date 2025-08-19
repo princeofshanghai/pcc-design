@@ -7,6 +7,30 @@ export const zIndex = {
   modal: 1050,
 };
 
+// Official Tailwind CSS Color Palette
+// Reference: https://tailwindcss.com/docs/colors
+export const TAILWIND_COLORS = {
+  gray: {
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
+    950: '#030712'
+  },
+  green: {
+    500: '#22c55e'
+  },
+  red: {
+    500: '#ef4444'
+  }
+} as const;
+
 const themeConfig: ThemeConfig = {
   token: {
     // Font & Typography
@@ -21,50 +45,59 @@ const themeConfig: ThemeConfig = {
     fontSizeHeading4: 14,
     lineHeight: 1.5715,
     
-    // Colors
-    colorSuccess: '#22c55e', // Tailwind Green 500
-    colorError: '#ef4444', // Tailwind Red 500
-    colorText: 'rgba(0, 0, 0, 0.92)',
-    colorTextSecondary: '#6b7280', // Tailwind Gray 500
-    colorTextTertiary: 'rgba(0, 0, 0, 0.45)',
-    colorTextQuaternary: 'rgba(0, 0, 0, 0.45)',
-    colorBorder: '#d9d9d9',
-    colorBorderSecondary: '#e5e5e5',
-    colorBgLayout: '#fafafa',
-    colorBgContainer: '#ffffff',
+    // Colors - Now using exact Tailwind values
+    colorSuccess: TAILWIND_COLORS.green[500], // Tailwind Green 500
+    colorError: TAILWIND_COLORS.red[500], // Tailwind Red 500
+    colorText: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (primary text)
+    colorTextSecondary: TAILWIND_COLORS.gray[500], // Tailwind Gray 500 (secondary text)
+    colorTextTertiary: TAILWIND_COLORS.gray[400], // Tailwind Gray 400 (tertiary text)
+    colorTextQuaternary: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (disabled text)
+    colorBorder: TAILWIND_COLORS.gray[200], // Tailwind Gray 200 (primary borders)
+    colorBorderSecondary: TAILWIND_COLORS.gray[100], // Tailwind Gray 100 (secondary borders)
+    colorBgLayout: TAILWIND_COLORS.gray[50], // Tailwind Gray 50 (layout background)
+    colorBgContainer: '#ffffff', // White (container background)
   },
   components: {
     Modal: {
       titleFontSize: 20,
-      titleColor: '#222',
+      titleColor: TAILWIND_COLORS.gray[800], // Tailwind Gray 800 (was #222)
     },
     
     Card: {
       headerFontSize: 18,
-      colorTextHeading: 'rgba(0, 0, 0, 0.92)',
+      colorTextHeading: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (was rgba(0, 0, 0, 0.92))
     },
     Select: {
-      colorTextPlaceholder: 'rgba(0, 0, 0, 0.92)',
+      colorTextPlaceholder: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (was rgba(0, 0, 0, 0.92))
+    },
+    
+    Button: {
+      colorBorder: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (default button borders)
+      borderColorDisabled: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (disabled button borders)
     },
     
     Table: {
-      headerBg: '#fafafa',
-      headerColor: 'rgba(0, 0, 0, 0.92)',
+      headerBg: TAILWIND_COLORS.gray[50], // Tailwind Gray 50 (was #fafafa)
+      headerColor: TAILWIND_COLORS.gray[500], // Tailwind Gray 500 (secondary text color)
+      borderColor: TAILWIND_COLORS.gray[200], // Tailwind Gray 200 (table row borders)
+      borderRadius: 0, // No rounded corners on tables
     },
     
     Tabs: {
       titleFontSize: 13,
       // Set font weight for tab labels (both normal and active states)
       fontWeightStrong: 500,
+      // Border beneath tabs - using consistent gray-200 token
+      colorBorderSecondary: TAILWIND_COLORS.gray[200], // Tailwind Gray 200 (tabs border)
     },
     
     Message: {
-      colorBgElevated: '#2f2f2f',  // Dark background
+      colorBgElevated: TAILWIND_COLORS.gray[800],  // Tailwind Gray 800 (dark background)
       colorText: '#ffffff',        // White text
-      colorTextSecondary: '#bfbfbf', // Light gray secondary text
+      colorTextSecondary: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (light gray secondary text)
       colorIcon: '#ffffff',        // White icons
-      colorSuccess: '#52c41a',     // Success icon color
-      colorError: '#ff4d4f',       // Error icon color
+      colorSuccess: TAILWIND_COLORS.green[500],     // Tailwind Green 500 (consistent with main theme)
+      colorError: TAILWIND_COLORS.red[500],       // Tailwind Red 500 (consistent with main theme)
       borderRadiusLG: 8,           // Rounded corners
     }
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Row, Col, Tooltip } from 'antd';
+import { Typography, Row, Col, Tooltip, theme } from 'antd';
 import { Info } from 'lucide-react';
 import { toSentenceCase } from '../../utils/formatters';
 
@@ -18,16 +18,18 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   layout = 'vertical',
   tooltip,
 }) => {
+  const { token } = theme.useToken();
+  
   if (children === undefined || children === null || children === '') {
     return null;
   }
 
   const labelContent = (
-    <Text type="secondary" style={{ fontSize: '13px', letterSpacing: '0.1px' }}>
+    <Text style={{ fontSize: '13px', letterSpacing: '0.1px', color: token.colorTextSecondary }}>
       {toSentenceCase(label)}
       {tooltip && (
         <Tooltip title={tooltip}>
-          <Info size={14} style={{ marginLeft: '4px', color: 'rgba(0, 0, 0, 0.45)' }} />
+          <Info size={14} style={{ marginLeft: '4px', color: token.colorTextTertiary }} />
         </Tooltip>
       )}
     </Text>

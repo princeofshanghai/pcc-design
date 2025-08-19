@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, theme } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
 import { Download, Box, Pencil, Check, X } from 'lucide-react';
@@ -41,18 +41,18 @@ const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
 const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
 
 
-const renderValue = (value: any, isBoolean = false) => {
+const renderValue = (value: any, isBoolean = false, themeToken?: any) => {
   if (isBoolean) {
     return (
       <Space size="small" align="center">
         {value ? (
           <>
-            <Check size={14} style={{ color: '#52c41a' }} />
+            <Check size={14} style={{ color: themeToken?.colorSuccess || '#22c55e' }} />
             <span>Yes</span>
           </>
         ) : (
           <>
-            <X size={14} style={{ color: '#ff4d4f' }} />
+            <X size={14} style={{ color: themeToken?.colorError || '#ef4444' }} />
             <span>No</span>
           </>
         )}
@@ -73,6 +73,7 @@ const renderValue = (value: any, isBoolean = false) => {
 
 
 const ProductDetail: React.FC = () => {
+  const { token } = theme.useToken();
   const { productId } = useParams<{ productId: string }>();
   const { setProductName } = useBreadcrumb();
   const location = useLocation();
@@ -232,7 +233,7 @@ const ProductDetail: React.FC = () => {
                     content: (
                       <div>
                         <p>This would allow you to edit the public name and description for <strong>{product?.name}</strong>.</p>
-                        <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                        <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
                           You would be able to modify the product name and description that customers see.
                         </p>
                       </div>
@@ -247,12 +248,12 @@ const ProductDetail: React.FC = () => {
             }
           >
             <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Public name">{product.name}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Public name" tooltip="This is the name customers see when purchasing this product">{product.name}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Public description">{product.description}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
                 <BillingModelDisplay model={product.billingModel} variant="small" />
               </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
               {product.code && (
                 <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
               )}
@@ -262,67 +263,71 @@ const ProductDetail: React.FC = () => {
             </AttributeGroup>
           </PageSection>
 
-          <PageSection title={toSentenceCase('Configurations')}>
-            <Table
-              dataSource={ALL_SALES_CHANNELS.map(channel => ({
-                key: channel,
-                channel,
-              }))}
-              columns={[
-                {
-                  title: 'Channel',
-                  dataIndex: 'channel',
-                  key: 'channel',
-                  width: 120,
-                  render: (channel: SalesChannel) => {
-                    const channelIsSupported = product.skus.some(sku => sku.salesChannel === channel);
-                    return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <SalesChannelDisplay channel={channel} variant="small" muted={!channelIsSupported} />
-                      </div>
-                    );
-                  },
-                },
-                {
-                  title: 'Billing Cycles',
-                  key: 'cycles',
-                  render: (_, record) => {
-                    const channelIsSupported = product.skus.some(sku => sku.salesChannel === record.channel);
-                    
-                    if (!channelIsSupported) {
+          <PageSection 
+            title={toSentenceCase('Configurations')}
+            subtitle="Shows which sales channels this product is available through and their supported billing cycles"
+          >
+            <div style={{ marginTop: '0px' }}>
+              <Table
+                dataSource={ALL_SALES_CHANNELS.map(channel => ({
+                  key: channel,
+                  channel,
+                }))}
+                columns={[
+                  {
+                    title: 'Channel',
+                    dataIndex: 'channel',
+                    key: 'channel',
+                    width: 120,
+                    render: (channel: SalesChannel) => {
+                      const channelIsSupported = product.skus.some(sku => sku.salesChannel === channel);
                       return (
-                        <span style={{ color: '#999999', fontSize: '14px' }}>
-                          This product is not currently sold through this channel
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <SalesChannelDisplay channel={channel} variant="small" muted={!channelIsSupported} />
+                        </div>
                       );
-                    }
-
-                    return (
-                      <Space size="small">
-                        {ALL_BILLING_CYCLES.map(cycle => {
-                          const hasConfiguration = product.skus.some(sku => 
-                            sku.salesChannel === record.channel && sku.billingCycle === cycle
-                          );
-                          return (
-                            <BillingCycleDisplay 
-                              key={cycle}
-                              billingCycle={cycle} 
-                              variant="small"
-                              muted={!hasConfiguration}
-                            />
-                          );
-                        })}
-                      </Space>
-                    );
+                    },
                   },
-                },
-              ]}
-              pagination={false}
-              size="small"
-              showHeader={false}
-              className="content-panel"
-              style={{ border: 'none' }}
-            />
+                  {
+                    title: 'Billing Cycles',
+                    key: 'cycles',
+                    render: (_, record) => {
+                      const channelIsSupported = product.skus.some(sku => sku.salesChannel === record.channel);
+                      
+                      if (!channelIsSupported) {
+                        return (
+                          <span style={{ color: token.colorTextTertiary, fontSize: token.fontSize }}>
+                            This product is not currently sold through this channel
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <Space size="small">
+                          {ALL_BILLING_CYCLES.map(cycle => {
+                            const hasConfiguration = product.skus.some(sku => 
+                              sku.salesChannel === record.channel && sku.billingCycle === cycle
+                            );
+                            return (
+                              <BillingCycleDisplay 
+                                key={cycle}
+                                billingCycle={cycle} 
+                                variant="small"
+                                muted={!hasConfiguration}
+                              />
+                            );
+                          })}
+                        </Space>
+                      );
+                    },
+                  },
+                ]}
+                pagination={false}
+                size="small"
+                showHeader={false}
+                style={{ border: 'none' }}
+              />
+            </div>
           </PageSection>
         </Space>
       ),
@@ -421,10 +426,10 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // New Pricing tab
+    // New Prices tab
     {
       key: 'pricing',
-      label: 'Pricing',
+      label: 'Prices',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
@@ -503,7 +508,7 @@ const ProductDetail: React.FC = () => {
                       content: (
                         <div>
                           <p>This would export all price group data for <strong>{product?.name}</strong> to CSV format.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
                             Includes: Price group IDs, names, channels, billing cycles, USD prices, currency counts, and validity periods.
                           </p>
                         </div>
@@ -545,7 +550,7 @@ const ProductDetail: React.FC = () => {
           )}
           <PageSection title={toSentenceCase('Features')}>
             {product.features && product.features.length > 0 ? (
-              <div className="content-panel">
+              <div style={{ marginTop: '16px' }}>
                 <Table
                   columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
                   dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
@@ -556,7 +561,7 @@ const ProductDetail: React.FC = () => {
                 />
               </div>
             ) : (
-              <span style={{ color: '#888' }}>No features listed for this product.</span>
+              <span style={{ color: token.colorTextTertiary }}>No features listed for this product.</span>
             )}
           </PageSection>
         </Space>
@@ -583,14 +588,14 @@ const ProductDetail: React.FC = () => {
           {/* Visibility Controls Section */}
           <PageSection title={toSentenceCase('Visibility Controls')}>
             <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true, token)}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
           

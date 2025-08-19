@@ -57,7 +57,7 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
   };
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table<TableRow>
         size="small"
         columns={columns}

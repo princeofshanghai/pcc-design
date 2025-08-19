@@ -7,10 +7,8 @@ interface AttributeGroupProps {
 
 const AttributeGroup: React.FC<AttributeGroupProps> = ({ children }) => {
   return (
-    <div className="content-panel">
-      <div className="attribute-group-body">
-        {children}
-      </div>
+    <div className="attribute-group-body">
+      {children}
     </div>
   );
 };

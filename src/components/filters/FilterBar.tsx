@@ -101,7 +101,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const renderFilters = () => (
     <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
            style={{ width: '100%' }} 
-           size={displayMode === 'inline' ? 8 : 32}
+           size={displayMode === 'inline' ? 6 : 32}
            wrap={displayMode === 'inline'}>
       {filters.map((filter, index) => (
         <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 

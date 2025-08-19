@@ -1,10 +1,11 @@
 import React from 'react';
-import { Table, Space } from 'antd';
+import { Table, Space, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import SecondaryText from '../shared/SecondaryText';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import { PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import type { ColumnsType } from 'antd/es/table';
@@ -21,6 +22,7 @@ export const getProductListTableColumns = (
   visibleColumns: ColumnVisibility = {},
   columnOrder: ColumnOrder = ['id', 'name', 'folder', 'channel', 'skus', 'status']
 ): ColumnsType<Product> => {
+  const { token } = theme.useToken();
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {
     const column = PRODUCT_COLUMNS.find(col => col.key === key);
@@ -61,7 +63,7 @@ export const getProductListTableColumns = (
       render: (folder: string, record: Product) => (
         <div>
           <div>{folder}</div>
-          <div style={{ fontSize: '13px', color: '#8c8c8c' }}>{toSentenceCase(record.lob)}</div>
+          <SecondaryText style={{ fontSize: token.fontSizeSM }}>{toSentenceCase(record.lob)}</SecondaryText>
         </div>
       ),
     } : null,
@@ -117,7 +119,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder);
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table
         size="small"
         columns={columns}

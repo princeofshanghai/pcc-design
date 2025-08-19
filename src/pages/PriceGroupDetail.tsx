@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space, Button, Modal, Tooltip, Tag, Alert } from 'antd';
+import { Typography, Space, Button, Modal, Tooltip, Tag, Alert, theme } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
@@ -32,6 +32,7 @@ import { DollarSign, Download } from 'lucide-react';
 const { Title } = Typography;
 
 const PriceGroupDetail: React.FC = () => {
+  const { token } = theme.useToken();
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId, setPriceGroupName } = useBreadcrumb();
   const navigate = useNavigate();
@@ -327,11 +328,8 @@ const PriceGroupDetail: React.FC = () => {
                 {lixKey && (
                   <Tooltip title="LIX Key" mouseEnterDelay={0.5}>
                     <span style={{ 
-                      fontFamily: 'monospace', 
-                      fontSize: '13px', 
-                      backgroundColor: '#f5f5f5', 
-                      padding: '2px 6px', 
-                      borderRadius: '4px',
+                      fontSize: token.fontSize,
+                      color: token.colorText,
                       cursor: 'default'
                     }}>
                       {lixKey}
@@ -342,11 +340,8 @@ const PriceGroupDetail: React.FC = () => {
                 {lixTreatment && (
                   <Tooltip title="LIX Treatment" mouseEnterDelay={0.5}>
                     <span style={{ 
-                      fontFamily: 'monospace', 
-                      fontSize: '13px', 
-                      backgroundColor: '#f5f5f5', 
-                      padding: '2px 6px', 
-                      borderRadius: '4px',
+                      fontSize: token.fontSize,
+                      color: token.colorText,
                       cursor: 'default'
                     }}>
                       {lixTreatment}
@@ -355,7 +350,7 @@ const PriceGroupDetail: React.FC = () => {
                 )}
               </Space>
             ) : (
-              <span style={{ color: '#999' }}>None</span>
+              <span style={{ color: token.colorTextTertiary }}>None</span>
             )}
           </AttributeDisplay>
           {otherPriceGroupsInExperiment.length > 0 && (
@@ -370,7 +365,7 @@ const PriceGroupDetail: React.FC = () => {
                       navigate(`/product/${productId}/price-group/${pg.id}`);
                     }}
                     style={{
-                      color: '#1890ff',
+                      color: token.colorPrimary,
                       textDecoration: 'none',
                       fontSize: '13px'
                     }}
@@ -465,7 +460,7 @@ const PriceGroupDetail: React.FC = () => {
                         content: (
                           <div>
                             <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
-                            <p style={{ marginTop: 8, fontSize: '13px', color: '#666' }}>
+                            <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
                               Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
                             </p>
                           </div>
@@ -500,7 +495,7 @@ const PriceGroupDetail: React.FC = () => {
                           href="https://appstoreconnect.apple.com/apps/subscriptions" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          style={{ color: '#1890ff' }}
+                          style={{ color: token.colorPrimary }}
                         >
                           appstoreconnect.apple.com/apps/subscriptions
                         </a>
@@ -513,7 +508,7 @@ const PriceGroupDetail: React.FC = () => {
                           href="https://play.google.com/console/billing/subscriptions" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          style={{ color: '#1890ff' }}
+                          style={{ color: token.colorPrimary }}
                         >
                           play.google.com/console/billing/subscriptions
                         </a>

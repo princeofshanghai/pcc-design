@@ -372,7 +372,7 @@ const SkuDetail: React.FC = () => {
               {(sku.features && sku.features.length > 0
                 ? sku.features
                 : product.features || []).length > 0 ? (
-                <div className="content-panel">
+                <div style={{ marginTop: '16px' }}>
                   <Table
                     columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
                     dataSource={(sku.features && sku.features.length > 0
@@ -397,7 +397,7 @@ const SkuDetail: React.FC = () => {
                     <Typography.Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
                       Product Default Features:
                     </Typography.Text>
-                    <div className="content-panel" style={{ marginTop: '8px' }}>
+                    <div style={{ marginTop: '8px' }}>
                       <Table
                         columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
                         dataSource={(product.features || []).map((feature, idx) => ({ key: idx, feature }))}

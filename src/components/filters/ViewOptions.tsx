@@ -524,9 +524,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               gap: '12px'
             }}>
               <span style={{
-                fontSize: '14px',
+                fontSize: token.fontSize,
                 fontWeight: 400,
-                color: token.colorTextTertiary,
+                color: token.colorTextSecondary,
                 lineHeight: token.lineHeightSM,
                 minWidth: '70px'
               }}>
@@ -567,9 +567,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               gap: '12px'
             }}>
               <span style={{
-                fontSize: '14px',
+                fontSize: token.fontSize,
                 fontWeight: 400,
-                color: token.colorTextTertiary,
+                color: token.colorTextSecondary,
                 lineHeight: token.lineHeightSM,
                 minWidth: '70px'
               }}>
@@ -636,9 +636,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           }}>
             <div style={{ 
               marginBottom: 8, 
-              fontSize: '14px', 
+              fontSize: token.fontSize, 
               fontWeight: 400, 
-              color: token.colorTextTertiary,
+              color: token.colorTextSecondary,
               lineHeight: token.lineHeightSM
             }}>
               {toSentenceCase('Show columns')}

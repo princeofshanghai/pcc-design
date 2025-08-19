@@ -27,7 +27,7 @@ const DigitalGoodsTable: React.FC<DigitalGoodsTableProps> = ({ digitalGoods }) =
   ];
 
   return (
-    <div className="content-panel">
+    <div style={{ marginTop: '16px' }}>
       <Table
         size="small"
         columns={columns}

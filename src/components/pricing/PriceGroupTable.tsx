@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
-import { PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
+import { PRICE_GROUP_COLUMNS, DEFAULT_PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
@@ -42,7 +42,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   groupedPriceGroups, 
   productId,
   visibleColumns = {},
-  columnOrder = ['channel', 'billingCycle', 'price', 'lix', 'status'],
+  columnOrder = DEFAULT_PRICE_GROUP_COLUMNS,
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       className: 'table-col-first',
     },
 
-    channel: visibleColumns.channel !== false ? {
+    channel: visibleColumns.channel === true ? {
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
       key: 'channel',
@@ -92,7 +92,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    billingCycle: visibleColumns.billingCycle !== false ? {
+    billingCycle: visibleColumns.billingCycle === true ? {
       title: getColumnLabel('billingCycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
@@ -109,7 +109,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    price: visibleColumns.price !== false ? {
+    price: visibleColumns.price === true ? {
       title: getColumnLabel('price'),
       dataIndex: 'price',
       key: 'price',
@@ -159,7 +159,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
 
-    lix: visibleColumns.lix !== false ? {
+    lix: visibleColumns.lix === true ? {
       title: getColumnLabel('lix'),
       dataIndex: 'lix',
       key: 'lix',
@@ -185,7 +185,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         );
       },
     } : null,
-    status: visibleColumns.status !== false ? {
+    status: visibleColumns.status === true ? {
       title: getColumnLabel('status'),
       dataIndex: 'status',
       key: 'status',
@@ -197,8 +197,20 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
+  // Include all possible columns that are visible, not just those in columnOrder
+  const allVisibleColumnKeys = Object.keys(allColumnsMap).filter(key => {
+    const column = allColumnsMap[key];
+    return column !== null && column !== undefined;
+  });
+  
+  // Create ordered list: first use columnOrder, then append any missing visible columns
+  const orderedColumnKeys = [
+    ...columnOrder.filter(key => allVisibleColumnKeys.includes(key)),
+    ...allVisibleColumnKeys.filter(key => !columnOrder.includes(key))
+  ];
+  
   const baseColumns: ColumnsType<any> = formatColumnTitles(
-    columnOrder
+    orderedColumnKeys
       .map(key => allColumnsMap[key])
       .filter(Boolean)
   );

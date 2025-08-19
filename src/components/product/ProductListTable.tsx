@@ -7,7 +7,7 @@ import CopyableId from '../shared/CopyableId';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import SecondaryText from '../shared/SecondaryText';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
-import { PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
+import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -21,7 +21,7 @@ interface ProductListTableProps {
 export const getProductListTableColumns = (
   _navigate: (path: string) => void, 
   visibleColumns: ColumnVisibility = {},
-  columnOrder: ColumnOrder = ['id', 'name', 'folder', 'channel', 'skus', 'status']
+  columnOrder: ColumnOrder = DEFAULT_PRODUCT_COLUMNS
 ): ColumnsType<Product> => {
   const { token } = theme.useToken();
   // Create a helper to get column label from centralized config
@@ -46,7 +46,7 @@ export const getProductListTableColumns = (
       ),
       className: 'table-col-first',
     },
-    name: visibleColumns.name !== false ? {
+    name: visibleColumns.name === true ? {
       title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
@@ -55,7 +55,7 @@ export const getProductListTableColumns = (
         <div>{name}</div>
       ),
     } : null,
-    folder: visibleColumns.folder !== false ? {
+    folder: visibleColumns.folder === true ? {
       title: getColumnLabel('folder'),
       dataIndex: 'folder',
       key: 'folder',
@@ -68,7 +68,7 @@ export const getProductListTableColumns = (
         </div>
       ),
     } : null,
-    channel: visibleColumns.channel !== false ? {
+    channel: visibleColumns.channel === true ? {
       title: getColumnLabel('channel'),
       dataIndex: 'channel',
       key: 'channel',
@@ -86,7 +86,7 @@ export const getProductListTableColumns = (
         );
       },
     } : null,
-    skus: visibleColumns.skus !== false ? {
+    skus: visibleColumns.skus === true ? {
       title: getColumnTitleWithTooltip(getColumnLabel('skus'), 'Number of SKUs in this product'),
       dataIndex: 'skus',
       key: 'skus',
@@ -94,7 +94,7 @@ export const getProductListTableColumns = (
       responsive: ['sm'],
       render: (skus: any[]) => skus.length,
     } : null,
-    status: visibleColumns.status !== false ? {
+    status: visibleColumns.status === true ? {
       title: getColumnLabel('status'),
       dataIndex: 'status',
       key: 'status',
@@ -104,8 +104,20 @@ export const getProductListTableColumns = (
   };
 
   // Build columns in the specified order, filtering out hidden/null columns
+  // Include all possible columns that are visible, not just those in columnOrder
+  const allVisibleColumnKeys = Object.keys(allColumnsMap).filter(key => {
+    const column = allColumnsMap[key];
+    return column !== null && column !== undefined;
+  });
+  
+  // Create ordered list: first use columnOrder, then append any missing visible columns
+  const orderedColumnKeys = [
+    ...columnOrder.filter(key => allVisibleColumnKeys.includes(key)),
+    ...allVisibleColumnKeys.filter(key => !columnOrder.includes(key))
+  ];
+  
   return formatColumnTitles(
-    columnOrder
+    orderedColumnKeys
       .map(key => allColumnsMap[key])
       .filter(Boolean)
   );
@@ -114,7 +126,7 @@ export const getProductListTableColumns = (
 const ProductListTable: React.FC<ProductListTableProps> = ({ 
   products, 
   visibleColumns = {},
-  columnOrder = ['id', 'name', 'folder', 'channel', 'skus', 'status']
+  columnOrder = DEFAULT_PRODUCT_COLUMNS
 }) => {
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder);

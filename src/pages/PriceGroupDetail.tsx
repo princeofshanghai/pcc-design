@@ -276,7 +276,7 @@ const PriceGroupDetail: React.FC = () => {
       <PageSection title={toSentenceCase('Details')}>
         <AttributeGroup>
           <AttributeDisplay layout="horizontal" label="Configuration">
-            <Space size="small">
+            <Space size={4}>
               {product?.billingModel && (
                 <BillingModelDisplay model={product.billingModel} variant="small" />
               )}

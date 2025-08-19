@@ -517,7 +517,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
 
   // Check if USD Equivalent column should be visible
-  const showUsdEquivalent = visibleColumns.usdEquivalent !== false;
+  const showUsdEquivalent = visibleColumns.usdEquivalent === true;
 
   // Define all possible columns
   const allColumns: Record<string, any> = {
@@ -732,7 +732,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         );
       },
     } : null,
-    status: visibleColumns.status !== false ? {
+    status: visibleColumns.status === true ? {
       title: getColumnLabel('status'),
       dataIndex: 'status',
       key: 'status',
@@ -741,7 +741,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         return <PricePointStatusTag pricePoint={record} variant="small" />;
       },
     } : null,
-    validity: visibleColumns.validity !== false ? {
+    validity: visibleColumns.validity === true ? {
       title: getColumnLabel('validity'),
       key: 'validity',
       render: (_: any, record: PricePoint) => {
@@ -753,7 +753,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           </Text>
         );
       },
-    } : undefined,
+    } : null,
   };
 
   // Build columns in the specified order, filtering out hidden/null columns

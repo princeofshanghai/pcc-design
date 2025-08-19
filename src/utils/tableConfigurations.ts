@@ -25,7 +25,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'validity', 'status'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
@@ -45,8 +45,8 @@ export const PRICE_GROUP_SORT_OPTIONS = [
 // Group by options for price groups
 export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'None',
-  'Channel',
   'Billing Cycle',
+  'Channel',
   'Experiment',
   'Status',
 ];
@@ -54,20 +54,30 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
 // Sort options for price points
 export const PRICE_POINT_SORT_OPTIONS = [
   'None',
+  'Amount (High to low)',
+  'Amount (Low to high)',
+  'Category',
   'Currency (A-Z)',
   'Currency (Z-A)', 
-  'Amount (Low to high)',
-  'Amount (High to low)',
-  'USD equivalent (High to low)',
-  'USD equivalent (Low to high)',
-  'Category',
-
   'Price type (A-Z)',
   'Price type (Z-A)',
   'Status (A-Z)',
   'Status (Z-A)',
+  'USD equivalent (High to low)',
+  'USD equivalent (Low to high)',
   'Validity (Earliest to latest)',
   'Validity (Latest to earliest)',
+];
+
+// Group by options for price points
+export const PRICE_POINT_GROUP_BY_OPTIONS = [
+  'None',
+  'Category',
+  'Currency',
+  'Price type',
+  'Pricing rule',
+  'Region',
+  'Validity',
 ];
 
 export const SKU_COLUMNS: ColumnConfig[] = [
@@ -110,6 +120,30 @@ export const PRODUCT_COLUMNS: ColumnConfig[] = [
 ];
 
 export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'skus', 'status'];
+
+// Sort options for products
+export const PRODUCT_SORT_OPTIONS = [
+  'None',
+  'Folder (A-Z)',
+  'Folder (Z-A)',
+  'LOB (A-Z)',
+  'LOB (Z-A)',
+  'Name (A-Z)',
+  'Name (Z-A)',
+  'Product ID (A-Z)',
+  'Product ID (Z-A)',
+  'SKUs (High to low)',
+  'SKUs (Low to high)',
+];
+
+// Group by options for products
+export const PRODUCT_GROUP_BY_OPTIONS = [
+  'None',
+  'Channel',
+  'Folder',
+  'LOB',
+  'Status',
+];
 
 // Helper to get column label, using fallback if not found
 export const getColumnLabel = (columnKey: string): string => {

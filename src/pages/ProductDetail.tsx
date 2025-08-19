@@ -337,7 +337,7 @@ const ProductDetail: React.FC = () => {
                       }
 
                       return (
-                        <Space size="small">
+                        <Space size={4}>
                           {ALL_BILLING_CYCLES.map(cycle => {
                             const hasConfiguration = product.skus.some(sku => 
                               sku.salesChannel === record.channel && sku.billingCycle === cycle

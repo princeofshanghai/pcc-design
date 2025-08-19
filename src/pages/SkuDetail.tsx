@@ -6,7 +6,7 @@ import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase } from '../utils/formatters';
-import { PRICE_POINT_SORT_OPTIONS } from '../utils/tableConfigurations';
+import { PRICE_POINT_SORT_OPTIONS, PRICE_POINT_GROUP_BY_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
   StatusTag,
@@ -340,7 +340,7 @@ const SkuDetail: React.FC = () => {
                   groupBy: {
                     value: pricePointGroupBy,
                     setter: setPricePointGroupBy,
-                    options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
+                    options: PRICE_POINT_GROUP_BY_OPTIONS,
                   },
                 }}
                 displayMode="inline"

@@ -6,6 +6,7 @@ import { mockProducts } from '../utils/mock-data';
 import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
 import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
+import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
   GroupedProductList,
@@ -15,9 +16,6 @@ import {
   FilterBar,
 } from '../components';
 import type { ViewMode } from '../components';
-
-const GROUP_BY_OPTIONS = ['None', 'LOB', 'Status', 'Folder', 'Channel'];
-const SORT_OPTIONS = ['None', 'Product ID (A-Z)', 'Product ID (Z-A)', 'Name (A-Z)', 'Name (Z-A)', 'LOB (A-Z)', 'LOB (Z-A)', 'Folder (A-Z)', 'Folder (Z-A)', 'SKUs (Low to high)', 'SKUs (High to low)'];
 
 
 // Helper function to convert URL folder names back to actual folder names
@@ -125,9 +123,9 @@ const Home: React.FC = () => {
   const availableGroupByOptions = useMemo(() => {
     if (currentFolder) {
       // On folder pages, remove LOB and Folder grouping since we're already in a specific folder
-      return GROUP_BY_OPTIONS.filter(option => option !== 'LOB' && option !== 'Folder');
+      return PRODUCT_GROUP_BY_OPTIONS.filter(option => option !== 'LOB' && option !== 'Folder');
     }
-    return GROUP_BY_OPTIONS;
+    return PRODUCT_GROUP_BY_OPTIONS;
   }, [currentFolder]);
 
 
@@ -227,7 +225,7 @@ const Home: React.FC = () => {
               sortOrder: {
                 value: sortOrder,
                 setter: setSortOrder,
-                options: SORT_OPTIONS,
+                options: PRODUCT_SORT_OPTIONS,
               },
               viewMode: {
                 value: viewMode,

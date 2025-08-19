@@ -1,97 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, Button, Dropdown, theme, Select, Checkbox } from 'antd';
-import { Settings2, List, LayoutGrid, GripVertical, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
+import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
+import { Settings2, List, LayoutGrid, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 export type ViewMode = 'card' | 'list';
 
-// Sortable column item component
-interface SortableColumnItemProps {
-  column: ColumnConfig;
-  isChecked: boolean;
-  onVisibilityChange: (columnKey: string, checked: boolean) => void;
-  colorTextTertiary: string;
-}
-
-const SortableColumnItem: React.FC<SortableColumnItemProps> = ({
-  column,
-  isChecked,
-  onVisibilityChange,
-  colorTextTertiary,
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: column.key });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-    >
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '4px 0',
-        borderRadius: '4px',
-        cursor: column.required ? 'default' : 'pointer',
-      }}>
-        <div
-          {...listeners}
-          style={{
-            cursor: 'grab',
-            display: 'flex',
-            alignItems: 'center',
-            color: colorTextTertiary,
-            padding: '2px',
-          }}
-        >
-          <GripVertical size={12} />
-        </div>
-        <Checkbox
-          checked={isChecked}
-          disabled={column.required}
-          onChange={(e) => onVisibilityChange(column.key, e.target.checked)}
-          style={{ flex: 1 }}
-        >
-          {toSentenceCase(column.label || column.key)}
-        </Checkbox>
-      </div>
-    </div>
-  );
-};
+const { CheckableTag } = Tag;
 
 
 interface ViewOptionsProps {
@@ -111,11 +26,8 @@ interface ViewOptionsProps {
   setVisibleColumns?: (columns: ColumnVisibility) => void;
   // Column ordering props
   columnOrder?: ColumnOrder;
-  setColumnOrder?: (order: ColumnOrder) => void;
   // Default column visibility for this specific context
   defaultVisibleColumns?: ColumnVisibility;
-  // Default column order for this specific context
-  defaultColumnOrder?: ColumnOrder;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -133,20 +45,10 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   visibleColumns,
   setVisibleColumns,
   columnOrder,
-  setColumnOrder,
   defaultVisibleColumns,
-  defaultColumnOrder,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
-
-  // Drag and drop sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -163,47 +65,37 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     if (setVisibleColumns && columnOptions) {
       // Use contextual default if provided, otherwise fall back to "all visible" default
       const resetVisibility: ColumnVisibility = {};
-      columnOptions.forEach(col => {
-        resetVisibility[col.key] = defaultVisibleColumns ? 
-          (defaultVisibleColumns[col.key] ?? true) : 
-          true;
-      });
+      columnOptions
+        .filter(col => !col.required) // Only reset non-required columns
+        .forEach(col => {
+          resetVisibility[col.key] = defaultVisibleColumns ? 
+            (defaultVisibleColumns[col.key] ?? true) : 
+            true;
+        });
       setVisibleColumns(resetVisibility);
-    }
-    if (setColumnOrder && (defaultColumnOrder || columnOptions)) {
-      const defaultOrder = defaultColumnOrder || columnOptions!.map(col => col.key);
-      setColumnOrder(defaultOrder);
     }
     // Don't close dropdown - keep it open so user can see the changes
   };
 
   // Check if any non-default column visibility is active
   const hasColumnChanges = columnOptions && visibleColumns ? 
-    columnOptions.some(col => {
-      if (col.required) return false; // Required columns don't count as changes
-      
-      // Use contextual default if provided, otherwise fall back to "all visible" default
-      const contextualDefault = defaultVisibleColumns ? 
-        (defaultVisibleColumns[col.key] ?? true) : 
-        true;
-      
-      // Column is considered changed if current visibility differs from contextual default
-      const currentVisibility = visibleColumns[col.key] ?? true;
-      return currentVisibility !== contextualDefault;
-    }) : false;
-
-  // Check if column order has been modified from default
-  const hasColumnOrderChanges = columnOrder && (defaultColumnOrder || columnOptions) ? 
-    !(defaultColumnOrder ? 
-      defaultColumnOrder.every((key, index) => columnOrder[index] === key) :
-      columnOptions!.every((col, index) => columnOrder[index] === col.key)
-    ) : false;
+    columnOptions
+      .filter(col => !col.required) // Only check non-required columns
+      .some(col => {
+        // Use contextual default if provided, otherwise fall back to "all visible" default
+        const contextualDefault = defaultVisibleColumns ? 
+          (defaultVisibleColumns[col.key] ?? true) : 
+          true;
+        
+        // Column is considered changed if current visibility differs from contextual default
+        const currentVisibility = visibleColumns[col.key] ?? true;
+        return currentVisibility !== contextualDefault;
+      }) : false;
 
   const isViewActive = 
     (groupBy && groupBy !== 'None') || 
     (sortOrder && sortOrder !== 'None') ||
-    hasColumnChanges ||
-    hasColumnOrderChanges;
+    hasColumnChanges;
 
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
@@ -225,45 +117,30 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }
   };
 
-  // Create ordered columns list with alphabetical sorting
-  const orderedColumns = useMemo(() => {
+  // Order columns based on columnOrder prop, excluding required columns
+  const sortedColumns = useMemo(() => {
     if (!columnOptions) return [];
     
-    if (columnOrder) {
+    // Filter out required columns first
+    const nonRequiredColumns = columnOptions.filter(col => !col.required);
+    
+    if (columnOrder && columnOrder.length > 0) {
       // Sort columns by the provided order
       const orderedCols = columnOrder
-        .map(key => columnOptions.find(col => col.key === key))
+        .map(key => nonRequiredColumns.find(col => col.key === key))
         .filter(Boolean) as ColumnConfig[];
       
       // Add any columns not in the order array at the end, sorted alphabetically
-      const remainingCols = columnOptions
+      const remainingCols = nonRequiredColumns
         .filter(col => !columnOrder.includes(col.key))
         .sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key));
       
       return [...orderedCols, ...remainingCols];
     }
     
-    // No order specified, sort alphabetically by label (or key if no label)
-    return [...columnOptions].sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key));
+    // Fallback: sort alphabetically by label (or key if no label) if no order specified
+    return [...nonRequiredColumns].sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key));
   }, [columnOptions, columnOrder]);
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || !setColumnOrder || !columnOptions) {
-      return;
-    }
-
-    if (active.id !== over.id) {
-      const oldIndex = orderedColumns.findIndex(col => col.key === active.id);
-      const newIndex = orderedColumns.findIndex(col => col.key === over.id);
-      
-      const reorderedColumns = arrayMove(orderedColumns, oldIndex, newIndex);
-      const newOrder = reorderedColumns.map(col => col.key);
-      
-      setColumnOrder(newOrder);
-    }
-  };
 
   // Prepare group by options with 'None' first
   const sortedGroupByOptions = groupByOptions
@@ -402,7 +279,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   // Custom dropdown content combining standalone components
   const dropdownContent = (
     <div style={{ 
-      minWidth: 320, // Increased width to accommodate horizontal layout
+      minWidth: 320,
+      maxWidth: 400, // Prevent dropdown from becoming too wide
       backgroundColor: token.colorBgElevated,
       borderRadius: token.borderRadiusLG,
       boxShadow: token.boxShadowSecondary
@@ -649,28 +527,44 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
             }}>
               {toSentenceCase('Show columns')}
             </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={orderedColumns.map(col => col.key)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {orderedColumns.map(column => (
-                    <SortableColumnItem
-                      key={column.key}
-                      column={column}
-                      isChecked={visibleColumns?.[column.key] ?? true}
-                      onVisibilityChange={handleColumnVisibilityChange}
-                      colorTextTertiary={token.colorTextTertiary}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            <div style={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px',
+              alignItems: 'flex-start'
+            }}>
+              {sortedColumns.map(column => {
+                const isChecked = visibleColumns?.[column.key] ?? true;
+                
+                return (
+                  <CheckableTag
+                    key={column.key}
+                    checked={isChecked}
+                    onChange={(checked) => {
+                      handleColumnVisibilityChange(column.key, checked);
+                    }}
+                    style={{
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      padding: '4px 8px',
+                      borderRadius: token.borderRadius,
+                      lineHeight: '16px',
+                      userSelect: 'none',
+                      margin: 0,
+                      // Minimal styling - same background, only border differs
+                      backgroundColor: token.colorBgContainer,
+                      border: `1px solid ${isChecked 
+                        ? token.colorTextTertiary 
+                        : token.colorBorderSecondary}`,
+                      color: token.colorText,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {toSentenceCase(column.label || column.key)}
+                  </CheckableTag>
+                );
+              })}
+            </div>
           </div>
         </>
       )}

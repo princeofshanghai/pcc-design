@@ -79,15 +79,12 @@ const PriceGroupDetail: React.FC = () => {
     setSearchQuery: setPricePointSearchQuery,
     currencyFilters,
     setCurrencyFilters,
-    regionFilters,
-    setRegionFilters,
     statusFilters,
     setStatusFilters,
     categoryFilters,
     setCategoryFilters,
     currencyOptions,
     statusOptions,
-    regionOptions,
     categoryOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
@@ -194,7 +191,6 @@ const PriceGroupDetail: React.FC = () => {
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
     setCurrencyFilters([]);
-    setRegionFilters([]);
     setStatusFilters([]);
     setCategoryFilters([]);
   };
@@ -325,6 +321,15 @@ const PriceGroupDetail: React.FC = () => {
             </AttributeDisplay>
           )}
 
+          <AttributeDisplay layout="horizontal" label="Tax">
+            <span style={{ 
+              fontSize: token.fontSize,
+              color: token.colorText
+            }}>
+              {isMobileOnlyPriceGroup ? 'Tax inclusive' : 'Tax exclusive'}
+            </span>
+          </AttributeDisplay>
+
           <AttributeDisplay layout="horizontal" label="Experiment">
             {(lixKey || lixTreatment) ? (
               <Space size="small" align="center">
@@ -421,16 +426,7 @@ const PriceGroupDetail: React.FC = () => {
                 value: null,
                 onChange: () => {},
               },
-              {
-                placeholder: "All regions",
-                options: regionOptions,
-                multiSelect: true,
-                multiValue: regionFilters,
-                onMultiChange: (values: any[]) => setRegionFilters(values),
-                // Required for TypeScript interface compatibility
-                value: null,
-                onChange: () => {},
-              },
+
               {
                 placeholder: "All categories",
                 options: categoryOptions,
@@ -452,7 +448,7 @@ const PriceGroupDetail: React.FC = () => {
               groupBy: {
                 value: pricePointGroupBy,
                 setter: setPricePointGroupBy,
-                options: ['None', 'Category', 'Currency', 'Region', 'Pricing rule', 'Price type', 'Validity'],
+                options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
               },
               columnOptions,
               visibleColumns,
@@ -541,6 +537,7 @@ const PriceGroupDetail: React.FC = () => {
             visibleColumns={visibleColumns}
             columnOrder={columnOrder}
             sortOrder={pricePointSortOrder}
+            isTaxInclusive={isMobileOnlyPriceGroup}
           />
         )}
       </PageSection>

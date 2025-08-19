@@ -302,8 +302,7 @@ const ProductDetail: React.FC = () => {
             title={toSentenceCase('Configurations')}
             subtitle="Shows which sales channels this product is available through and their supported billing cycles"
           >
-            <div style={{ marginTop: '0px' }}>
-              <Table
+            <Table
                 dataSource={ALL_SALES_CHANNELS.map(channel => ({
                   key: channel,
                   channel,
@@ -360,9 +359,8 @@ const ProductDetail: React.FC = () => {
                 pagination={false}
                 size="small"
                 showHeader={false}
-                style={{ border: 'none' }}
+                style={{ border: 'none', marginTop: '-16px' }}
               />
-            </div>
           </PageSection>
         </Space>
       ),
@@ -585,16 +583,15 @@ const ProductDetail: React.FC = () => {
           )}
           <PageSection title={toSentenceCase('Features')}>
             {product.features && product.features.length > 0 ? (
-              <div style={{ marginTop: '16px' }}>
-                <Table
-                  columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                  dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
-                  pagination={false}
-                  size="small"
-                  rowKey="key"
-                  showHeader={false}
-                />
-              </div>
+              <Table
+                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
+                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
+                pagination={false}
+                size="small"
+                rowKey="key"
+                showHeader={false}
+                style={{ marginTop: '-16px' }}
+              />
             ) : (
               <span style={{ color: token.colorTextTertiary }}>No features listed for this product.</span>
             )}

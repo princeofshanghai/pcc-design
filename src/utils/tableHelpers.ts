@@ -21,7 +21,8 @@ export const getColumnTitleWithTooltip = (label: string, tooltip?: string): Reac
       Tooltip,
       { title: tooltip, placement: 'top' },
       React.createElement(Info, {
-        size: 14,
+        size: 13,
+        strokeWidth: 2.5,
         style: {
           color: '#9ca3af', // Tailwind Gray 400 (tertiary text color)
           cursor: 'default',  // Normal cursor, not help cursor

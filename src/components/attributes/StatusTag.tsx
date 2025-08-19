@@ -1,6 +1,6 @@
 import React from 'react';
 import { theme } from 'antd';
-import { CheckCircle2, ArchiveX } from 'lucide-react';
+import { Check, ArchiveX } from 'lucide-react';
 import type { Product } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
@@ -75,7 +75,7 @@ const calculateProductStatus = (product: Product): ProductStatus => {
 
 const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
   Active: {
-    icon: CheckCircle2,
+    icon: Check,
     description: 'Product has at least one active price group and is available for purchase.',
     antColorType: 'success',
   },

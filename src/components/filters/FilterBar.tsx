@@ -57,6 +57,8 @@ interface FilterBarProps {
     setColumnOrder?: (order: ColumnOrder) => void;
     // Default column visibility for this specific context
     defaultVisibleColumns?: ColumnVisibility;
+    // Default column order for this specific context
+    defaultColumnOrder?: ColumnOrder;
   };
   // New prop to control how filters are displayed
   displayMode?: 'inline' | 'drawer';
@@ -195,6 +197,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 columnOrder={viewOptions?.columnOrder}
                 setColumnOrder={viewOptions?.setColumnOrder}
                 defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
+                defaultColumnOrder={viewOptions?.defaultColumnOrder}
                 
                 size={searchAndViewSize}
               />

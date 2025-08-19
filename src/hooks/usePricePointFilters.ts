@@ -14,6 +14,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
   const [regionFilters, setRegionFilters] = useState<GeographicRegion[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');
@@ -65,6 +66,27 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     }));
   }, [initialPricePoints]);
 
+  // Get unique category options with counts
+  const categoryOptions = useMemo(() => {
+    const { core, longTail } = categorizePricePoints(initialPricePoints);
+    const options = [];
+    
+    if (core.length > 0) {
+      options.push({ 
+        label: `Core (${core.length})`, 
+        value: 'Core' 
+      });
+    }
+    if (longTail.length > 0) {
+      options.push({ 
+        label: `Long Tail (${longTail.length})`, 
+        value: 'Long Tail' 
+      });
+    }
+    
+    return options;
+  }, [initialPricePoints]);
+
   // Apply filters and search
   const filteredPricePoints = useMemo(() => {
     let filtered = [...initialPricePoints];
@@ -99,8 +121,17 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       );
     }
 
+    // Apply category filter
+    if (categoryFilters.length > 0) {
+      filtered = filtered.filter(point => {
+        const { core } = categorizePricePoints([point]);
+        const isCore = core.length > 0;
+        return categoryFilters.includes(isCore ? 'Core' : 'Long Tail');
+      });
+    }
+
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, regionFilters]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, regionFilters, categoryFilters]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -321,9 +352,12 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setStatusFilter,
     statusFilters,
     setStatusFilters,
+    categoryFilters,
+    setCategoryFilters,
     currencyOptions,
     statusOptions,
     regionOptions,
+    categoryOptions,
     
     // View controls
     sortOrder,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { theme } from 'antd';
-import { CheckCircle2, ArchiveX } from 'lucide-react';
+import { Check, ArchiveX } from 'lucide-react';
 import type { PricePoint } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
@@ -49,7 +49,7 @@ const calculatePricePointStatus = (pricePoint: PricePoint): PricePointStatus => 
 
 const statusConfig: Record<PricePointStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
   Active: {
-    icon: CheckCircle2,
+    icon: Check,
     description: 'Price point is currently valid and can be used for new purchases.',
     antColorType: 'success',
   },

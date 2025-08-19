@@ -23,7 +23,7 @@ const AttributeDictionaryTable: React.FC<AttributeDictionaryTableProps> = ({ att
         <Space size={4}>
           <span>Domain</span>
           <Tooltip title="This is the domain owner of the attribute. All other domains will read from the SOT for the values of this attribute">
-            <Info size={14} style={{ color: token.colorTextTertiary }} />
+            <Info size={12} strokeWidth={2} style={{ color: token.colorTextTertiary }} />
           </Tooltip>
         </Space>
       ),

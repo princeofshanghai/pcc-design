@@ -6,7 +6,7 @@
  * @returns A formatted date range string.
  */
 export const formatValidityRange = (start?: string, end?: string): string => {
-  if (!start) return 'N/A';
+  if (!start) return '-';
 
   const options: Intl.DateTimeFormatOptions = {
     month: 'short',

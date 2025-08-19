@@ -344,12 +344,12 @@ const calculateUsdAmount = (pricePoint: PricePoint, usdPricePoint: PricePoint): 
  * @returns A formatted string showing USD amount and percentage.
  */
 const formatUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoint | null): string => {
-  if (!usdPricePoint) return 'N/A';
+  if (!usdPricePoint) return '-';
   
   const usdAmount = calculateUsdAmount(pricePoint, usdPricePoint);
   const percentage = calculateUsdEquivalent(pricePoint, usdPricePoint);
   
-  if (usdAmount === null || percentage === null) return 'N/A';
+  if (usdAmount === null || percentage === null) return '-';
   
   // Format USD amount with 2 decimal places
   const formattedAmount = usdAmount.toFixed(2);
@@ -586,7 +586,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return (
           <Text style={{ 
-            fontWeight: 500
+            fontWeight: 400,
+            color: token.colorTextSecondary
           }}>
             {getCurrencyType(record.currencyCode)}
           </Text>
@@ -616,7 +617,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const regionDisplayName = getRegionDisplayName(region);
         return (
           <Tooltip title={regionDisplayName}>
-            <Text>
+            <Text style={{ color: token.colorTextSecondary }}>
               {region}
             </Text>
           </Tooltip>
@@ -779,9 +780,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const validityText = formatValidityRange(record.validFrom, record.validTo);
 
         return (
-          <span>
+          <Text style={{ color: token.colorTextSecondary }}>
             {validityText}
-          </span>
+          </Text>
         );
       },
     } : undefined,

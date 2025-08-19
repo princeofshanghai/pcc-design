@@ -114,6 +114,8 @@ interface ViewOptionsProps {
   setColumnOrder?: (order: ColumnOrder) => void;
   // Default column visibility for this specific context
   defaultVisibleColumns?: ColumnVisibility;
+  // Default column order for this specific context
+  defaultColumnOrder?: ColumnOrder;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -133,6 +135,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   columnOrder,
   setColumnOrder,
   defaultVisibleColumns,
+  defaultColumnOrder,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -167,8 +170,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       });
       setVisibleColumns(resetVisibility);
     }
-    if (setColumnOrder && columnOptions) {
-      const defaultOrder = columnOptions.map(col => col.key);
+    if (setColumnOrder && (defaultColumnOrder || columnOptions)) {
+      const defaultOrder = defaultColumnOrder || columnOptions!.map(col => col.key);
       setColumnOrder(defaultOrder);
     }
     // Don't close dropdown - keep it open so user can see the changes
@@ -190,8 +193,11 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }) : false;
 
   // Check if column order has been modified from default
-  const hasColumnOrderChanges = columnOptions && columnOrder ? 
-    !columnOptions.every((col, index) => columnOrder[index] === col.key) : false;
+  const hasColumnOrderChanges = columnOrder && (defaultColumnOrder || columnOptions) ? 
+    !(defaultColumnOrder ? 
+      defaultColumnOrder.every((key, index) => columnOrder[index] === key) :
+      columnOptions!.every((col, index) => columnOrder[index] === col.key)
+    ) : false;
 
   const isViewActive = 
     (groupBy && groupBy !== 'None') || 

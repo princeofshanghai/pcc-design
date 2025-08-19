@@ -78,6 +78,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
       <span>{id}</span>
       <Copy 
         size={12} 
+        strokeWidth={3}
         style={{ 
           cursor: 'pointer',
           opacity: 0.6,

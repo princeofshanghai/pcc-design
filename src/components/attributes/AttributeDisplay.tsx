@@ -29,7 +29,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
       {toSentenceCase(label)}
       {tooltip && (
         <Tooltip title={tooltip}>
-          <Info size={14} style={{ marginLeft: '4px', color: token.colorTextTertiary }} />
+          <Info size={13} strokeWidth={2.5} style={{ marginLeft: '4px', color: token.colorTextTertiary }} />
         </Tooltip>
       )}
     </Text>

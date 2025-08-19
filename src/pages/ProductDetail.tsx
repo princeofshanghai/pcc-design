@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, theme } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme } from 'antd';
+import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
 import { Download, Box, Pencil, Check, X } from 'lucide-react';
@@ -213,6 +214,53 @@ const ProductDetail: React.FC = () => {
     return <Title level={2}>Product not found</Title>;
   }
 
+  // Modal handlers for editing name and description
+  const handleEditName = () => {
+    Modal.info({
+      title: 'Edit Product Name',
+      content: (
+        <div>
+          <p>Here you can edit the public name for <strong>{product?.name}</strong>.</p>
+          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+            After making changes, you can save and push to a GTM motion for review and deployment.
+          </p>
+        </div>
+      ),
+      okText: 'Got it',
+      width: 400,
+    });
+  };
+
+  const handleEditDescription = () => {
+    Modal.info({
+      title: 'Edit Product Description',
+      content: (
+        <div>
+          <p>Here you can edit the public description for <strong>{product?.name}</strong>.</p>
+          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+            After making changes, you can save and push to a GTM motion for review and deployment.
+          </p>
+        </div>
+      ),
+      okText: 'Got it',
+      width: 400,
+    });
+  };
+
+  // Dropdown menu items
+  const editMenuItems: MenuProps['items'] = [
+    {
+      key: 'edit-name',
+      label: 'Edit public name',
+      onClick: handleEditName,
+    },
+    {
+      key: 'edit-description', 
+      label: 'Edit public description',
+      onClick: handleEditDescription,
+    },
+  ];
+
 
 
   const tabItems = [
@@ -224,32 +272,19 @@ const ProductDetail: React.FC = () => {
           <PageSection 
             title={toSentenceCase('General')}
             actions={
-              <Button 
-                icon={<Pencil size={16} />}
-                size="middle"
-                onClick={() => {
-                  Modal.info({
-                    title: 'Edit Product Details',
-                    content: (
-                      <div>
-                        <p>This would allow you to edit the public name and description for <strong>{product?.name}</strong>.</p>
-                        <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                          You would be able to modify the product name and description that customers see.
-                        </p>
-                      </div>
-                    ),
-                    okText: 'Got it',
-                    width: 400,
-                  });
-                }}
-              >
-                Edit name and description
-              </Button>
+              <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
+                <Button 
+                  icon={<Pencil size={14} />}
+                  size="middle"
+                >
+                  Edit...
+                </Button>
+              </Dropdown>
             }
           >
             <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Public name" tooltip="This is the name customers see when purchasing this product">{product.name}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Public description">{product.description}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Public name" tooltip="Appears to customers and internal LinkedIn employees in invoices, admin center, help center, chooser, checkout, solution builder, and order forms.">{product.name}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Public description" tooltip="Appears to customers and internal LinkedIn employees in invoices, admin center, help center, chooser, checkout, solution builder, and order forms.">{product.description}</AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
                 <BillingModelDisplay model={product.billingModel} variant="small" />
               </AttributeDisplay>
@@ -644,7 +679,7 @@ const ProductDetail: React.FC = () => {
         entityType="Product"
         title={product.name}
         onBack={() => navigate(-1)}
-        tagContent={<StatusTag status={product.status} />}
+        tagContent={<StatusTag status={product.status} variant="small" />}
         rightAlignedId={product.id}
         compact
       />

@@ -83,9 +83,12 @@ const PriceGroupDetail: React.FC = () => {
     setRegionFilters,
     statusFilters,
     setStatusFilters,
+    categoryFilters,
+    setCategoryFilters,
     currencyOptions,
     statusOptions,
     regionOptions,
+    categoryOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy,
@@ -98,9 +101,10 @@ const PriceGroupDetail: React.FC = () => {
   const pricePointDefaultVisibility = useMemo(() => {
     const defaultVisibility: ColumnVisibility = {};
     PRICE_POINT_COLUMNS.forEach(col => {
-      // Hide currencyType, region, pricingRule, quantityRange, and priceType by default
+      // Show region and category (currencyType) by default
+      // Hide pricingRule, quantityRange, and priceType by default
       // ID column is now visible by default to match PriceGroupTable pattern
-      if (col.key === 'currencyType' || col.key === 'region' || col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
+      if (col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
         defaultVisibility[col.key] = false;
       } else {
         defaultVisibility[col.key] = true;
@@ -192,6 +196,7 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters([]);
     setRegionFilters([]);
     setStatusFilters([]);
+    setCategoryFilters([]);
   };
 
   // Extract unique channels and billing cycles from associated SKUs
@@ -268,8 +273,6 @@ const PriceGroupDetail: React.FC = () => {
         }}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
-        lastUpdatedBy="Luxi Kanazir"
-        lastUpdatedAt={new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)} // 5 days ago
         compact
       />
 
@@ -409,6 +412,16 @@ const PriceGroupDetail: React.FC = () => {
                 onChange: () => {},
               },
               {
+                placeholder: "All statuses",
+                options: statusOptions,
+                multiSelect: true,
+                multiValue: statusFilters,
+                onMultiChange: (values: string[]) => setStatusFilters(values),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
+              {
                 placeholder: "All regions",
                 options: regionOptions,
                 multiSelect: true,
@@ -419,11 +432,11 @@ const PriceGroupDetail: React.FC = () => {
                 onChange: () => {},
               },
               {
-                placeholder: "All statuses",
-                options: statusOptions,
+                placeholder: "All categories",
+                options: categoryOptions,
                 multiSelect: true,
-                multiValue: statusFilters,
-                onMultiChange: (values: string[]) => setStatusFilters(values),
+                multiValue: categoryFilters,
+                onMultiChange: (values: string[]) => setCategoryFilters(values),
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},
@@ -447,6 +460,7 @@ const PriceGroupDetail: React.FC = () => {
               columnOrder,
               setColumnOrder,
               defaultVisibleColumns: pricePointDefaultVisibility,
+              defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
             }}
             displayMode="inline"
                           actions={[

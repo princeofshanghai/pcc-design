@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { PricePoint } from '../utils/types';
 import { categorizePricePoints, toSentenceCase } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
+import { getCurrencyRegion } from '../utils/regionUtils';
 
 
 export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
@@ -14,6 +15,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const [currencyFilters, setCurrencyFilters] = useState<string[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
+  const [regionFilters, setRegionFilters] = useState<string[]>([]);
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');
@@ -71,6 +73,19 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     return options;
   }, [initialPricePoints]);
 
+  // Get unique region options with counts
+  const regionOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialPricePoints,
+      point => getCurrencyRegion(point.currencyCode),
+      region => toSentenceCase(region)
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialPricePoints]);
+
   // Apply filters and search
   const filteredPricePoints = useMemo(() => {
     let filtered = [...initialPricePoints];
@@ -109,8 +124,16 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       });
     }
 
+    // Apply region filters
+    if (regionFilters.length > 0) {
+      filtered = filtered.filter(point => {
+        const region = getCurrencyRegion(point.currencyCode);
+        return regionFilters.includes(region);
+      });
+    }
+
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters, regionFilters]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -331,9 +354,12 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setStatusFilters,
     categoryFilters,
     setCategoryFilters,
+    regionFilters,
+    setRegionFilters,
     currencyOptions,
     statusOptions,
     categoryOptions,
+    regionOptions,
     
     // View controls
     sortOrder,

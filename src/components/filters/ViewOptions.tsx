@@ -3,6 +3,7 @@ import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
 import { Settings2, List, LayoutGrid, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import { CUSTOM_COLORS } from '../../theme';
 
 export type ViewMode = 'card' | 'list';
 
@@ -26,8 +27,11 @@ interface ViewOptionsProps {
   setVisibleColumns?: (columns: ColumnVisibility) => void;
   // Column ordering props
   columnOrder?: ColumnOrder;
+  setColumnOrder?: (order: ColumnOrder) => void;
   // Default column visibility for this specific context
   defaultVisibleColumns?: ColumnVisibility;
+  // Default column order for this specific context
+  defaultColumnOrder?: ColumnOrder;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -45,7 +49,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   visibleColumns,
   setVisibleColumns,
   columnOrder,
+  setColumnOrder: _setColumnOrder,
   defaultVisibleColumns,
+  defaultColumnOrder,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +80,10 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         });
       setVisibleColumns(resetVisibility);
     }
+    if (_setColumnOrder && defaultColumnOrder) {
+      // Reset column order to the provided default
+      _setColumnOrder(defaultColumnOrder);
+    }
     // Don't close dropdown - keep it open so user can see the changes
   };
 
@@ -92,10 +102,16 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         return currentVisibility !== contextualDefault;
       }) : false;
 
+  // Check if column order has changed from default
+  const hasColumnOrderChanges = columnOrder && defaultColumnOrder ? 
+    columnOrder.length !== defaultColumnOrder.length ||
+    columnOrder.some((key, index) => key !== defaultColumnOrder[index]) : false;
+
   const isViewActive = 
     (groupBy && groupBy !== 'None') || 
     (sortOrder && sortOrder !== 'None') ||
-    hasColumnChanges;
+    hasColumnChanges ||
+    hasColumnOrderChanges;
 
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
@@ -192,7 +208,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         if (option.toLowerCase().includes('name') || 
             option.toLowerCase().includes('alphabetical') ||
             option.toLowerCase().includes('amount') ||
-            option.toLowerCase().includes('validity')) {
+            option.toLowerCase().includes('validity') ||
+            option.toLowerCase().includes('category')) {
           // These could potentially have directions, treat as ascending by default
           isAscending = true;
         } else {
@@ -554,7 +571,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
                       // Minimal styling - same background, only border differs
                       backgroundColor: token.colorBgContainer,
                       border: `1px solid ${isChecked 
-                        ? token.colorTextTertiary 
+                        ? CUSTOM_COLORS.borderSelected 
                         : token.colorBorderSecondary}`,
                       color: token.colorText,
                       transition: 'all 0.2s ease'

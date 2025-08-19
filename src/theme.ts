@@ -109,6 +109,11 @@ const themeConfig: ThemeConfig = {
   },
 };
 
+// Custom colors for specific UI elements
+export const CUSTOM_COLORS = {
+  borderSelected: TAILWIND_COLORS.gray[300], // Slightly darker than colorBorder for selected states
+} as const;
+
 export const LOB_COLORS: Record<LOB, string> = {
   Premium: 'blue',
   LTS: 'purple',

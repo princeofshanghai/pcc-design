@@ -8,6 +8,7 @@ import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import SecondaryText from '../shared/SecondaryText';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import { PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
+import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import type { ColumnsType } from 'antd/es/table';
 
 
@@ -86,7 +87,7 @@ export const getProductListTableColumns = (
       },
     } : null,
     skus: visibleColumns.skus !== false ? {
-      title: getColumnLabel('skus'),
+      title: getColumnTitleWithTooltip(getColumnLabel('skus'), 'Number of SKUs in this product'),
       dataIndex: 'skus',
       key: 'skus',
       // Hide on screens smaller than 576px (mobile)

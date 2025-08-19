@@ -1,101 +1,48 @@
 import React from 'react';
 import { theme } from 'antd';
-import { Check, ArchiveX } from 'lucide-react';
-import type { Product } from '../../utils/types';
+import { Check, Pause, ArchiveX } from 'lucide-react';
+
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
-export type ProductStatus = 'Active' | 'Retired';
+export type ProductStatus = 'Active' | 'Retired' | 'Legacy';
 
 interface StatusTagProps {
   status?: ProductStatus;
-  product?: Product;
   variant?: ChipVariant;
   showLabel?: boolean;
 }
 
 
 
-/**
- * Calculates the status of a product based on its price groups
- * Logic: Active if ANY price group is Active, Retired if ALL price groups are Expired
- */
-const calculateProductStatus = (product: Product): ProductStatus => {
-  if (!product.skus || product.skus.length === 0) {
-    return 'Retired';
-  }
 
-  const now = new Date();
 
-  // Get all unique price groups from SKUs
-  const priceGroups = product.skus.map(sku => sku.priceGroup);
-
-  // Check each price group's status
-  const priceGroupStatuses = priceGroups.map(priceGroup => {
-    if (!priceGroup.pricePoints || priceGroup.pricePoints.length === 0) {
-      return 'Expired';
-    }
-
-    // Check if any price point in this group is active
-    const hasActivePoint = priceGroup.pricePoints.some(pricePoint => {
-      const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
-      const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
-
-      // If no validFrom date, consider it active
-      if (!validFrom) {
-        return true;
-      }
-
-      // If current time is before validFrom, it's not yet active
-      if (now < validFrom) {
-        return false;
-      }
-
-      // If no validTo date, it's active indefinitely
-      if (!validTo) {
-        return true;
-      }
-
-      // If current time is after validTo, it's expired
-      if (now > validTo) {
-        return false;
-      }
-
-      // Otherwise, it's active
-      return true;
-    });
-
-    return hasActivePoint ? 'Active' : 'Expired';
-  });
-
-  // If ANY price group is active, the product is active
-  const hasActivePriceGroups = priceGroupStatuses.some(status => status === 'Active');
-  
-  return hasActivePriceGroups ? 'Active' : 'Retired';
-};
-
-const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'default' }> = {
+const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'warning' | 'default' }> = {
   Active: {
     icon: Check,
-    description: 'Product has at least one active price group and is available for purchase.',
+    description: 'Product is actively being sold',
     antColorType: 'success',
   },
   Retired: {
+    icon: Pause,
+    description: 'Product has existing customers but is no longer being sold',
+    antColorType: 'warning',
+  },
+  Legacy: {
     icon: ArchiveX,
-    description: 'Product has no active price groups and is no longer available for purchase.',
+    description: 'Product does not have any existing customers and is no longer being sold',
     antColorType: 'default',
   },
 };
 
 const StatusTag: React.FC<StatusTagProps> = ({ 
   status, 
-  product, 
   variant = 'default',
   showLabel = true 
 }) => {
   const { token } = theme.useToken();
   
-  // Calculate status if not provided but product is available
-  const calculatedStatus = status || (product ? calculateProductStatus(product) : 'Active');
+  // Use provided status or default to Active
+  const calculatedStatus = status || 'Active';
   
   const { icon: Icon, description, antColorType } = statusConfig[calculatedStatus];
   
@@ -108,7 +55,13 @@ const StatusTag: React.FC<StatusTagProps> = ({
           textColor: token.colorSuccessText,
           borderColor: token.colorSuccessBorder,
         };
-      default: // 'default' for retired/neutral
+      case 'warning':
+        return {
+          backgroundColor: token.colorWarningBg,
+          textColor: token.colorWarningText,
+          borderColor: token.colorWarningBorder,
+        };
+      default: // 'default' for legacy/neutral
         return {
           backgroundColor: token.colorFillTertiary,
           textColor: token.colorTextSecondary,

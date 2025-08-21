@@ -123,7 +123,7 @@ const rawMockProducts: Product[] = [
     description: 'Find the right talent faster. Search for qualified candidates with 20+ filters, 30 InMail messages per month, saved search alerts, daily candidate recommendations, among other features.',
     lob: 'LTS',
     folder: 'Recruiter',
-    status: 'Retired',
+    status: 'Active',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://www.linkedin.com/talent/recruiter-lite/',
     seatType: 'Multi-seat fixed',

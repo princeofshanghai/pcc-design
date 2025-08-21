@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Switch } from 'antd';
 import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
@@ -10,7 +10,7 @@ import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
 import { useSkuFilters } from '../hooks/useSkuFilters';
 import { usePriceGroupFilters } from '../hooks/usePriceGroupFilters';
-import type { SalesChannel, Status, ColumnConfig, ColumnVisibility, ColumnOrder, BillingCycle } from '../utils/types';
+import type { SalesChannel, Status, ColumnConfig, ColumnVisibility, ColumnOrder, BillingCycle, PricePoint } from '../utils/types';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import {
@@ -25,6 +25,8 @@ import {
   SalesChannelDisplay,
   BillingCycleDisplay,
   FilterBar,
+  CopyableId,
+  PricePointStatusTag,
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
 import { 
@@ -103,6 +105,9 @@ const ProductDetail: React.FC = () => {
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
   const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
 
+  // Price view toggle state
+  const [showPricePointView, setShowPricePointView] = useState(false);
+
   // SKU filtering hook
   const {
     setSearchQuery,
@@ -174,6 +179,186 @@ const ProductDetail: React.FC = () => {
     setPriceGroupExperimentFilter(null);
     setPriceGroupStatusFilters([]);
   };
+
+  // Price point view filtering state
+  const [pricePointSearchQuery, setPricePointSearchQuery] = useState('');
+  const [pricePointCurrencyFilter, setPricePointCurrencyFilter] = useState<string | null>(null);
+  const [pricePointStatusFilter, setPricePointStatusFilter] = useState<string | null>(null);
+  const [pricePointChannelFilters, setPricePointChannelFilters] = useState<SalesChannel[]>([]);
+  const [pricePointBillingCycleFilter, setPricePointBillingCycleFilter] = useState<string | null>(null);
+
+  // Flatten price points with inferred SKU attributes for price point view
+  const allFlattenedPricePoints = useMemo(() => {
+    if (!showPricePointView) return [];
+    
+    return filteredPriceGroups.flatMap(({ priceGroup, skus }) => 
+      priceGroup.pricePoints.map((pricePoint: PricePoint) => ({
+        priceGroupId: priceGroup.id,
+        priceGroupName: priceGroup.name,
+        pricePoint,
+        // Infer unique values from associated SKUs
+        channels: [...new Set(skus.map(sku => sku.salesChannel))],
+        billingCycles: [...new Set(skus.map(sku => sku.billingCycle))],
+        // Get first LIX data found, or null if none
+        lix: skus.find(sku => sku.lix)?.lix || null,
+      }))
+    );
+  }, [showPricePointView, filteredPriceGroups]);
+
+  // Filter the flattened price points based on price point view filters
+  const filteredFlattenedPricePoints = useMemo(() => {
+    if (!showPricePointView) return [];
+    
+    return allFlattenedPricePoints.filter(item => {
+      // Search filter (currency or price point ID)
+      if (pricePointSearchQuery) {
+        const searchLower = pricePointSearchQuery.toLowerCase();
+        const matchesSearch = 
+          item.pricePoint.currencyCode?.toLowerCase().includes(searchLower) ||
+          item.pricePoint.id?.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      // Currency filter
+      if (pricePointCurrencyFilter && item.pricePoint.currencyCode !== pricePointCurrencyFilter) {
+        return false;
+      }
+
+      // Status filter
+      if (pricePointStatusFilter && item.pricePoint.status !== pricePointStatusFilter) {
+        return false;
+      }
+
+      // Channel filter (check if any of the item's channels match selected filters)
+      if (pricePointChannelFilters.length > 0) {
+        const hasMatchingChannel = pricePointChannelFilters.some(filter => 
+          item.channels.includes(filter)
+        );
+        if (!hasMatchingChannel) return false;
+      }
+
+      // Billing cycle filter (check if any of the item's billing cycles match)
+      if (pricePointBillingCycleFilter) {
+        if (!item.billingCycles.includes(pricePointBillingCycleFilter as BillingCycle)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [
+    showPricePointView,
+    allFlattenedPricePoints,
+    pricePointSearchQuery,
+    pricePointCurrencyFilter,
+    pricePointStatusFilter,
+    pricePointChannelFilters,
+    pricePointBillingCycleFilter,
+  ]);
+
+  // Generate filter options for price point view
+  const pricePointFilterOptions = useMemo(() => {
+    if (!showPricePointView || allFlattenedPricePoints.length === 0) {
+      return {
+        currencyOptions: [],
+        statusOptions: [],
+        channelOptions: [],
+        billingCycleOptions: [],
+      };
+    }
+
+    // Extract unique values from all flattened price points
+    const currencies = [...new Set(allFlattenedPricePoints.map(item => item.pricePoint.currencyCode))];
+    const statuses = [...new Set(allFlattenedPricePoints.map(item => item.pricePoint.status))];
+    const channels = [...new Set(allFlattenedPricePoints.flatMap(item => item.channels))];
+    const billingCycles = [...new Set(allFlattenedPricePoints.flatMap(item => item.billingCycles))];
+
+    return {
+      currencyOptions: currencies.sort().map(currency => ({ label: currency, value: currency })),
+      statusOptions: statuses.sort().map(status => ({ label: status, value: status })),
+      channelOptions: channels.sort().map(channel => ({ label: channel, value: channel })),
+      billingCycleOptions: billingCycles.sort().map(cycle => ({ label: cycle, value: cycle })),
+    };
+  }, [showPricePointView, allFlattenedPricePoints]);
+
+  const clearAllPricePointFilters = () => {
+    setPricePointSearchQuery('');
+    setPricePointCurrencyFilter(null);
+    setPricePointStatusFilter(null);
+    setPricePointChannelFilters([]);
+    setPricePointBillingCycleFilter(null);
+  };
+
+  // Price point view sorting and grouping options
+  const PRICE_POINT_SORT_OPTIONS = [
+    'None',
+    'Currency (A-Z)',
+    'Currency (Z-A)', 
+    'Amount (Low to high)',
+    'Amount (High to low)',
+    'Status (A-Z)',
+    'Status (Z-A)',
+    'Validity (Earliest to latest)',
+    'Validity (Latest to earliest)',
+  ];
+
+  // TODO: Group by options for future implementation
+  // const PRICE_POINT_GROUP_BY_OPTIONS = [
+  //   'None',
+  //   'Currency',
+  //   'Status', 
+  //   'Channel',
+  //   'Billing Cycle',
+  //   'Price Group',
+  // ];
+
+  // Price point view state
+  const [pricePointSortOrder, setPricePointSortOrder] = useState('None');
+  // const [pricePointGroupBy, setPricePointGroupBy] = useState('None');
+
+  // Sort price points based on selected sort order
+  const sortedFlattenedPricePoints = useMemo(() => {
+    if (!showPricePointView || pricePointSortOrder === 'None') {
+      return filteredFlattenedPricePoints;
+    }
+
+    const sorted = [...filteredFlattenedPricePoints];
+
+    switch (pricePointSortOrder) {
+      case 'Currency (A-Z)':
+        return sorted.sort((a, b) => a.pricePoint.currencyCode.localeCompare(b.pricePoint.currencyCode));
+      case 'Currency (Z-A)':
+        return sorted.sort((a, b) => b.pricePoint.currencyCode.localeCompare(a.pricePoint.currencyCode));
+      case 'Amount (Low to high)':
+        return sorted.sort((a, b) => a.pricePoint.amount - b.pricePoint.amount);
+      case 'Amount (High to low)':
+        return sorted.sort((a, b) => b.pricePoint.amount - a.pricePoint.amount);
+      case 'Status (A-Z)':
+        return sorted.sort((a, b) => (a.pricePoint.status || '').localeCompare(b.pricePoint.status || ''));
+      case 'Status (Z-A)':
+        return sorted.sort((a, b) => (b.pricePoint.status || '').localeCompare(a.pricePoint.status || ''));
+      case 'Validity (Earliest to latest)':
+        return sorted.sort((a, b) => {
+          const aDate = new Date(a.pricePoint.validFrom || '').getTime();
+          const bDate = new Date(b.pricePoint.validFrom || '').getTime();
+          return aDate - bDate;
+        });
+      case 'Validity (Latest to earliest)':
+        return sorted.sort((a, b) => {
+          const aDate = new Date(a.pricePoint.validFrom || '').getTime();
+          const bDate = new Date(b.pricePoint.validFrom || '').getTime();
+          return bDate - aDate;
+        });
+      default:
+        return sorted;
+    }
+  }, [showPricePointView, filteredFlattenedPricePoints, pricePointSortOrder]);
+
+  // TODO: Group price points based on selected group by option
+  // Implementation ready for when grouping UI is enabled
+
+  // TODO: Implement grouping display like other tables
+  // const finalPricePointData = groupedFlattenedPricePoints || sortedFlattenedPricePoints;
 
   const clearAllSkuFilters = () => {
     setChannelFilters([]);
@@ -300,7 +485,7 @@ const ProductDetail: React.FC = () => {
 
           <PageSection 
             title={toSentenceCase('Configurations')}
-            subtitle="Shows which sales channels this product is available through and their supported billing cycles"
+            subtitle="Shows which channels sell this product and the billing cycles each supports"
           >
             <Table
                 dataSource={ALL_SALES_CHANNELS.map(channel => ({
@@ -467,15 +652,66 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
             title="Prices"
+            actions={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Typography.Text 
+                  style={{ 
+                    fontSize: '13px', 
+                    color: token.colorTextSecondary,
+                    fontWeight: 400 
+                  }}
+                >
+                  Show all price points
+                </Typography.Text>
+                <Switch
+                  size="small"
+                  checked={showPricePointView}
+                  onChange={setShowPricePointView}
+                />
+              </div>
+            }
           >
             <FilterBar
               filterSize="small"
               searchAndViewSize="middle"
               search={{
-                placeholder: "Search by Price Group ID...",
-                onChange: setPriceGroupSearchQuery,
+                placeholder: showPricePointView 
+                  ? "Search by Currency or Price Point ID..." 
+                  : "Search by Price Group ID...",
+                onChange: showPricePointView 
+                  ? setPricePointSearchQuery 
+                  : setPriceGroupSearchQuery,
               }}
-              filters={[
+              filters={showPricePointView ? [
+                {
+                  placeholder: "All currencies",
+                  options: pricePointFilterOptions.currencyOptions,
+                  value: pricePointCurrencyFilter,
+                  onChange: setPricePointCurrencyFilter,
+                },
+                {
+                  placeholder: "All statuses", 
+                  options: pricePointFilterOptions.statusOptions,
+                  value: pricePointStatusFilter,
+                  onChange: setPricePointStatusFilter,
+                },
+                {
+                  placeholder: "All channels",
+                  options: pricePointFilterOptions.channelOptions,
+                  multiSelect: true,
+                  multiValue: pricePointChannelFilters,
+                  onMultiChange: (values: string[]) => setPricePointChannelFilters(values as SalesChannel[]),
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+                {
+                  placeholder: "All billing cycles",
+                  options: pricePointFilterOptions.billingCycleOptions,
+                  value: pricePointBillingCycleFilter,
+                  onChange: setPricePointBillingCycleFilter,
+                },
+              ] : [
                 {
                   placeholder: "All channels",
                   options: priceGroupChannelOptions,
@@ -510,8 +746,23 @@ const ProductDetail: React.FC = () => {
                   onChange: () => {},
                 },
               ]}
-              onClearAll={clearAllPriceGroupFilters}
-              viewOptions={{
+              onClearAll={showPricePointView 
+                ? clearAllPricePointFilters 
+                : clearAllPriceGroupFilters}
+              viewOptions={showPricePointView ? {
+                // TODO: Enable groupBy once grouping display is implemented
+                // groupBy: {
+                //   value: pricePointGroupBy,
+                //   setter: setPricePointGroupBy,
+                //   options: PRICE_POINT_GROUP_BY_OPTIONS,
+                // },
+                sortOrder: {
+                  value: pricePointSortOrder,
+                  setter: setPricePointSortOrder,
+                  options: PRICE_POINT_SORT_OPTIONS,
+                },
+                // TODO: Add column options for price point view later
+              } : {
                 groupBy: {
                   value: priceGroupGroupBy,
                   setter: setPriceGroupGroupBy,
@@ -555,14 +806,162 @@ const ProductDetail: React.FC = () => {
                 </Button>
               ]}
             />
-            <PriceGroupTable 
-              priceGroups={filteredPriceGroups} 
-              groupedPriceGroups={groupedPriceGroups}
-              productId={product.id}
-              visibleColumns={priceGroupVisibleColumns}
-              columnOrder={priceGroupColumnOrder}
-              currentTab={currentTab}
-            />
+            {showPricePointView ? (
+              <div style={{ marginTop: '16px' }}>
+                <Table
+                  size="small"
+                  dataSource={sortedFlattenedPricePoints}
+                  rowKey={record => `${record.priceGroupId}-${record.pricePoint.id}`}
+                  columns={[
+                    {
+                      title: 'Price Point ID', 
+                      dataIndex: ['pricePoint', 'id'],
+                      key: 'pricePointId',
+                      width: 150,
+                      render: (_: any, record: any) => (
+                        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                          <CopyableId id={record.pricePoint.id} variant="prominent" />
+                        </div>
+                      ),
+                    },
+                    {
+                      title: 'Currency',
+                      dataIndex: ['pricePoint', 'currencyCode'],
+                      key: 'currency',
+                      width: 100,
+                      render: (currencyCode: string) => (
+                        <Typography.Text style={{ fontWeight: 500 }}>
+                          {currencyCode}
+                        </Typography.Text>
+                      ),
+                    },
+                    {
+                      title: 'Amount',
+                      dataIndex: ['pricePoint', 'amount'],
+                      key: 'amount',
+                      width: 120,
+                      render: (amount: number) => (
+                        <Typography.Text>
+                          {amount.toFixed(2)}
+                        </Typography.Text>
+                      ),
+                    },
+                    {
+                      title: 'Channels',
+                      dataIndex: 'channels',
+                      key: 'channels',
+                      width: 200,
+                      render: (channels: SalesChannel[]) => (
+                        <Space size="small">
+                          {channels.map((channel) => (
+                            <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+                          ))}
+                        </Space>
+                      ),
+                    },
+                    {
+                      title: 'Billing Cycles',
+                      dataIndex: 'billingCycles',
+                      key: 'billingCycles',
+                      width: 180,
+                      render: (billingCycles: BillingCycle[]) => (
+                        <Space size="small">
+                          {billingCycles.map((cycle) => (
+                            <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
+                          ))}
+                        </Space>
+                      ),
+                    },
+                    {
+                      title: 'LIX',
+                      dataIndex: 'lix',
+                      key: 'lix',
+                      width: 150,
+                      render: (lix: any) => {
+                        if (!lix) {
+                          return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
+                        }
+                        
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+                            <Typography.Text>
+                              {lix.key}
+                            </Typography.Text>
+                            <Typography.Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
+                              {lix.treatment}
+                            </Typography.Text>
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      title: 'Validity',
+                      key: 'validity',
+                      width: 180,
+                      render: (_: any, record: any) => {
+                        const validFrom = record.pricePoint.validFrom;
+                        const validTo = record.pricePoint.validTo;
+                        
+                        if (!validFrom && !validTo) {
+                          return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
+                        }
+                        
+                        const formatDate = (dateString: string) => {
+                          if (!dateString) return '';
+                          return new Date(dateString).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          });
+                        };
+                        
+                        if (!validTo) {
+                          return (
+                            <Typography.Text style={{ color: token.colorTextSecondary }}>
+                              From {formatDate(validFrom)}
+                            </Typography.Text>
+                          );
+                        }
+                        
+                        if (!validFrom) {
+                          return (
+                            <Typography.Text style={{ color: token.colorTextSecondary }}>
+                              Until {formatDate(validTo)}
+                            </Typography.Text>
+                          );
+                        }
+                        
+                        return (
+                          <Typography.Text style={{ color: token.colorTextSecondary }}>
+                            {formatDate(validFrom)} - {formatDate(validTo)}
+                          </Typography.Text>
+                        );
+                      },
+                    },
+                    {
+                      title: 'Status',
+                      dataIndex: ['pricePoint', 'status'],
+                      key: 'status',
+                      width: 100,
+                      render: (_: any, record: any) => (
+                        <PricePointStatusTag pricePoint={record.pricePoint} variant="small" />
+                      ),
+                    },
+                  ]}
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                />
+              </div>
+            ) : (
+              <PriceGroupTable 
+                priceGroups={filteredPriceGroups} 
+                groupedPriceGroups={groupedPriceGroups}
+                productId={product.id}
+                visibleColumns={priceGroupVisibleColumns}
+                columnOrder={priceGroupColumnOrder}
+                currentTab={currentTab}
+              />
+            )}
           </PageSection>
         </Space>
       ),

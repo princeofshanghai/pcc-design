@@ -10,6 +10,21 @@ const priceGroupCache = new Map<string, any>();
 const pricePointCache = new Map<string, any>();
 
 /**
+ * Clear all caches - useful when data has been updated
+ */
+export function clearAllCaches(): void {
+  productListCache.clear();
+  priceGroupCache.clear();
+  pricePointCache.clear();
+  console.log('All caches cleared');
+}
+
+// Make cache clearing available globally for development
+if (typeof window !== 'undefined') {
+  (window as any).clearPccCaches = clearAllCaches;
+}
+
+/**
  * Load basic product catalog (fast initial load)
  * This is what powers the main product list view
  */

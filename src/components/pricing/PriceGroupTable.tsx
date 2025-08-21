@@ -352,7 +352,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           onClick: () => {
             if ('isGroupHeader' in record) return;
             // Include current tab in URL so back navigation knows where to return
-            navigate(`/product/${productId}/price-group/${record.priceGroup.id}?from=${currentTab}`);
+            const navigationUrl = `/product/${productId}/price-group/${record.priceGroup.id}?from=${currentTab}`;
+            console.log('Navigating to:', navigationUrl, 'Price group data:', record.priceGroup);
+            navigate(navigationUrl);
           },
           style: { cursor: 'isGroupHeader' in record ? 'default' : 'pointer' },
         })}

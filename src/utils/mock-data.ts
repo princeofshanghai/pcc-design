@@ -152,7 +152,7 @@ const rawMockProducts: Product[] = [
     description: 'LinkedIn Recruiter account with team collaboration, auditing, and unparalleled network search capabilities. Includes at least 150 InMails/month per license as well as basic training and support.',
     lob: 'LTS',
     folder: 'Recruiter',
-    status: 'Legacy',
+    status: 'Active',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://www.linkedin.com/talent/recruiter-corporate/',
     seatType: 'Multi-seat fixed',

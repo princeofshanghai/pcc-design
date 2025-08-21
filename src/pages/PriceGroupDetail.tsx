@@ -70,6 +70,10 @@ const PriceGroupDetail: React.FC = () => {
   // Find all SKUs that use this price group
   const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
   
+  console.log('PriceGroupDetail - productId:', productId, 'priceGroupId:', priceGroupId);
+  console.log('Product SKUs:', product?.skus.map(sku => ({ id: sku.id, priceGroupId: sku.priceGroup.id })));
+  console.log('Matching SKUs:', skusWithPriceGroup.length);
+  
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 

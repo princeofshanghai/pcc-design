@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Switch } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Switch, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
@@ -553,7 +553,11 @@ const ProductDetail: React.FC = () => {
     // SKUs tab (moved to be second)
     {
       key: 'skus',
-      label: 'SKUs',
+      label: (
+        <span>
+          SKUs <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
+        </span>
+      ),
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {!skuAlertDismissed && (
@@ -968,7 +972,11 @@ const ProductDetail: React.FC = () => {
     },
     {
       key: 'features',
-      label: 'Features',
+      label: (
+        <span>
+          Features <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
+        </span>
+      ),
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {!featuresAlertDismissed && (
@@ -1055,7 +1063,11 @@ const ProductDetail: React.FC = () => {
     },
     {
       key: 'activity',
-      label: 'Activity',
+      label: (
+        <span>
+          Activity <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
+        </span>
+      ),
       children: (
         <div style={{ padding: 32, textAlign: 'center' }}>
           <h1>Activity</h1>

@@ -63,5 +63,4 @@ export { default as AttributeDictionaryTable } from './attribute-dictionary/Attr
 export { default as ActivityFeedItem } from './activity/ActivityFeedItem';
 
 // Export types that might be imported from components
-export type { ViewMode } from './filters/ViewOptions';
 export type { SelectOption } from './filters/FilterDropdown'; 

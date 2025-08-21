@@ -1,7 +1,7 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
-import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder, BookMarked } from 'lucide-react';
+import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
@@ -272,7 +272,6 @@ const AppLayout = () => {
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
@@ -550,7 +549,7 @@ const AppLayout = () => {
           <Menu 
             mode="inline" 
             selectedKeys={getCatalogSelectedKeys()}
-            defaultOpenKeys={['products']}
+            defaultOpenKeys={[]}
             items={menuItems.slice(0, 3)} // Products, Offers, Offer Groups
             inlineIndent={0}
             style={{ 
@@ -857,31 +856,6 @@ const AppLayout = () => {
             {breadcrumbItems}
           </Breadcrumb>
           <Space size={16}>
-            <Button
-              type="text"
-              icon={<BookMarked size={16} />}
-              onClick={() => navigate('/attribute-dictionary')}
-              style={{
-                color: token.colorText,
-                padding: '6px 12px',
-                height: '32px',
-                minHeight: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                borderRadius: '6px',
-                backgroundColor: 'transparent',
-                border: 'none'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = token.colorBgTextHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              Attribute dictionary
-            </Button>
             <Avatar size="small" icon={<User size={16} />} />
           </Space>
         </Header>

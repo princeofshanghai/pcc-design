@@ -485,7 +485,7 @@ const ProductDetail: React.FC = () => {
 
           <PageSection 
             title={toSentenceCase('Configurations')}
-            subtitle="Shows which channels sell this product and the billing cycles each supports"
+            subtitle="Shows the channels this product is currently being sold through and their corresponding billing cycles"
           >
             <Table
                 dataSource={ALL_SALES_CHANNELS.map(channel => ({

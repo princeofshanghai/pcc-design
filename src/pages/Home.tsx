@@ -15,7 +15,7 @@ import {
   GroupedProductListTable,
   FilterBar,
 } from '../components';
-import type { ViewMode } from '../components';
+
 
 
 // Helper function to convert URL folder names back to actual folder names
@@ -45,7 +45,6 @@ const urlToFolderName = (urlFolder: string): string => {
 
 const Home: React.FC = () => {
   const { folderName } = useParams<{ folderName?: string }>();
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [enhancedProducts, setEnhancedProducts] = useState(mockProducts);
 
   // Load enhanced data on component mount
@@ -227,10 +226,6 @@ const Home: React.FC = () => {
                 setter: setSortOrder,
                 options: PRODUCT_SORT_OPTIONS,
               },
-              viewMode: {
-                value: viewMode,
-                setter: setViewMode,
-              },
               columnOptions,
               visibleColumns,
               setVisibleColumns,
@@ -243,24 +238,18 @@ const Home: React.FC = () => {
 
       {/* Content Area - closer to filters */}
       <div>
-        {viewMode === 'list' ? (
-          groupedProducts ? (
-            <GroupedProductListTable 
-              groupedProducts={groupedProducts} 
-              visibleColumns={visibleColumns}
-              columnOrder={columnOrder}
-            />
-          ) : (
-            <ProductListTable 
-              products={sortedProducts} 
-              visibleColumns={visibleColumns}
-              columnOrder={columnOrder}
-            />
-          )
-        ) : groupedProducts ? (
-          <GroupedProductList groupedProducts={groupedProducts} />
+        {groupedProducts ? (
+          <GroupedProductListTable 
+            groupedProducts={groupedProducts} 
+            visibleColumns={visibleColumns}
+            columnOrder={columnOrder}
+          />
         ) : (
-          <ProductList products={sortedProducts} />
+          <ProductListTable 
+            products={sortedProducts} 
+            visibleColumns={visibleColumns}
+            columnOrder={columnOrder}
+          />
         )}
       </div>
     </div>

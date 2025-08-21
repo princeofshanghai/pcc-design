@@ -1,18 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
-import { Settings2, List, LayoutGrid, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
+import { Settings2, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { CUSTOM_COLORS } from '../../theme';
 
-export type ViewMode = 'card' | 'list';
-
 const { CheckableTag } = Tag;
 
-
 interface ViewOptionsProps {
-  viewMode?: ViewMode;
-  setViewMode?: (value: ViewMode) => void;
   groupBy?: string;
   setGroupBy?: (value: string) => void;
   groupByOptions?: string[];
@@ -35,8 +30,6 @@ interface ViewOptionsProps {
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
-  viewMode,
-  setViewMode,
   groupBy,
   setGroupBy,
   sortOrder,
@@ -115,10 +108,9 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
 
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
-  const showViewMode = viewMode !== undefined && setViewMode;
   const showColumnOptions = columnOptions !== undefined && visibleColumns !== undefined && setVisibleColumns;
   
-  const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions;
+  const isDisabled = !showGroupBy && !showSortBy && !showColumnOptions;
 
   if (isDisabled) {
     return null;
@@ -302,122 +294,16 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       borderRadius: token.borderRadiusLG,
       boxShadow: token.boxShadowSecondary
     }}>
-      {/* View Mode Section - Standalone */}
-      {showViewMode && (
+
+
+      {/* Group By Section - Horizontal Layout */}
+      {showGroupBy && (
         <div style={{ 
           padding: '12px 16px',
           backgroundColor: token.colorBgElevated,
           borderTopLeftRadius: token.borderRadiusLG,
           borderTopRightRadius: token.borderRadiusLG
         }}>
-          <div style={{ 
-            display: 'flex',
-            gap: '8px',
-            width: '100%'
-          }}>
-            {/* List Option */}
-            <div
-              onClick={() => setViewMode('list')}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '16px 12px',
-                borderRadius: token.borderRadius,
-                border: `1px solid ${token.colorBorder}`,
-                backgroundColor: viewMode === 'list' ? token.colorPrimaryBg : token.colorBgContainer,
-                borderColor: viewMode === 'list' ? token.colorPrimary : token.colorBorder,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                minHeight: '64px'
-              }}
-              onMouseEnter={(e) => {
-                if (viewMode !== 'list') {
-                  e.currentTarget.style.backgroundColor = token.colorFillTertiary;
-                  e.currentTarget.style.borderColor = token.colorPrimaryHover;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (viewMode !== 'list') {
-                  e.currentTarget.style.backgroundColor = token.colorBgContainer;
-                  e.currentTarget.style.borderColor = token.colorBorder;
-                }
-              }}
-            >
-              <List 
-                size={20} 
-                color={viewMode === 'list' ? token.colorPrimary : token.colorText} 
-                style={{ marginBottom: '4px' }}
-              />
-              <span style={{ 
-                fontSize: '13px',
-                color: viewMode === 'list' ? token.colorPrimary : token.colorText,
-                fontWeight: viewMode === 'list' ? 500 : 400
-              }}>
-                List
-              </span>
-            </div>
-
-            {/* Card Option */}
-            <div
-              onClick={() => setViewMode('card')}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '16px 12px',
-                borderRadius: token.borderRadius,
-                border: `1px solid ${token.colorBorder}`,
-                backgroundColor: viewMode === 'card' ? token.colorPrimaryBg : token.colorBgContainer,
-                borderColor: viewMode === 'card' ? token.colorPrimary : token.colorBorder,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                minHeight: '64px'
-              }}
-              onMouseEnter={(e) => {
-                if (viewMode !== 'card') {
-                  e.currentTarget.style.backgroundColor = token.colorFillTertiary;
-                  e.currentTarget.style.borderColor = token.colorPrimaryHover;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (viewMode !== 'card') {
-                  e.currentTarget.style.backgroundColor = token.colorBgContainer;
-                  e.currentTarget.style.borderColor = token.colorBorder;
-                }
-              }}
-            >
-              <LayoutGrid 
-                size={20} 
-                color={viewMode === 'card' ? token.colorPrimary : token.colorText}
-                style={{ marginBottom: '4px' }}
-              />
-              <span style={{ 
-                fontSize: '13px',
-                color: viewMode === 'card' ? token.colorPrimary : token.colorText,
-                fontWeight: viewMode === 'card' ? 500 : 400
-              }}>
-                Card
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Group By Section - Horizontal Layout */}
-      {showGroupBy && (
-        <>
-          {showViewMode && (
-            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
-          )}
-          <div style={{ 
-            padding: '12px 16px',
-            backgroundColor: token.colorBgElevated,
-          }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -448,18 +334,21 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               </Select>
             </div>
           </div>
-        </>
       )}
 
       {/* Sort By Section - Linear Style with Direction Toggle */}
       {showSortBy && (
         <>
-          {(showViewMode || showGroupBy) && (
+          {showGroupBy && (
             <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           )}
           <div style={{ 
             padding: '12px 16px',
             backgroundColor: token.colorBgElevated,
+            ...(!showGroupBy && {
+              borderTopLeftRadius: token.borderRadiusLG,
+              borderTopRightRadius: token.borderRadiusLG
+            })
           }}>
             <div style={{
               display: 'flex',
@@ -523,17 +412,21 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         </>
       )}
 
-      {/* Show Columns Section - Standalone (Last Section) - Only in list view */}
-      {showColumnOptions && viewMode !== 'card' && (
+      {/* Show Columns Section - Standalone (Last Section) */}
+      {showColumnOptions && (
         <>
           {/* Divider before Show Columns if there are other sections */}
-          {(showViewMode || showGroupBy || showSortBy) && (
+          {(showGroupBy || showSortBy) && (
             <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           )}
           
           <div style={{ 
             padding: '12px 16px',
             backgroundColor: token.colorBgElevated,
+            ...(!showGroupBy && !showSortBy && {
+              borderTopLeftRadius: token.borderRadiusLG,
+              borderTopRightRadius: token.borderRadiusLG
+            })
           }}>
             <div style={{ 
               marginBottom: 8, 
@@ -587,7 +480,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       )}
 
       {/* Clear All Section - Standalone */}
-      {(showViewMode || showGroupBy || showSortBy || (showColumnOptions && viewMode !== 'card')) && (
+      {(showGroupBy || showSortBy || showColumnOptions) && (
         <>
           <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           <div style={{ 

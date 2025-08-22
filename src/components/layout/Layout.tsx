@@ -6,7 +6,7 @@ import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
-import { folderStructure } from '../../utils/mock-data';
+import { folderStructure, mockProducts } from '../../utils/mock-data';
 import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
@@ -339,7 +339,23 @@ const AppLayout = () => {
     }
     
     if (pathname.startsWith('/product/')) {
-      return ['all-products']; // product detail pages should highlight "All products"
+      // Extract product ID from URL (e.g., "/product/5095285" -> "5095285")
+      const productId = pathname.split('/product/')[1]?.split('/')[0];
+      
+      if (productId) {
+        // Find the product to get its LOB and folder
+        const product = mockProducts.find(p => p.id === productId);
+        
+        if (product && product.lob && product.folder) {
+          // Generate the menu key for this product's folder
+          const folderKey = product.folder.toLowerCase().replace(/\s+/g, '-');
+          const menuKey = `${product.lob.toLowerCase()}-${folderKey}`;
+          return [menuKey];
+        }
+      }
+      
+      // Fallback to all-products if product not found or doesn't have proper categorization
+      return ['all-products'];
     }
     if (pathname === '/offers') return ['offers'];
     if (pathname === '/offer-groups') return ['offer-groups'];
@@ -549,7 +565,7 @@ const AppLayout = () => {
           <Menu 
             mode="inline" 
             selectedKeys={getCatalogSelectedKeys()}
-            defaultOpenKeys={[]}
+            defaultOpenKeys={['products']}
             items={menuItems.slice(0, 3)} // Products, Offers, Offer Groups
             inlineIndent={0}
             style={{ 

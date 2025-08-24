@@ -1,7 +1,7 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
 import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
@@ -146,7 +146,7 @@ const SidebarMenuItem: React.FC<{
 };
 
 // Helper function to generate menu structure with sections
-const generateMenuStructure = (collapsed: boolean) => {
+const generateMenuStructure = (collapsed: boolean, navigate: (path: string) => void) => {
   // Create the menu structure with section groupings
   const menuItems = [
     // Catalog Section
@@ -155,15 +155,8 @@ const generateMenuStructure = (collapsed: boolean) => {
       label: 'Products',
       icon: <Box size={14} />,
       className: 'sidebar-products-menu-item',
+      onTitleClick: () => navigate('/'),
       children: [
-        {
-          key: 'all-products',
-          label: (
-            <SidebarMenuItem text={toSentenceCase('All Products')} collapsed={collapsed}>
-              <Link to="/">{toSentenceCase('All Products')}</Link>
-            </SidebarMenuItem>
-          )
-        },
         // Sort LOBs with "Other" always last
         ...Object.entries(folderStructure)
           .sort(([lobA], [lobB]) => {
@@ -177,7 +170,7 @@ const generateMenuStructure = (collapsed: boolean) => {
             label: (
               <SidebarMenuItem text={toSentenceCase(lob)} collapsed={collapsed}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Folder size={14} color="#999" />
+                  <Folder size={14} />
                   <span>{toSentenceCase(lob)}</span>
                 </span>
               </SidebarMenuItem>
@@ -187,7 +180,7 @@ const generateMenuStructure = (collapsed: boolean) => {
               label: (
                 <SidebarMenuItem text={toTitleCase(folder)} collapsed={collapsed}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Folder size={14} color="#999" />
+                    <Folder size={14} />
                     <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>
                   </span>
                 </SidebarMenuItem>
@@ -271,7 +264,9 @@ const AppLayout = () => {
   const [manuallyToggled, setManuallyToggled] = useState(false); // Track if user manually toggled
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
+  const [openKeys, setOpenKeys] = useState(['products']); // Controlled open keys
   const location = useLocation();
+  const navigate = useNavigate();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
@@ -313,11 +308,11 @@ const AppLayout = () => {
   // Note: We don't need to update maxWidth here since pages set their own base width
 
   // Generate menu structure from mock data
-  const menuItems = useMemo(() => generateMenuStructure(collapsed), [collapsed]);
+  const menuItems = useMemo(() => generateMenuStructure(collapsed, navigate), [collapsed, navigate]);
 
   // Function to determine the selected menu key based on current path
   const getSelectedMenuKey = (pathname: string): string[] => {
-    if (pathname === '/') return ['all-products'];
+    if (pathname === '/') return ['products'];
     
     if (pathname.startsWith('/folder/')) {
       // Extract folder name from URL (e.g., "/folder/all-lms-products" -> "all-lms-products")
@@ -334,8 +329,8 @@ const AppLayout = () => {
         }
       }
       
-      // Fallback to all-products if folder not found
-      return ['all-products'];
+      // Fallback to products if folder not found
+      return ['products'];
     }
     
     if (pathname.startsWith('/product/')) {
@@ -354,8 +349,8 @@ const AppLayout = () => {
         }
       }
       
-      // Fallback to all-products if product not found or doesn't have proper categorization
-      return ['all-products'];
+      // Fallback to products if product not found or doesn't have proper categorization
+      return ['products'];
     }
     if (pathname === '/offers') return ['offers'];
     if (pathname === '/offer-groups') return ['offer-groups'];
@@ -376,18 +371,33 @@ const AppLayout = () => {
     folders.map(folder => `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`)
   );
   
-  const catalogKeys = ['products', 'all-products', 'offers', 'offer-groups', ...allFolderKeys];
+  const catalogKeys = ['products', 'offers', 'offer-groups', ...allFolderKeys];
   const logicKeys = ['rulesets', 'calculation-schemes'];
   const integrationsKeys = ['platform-entity-mapping'];
   const changeManagementKeys = ['change-requests', 'picasso-npi'];
 
-  const getCatalogSelectedKeys = () => selectedKeys.filter(key => catalogKeys.includes(key));
+  const getCatalogSelectedKeys = () => {
+    const catalogSelected = selectedKeys.filter(key => catalogKeys.includes(key));
+    
+    // Define the children keys of the 'products' parent menu item
+    const productsChildrenKeys = [...allFolderKeys];
+    
+    // If any child of 'products' is selected, exclude the parent 'products' key
+    // to prevent both parent and child from appearing active
+    const hasSelectedProductsChild = catalogSelected.some(key => productsChildrenKeys.includes(key));
+    
+    if (hasSelectedProductsChild) {
+      return catalogSelected.filter(key => key !== 'products');
+    }
+    
+    return catalogSelected;
+  };
   const getLogicSelectedKeys = () => selectedKeys.filter(key => logicKeys.includes(key));
   const getIntegrationsSelectedKeys = () => selectedKeys.filter(key => integrationsKeys.includes(key));
   const getChangeManagementSelectedKeys = () => selectedKeys.filter(key => changeManagementKeys.includes(key));
 
   // Find the current menu item based on the path
-  const currentMenuItem = location.pathname === '/' ? { key: 'all-products', label: 'Products', path: '/' } : null;
+  const currentMenuItem = location.pathname === '/' ? { key: 'products', label: 'Products', path: '/' } : null;
 
   const breadcrumbItems = [];
   if (currentMenuItem) {
@@ -565,7 +575,8 @@ const AppLayout = () => {
           <Menu 
             mode="inline" 
             selectedKeys={getCatalogSelectedKeys()}
-            defaultOpenKeys={['products']}
+            openKeys={openKeys}
+            onOpenChange={setOpenKeys}
             items={menuItems.slice(0, 3)} // Products, Offers, Offer Groups
             inlineIndent={0}
             style={{ 
@@ -822,6 +833,27 @@ const AppLayout = () => {
             .sidebar-container .ant-menu-sub,
             .sidebar-container .ant-menu-submenu .ant-menu {
               background: transparent !important;
+            }
+
+
+
+            /* Ensure selected menu items have consistent blue styling for both text and icons */
+            .sidebar-container .ant-menu-item-selected span,
+            .sidebar-container .ant-menu-item-selected a,
+            .sidebar-container .ant-menu-item-selected svg {
+              color: #1677ff !important;
+            }
+
+            /* Default styling for non-selected folder icons */
+            .sidebar-container .ant-menu-item:not(.ant-menu-item-selected) svg {
+              color: #999 !important;
+            }
+
+            /* Hover state for menu items */
+            .sidebar-container .ant-menu-item:hover span,
+            .sidebar-container .ant-menu-item:hover a,
+            .sidebar-container .ant-menu-item:hover svg {
+              color: #1677ff !important;
             }
           `}
         </style>

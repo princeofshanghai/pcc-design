@@ -9,8 +9,6 @@ import { useProductFilters } from '../hooks/useProductFilters';
 import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS } from '../utils/tableConfigurations';
 import {
   PageHeader,
-  GroupedProductList,
-  ProductList,
   ProductListTable,
   GroupedProductListTable,
   FilterBar,

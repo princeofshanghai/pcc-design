@@ -1,6 +1,6 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
 import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
@@ -122,6 +122,8 @@ const AppLayout = () => {
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const [openKeys, setOpenKeys] = useState(['products']); // Controlled open keys
+  const lastAutoExpandedRef = useRef<string | null>(null); // Track last auto-expanded selection
+  const manualOverrideRef = useRef<boolean>(false); // Track if user has manually overridden auto-expand
 
   const location = useLocation();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
@@ -232,32 +234,39 @@ const AppLayout = () => {
   // Generate LOB keys for accordion behavior
   const lobKeys = Object.keys(folderStructure).map(lob => lob.toLowerCase());
 
-  // Auto-expand parent LOB when a folder is selected (only when needed)
+  // Auto-expand parent LOB when a folder is selected (only when selection changes)
   useEffect(() => {
+    // Don't auto-expand if user has manually overridden
+    if (manualOverrideRef.current) return;
+    
     // Check if current selection is a folder (format: "lob-folder")
     const selectedFolder = selectedKeys.find(key => 
       key !== 'all-products' && allFolderKeys.includes(key)
     );
     
     if (selectedFolder) {
-      // Extract the LOB from the folder key (e.g., "lts-recruiter" -> "lts")
-      const lobKey = selectedFolder.split('-')[0];
-      
-      // Only auto-expand if:
-      // 1. The required LOB is not already open, AND
-      // 2. No LOB sections are currently open (meaning user hasn't manually opened anything)
-      const currentOpenLobs = openKeys.filter(key => lobKeys.includes(key));
-      const shouldAutoExpand = !openKeys.includes(lobKey) && currentOpenLobs.length === 0;
-      
-      if (lobKeys.includes(lobKey) && shouldAutoExpand) {
-        setOpenKeys(prev => {
-          // Close other LOBs and open the one containing the selected folder
-          const nonLobKeys = prev.filter(key => !lobKeys.includes(key));
-          return [...nonLobKeys, lobKey];
-        });
+      // Only auto-expand if this is a new selection
+      if (selectedFolder !== lastAutoExpandedRef.current) {
+        // Extract the LOB from the folder key (e.g., "lts-recruiter" -> "lts")
+        const lobKey = selectedFolder.split('-')[0];
+        
+        if (lobKeys.includes(lobKey)) {
+          setOpenKeys(prev => {
+            // Close other LOBs and open the one containing the selected folder
+            const nonLobKeys = prev.filter(key => !lobKeys.includes(key));
+            return [...nonLobKeys, lobKey];
+          });
+        }
+        
+        // Remember this selection to prevent repeated auto-expansions
+        lastAutoExpandedRef.current = selectedFolder;
       }
+    } else {
+      // Reset when no folder is selected (e.g., on "All products" page)
+      lastAutoExpandedRef.current = null;
+      manualOverrideRef.current = false; // Reset manual override when leaving product pages
     }
-  }, [selectedKeys, allFolderKeys, lobKeys, openKeys]);
+  }, [selectedKeys, allFolderKeys, lobKeys]);
   
   const catalogKeys = ['products', 'offers', 'offer-groups', 'all-products', ...allFolderKeys];
   const logicKeys = ['rulesets', 'calculation-schemes'];
@@ -270,6 +279,9 @@ const AppLayout = () => {
 
   // Custom handler for accordion behavior - only one LOB section can be open at a time
   const handleOpenChange = (keys: string[]) => {
+    // Mark that user has manually overridden auto-expand behavior
+    manualOverrideRef.current = true;
+    
     // Find which LOB keys are being opened/closed
     const newLobKeys = keys.filter(key => lobKeys.includes(key));
     const currentLobKeys = openKeys.filter(key => lobKeys.includes(key));

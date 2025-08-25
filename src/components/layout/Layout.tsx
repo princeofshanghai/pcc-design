@@ -121,7 +121,7 @@ const AppLayout = () => {
   const [manuallyToggled, setManuallyToggled] = useState(false); // Track if user manually toggled
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
-  const [openKeys, setOpenKeys] = useState(['products']); // Controlled open keys
+  const [openKeys, setOpenKeys] = useState([]); // Controlled open keys
   const lastAutoExpandedRef = useRef<string | null>(null); // Track last auto-expanded selection
   const manualOverrideRef = useRef<boolean>(false); // Track if user has manually overridden auto-expand
 

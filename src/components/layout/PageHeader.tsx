@@ -11,8 +11,6 @@ import './PageHeader.css';
 const { Title, Text } = Typography;
 
 interface PageHeaderProps {
-  icon?: React.ReactNode;
-  iconSize?: number;
   entityType?: string;
   title?: React.ReactNode;
   rightAlignedId?: string; // ID that appears inline with entity type
@@ -62,8 +60,6 @@ const formatDateFullUTC = (date: Date): string => {
 };
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
-  icon, 
-  iconSize = 12, 
   entityType,
   title, 
   rightAlignedId,
@@ -85,19 +81,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="page-header-grid">
         {/* Main Content Area */}
         <div className="page-header-content page-header-content--no-back">
-          {/* Top row: Icon + Entity Type + ID (inline) */}
-          {(icon || entityType || rightAlignedId) && (
+          {/* Top row: Entity Type + ID (inline) */}
+          {(entityType || rightAlignedId) && (
             <div className="page-header-top-row">
               <Space align="center" size={4}>
-                {icon && (
-                  <div style={{ 
-                    color: token.colorTextSecondary,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    {React.cloneElement(icon as React.ReactElement, { size: iconSize } as any)}
-                  </div>
-                )}
                 {entityType && (
                   <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
                     {entityType}

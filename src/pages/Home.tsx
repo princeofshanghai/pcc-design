@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space } from 'antd';
 import { useParams } from 'react-router-dom';
-import { Folder } from 'lucide-react';
+import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
 import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
@@ -43,15 +43,30 @@ const urlToFolderName = (urlFolder: string): string => {
 
 const Home: React.FC = () => {
   const { folderName } = useParams<{ folderName?: string }>();
+  const { setFolderName } = useBreadcrumb();
   const [enhancedProducts, setEnhancedProducts] = useState(mockProducts);
+
+  // Convert URL folder name to actual folder name for filtering
+  const currentFolder = folderName ? urlToFolderName(folderName) : null;
 
   // Load enhanced data on component mount
   useEffect(() => {
     loadProductsWithAccurateCounts().then(setEnhancedProducts);
   }, []);
 
-  // Convert URL folder name to actual folder name for filtering
-  const currentFolder = folderName ? urlToFolderName(folderName) : null;
+  // Set folder name in breadcrumb context
+  useEffect(() => {
+    if (currentFolder) {
+      setFolderName(currentFolder);
+    } else {
+      setFolderName(null);
+    }
+    
+    // Clean up when component unmounts
+    return () => {
+      setFolderName(null);
+    };
+  }, [currentFolder, setFolderName]);
 
   // Column visibility state for ProductListTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
@@ -158,8 +173,6 @@ const Home: React.FC = () => {
       <div style={{ marginBottom: 16 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <PageHeader
-            icon={currentFolder ? <Folder /> : undefined}
-            iconSize={14}
             entityType={currentFolder ? "Folder" : undefined}
             title={pageTitle}
             subtitle={pageSubtitle}

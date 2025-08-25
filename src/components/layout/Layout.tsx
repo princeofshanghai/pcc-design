@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
-import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash } from 'lucide-react';
+import { User, PanelLeft, Box, SquareSlash } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -126,7 +126,7 @@ const AppLayout = () => {
   const manualOverrideRef = useRef<boolean>(false); // Track if user has manually overridden auto-expand
 
   const location = useLocation();
-  const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
+  const { productName, skuId, priceGroupId, folderName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
   const { useBreakpoint } = Grid;
@@ -319,10 +319,15 @@ const AppLayout = () => {
   }
 
   // Handle folder pages - add breadcrumb for folder pages
-  if (location.pathname.startsWith('/folder/')) {
+  if (location.pathname.startsWith('/folder/') && folderName) {
     breadcrumbItems.push(
       <Breadcrumb.Item key="catalog">
         <Link to="/">Products</Link>
+      </Breadcrumb.Item>
+    );
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="folder">
+        <span>{folderName}</span>
       </Breadcrumb.Item>
     );
   }
@@ -330,11 +335,22 @@ const AppLayout = () => {
   // Handle attribute dictionary page - no breadcrumb needed
 
   if (location.pathname.startsWith('/product/') && productName) {
-    // Add Home link first for product pages
+    // Add Products link first for product pages
     if (!currentMenuItem) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="home">
           <Link to="/">Products</Link>
+        </Breadcrumb.Item>
+      );
+    }
+
+    // Add folder breadcrumb if available
+    if (folderName) {
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="folder">
+          <Link to={`/folder/${folderName.toLowerCase().replace(/\s+/g, '-')}`}>
+            {folderName}
+          </Link>
         </Breadcrumb.Item>
       );
     }
@@ -353,26 +369,20 @@ const AppLayout = () => {
 
     breadcrumbItems.push(
       <Breadcrumb.Item key="product">
-        <Space size={4} style={{ color: 'var(--ant-color-text-secondary)' }}>
-          <Box size={14} />
-          {(isSkuPage || isPriceGroupPage) ? (
-            <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
-              {productName}
-            </Link>
-          ) : (
-            <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
-          )}
-        </Space>
+        {(isSkuPage || isPriceGroupPage) ? (
+          <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
+            {productName}
+          </Link>
+        ) : (
+          <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
+        )}
       </Breadcrumb.Item>
     );
 
     if (isSkuPage && skuId) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="sku">
-          <Space size={4}>
-            <Tag size={14} />
-            <span>SKU: {skuId}</span>
-          </Space>
+          <span>SKU details</span>
         </Breadcrumb.Item>
       );
     }
@@ -380,10 +390,7 @@ const AppLayout = () => {
     if (isPriceGroupPage && priceGroupId) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="priceGroup">
-          <Space size={4}>
-            <DollarSign size={14} />
-            <span>{priceGroupName || priceGroupId}</span>
-          </Space>
+          <span>Price group details</span>
         </Breadcrumb.Item>
       );
     }

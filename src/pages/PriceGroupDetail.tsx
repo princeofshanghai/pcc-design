@@ -27,14 +27,14 @@ import {
   PRICE_POINT_SORT_OPTIONS,
   DEFAULT_PRICE_POINT_COLUMNS
 } from '../utils/tableConfigurations';
-import { DollarSign, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 const { Title } = Typography;
 
 const PriceGroupDetail: React.FC = () => {
   const { token } = theme.useToken();
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
-  const { setProductName, setPriceGroupId, setPriceGroupName } = useBreadcrumb();
+  const { setProductName, setPriceGroupId, setPriceGroupName, setFolderName } = useBreadcrumb();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -137,6 +137,10 @@ const PriceGroupDetail: React.FC = () => {
   useEffect(() => {
     if (product) {
       setProductName(product.name);
+      // Also set the folder name if available
+      if (product.folder) {
+        setFolderName(product.folder);
+      }
     }
     if (priceGroupId) {
       setPriceGroupId(priceGroupId);
@@ -149,8 +153,9 @@ const PriceGroupDetail: React.FC = () => {
       setProductName(null);
       setPriceGroupId(null);
       setPriceGroupName(null);
+      setFolderName(null);
     };
-  }, [product, priceGroupId, setProductName, setPriceGroupId, priceGroup, setPriceGroupName]);
+  }, [product, priceGroupId, setProductName, setPriceGroupId, priceGroup, setPriceGroupName, setFolderName]);
 
   if (isLoading) {
     return (
@@ -259,8 +264,6 @@ const PriceGroupDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
-        icon={<DollarSign />}
-        iconSize={14}
         entityType="Price group"
         title={priceGroup.name || `Price group for ${product.name}`}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}

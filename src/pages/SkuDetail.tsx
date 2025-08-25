@@ -20,13 +20,13 @@ import {
 } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
 import CopyableId from '../components/shared/CopyableId';
-import { Tag as SkuIcon, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const { Title } = Typography;
 
 const SkuDetail: React.FC = () => {
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
-  const { setProductName, setSkuId } = useBreadcrumb();
+  const { setProductName, setSkuId, setFolderName } = useBreadcrumb();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,6 +42,10 @@ const SkuDetail: React.FC = () => {
   useEffect(() => {
     if (product) {
       setProductName(product.name);
+      // Also set the folder name if available
+      if (product.folder) {
+        setFolderName(product.folder);
+      }
     }
     if (sku) {
       setSkuId(sku.id);
@@ -50,8 +54,9 @@ const SkuDetail: React.FC = () => {
     return () => {
       setProductName(null);
       setSkuId(null);
+      setFolderName(null);
     };
-  }, [product, sku, setProductName, setSkuId]);
+  }, [product, sku, setProductName, setSkuId, setFolderName]);
 
   if (!product || !sku) {
     return (
@@ -427,8 +432,6 @@ const SkuDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
-        icon={<SkuIcon />}
-        iconSize={14}
         entityType="SKU"
         title={sku.id}
         tagContent={<StatusTag status={sku.status} />}

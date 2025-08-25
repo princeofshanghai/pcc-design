@@ -4,7 +4,7 @@ import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, 
 import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Box, Pencil, Check, X } from 'lucide-react';
+import { Download, Pencil, Check, X } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -78,7 +78,7 @@ const renderValue = (value: any, isBoolean = false, themeToken?: any) => {
 const ProductDetail: React.FC = () => {
   const { token } = theme.useToken();
   const { productId } = useParams<{ productId: string }>();
-  const { setProductName } = useBreadcrumb();
+  const { setProductName, setFolderName } = useBreadcrumb();
   const location = useLocation();
   const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const navigate = useNavigate();
@@ -388,12 +388,17 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     if (product) {
       setProductName(product.name);
+      // Also set the folder name if available
+      if (product.folder) {
+        setFolderName(product.folder);
+      }
     }
-    // Clear the product name when the component unmounts
+    // Clear the product name and folder name when the component unmounts
     return () => {
       setProductName(null);
+      setFolderName(null);
     };
-  }, [product, setProductName]);
+  }, [product, setProductName, setFolderName]);
 
   if (!product) {
     return <Title level={2}>Product not found</Title>;
@@ -1085,8 +1090,6 @@ const ProductDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
-        icon={<Box />}
-        iconSize={14}
         entityType="Product"
         title={product.name}
         tagContent={<StatusTag status={product.status} variant="small" />}

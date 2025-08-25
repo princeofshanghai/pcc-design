@@ -9,6 +9,8 @@ interface BreadcrumbContextType {
   setPriceGroupId: (id: string | null) => void;
   priceGroupName: string | null;
   setPriceGroupName: (name: string | null) => void;
+  folderName: string | null;
+  setFolderName: (name: string | null) => void;
 }
 
 const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
@@ -18,13 +20,15 @@ export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children
   const [skuId, setSkuId] = useState<string | null>(null);
   const [priceGroupId, setPriceGroupId] = useState<string | null>(null);
   const [priceGroupName, setPriceGroupName] = useState<string | null>(null);
+  const [folderName, setFolderName] = useState<string | null>(null);
 
   return (
     <BreadcrumbContext.Provider value={{ 
       productName, setProductName, 
       skuId, setSkuId,
       priceGroupId, setPriceGroupId,
-      priceGroupName, setPriceGroupName
+      priceGroupName, setPriceGroupName,
+      folderName, setFolderName
     }}>
       {children}
     </BreadcrumbContext.Provider>

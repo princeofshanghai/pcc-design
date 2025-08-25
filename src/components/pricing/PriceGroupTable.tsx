@@ -295,11 +295,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Auto-expand all groups when groupedPriceGroups changes (i.e., when grouping is applied)
+  // Keep all groups collapsed by default when groupedPriceGroups changes
   useEffect(() => {
     if (groupedPriceGroups) {
-      const allGroupKeys = Object.keys(groupedPriceGroups);
-      setExpandedGroups(allGroupKeys);
+      // Start with no expanded groups (all collapsed)
+      setExpandedGroups([]);
     } else {
       setExpandedGroups([]);
     }

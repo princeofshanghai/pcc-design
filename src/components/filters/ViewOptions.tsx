@@ -520,6 +520,10 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           </Badge>
         } 
         size={size}
+        style={{
+          height: '28px',
+          minHeight: '28px',
+        }}
       >
         {toSentenceCase('Display')}
       </Button>

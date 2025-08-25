@@ -10,32 +10,18 @@
 
 .page-header-grid {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr;
   gap: 12px;
   align-items: start;
 }
 
-.page-header-back-button {
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  grid-row: 1;
-  grid-column: 1;
-}
-
 .page-header-content {
   grid-row: 1;
-  grid-column: 2;
+  grid-column: 1;
   min-width: 0; /* Prevents flex items from overflowing */
 }
 
-.page-header-content--no-back {
-  grid-column: 1 / -1;
-}
+
 
 /* .page-header-actions removed - actions now integrated into .page-header-meta */
 
@@ -93,18 +79,7 @@
     gap: 8px;
   }
   
-  .page-header-back-button {
-    grid-row: 1;
-    grid-column: 1;
-    justify-self: start;
-  }
-  
   .page-header-content {
-    grid-row: 2;
-    grid-column: 1;
-  }
-  
-  .page-header-content--no-back {
     grid-row: 1;
     grid-column: 1;
   }

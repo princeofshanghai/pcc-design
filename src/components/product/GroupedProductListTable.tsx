@@ -29,11 +29,11 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Auto-expand all groups when groupedProducts changes (i.e., when grouping is applied)
+  // Keep all groups collapsed by default when groupedProducts changes
   useEffect(() => {
     if (groupedProducts) {
-      const allGroupKeys = Object.keys(groupedProducts);
-      setExpandedGroups(allGroupKeys);
+      // Start with no expanded groups (all collapsed)
+      setExpandedGroups([]);
     } else {
       setExpandedGroups([]);
     }

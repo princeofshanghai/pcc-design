@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Space, theme, Button, Tooltip } from 'antd';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import CopyableId from '../shared/CopyableId';
@@ -20,7 +20,6 @@ interface PageHeaderProps {
   billingCycles?: BillingCycle[]; // New prop for billing cycles
   validityText?: string; // New prop for validity period text
   tagContent?: React.ReactNode;
-  onBack?: () => void;
   actions?: React.ReactNode;
   // Keep subtitle for backward compatibility, but it will be replaced by channels/cycles
   subtitle?: React.ReactNode;
@@ -72,7 +71,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   billingCycles = [],
   validityText,
   tagContent, 
-  onBack, 
   actions,
   subtitle,
   lastUpdatedBy,
@@ -85,29 +83,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     <div className={`page-header ${compact ? 'page-header--compact' : ''}`}>
       {/* Container for responsive layout */}
       <div className="page-header-grid">
-        {/* Back Button */}
-        {onBack && (
-          <div 
-            className="page-header-back-button"
-            onClick={onBack}
-            style={{
-              color: token.colorTextSecondary,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = token.colorBgTextHover;
-              e.currentTarget.style.color = token.colorText;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = token.colorTextSecondary;
-            }}
-          >
-            <ArrowLeft size={20} />
-          </div>
-        )}
-        
         {/* Main Content Area */}
-        <div className={`page-header-content ${!onBack ? 'page-header-content--no-back' : ''}`}>
+        <div className="page-header-content page-header-content--no-back">
           {/* Top row: Icon + Entity Type + ID (inline) */}
           {(icon || entityType || rightAlignedId) && (
             <div className="page-header-top-row">

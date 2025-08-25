@@ -292,8 +292,7 @@ const SkuDetail: React.FC = () => {
               title={toSentenceCase("Price points")}
             >
               <FilterBar
-                filterSize="small"
-                searchAndViewSize="middle"
+                useCustomFilters={true}
                 search={{
                   placeholder: "Search by currency or ID...",
                   onChange: setPricePointSearchQuery,
@@ -432,14 +431,6 @@ const SkuDetail: React.FC = () => {
         iconSize={14}
         entityType="SKU"
         title={sku.id}
-        onBack={() => {
-          // Smart back navigation - return to the tab we came from
-          if (fromTab === 'overview') {
-            navigate(`/product/${productId}`);
-          } else {
-            navigate(`/product/${productId}?tab=${fromTab}`);
-          }
-        }}
         tagContent={<StatusTag status={sku.status} />}
         rightAlignedId={sku.id}
         channels={[sku.salesChannel]}

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Row, Col, Space, Button, Drawer, Badge } from 'antd';
+import { Row, Col, Space, Button, Drawer, Badge, theme } from 'antd';
 import { ListFilter } from 'lucide-react';
 import { zIndex } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
+import CustomFilterButton from './CustomFilterButton';
 import ViewOptions from './ViewOptions';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
@@ -58,12 +59,17 @@ interface FilterBarProps {
   };
   // New prop to control how filters are displayed
   displayMode?: 'inline' | 'drawer';
-  // New prop to control filter size
-  filterSize?: 'small' | 'middle' | 'large';
+
   // New prop to control search bar and view options size
   searchAndViewSize?: 'small' | 'middle' | 'large';
   // New prop for custom action buttons
   actions?: React.ReactNode[];
+  // New prop for custom actions that appear in the inline filters row (before ViewOptions)
+  inlineActions?: React.ReactNode[];
+  // New prop for custom actions that appear in the inline filters row (after ViewOptions)
+  rightActions?: React.ReactNode[];
+  // New prop to use custom filter buttons instead of Ant Design Select
+  useCustomFilters?: boolean;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -72,10 +78,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onClearAll,
   viewOptions,
   displayMode = 'drawer', // Default to current behavior
-  filterSize = 'middle', // Default filter size
   searchAndViewSize = 'middle', // Default search and view options size
   actions = [], // Default to empty array
+  inlineActions = [], // Default to empty array
+  rightActions = [], // Default to empty array
+  useCustomFilters = false, // Default to existing behavior
 }) => {
+  const { token } = theme.useToken();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
 
@@ -108,37 +117,61 @@ const FilterBar: React.FC<FilterBarProps> = ({
           {displayMode === 'drawer' && (
             <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
           )}
-          <div className={displayMode === 'inline' ? 'pill-shaped-filter' : ''}>
-            <FilterDropdown
-              placeholder={toSentenceCase(filter.placeholder)}
-              options={filter.options}
-              multiSelect={filter.multiSelect}
-              value={filter.multiSelect ? undefined : filter.value}
-              onChange={filter.multiSelect ? undefined : filter.onChange}
-              multiValue={filter.multiSelect ? filter.multiValue : undefined}
-              onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
-              size={displayMode === 'inline' ? filterSize : 'large'}
-              style={{ 
-                width: displayMode === 'inline' ? 'auto' : '100%', 
-                minWidth: displayMode === 'inline' ? 'auto' : 140,
-                ...(filter.style || {}) 
-              }}
-              dropdownStyle={{
-                minWidth: '200px', // Ensure dropdown is always wide enough
-                ...filter.dropdownStyle
-              }}
-              showOptionTooltip={filter.showOptionTooltip}
-            />
+          <div>
+            {useCustomFilters ? (
+              <CustomFilterButton
+                placeholder={toSentenceCase(filter.placeholder)}
+                options={filter.options}
+                multiSelect={filter.multiSelect}
+                value={filter.multiSelect ? undefined : filter.value}
+                onChange={filter.multiSelect ? undefined : filter.onChange}
+                multiValue={filter.multiSelect ? filter.multiValue : undefined}
+                onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
+                size={displayMode === 'inline' ? 'middle' : 'large'}
+                style={{ 
+                  ...(filter.style || {}) 
+                }}
+                dropdownStyle={{
+                  minWidth: '200px', // Ensure dropdown is always wide enough
+                  ...filter.dropdownStyle
+                }}
+                showOptionTooltip={filter.showOptionTooltip}
+              />
+            ) : (
+              <FilterDropdown
+                placeholder={toSentenceCase(filter.placeholder)}
+                options={filter.options}
+                multiSelect={filter.multiSelect}
+                value={filter.multiSelect ? undefined : filter.value}
+                onChange={filter.multiSelect ? undefined : filter.onChange}
+                multiValue={filter.multiSelect ? filter.multiValue : undefined}
+                onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
+                size={displayMode === 'inline' ? 'middle' : 'large'}
+                style={{ 
+                  width: displayMode === 'inline' ? 'auto' : '100%', 
+                  minWidth: displayMode === 'inline' ? 'auto' : 140,
+                  ...(filter.style || {}) 
+                }}
+                dropdownStyle={{
+                  minWidth: '200px', // Ensure dropdown is always wide enough
+                  ...filter.dropdownStyle
+                }}
+                showOptionTooltip={filter.showOptionTooltip}
+              />
+            )}
           </div>
         </Space>
       ))}
       {displayMode === 'inline' && hasFilters && activeFilterCount > 0 && (
         <Button 
           type="link" 
-          danger
           onClick={handleClearAll} 
-          className="pill-shaped-clear-button"
-          style={{ padding: '0 16px' }}
+          style={{ 
+            padding: '0 16px',
+            color: token.colorText,
+            height: '28px',
+            minHeight: '28px',
+          }}
         >
           Clear All
         </Button>
@@ -149,12 +182,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <>
       <Row gutter={[16, 16]} justify="space-between" align="middle">
-        <Col flex="auto">
+        <Col>
           {search && (
             <SearchBar
               placeholder={toSentenceCase(search.placeholder)}
               onChange={search.onChange}
-              style={{ ...search.style, width: '100%' }}
+              style={{ ...search.style, width: '320px' }}
               size={searchAndViewSize}
             />
           )}
@@ -167,13 +200,17 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   icon={<ListFilter size={16} />} 
                   onClick={showDrawer}
                   size={searchAndViewSize}
+                  style={{
+                    height: '28px',
+                    minHeight: '28px',
+                  }}
                 >
                   Filters
                 </Button>
               </Badge>
             )}
 
-            {shouldRenderViewOptions && (
+            {shouldRenderViewOptions && displayMode === 'drawer' && (
               <ViewOptions 
                 groupBy={viewOptions?.groupBy?.value}
                 setGroupBy={viewOptions?.groupBy?.setter}
@@ -206,11 +243,57 @@ const FilterBar: React.FC<FilterBarProps> = ({
       </Row>
 
       {/* Inline filters row */}
-      {displayMode === 'inline' && hasFilters && (
-        <Row style={{ marginTop: 24 }}>
-          <Col span={24}>
-            {renderFilters()}
+      {displayMode === 'inline' && (hasFilters || shouldRenderViewOptions) && (
+        <Row style={{ marginTop: 24 }} justify="space-between" align="middle">
+          <Col flex="auto" style={{ minWidth: 0 }}>
+            {hasFilters && renderFilters()}
           </Col>
+          {inlineActions.length > 0 && (
+            <Col flex="none" style={{ marginLeft: 16 }}>
+              <Space size="small">
+                {inlineActions.map((action, index) => (
+                  <React.Fragment key={index}>
+                    {action}
+                  </React.Fragment>
+                ))}
+              </Space>
+            </Col>
+          )}
+          {shouldRenderViewOptions && (
+            <Col flex="none" style={{ marginLeft: 16 }}>
+              <ViewOptions 
+                groupBy={viewOptions?.groupBy?.value}
+                setGroupBy={viewOptions?.groupBy?.setter}
+                groupByOptions={viewOptions?.groupBy?.options}
+                isGroupingDisabled={viewOptions?.groupBy?.disabled}
+
+                sortOrder={viewOptions?.sortOrder?.value}
+                setSortOrder={viewOptions?.sortOrder?.setter}
+                sortOptions={viewOptions?.sortOrder?.options}
+
+                columnOptions={viewOptions?.columnOptions}
+                visibleColumns={viewOptions?.visibleColumns}
+                setVisibleColumns={viewOptions?.setVisibleColumns}
+                columnOrder={viewOptions?.columnOrder}
+                setColumnOrder={viewOptions?.setColumnOrder}
+                defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
+                defaultColumnOrder={viewOptions?.defaultColumnOrder}
+                
+                size={searchAndViewSize}
+              />
+            </Col>
+          )}
+          {rightActions.length > 0 && (
+            <Col flex="none" style={{ marginLeft: 8 }}>
+              <Space size="small">
+                {rightActions.map((action, index) => (
+                  <React.Fragment key={index}>
+                    {action}
+                  </React.Fragment>
+                ))}
+              </Space>
+            </Col>
+          )}
         </Row>
       )}
 
@@ -222,10 +305,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
               <span className="drawer-title-text">Filters</span>
               <Button 
                 type="link" 
-                danger
                 onClick={handleClearAll} 
                 disabled={activeFilterCount === 0}
-                style={{ padding: 0 }}
+                style={{ 
+                  padding: 0,
+                  color: token.colorText
+                }}
               >
                 Clear All
               </Button>

@@ -38,7 +38,7 @@ const AttributeDictionary: React.FC = () => {
 
           <FilterBar
             displayMode="inline"
-            filterSize="small"
+            useCustomFilters={true}
             search={{
               placeholder: "Search by attribute name or domain...",
               onChange: setSearchQuery,

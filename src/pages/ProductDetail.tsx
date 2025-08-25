@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Switch, Tag } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox } from 'antd';
 import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
@@ -582,8 +582,7 @@ const ProductDetail: React.FC = () => {
             }
         >
           <FilterBar
-            filterSize="small"
-            searchAndViewSize="middle"
+            useCustomFilters={true}
             search={{
               placeholder: "Search by SKU ID or Name...",
               onChange: setSearchQuery,
@@ -648,40 +647,23 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // New Prices tab
+    // New Pricing tab
     {
       key: 'pricing',
-      label: 'Prices',
+      label: 'Pricing',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title="Prices"
-            actions={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Typography.Text 
-                  style={{ 
-                    fontSize: '13px', 
-                    color: token.colorTextSecondary,
-                    fontWeight: 400 
-                  }}
-                >
-                  Show all price points
-                </Typography.Text>
-                <Switch
-                  size="small"
-                  checked={showPricePointView}
-                  onChange={setShowPricePointView}
-                />
-              </div>
-            }
+            title="Price groups"
+            subtitle="A price group is a collection of price points for a specific channel and billing cycle"
+
           >
             <FilterBar
-              filterSize="small"
-              searchAndViewSize="middle"
+              useCustomFilters={true}
               search={{
                 placeholder: showPricePointView 
                   ? "Search by Currency or Price Point ID..." 
-                  : "Search by Price Group ID...",
+                  : "Search by price ID...",
                 onChange: showPricePointView 
                   ? setPricePointSearchQuery 
                   : setPriceGroupSearchQuery,
@@ -785,11 +767,32 @@ const ProductDetail: React.FC = () => {
                 defaultVisibleColumns: priceGroupDefaultVisibility,
               }}
               displayMode="inline"
-              actions={[
+              inlineActions={[
+                <div key="price-view-toggle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Typography.Text 
+                    style={{ 
+                      fontSize: '13px', 
+                      color: token.colorTextSecondary,
+                      fontWeight: 400 
+                    }}
+                  >
+                    Group by price groups
+                  </Typography.Text>
+                  <Checkbox
+                    checked={!showPricePointView}
+                    onChange={(e: any) => setShowPricePointView(!e.target.checked)}
+                  />
+                </div>
+              ]}
+              rightActions={[
                 <Button 
                   key="export"
                   icon={<Download size={16} />}
                   size="middle"
+                  style={{
+                    height: '28px',
+                    minHeight: '28px',
+                  }}
                   onClick={() => {
                     Modal.info({
                       title: 'Export Price Groups',
@@ -1086,7 +1089,6 @@ const ProductDetail: React.FC = () => {
         iconSize={14}
         entityType="Product"
         title={product.name}
-        onBack={() => navigate(-1)}
         tagContent={<StatusTag status={product.status} variant="small" />}
         rightAlignedId={product.id}
         compact

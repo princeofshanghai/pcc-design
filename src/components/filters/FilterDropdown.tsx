@@ -36,6 +36,7 @@ interface FilterDropdownProps {
   size?: SizeType;
   showOptionTooltip?: boolean;
   dropdownStyle?: React.CSSProperties;
+  className?: string;
 }
 
 // Component for dropdown options with smart tooltips
@@ -132,7 +133,8 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   style, 
   size, 
   showOptionTooltip = false, 
-  dropdownStyle 
+  dropdownStyle,
+  className 
 }) => {
   // State for managing search input independently
   const [searchValue, setSearchValue] = useState<string>('');
@@ -143,7 +145,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   
   // Determine what placeholder to show based on state
   const getDisplayPlaceholder = () => {
-    if (isOpen && !searchValue) {
+    if (isOpen && searchValue === '') {
       return 'Search...';
     }
     return formattedPlaceholder;
@@ -171,12 +173,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         value={multiValue}
         onChange={onMultiChange}
         placeholder={getDisplayPlaceholder()}
+        className={className}
         style={{ 
           minWidth: 140, 
-          ...style,
-          ...(isOpen && !searchValue && {
-            color: 'rgba(0,0,0,.25)'
-          })
+          ...style
         }}
         allowClear
         showSearch
@@ -216,12 +216,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
       value={value}
       onChange={onChange}
       placeholder={getDisplayPlaceholder()}
+      className={className}
       style={{ 
         minWidth: 140, 
-        ...style,
-        ...(isOpen && !searchValue && {
-          color: 'rgba(0,0,0,.25)'
-        })
+        ...style
       }}
       allowClear
       showSearch

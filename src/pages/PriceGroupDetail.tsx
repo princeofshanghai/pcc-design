@@ -263,14 +263,6 @@ const PriceGroupDetail: React.FC = () => {
         iconSize={14}
         entityType="Price group"
         title={priceGroup.name || `Price group for ${product.name}`}
-        onBack={() => {
-          // Smart back navigation - return to the tab we came from
-          if (fromTab === 'overview') {
-            navigate(`/product/${productId}`);
-          } else {
-            navigate(`/product/${productId}?tab=${fromTab}`);
-          }
-        }}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
         compact
@@ -403,8 +395,7 @@ const PriceGroupDetail: React.FC = () => {
       >
         {!isMobileOnlyPriceGroup && (
           <FilterBar
-            filterSize="small"
-            searchAndViewSize="middle"
+            useCustomFilters={true}
             search={{
               placeholder: "Search by currency or ID...",
               onChange: setPricePointSearchQuery,
@@ -463,30 +454,34 @@ const PriceGroupDetail: React.FC = () => {
               defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
             }}
             displayMode="inline"
-                          actions={[
-                  <Button 
-                    key="export"
-                    icon={<Download size={16} />}
-                    size="middle"
-                    onClick={() => {
-                      Modal.info({
-                        title: 'Export Price Points',
-                        content: (
-                          <div>
-                            <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
-                            <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                              Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
-                            </p>
-                          </div>
-                        ),
-                        okText: 'Got it',
-                        width: 400,
-                      });
-                    }}
-                  >
-                    Export
-                  </Button>
-                ]}
+            rightActions={[
+              <Button 
+                key="export"
+                icon={<Download size={16} />}
+                size="middle"
+                style={{
+                  height: '28px',
+                  minHeight: '28px',
+                }}
+                onClick={() => {
+                  Modal.info({
+                    title: 'Export Price Points',
+                    content: (
+                      <div>
+                        <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
+                        <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+                          Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
+                        </p>
+                      </div>
+                    ),
+                    okText: 'Got it',
+                    width: 400,
+                  });
+                }}
+              >
+                Export
+              </Button>
+            ]}
           />
         )}
         {isMobileOnlyPriceGroup ? (

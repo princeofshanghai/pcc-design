@@ -40,7 +40,14 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
       <Row align="top" style={{ paddingBottom: '8px' }}>
         <Col span={4}>{labelContent}</Col>
         <Col span={20}>
-          <div style={{ fontSize: '13px' }}>{children}</div>
+          <div style={{ 
+            fontSize: '13px',
+            maxWidth: '600px', // Limit width to encourage earlier wrapping
+            wordWrap: 'break-word', // Ensure long words break properly
+            overflowWrap: 'break-word' // Modern CSS property for better word breaking
+          }}>
+            {children}
+          </div>
         </Col>
       </Row>
     );

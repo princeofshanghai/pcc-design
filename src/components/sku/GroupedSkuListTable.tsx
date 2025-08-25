@@ -20,11 +20,11 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
   const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Auto-expand all groups when groupedSkus changes (i.e., when grouping is applied)
+  // Keep all groups collapsed by default when groupedSkus changes
   useEffect(() => {
     if (groupedSkus) {
-      const allGroupKeys = Object.keys(groupedSkus);
-      setExpandedGroups(allGroupKeys);
+      // Start with no expanded groups (all collapsed)
+      setExpandedGroups([]);
     } else {
       setExpandedGroups([]);
     }

@@ -1,7 +1,7 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Tooltip, Grid } from 'antd';
-import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash, Folder } from 'lucide-react';
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
+import { User, PanelLeft, Box, Tag, DollarSign, SquareSlash } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
@@ -41,122 +41,22 @@ const SectionTitle: React.FC<{
 };
 
 // Component for sidebar menu items with smart tooltips
-const SidebarMenuItem: React.FC<{
-  children: React.ReactNode;
-  text: string;
-  collapsed: boolean;
-}> = ({ children, text, collapsed }) => {
-  const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (collapsed) {
-      setShouldShowTooltip(false);
-      return;
-    }
-
-    const checkTruncation = () => {
-      if (!contentRef.current) {
-        setShouldShowTooltip(false);
-        return;
-      }
-
-      const element = contentRef.current;
-      
-      // Find the actual text element (Link or span) that contains the text
-      let textElement: Element | null = null;
-      
-      // Look for Link elements first
-      const linkElement = element.querySelector('a');
-      if (linkElement && linkElement.textContent?.trim() === text) {
-        textElement = linkElement;
-      } else {
-        // Look for span elements
-        const spanElements = element.querySelectorAll('span');
-        for (const span of spanElements) {
-          if (span.textContent?.trim() === text) {
-            textElement = span;
-            break;
-          }
-        }
-      }
-      
-      // If we found the text element, check if it's truncated
-      let isOverflowing = false;
-      if (textElement) {
-        isOverflowing = textElement.scrollWidth > textElement.clientWidth;
-      } else {
-        // Fallback: check the wrapper element
-        isOverflowing = element.scrollWidth > element.clientWidth;
-      }
-      
-      setShouldShowTooltip(isOverflowing);
-    };
-
-    // Check immediately and after a small delay to handle rendering
-    checkTruncation();
-    const timer = setTimeout(checkTruncation, 100);
-
-    // Check on resize
-    const resizeObserver = new ResizeObserver(() => {
-      setTimeout(checkTruncation, 50);
-    });
-
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      resizeObserver.disconnect();
-    };
-  }, [collapsed, text]);
-
-  if (collapsed) {
-    // When collapsed, let Ant Design handle tooltips automatically
-    return <>{children}</>;
-  }
-
-  // When expanded, use our truncation detection
-  const content = (
-    <div 
-      ref={contentRef}
-      style={{ 
-        overflow: 'hidden', 
-        textOverflow: 'ellipsis', 
-        whiteSpace: 'nowrap',
-        maxWidth: '100%',
-        minWidth: 0, // Important for flex children to shrink
-        width: '100%'
-      }}
-    >
-      {children}
-    </div>
-  );
-
-  if (shouldShowTooltip) {
-    return (
-      <Tooltip title={text} placement="right">
-        {content}
-      </Tooltip>
-    );
-  }
-
-  return content;
-};
 
 // Helper function to generate menu structure with sections
-const generateMenuStructure = (collapsed: boolean, navigate: (path: string) => void) => {
-  // Create the menu structure with section groupings
+const generateMenuStructure = () => {
+  // Create the menu structure with section groupings - using pure Ant Design structure
   const menuItems = [
     // Catalog Section
     {
       key: 'products',
       label: 'Products',
       icon: <Box size={14} />,
-      className: 'sidebar-products-menu-item',
-      onTitleClick: () => navigate('/'),
       children: [
+        // All Products - shows all products across all folders
+        {
+          key: 'all-products',
+          label: <Link to="/">All products</Link>
+        },
         // Sort LOBs with "Other" always last
         ...Object.entries(folderStructure)
           .sort(([lobA], [lobB]) => {
@@ -166,93 +66,50 @@ const generateMenuStructure = (collapsed: boolean, navigate: (path: string) => v
           })
           .map(([lob, folders]) => ({
             key: lob.toLowerCase(),
-            className: 'sidebar-lob-menu-item',
-            label: (
-              <SidebarMenuItem text={toSentenceCase(lob)} collapsed={collapsed}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Folder size={14} />
-                  <span>{toSentenceCase(lob)}</span>
-                </span>
-              </SidebarMenuItem>
-            ),
+            label: toSentenceCase(lob),
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
-              label: (
-                <SidebarMenuItem text={toTitleCase(folder)} collapsed={collapsed}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Folder size={14} />
-                    <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>
-                  </span>
-                </SidebarMenuItem>
-              )
+              label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>
             }))
           }))
       ]
     },
     {
       key: 'offers',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Offers")} collapsed={collapsed}>
-          <Link to="/offers">{toSentenceCase("Offers")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/offers">Offers</Link>,
       icon: <SquareSlash size={14} />
     },
     {
       key: 'offer-groups',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Offer Groups")} collapsed={collapsed}>
-          <Link to="/offer-groups">{toSentenceCase("Offer Groups")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/offer-groups">Offer groups</Link>,
       icon: <SquareSlash size={14} />
     },
     // Logic Section
     {
       key: 'rulesets',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Rulesets")} collapsed={collapsed}>
-          <Link to="/rulesets">{toSentenceCase("Rulesets")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/rulesets">Rulesets</Link>,
       icon: <SquareSlash size={14} />
     },
     {
       key: 'calculation-schemes',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Calculation Schemes")} collapsed={collapsed}>
-          <Link to="/calculation-schemes">{toSentenceCase("Calculation Schemes")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/calculation-schemes">Calculation schemes</Link>,
       icon: <SquareSlash size={14} />
     },
     // Integrations Section  
     {
       key: 'platform-entity-mapping',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Platform entity mapping")} collapsed={collapsed}>
-          <Link to="/platform-entity-mapping">{toSentenceCase("Platform entity mapping")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/platform-entity-mapping">Platform entity mapping</Link>,
       icon: <SquareSlash size={14} />
     },
     // Change Management Section
     {
       key: 'change-requests',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Change Requests")} collapsed={collapsed}>
-          <Link to="/change-requests">{toSentenceCase("Change Requests")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/change-requests">Change requests</Link>,
       icon: <SquareSlash size={14} />
     },
     {
       key: 'picasso-npi',
-      label: (
-        <SidebarMenuItem text={toSentenceCase("Picasso NPI")} collapsed={collapsed}>
-          <Link to="/picasso-npi">{toSentenceCase("Picasso NPI")}</Link>
-        </SidebarMenuItem>
-      ),
+      label: <Link to="/picasso-npi">Picasso NPI</Link>,
       icon: <SquareSlash size={14} />
     }
   ];
@@ -265,8 +122,8 @@ const AppLayout = () => {
   const [showLabels, setShowLabels] = useState(true); // for smooth text transition
   const [isScrolled, setIsScrolled] = useState(false);
   const [openKeys, setOpenKeys] = useState(['products']); // Controlled open keys
+
   const location = useLocation();
-  const navigate = useNavigate();
   const { productName, skuId, priceGroupId, priceGroupName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
@@ -292,6 +149,7 @@ const AppLayout = () => {
         // Screen is lg or larger AND user hasn't manually collapsed - auto-expand
         setContextCollapsed(false);
       }
+
     }
   }, [screens.lg, manuallyToggled, setContextCollapsed]);
 
@@ -308,11 +166,11 @@ const AppLayout = () => {
   // Note: We don't need to update maxWidth here since pages set their own base width
 
   // Generate menu structure from mock data
-  const menuItems = useMemo(() => generateMenuStructure(collapsed, navigate), [collapsed, navigate]);
+  const menuItems = useMemo(() => generateMenuStructure(), []);
 
   // Function to determine the selected menu key based on current path
   const getSelectedMenuKey = (pathname: string): string[] => {
-    if (pathname === '/') return ['products'];
+    if (pathname === '/') return ['all-products'];
     
     if (pathname.startsWith('/folder/')) {
       // Extract folder name from URL (e.g., "/folder/all-lms-products" -> "all-lms-products")
@@ -371,26 +229,66 @@ const AppLayout = () => {
     folders.map(folder => `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`)
   );
   
-  const catalogKeys = ['products', 'offers', 'offer-groups', ...allFolderKeys];
+  // Generate LOB keys for accordion behavior
+  const lobKeys = Object.keys(folderStructure).map(lob => lob.toLowerCase());
+
+  // Auto-expand parent LOB when a folder is selected (only when needed)
+  useEffect(() => {
+    // Check if current selection is a folder (format: "lob-folder")
+    const selectedFolder = selectedKeys.find(key => 
+      key !== 'all-products' && allFolderKeys.includes(key)
+    );
+    
+    if (selectedFolder) {
+      // Extract the LOB from the folder key (e.g., "lts-recruiter" -> "lts")
+      const lobKey = selectedFolder.split('-')[0];
+      
+      // Only auto-expand if:
+      // 1. The required LOB is not already open, AND
+      // 2. No LOB sections are currently open (meaning user hasn't manually opened anything)
+      const currentOpenLobs = openKeys.filter(key => lobKeys.includes(key));
+      const shouldAutoExpand = !openKeys.includes(lobKey) && currentOpenLobs.length === 0;
+      
+      if (lobKeys.includes(lobKey) && shouldAutoExpand) {
+        setOpenKeys(prev => {
+          // Close other LOBs and open the one containing the selected folder
+          const nonLobKeys = prev.filter(key => !lobKeys.includes(key));
+          return [...nonLobKeys, lobKey];
+        });
+      }
+    }
+  }, [selectedKeys, allFolderKeys, lobKeys, openKeys]);
+  
+  const catalogKeys = ['products', 'offers', 'offer-groups', 'all-products', ...allFolderKeys];
   const logicKeys = ['rulesets', 'calculation-schemes'];
   const integrationsKeys = ['platform-entity-mapping'];
   const changeManagementKeys = ['change-requests', 'picasso-npi'];
 
   const getCatalogSelectedKeys = () => {
-    const catalogSelected = selectedKeys.filter(key => catalogKeys.includes(key));
+    return selectedKeys.filter(key => catalogKeys.includes(key));
+  };
+
+  // Custom handler for accordion behavior - only one LOB section can be open at a time
+  const handleOpenChange = (keys: string[]) => {
+    // Find which LOB keys are being opened/closed
+    const newLobKeys = keys.filter(key => lobKeys.includes(key));
+    const currentLobKeys = openKeys.filter(key => lobKeys.includes(key));
     
-    // Define the children keys of the 'products' parent menu item
-    const productsChildrenKeys = [...allFolderKeys];
-    
-    // If any child of 'products' is selected, exclude the parent 'products' key
-    // to prevent both parent and child from appearing active
-    const hasSelectedProductsChild = catalogSelected.some(key => productsChildrenKeys.includes(key));
-    
-    if (hasSelectedProductsChild) {
-      return catalogSelected.filter(key => key !== 'products');
+    // If a new LOB is being opened, close all other LOBs
+    if (newLobKeys.length > currentLobKeys.length) {
+      // A LOB is being opened - keep only the newly opened LOB and non-LOB keys
+      const newlyOpenedLob = newLobKeys.find(key => !currentLobKeys.includes(key));
+      const nonLobKeys = keys.filter(key => !lobKeys.includes(key));
+      
+      if (newlyOpenedLob) {
+        setOpenKeys([...nonLobKeys, newlyOpenedLob]);
+      } else {
+        setOpenKeys(nonLobKeys);
+      }
+    } else {
+      // A LOB is being closed or non-LOB key is being toggled - allow normal behavior
+      setOpenKeys(keys);
     }
-    
-    return catalogSelected;
   };
   const getLogicSelectedKeys = () => selectedKeys.filter(key => logicKeys.includes(key));
   const getIntegrationsSelectedKeys = () => selectedKeys.filter(key => integrationsKeys.includes(key));
@@ -576,7 +474,7 @@ const AppLayout = () => {
             mode="inline" 
             selectedKeys={getCatalogSelectedKeys()}
             openKeys={openKeys}
-            onOpenChange={setOpenKeys}
+            onOpenChange={handleOpenChange}
             items={menuItems.slice(0, 3)} // Products, Offers, Offer Groups
             inlineIndent={0}
             style={{ 
@@ -754,8 +652,8 @@ const AppLayout = () => {
               align-items: center !important;
               width: 100% !important;
             }
-            /* Center the Products icon perfectly when collapsed */
-            .collapsed-menu .sidebar-products-menu-item .ant-menu-item-icon {
+            /* Center submenu icons perfectly when collapsed */
+            .collapsed-menu .ant-menu-submenu .ant-menu-item-icon {
               margin-left: 0 !important;
               left: 50%;
               top: 50%;
@@ -780,7 +678,7 @@ const AppLayout = () => {
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
             .compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title span {
               font-size: 12px !important;
-              font-weight: 600 !important;
+              font-weight: 500 !important;
               color: #6b7280 !important;
             }
 
@@ -849,12 +747,21 @@ const AppLayout = () => {
               color: #999 !important;
             }
 
-            /* Hover state for menu items */
+            /* Hover state for menu items and submenu titles */
             .sidebar-container .ant-menu-item:hover span,
             .sidebar-container .ant-menu-item:hover a,
-            .sidebar-container .ant-menu-item:hover svg {
+            .sidebar-container .ant-menu-item:hover svg,
+            .sidebar-container .ant-menu-submenu-title:hover span,
+            .sidebar-container .ant-menu-submenu-title:hover svg {
               color: #1677ff !important;
             }
+
+            /* Ensure submenu titles have hover background like regular menu items */
+            .sidebar-container .ant-menu-submenu-title:hover {
+              background-color: rgba(0, 0, 0, 0.04) !important;
+            }
+
+
           `}
         </style>
         

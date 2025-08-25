@@ -10,7 +10,16 @@ type LayoutContextType = {
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  // Initialize collapsed state based on screen size to prevent flicker
+  const [collapsed, setCollapsed] = useState(() => {
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      // Return true if screen is smaller than 992px (lg breakpoint)
+      return window.innerWidth < 992;
+    }
+    // Default to false for SSR
+    return false;
+  });
 
   // Standard width calculation based on sidebar state
   // Collapsed: 64px sidebar (+176px more space vs expanded 240px)

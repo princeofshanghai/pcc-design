@@ -150,7 +150,7 @@ const Home: React.FC = () => {
 
   // Generate page title and subtitle based on current context
   const pageTitle = currentFolder ? currentFolder : 'All products';
-  const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''} found`;
+  const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''}`;
 
   return (
     <div style={{ width: '100%' }}>

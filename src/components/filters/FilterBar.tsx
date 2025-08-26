@@ -23,6 +23,7 @@ export interface FilterConfig {
   multiSelect?: boolean;
   multiValue?: string[];
   onMultiChange?: (values: string[]) => void;
+  disableSearch?: boolean;
 }
 
 interface FilterBarProps {
@@ -136,6 +137,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   ...filter.dropdownStyle
                 }}
                 showOptionTooltip={filter.showOptionTooltip}
+                disableSearch={filter.disableSearch}
               />
             ) : (
               <FilterDropdown
@@ -168,9 +170,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           onClick={handleClearAll} 
           style={{ 
             padding: '0 16px',
-            color: token.colorText,
-            height: '28px',
-            minHeight: '28px',
+            color: token.colorPrimary,
           }}
         >
           Clear All
@@ -200,10 +200,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   icon={<ListFilter size={16} />} 
                   onClick={showDrawer}
                   size={searchAndViewSize}
-                  style={{
-                    height: '28px',
-                    minHeight: '28px',
-                  }}
                 >
                   Filters
                 </Button>
@@ -309,7 +305,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 disabled={activeFilterCount === 0}
                 style={{ 
                   padding: 0,
-                  color: token.colorText
+                  color: token.colorPrimary
                 }}
               >
                 Clear All

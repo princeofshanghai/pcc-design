@@ -19,7 +19,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onChange, style, siz
       style={{
         border: '1px solid #e5e7eb', // Gray-200 border
         backgroundColor: '#f9fafb', // Gray-50 background
-        height: '28px',
         ...style
       }}
       allowClear

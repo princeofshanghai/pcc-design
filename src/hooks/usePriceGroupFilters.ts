@@ -362,10 +362,10 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       } else if (groupBy === 'Status') {
         // Group by price group status
         groupKey = calculatePriceGroupStatus(group.priceGroup.pricePoints);
-      } else if (groupBy === 'Experiment') {
-        // Group by experiment key
+      } else if (groupBy === 'LIX') {
+        // Group by LIX key
         const skuWithLix = group.skus.find((sku: any) => sku.lix?.key);
-        groupKey = skuWithLix?.lix?.key || 'No Experiment';
+        groupKey = skuWithLix?.lix?.key || 'No LIX';
       } else {
         groupKey = 'Other';
       }

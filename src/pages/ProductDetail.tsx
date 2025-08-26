@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox, Drawer } from 'antd';
 import type { MenuProps } from 'antd';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
@@ -29,12 +29,13 @@ import {
   PricePointStatusTag,
 } from '../components';
 import { toSentenceCase } from '../utils/formatters';
-import { 
+import {
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
   SKU_SORT_OPTIONS,
   SKU_GROUP_BY_OPTIONS,
-  PRICE_GROUP_GROUP_BY_OPTIONS} from '../utils/tableConfigurations';
+  PRICE_GROUP_GROUP_BY_OPTIONS,
+  getFilterPlaceholder} from '../utils/tableConfigurations';
 
 
 const { Title } = Typography;
@@ -105,8 +106,11 @@ const ProductDetail: React.FC = () => {
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
   const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
 
-  // Price view toggle state
+  // Price view toggle state - starts unchecked (price groups view by default)
   const [showPricePointView, setShowPricePointView] = useState(false);
+
+  // Translations drawer state
+  const [translationsDrawerOpen, setTranslationsDrawerOpen] = useState(false);
 
   // SKU filtering hook
   const {
@@ -462,14 +466,24 @@ const ProductDetail: React.FC = () => {
           <PageSection 
             title={toSentenceCase('General')}
             actions={
-              <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
+              <Space size="small">
                 <Button 
-                  icon={<Pencil size={14} />}
                   size="middle"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => setTranslationsDrawerOpen(true)}
                 >
-                  Edit...
+                  View translations
                 </Button>
-              </Dropdown>
+                <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
+                  <Button 
+                    icon={<Pencil size={14} />}
+                    size="middle"
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    Edit...
+                  </Button>
+                </Dropdown>
+              </Space>
             }
           >
             <AttributeGroup>
@@ -585,6 +599,7 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
             }
+            hideDivider={true}
         >
           <FilterBar
             useCustomFilters={true}
@@ -610,20 +625,20 @@ const ProductDetail: React.FC = () => {
                 onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
               },
               {
-                placeholder: "All cycles",
+                placeholder: getFilterPlaceholder('billingCycle'),
                 options: billingCycleOptions,
                 value: billingCycleFilter,
                 onChange: (value) => setBillingCycleFilter(value as string ?? null),
               },
               {
-                placeholder: "All LIX keys",
+                placeholder: getFilterPlaceholder('lix'),
                 options: lixKeyOptions,
                 value: lixKeyFilter,
                 onChange: (value) => setLixKeyFilter(value as string ?? null),
               },
 
               {
-                placeholder: "All statuses",
+                placeholder: getFilterPlaceholder('status'),
                 options: statusOptions,
                 value: statusFilter,
                 onChange: (value) => setStatusFilter(value as Status ?? null),
@@ -661,7 +676,24 @@ const ProductDetail: React.FC = () => {
           <PageSection 
             title="Price groups"
             subtitle="A price group is a collection of price points for a specific channel and billing cycle"
-
+            inlineContent={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Checkbox
+                  checked={showPricePointView}
+                  onChange={(e: any) => setShowPricePointView(e.target.checked)}
+                />
+                <Typography.Text 
+                  style={{ 
+                    fontSize: '13px', 
+                    color: token.colorTextSecondary,
+                    fontWeight: 400 
+                  }}
+                >
+                  Show price points across all groups
+                </Typography.Text>
+              </div>
+            }
+            hideDivider={true}
           >
             <FilterBar
               useCustomFilters={true}
@@ -675,19 +707,19 @@ const ProductDetail: React.FC = () => {
               }}
               filters={showPricePointView ? [
                 {
-                  placeholder: "All currencies",
+                  placeholder: getFilterPlaceholder('currency'),
                   options: pricePointFilterOptions.currencyOptions,
                   value: pricePointCurrencyFilter,
                   onChange: setPricePointCurrencyFilter,
                 },
                 {
-                  placeholder: "All statuses", 
+                  placeholder: getFilterPlaceholder('status'), 
                   options: pricePointFilterOptions.statusOptions,
                   value: pricePointStatusFilter,
                   onChange: setPricePointStatusFilter,
                 },
                 {
-                  placeholder: "All channels",
+                  placeholder: getFilterPlaceholder('channel'),
                   options: pricePointFilterOptions.channelOptions,
                   multiSelect: true,
                   multiValue: pricePointChannelFilters,
@@ -697,14 +729,14 @@ const ProductDetail: React.FC = () => {
                   onChange: () => {},
                 },
                 {
-                  placeholder: "All billing cycles",
+                  placeholder: getFilterPlaceholder('billingCycle'),
                   options: pricePointFilterOptions.billingCycleOptions,
                   value: pricePointBillingCycleFilter,
                   onChange: setPricePointBillingCycleFilter,
                 },
               ] : [
                 {
-                  placeholder: "All channels",
+                  placeholder: getFilterPlaceholder('channel'),
                   options: priceGroupChannelOptions,
                   multiSelect: true,
                   multiValue: priceGroupChannelFilters,
@@ -714,20 +746,20 @@ const ProductDetail: React.FC = () => {
                   onChange: () => {},
                 },
                 {
-                  placeholder: "All billing cycles",
+                  placeholder: getFilterPlaceholder('billingCycle'),
                   options: priceGroupBillingCycleOptions,
                   value: priceGroupBillingCycleFilter,
                   onChange: setPriceGroupBillingCycleFilter,
                 },
                 {
-                  placeholder: "All experiments",
+                  placeholder: getFilterPlaceholder('lix'),
                   options: priceGroupExperimentOptions,
                   value: priceGroupExperimentFilter,
                   onChange: setPriceGroupExperimentFilter,
                   dropdownStyle: { minWidth: '320px' },
                 },
                 {
-                  placeholder: "All statuses",
+                  placeholder: getFilterPlaceholder('status'),
                   options: priceGroupStatusOptions,
                   multiSelect: true,
                   multiValue: priceGroupStatusFilters,
@@ -772,32 +804,11 @@ const ProductDetail: React.FC = () => {
                 defaultVisibleColumns: priceGroupDefaultVisibility,
               }}
               displayMode="inline"
-              inlineActions={[
-                <div key="price-view-toggle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Typography.Text 
-                    style={{ 
-                      fontSize: '13px', 
-                      color: token.colorTextSecondary,
-                      fontWeight: 400 
-                    }}
-                  >
-                    Group by price groups
-                  </Typography.Text>
-                  <Checkbox
-                    checked={!showPricePointView}
-                    onChange={(e: any) => setShowPricePointView(!e.target.checked)}
-                  />
-                </div>
-              ]}
               rightActions={[
                 <Button 
                   key="export"
                   icon={<Download size={16} />}
                   size="middle"
-                  style={{
-                    height: '28px',
-                    minHeight: '28px',
-                  }}
                   onClick={() => {
                     Modal.info({
                       title: 'Export Price Groups',
@@ -1085,7 +1096,72 @@ const ProductDetail: React.FC = () => {
     },
   ];
 
+  // Mock translation data
+  const translations = useMemo(() => {
+    const mockTranslations = [
+      {
+        language: 'English',
+        code: 'en',
+        name: product?.name || '',
+        description: product?.description || '',
+        isOriginal: true,
+      },
+      {
+        language: 'Chinese (Simplified)',
+        code: 'zh-cn',
+        name: 'LinkedIn 高级会员',
+        description: '通过高级搜索、InMail消息和个人资料见解提升您的职业生涯',
+      },
+      {
+        language: 'French',
+        code: 'fr',
+        name: 'LinkedIn Premium',
+        description: 'Développez votre carrière avec la recherche avancée, les messages InMail et les informations sur les profils',
+      },
+      {
+        language: 'German',
+        code: 'de',
+        name: 'LinkedIn Premium',
+        description: 'Fördern Sie Ihre Karriere mit erweiterten Suchfunktionen, InMail-Nachrichten und Profil-Insights',
+      },
+      {
+        language: 'Italian',
+        code: 'it',
+        name: 'LinkedIn Premium',
+        description: 'Fai crescere la tua carriera con ricerca avanzata, messaggi InMail e approfondimenti sui profili',
+      },
+      {
+        language: 'Japanese',
+        code: 'ja',
+        name: 'LinkedIn プレミアム',
+        description: '高度な検索、InMailメッセージ、プロフィールインサイトでキャリアを向上させましょう',
+      },
+      {
+        language: 'Korean',
+        code: 'ko',
+        name: '링크드인 프리미엄',
+        description: '고급 검색, InMail 메시지, 프로필 인사이트로 경력을 향상시키세요',
+      },
+      {
+        language: 'Portuguese',
+        code: 'pt',
+        name: 'LinkedIn Premium',
+        description: 'Impulsione sua carreira com pesquisa avançada, mensagens InMail e insights de perfil',
+      },
+      {
+        language: 'Spanish',
+        code: 'es',
+        name: 'LinkedIn Premium',
+        description: 'Impulsa tu carrera con búsqueda avanzada, mensajes InMail e insights de perfiles',
+      },
+    ];
 
+    // Sort non-English languages alphabetically
+    const english = mockTranslations.find(t => t.isOriginal);
+    const others = mockTranslations.filter(t => !t.isOriginal).sort((a, b) => a.language.localeCompare(b.language));
+    
+    return english ? [english, ...others] : others;
+  }, [product?.name, product?.description]);
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -1113,6 +1189,77 @@ const ProductDetail: React.FC = () => {
           navigate(`/product/${productId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
         }}
       />
+
+      {/* Translations Drawer */}
+      <Drawer
+        title="Product Translations"
+        placement="right"
+        width={600}
+        onClose={() => setTranslationsDrawerOpen(false)}
+        open={translationsDrawerOpen}
+        zIndex={1050}
+      >
+        <Space direction="vertical" size={0} style={{ width: '100%' }}>
+          {translations.map((translation, index) => (
+            <div key={translation.code}>
+              {/* Language header */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                marginBottom: '12px'
+              }}>
+                <Typography.Text strong style={{ fontSize: '14px' }}>
+                  {translation.language}
+                </Typography.Text>
+                {translation.isOriginal && (
+                  <Tag color="blue">Original</Tag>
+                )}
+              </div>
+              
+              {/* Name field */}
+              <div style={{ marginBottom: '12px' }}>
+                <Typography.Text style={{ 
+                  fontSize: '13px', 
+                  letterSpacing: '0.1px', 
+                  color: token.colorTextSecondary 
+                }}>
+                  Name:
+                </Typography.Text>
+                <div style={{ marginTop: '2px' }}>
+                  <Typography.Text style={{ fontSize: '13px' }}>
+                    {translation.name}
+                  </Typography.Text>
+                </div>
+              </div>
+              
+              {/* Description field */}
+              <div style={{ marginBottom: '24px' }}>
+                <Typography.Text style={{ 
+                  fontSize: '13px', 
+                  letterSpacing: '0.1px', 
+                  color: token.colorTextSecondary 
+                }}>
+                  Description:
+                </Typography.Text>
+                <div style={{ marginTop: '2px' }}>
+                  <Typography.Text style={{ fontSize: '13px', lineHeight: '1.5' }}>
+                    {translation.description}
+                  </Typography.Text>
+                </div>
+              </div>
+              
+              {/* Divider between languages (except last one) */}
+              {index < translations.length - 1 && (
+                <div style={{ 
+                  borderBottom: `1px solid ${token.colorBorder}`, 
+                  marginBottom: '24px'
+                }} />
+              )}
+            </div>
+          ))}
+        </Space>
+      </Drawer>
     </Space>
   );
 };

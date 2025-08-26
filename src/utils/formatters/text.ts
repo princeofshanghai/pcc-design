@@ -1,9 +1,30 @@
+/**
+ * Complete list of currency codes that should always be displayed in uppercase.
+ * Based on ISO 4217 currency codes used in the application.
+ */
+const CURRENCY_CODES = new Set([
+  'AED', 'ARS', 'AUD', 'BDT', 'BGN', 'BIF', 'BYN', 'BRL', 'CAD', 'CHF', 'CLP', 'CNY',
+  'COP', 'CRC', 'CZK', 'DJF', 'DKK', 'EGP', 'EUR', 'GBP', 'GNF', 'GTQ', 'HKD', 'HNL',
+  'HUF', 'IDR', 'ILS', 'INR', 'JOD', 'JPY', 'KES', 'KMF', 'KRW', 'KWD', 'LBP', 'LKR',
+  'MAD', 'MGA', 'MXN', 'MYR', 'NGN', 'NOK', 'NZD', 'PEN', 'PHP', 'PKR', 'PLN', 'PYG',
+  'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR', 'SEK', 'SGD', 'THB', 'TRY', 'TWD', 'TZS',
+  'UAH', 'UGX', 'USD', 'UYU', 'VND', 'VUV', 'XAF', 'XOF', 'XPF', 'ZAR'
+]);
+
+/**
+ * Utility function to check if a string is a currency code.
+ * @param str - The string to check
+ * @returns true if the string is a currency code
+ */
+export function isCurrencyCode(str: string): boolean {
+  return CURRENCY_CODES.has(str.toUpperCase());
+}
+
 const ACRONYMS = new Set([
   'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API', 'EI', 'NPI',
   // Official LOB acronyms
   'LMS', 'LSS', 'LTS',
-  // Common currency codes
-  'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SEK', 'KRW', 'SGD', 'INR', 'MXN', 'BRL', 'ZAR'
+  // Note: Currency codes are now handled separately via isCurrencyCode function
 ]);
 
 // Words that should always be capitalized (proper nouns, important words)
@@ -74,6 +95,11 @@ export function toSentenceCase(str: string): string {
       // Extract the core word without punctuation for acronym/proper noun checking
       const coreWord = word.replace(/[^a-zA-Z]/g, '').toUpperCase();
       
+      // Handle currency codes - always uppercase (most important check first)
+      if (isCurrencyCode(coreWord)) {
+        return word.replace(/[a-zA-Z]+/, coreWord);
+      }
+      
       // Handle plural acronyms (e.g., SKUs)
       if (coreWord.endsWith('S') && ACRONYMS.has(coreWord.slice(0, -1))) {
         // Preserve original punctuation but use acronym casing
@@ -142,6 +168,11 @@ export function toTitleCase(str: string): string {
       
       const upperWord = word.toUpperCase();
       const lowerWord = word.toLowerCase();
+      
+      // Handle currency codes - always uppercase (most important check first)
+      if (isCurrencyCode(upperWord)) {
+        return upperWord;
+      }
       
       // Handle plural acronyms (e.g., SKUs)
       if (upperWord.endsWith('S') && ACRONYMS.has(upperWord.slice(0, -1))) {

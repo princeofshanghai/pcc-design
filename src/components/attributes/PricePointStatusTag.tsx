@@ -68,8 +68,8 @@ const PricePointStatusTag: React.FC<PricePointStatusTagProps> = ({
 }) => {
   const { token } = theme.useToken();
   
-  // Calculate status if not provided but pricePoint is available
-  const calculatedStatus = status || (pricePoint ? calculatePricePointStatus(pricePoint) : 'Active');
+  // Use pre-calculated status from data first, fallback to prop status, then date calculation
+  const calculatedStatus = (pricePoint?.status as PricePointStatus) || status || (pricePoint ? calculatePricePointStatus(pricePoint) : 'Active');
   
   const { icon: Icon, description, antColorType } = statusConfig[calculatedStatus];
   

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Dropdown, Checkbox, Radio, Input, Space, theme } from 'antd';
+import { Button, Dropdown, Checkbox, Radio, Input, Space, theme, Tag } from 'antd';
 import { ChevronDown, X, Search } from 'lucide-react';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { toSentenceCase } from '../../utils/formatters';
@@ -37,6 +37,7 @@ interface CustomFilterButtonProps {
   showOptionTooltip?: boolean;
   dropdownStyle?: React.CSSProperties;
   className?: string;
+  disableSearch?: boolean;
 }
 
 const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
@@ -49,9 +50,9 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   onMultiChange,
   style,
   size = 'middle',
-  showOptionTooltip = false,
   dropdownStyle,
-  className
+  className,
+  disableSearch = false
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -159,7 +160,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
 
   // Filter options based on search
   const getFilteredOptions = () => {
-    if (!searchText) return options;
+    if (disableSearch || !searchText) return options;
 
     return options.map(opt => {
       if ('options' in opt) {
@@ -175,7 +176,9 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
 
   // Handle single select change
   const handleSingleSelectChange = (optionValue: string) => {
-    const newValue = value === optionValue ? null : optionValue;
+    // For single-select filters, don't deselect when clicking the current option
+    // This prevents accidental deselection for required filters like validity
+    const newValue = optionValue;
     onChange?.(newValue);
     // Keep dropdown open like multiselect
   };
@@ -229,26 +232,27 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
         }}
       >
         {/* Search input */}
-        <div style={{ marginBottom: '8px' }}>
-          <Input
-            placeholder="Search..."
-            prefix={<Search size={14} color={'#9ca3af'} />}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            size="small"
-            allowClear
-            className="dropdown-search-input"
-            style={{ 
-              width: '100%',
-              height: '28px',
-              border: '1px solid #e5e7eb', // Gray-200 border (same as SearchBar)
-              backgroundColor: '#f9fafb' // Gray-50 background (same as SearchBar)
-            }}
-          />
-        </div>
+        {!disableSearch && (
+          <div style={{ marginBottom: '8px' }}>
+            <Input
+              placeholder="Search..."
+              prefix={<Search size={14} color={'#9ca3af'} />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              size="small"
+              allowClear
+              className="dropdown-search-input"
+              style={{ 
+                width: '100%',
+                border: '1px solid #e5e7eb', // Gray-200 border (same as SearchBar)
+                backgroundColor: '#f9fafb' // Gray-50 background (same as SearchBar)
+              }}
+            />
+          </div>
+        )}
 
         {/* Options list */}
-        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+        <div style={{ maxHeight: 'min(400px, 40vh)', overflowY: 'auto' }}>
           <Space direction="vertical" style={{ width: '100%' }} size={4}>
             {filteredOptions.map(opt => {
               if ('options' in opt) {
@@ -273,7 +277,8 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                             width: '100%', 
                             display: 'flex', 
                             alignItems: 'center',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            padding: '4px 0'
                           }}>
                             {multiSelect ? (
                               <Checkbox
@@ -312,13 +317,25 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                 // Simple option
                 const count = getOptionCount(opt.value);
                 const cleanLabel = getCleanLabel(opt.label);
+                const showDivider = (opt as any).showDivider;
+                const isLatest = (opt as any).isLatest;
+                
                 return (
                   <div key={opt.value}>
+                    {/* Divider above option if needed */}
+                    {showDivider && (
+                      <div style={{ 
+                        borderTop: `1px solid ${token.colorBorderSecondary}`, 
+                        margin: '8px 0' 
+                      }} />
+                    )}
+                    
                     <div style={{ 
                       width: '100%', 
                       display: 'flex', 
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
+                      padding: '4px 0'
                     }}>
                       {multiSelect ? (
                         <Checkbox
@@ -326,7 +343,14 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           onChange={(e) => handleMultiSelectChange(opt.value, e.target.checked)}
                           style={{ margin: 0, flex: 1 }}
                         >
-                          {cleanLabel}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {cleanLabel}
+                            {isLatest && (
+                              <Tag size="small" color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                                Latest
+                              </Tag>
+                            )}
+                          </div>
                         </Checkbox>
                       ) : (
                         <Radio
@@ -334,7 +358,14 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           onChange={() => handleSingleSelectChange(opt.value)}
                           style={{ margin: 0, flex: 1 }}
                         >
-                          {cleanLabel}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {cleanLabel}
+                            {isLatest && (
+                              <Tag size="small" color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                                Latest
+                              </Tag>
+                            )}
+                          </div>
                         </Radio>
                       )}
                       {count > 0 && (
@@ -401,8 +432,6 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
             color: token.colorText,
             backgroundColor: token.colorBgContainer,
             padding: '4px 11px',
-            height: '28px',
-            minHeight: '28px',
           }}
           icon={hasSelections ? 
             <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 

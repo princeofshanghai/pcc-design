@@ -473,6 +473,20 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return bStatus.localeCompare(aStatus);
       });
     
+    case 'Pricing tier (A-Z)':
+      return sorted.sort((a, b) => {
+        const aTier = a.pricingTier || '';
+        const bTier = b.pricingTier || '';
+        return aTier.localeCompare(bTier);
+      });
+    
+    case 'Pricing tier (Z-A)':
+      return sorted.sort((a, b) => {
+        const aTier = a.pricingTier || '';
+        const bTier = b.pricingTier || '';
+        return bTier.localeCompare(aTier);
+      });
+    
     default:
       return sorted;
   }
@@ -708,6 +722,52 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           <Tooltip title={getPriceTypeTooltip(priceType)}>
             <Text>
               {formatPriceType(priceType)}
+            </Text>
+          </Tooltip>
+        );
+      },
+    } : null,
+    pricingTier: visibleColumns.pricingTier === true ? {
+      title: getColumnLabel('pricingTier'),
+      dataIndex: 'pricingTier',
+      key: 'pricingTier',
+      render: (_: any, record: any) => {
+        if ('isGroupHeader' in record) return null;
+        
+        const getPricingTierTooltip = (tier: string): string => {
+          switch (tier) {
+            case 'STFF':
+              return 'Staff pricing tier';
+            case 'CORP BASE PRICE':
+              return 'Corporate base price tier';
+            case 'CORP TIER 1':
+              return 'Corporate tier 1 pricing';
+            case 'CORP TIER 1 DSC':
+              return 'Corporate tier 1 with discount';
+            case 'CORP TIER 2':
+              return 'Corporate tier 2 pricing';
+            case 'CORP EM':
+              return 'Corporate enterprise pricing';
+            case 'CORP ARH TIER 1 DSC':
+              return 'Corporate ARH tier 1 with discount';
+            default:
+              return tier ? `Pricing tier: ${tier}` : 'No specific pricing tier';
+          }
+        };
+        
+        const formatPricingTier = (tier: string): string => {
+          if (!tier) return '-';
+          // Format common tier names for display
+          return tier;
+        };
+        
+        const pricingTier = record.pricingTier || '';
+        return (
+          <Tooltip title={getPricingTierTooltip(pricingTier)}>
+            <Text style={{ 
+              color: pricingTier ? token.colorText : token.colorTextTertiary
+            }}>
+              {formatPricingTier(pricingTier)}
             </Text>
           </Tooltip>
         );

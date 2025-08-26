@@ -4,6 +4,7 @@ import { PageHeader, FilterBar, AttributeDictionaryTable } from '../components';
 import { mockAttributes } from '../utils/mock-data';
 import { useAttributeFilters } from '../hooks/useAttributeFilters';
 import type { AttributeDomain, AttributeType } from '../utils/types';
+import { getFilterPlaceholder } from '../utils/tableConfigurations';
 
 const AttributeDictionary: React.FC = () => {
   const {
@@ -46,13 +47,13 @@ const AttributeDictionary: React.FC = () => {
             onClearAll={clearAllFilters}
             filters={[
               {
-                placeholder: "All domains",
+                placeholder: getFilterPlaceholder('domain'),
                 options: domainOptions,
                 value: domainFilter,
                 onChange: (value: string | null) => setDomainFilter((value as AttributeDomain) ?? null),
               },
               {
-                placeholder: "All types",
+                placeholder: getFilterPlaceholder('type'),
                 options: typeOptions,
                 value: typeFilter,
                 onChange: (value: string | null) => setTypeFilter((value as AttributeType) ?? null),

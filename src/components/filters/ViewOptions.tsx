@@ -491,11 +491,13 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           }}>
             <Button
               type="link"
-              danger
               size="small"
               onClick={handleClearAll}
               disabled={!isViewActive}
-              style={{ padding: 0 }}
+              style={{ 
+                padding: 0,
+                color: token.colorPrimary
+              }}
             >
               {toSentenceCase('Reset to default')}
             </Button>
@@ -520,10 +522,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           </Badge>
         } 
         size={size}
-        style={{
-          height: '28px',
-          minHeight: '28px',
-        }}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
       >
         {toSentenceCase('Display')}
       </Button>

@@ -74,6 +74,7 @@ const themeConfig: ThemeConfig = {
     Button: {
       colorBorder: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (default button borders)
       borderColorDisabled: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (disabled button borders)
+      controlHeight: 28, // Custom height for all button sizes (default middle size will be 28px)
     },
     
     Table: {

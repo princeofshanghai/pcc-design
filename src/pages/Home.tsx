@@ -6,7 +6,7 @@ import { mockProducts } from '../utils/mock-data';
 import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
 import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
-import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS } from '../utils/tableConfigurations';
+import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS, getFilterPlaceholder } from '../utils/tableConfigurations';
 import {
   PageHeader,
   ProductListTable,
@@ -173,7 +173,6 @@ const Home: React.FC = () => {
       <div style={{ marginBottom: 16 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <PageHeader
-            entityType={currentFolder ? "Folder" : undefined}
             title={pageTitle}
             subtitle={pageSubtitle}
           />
@@ -190,13 +189,13 @@ const Home: React.FC = () => {
               // Only show LOB and folder dropdowns when on All Products page
               ...(!currentFolder ? [
                 {
-                  placeholder: "All LOBs",
+                  placeholder: getFilterPlaceholder('lob'),
                   options: dynamicLobOptions,
                   value: lobFilter,
                   onChange: (value: string | null) => setLobFilter((value as LOB) ?? null),
                 },
                 {
-                  placeholder: "All folders",
+                  placeholder: getFilterPlaceholder('folder'),
                   options: folderOptions,
                   value: folderFilter,
                   onChange: (value: string | null) => setFolderFilter(value ?? null),
@@ -205,7 +204,7 @@ const Home: React.FC = () => {
                 }
               ] : []),
               {
-                placeholder: "All channels",
+                placeholder: getFilterPlaceholder('channel'),
                 options: dynamicChannelOptions,
                 multiSelect: true,
                 multiValue: channelFilters,
@@ -215,7 +214,7 @@ const Home: React.FC = () => {
                 onChange: () => {},
               },
               {
-                placeholder: "All statuses",
+                placeholder: getFilterPlaceholder('status'),
                 options: dynamicStatusOptions,
                 multiSelect: true,
                 multiValue: statusFilters,

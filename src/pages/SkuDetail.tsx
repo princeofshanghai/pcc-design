@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { Typography, Space, Table, Tabs } from 'antd';
-import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase } from '../utils/formatters';
-import { PRICE_POINT_SORT_OPTIONS, PRICE_POINT_GROUP_BY_OPTIONS } from '../utils/tableConfigurations';
+import { PRICE_POINT_SORT_OPTIONS, PRICE_POINT_GROUP_BY_OPTIONS, getFilterPlaceholder } from '../utils/tableConfigurations';
 import {
   PageHeader,
   StatusTag,
@@ -27,12 +27,8 @@ const { Title } = Typography;
 const SkuDetail: React.FC = () => {
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
   const { setProductName, setSkuId, setFolderName } = useBreadcrumb();
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  // Get the tab we came from (for smart back navigation)
-  const searchParams = new URLSearchParams(location.search);
-  const fromTab = searchParams.get('from') || 'overview';
+
 
   const product = mockProducts.find(p => p.id === productId);
   const sku = product?.skus.find(s => s.id === skuId);
@@ -304,7 +300,7 @@ const SkuDetail: React.FC = () => {
                 }}
                 filters={[
                   {
-                    placeholder: "All currencies",
+                    placeholder: getFilterPlaceholder('currency'),
                     options: currencyOptions,
                     multiSelect: true,
                     multiValue: currencyFilters,
@@ -314,7 +310,7 @@ const SkuDetail: React.FC = () => {
                     onChange: () => {},
                   },
                   {
-                    placeholder: "All regions",
+                    placeholder: getFilterPlaceholder('region'),
                     options: regionOptions,
                     multiSelect: true,
                     multiValue: regionFilters,
@@ -324,7 +320,7 @@ const SkuDetail: React.FC = () => {
                     onChange: () => {},
                   },
                   {
-                    placeholder: "All statuses",
+                    placeholder: getFilterPlaceholder('status'),
                     options: statusOptions,
                     multiSelect: true,
                     multiValue: statusFilters,

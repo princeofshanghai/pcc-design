@@ -1,7 +1,7 @@
 // This file will contain all the TypeScript type definitions for our data structures.
 // Defining these shapes helps us catch errors and ensures consistency across the app.
 
-export type Status = 'Active' | 'Retired' | 'Legacy';
+export type Status = 'Active' | 'Inactive' | 'Archived';
 
 export type LOB = 'LTS' | 'LMS' | 'LSS' | 'Premium' | 'Other';
 
@@ -60,14 +60,15 @@ export type PricePoint = {
   currencyCode: string;
   amount: number;
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
-  validFrom: string; // Mandatory validity start date
+  validFrom?: string; // Optional validity start date - if missing, shows as "Present"
   validTo?: string; // Optional validity end date
-  status?: 'Active' | 'Expired'; // Automatically calculated based on validFrom dates within currency+pricingRule groups
+  status?: 'Active' | 'Expired'; // Status from your data (A/E converted to Active/Expired)
   // Pricing rule fields
   pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
   minQuantity?: number;
   maxQuantity?: number;
   priceType?: 'BASE_AMOUNT' | 'BASE_PRICER' | string; // Price type from data
+  pricingTier?: string; // Pricing tier identifier (e.g., 'CORP TIER 1', 'STFF', etc.)
   isTaxInclusive?: boolean;
 };
 

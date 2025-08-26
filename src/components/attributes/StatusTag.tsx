@@ -1,10 +1,10 @@
 import React from 'react';
 import { theme } from 'antd';
-import { Check, Pause, ArchiveX } from 'lucide-react';
+import { Check, Archive, ArchiveX } from 'lucide-react';
 
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
-export type ProductStatus = 'Active' | 'Retired' | 'Legacy';
+export type ProductStatus = 'Active' | 'Inactive' | 'Archived';
 
 interface StatusTagProps {
   status?: ProductStatus;
@@ -22,14 +22,14 @@ const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: st
     description: 'Product is actively being sold',
     antColorType: 'success',
   },
-  Retired: {
-    icon: Pause,
-    description: 'Product has existing customers but is no longer being sold',
+  Inactive: {
+    icon: Archive,
+    description: 'Product is no longer actively being sold but still has grandfathered customers',
     antColorType: 'warning',
   },
-  Legacy: {
+  Archived: {
     icon: ArchiveX,
-    description: 'Product does not have any existing customers and is no longer being sold',
+    description: 'Product is no longer actively being sold and does not have any customers',
     antColorType: 'default',
   },
 };

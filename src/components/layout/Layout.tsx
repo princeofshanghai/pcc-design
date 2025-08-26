@@ -126,7 +126,7 @@ const AppLayout = () => {
   const manualOverrideRef = useRef<boolean>(false); // Track if user has manually overridden auto-expand
 
   const location = useLocation();
-  const { productName, skuId, priceGroupId, folderName } = useBreadcrumb();
+  const { productName, folderName } = useBreadcrumb();
   const { collapsed: contextCollapsed, setCollapsed: setContextCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
   const { useBreakpoint } = Grid;
@@ -325,11 +325,7 @@ const AppLayout = () => {
         <Link to="/">Products</Link>
       </Breadcrumb.Item>
     );
-    breadcrumbItems.push(
-      <Breadcrumb.Item key="folder">
-        <span>{folderName}</span>
-      </Breadcrumb.Item>
-    );
+    // Note: Folder page itself doesn't show folder name in breadcrumb - only parent navigation
   }
 
   // Handle attribute dictionary page - no breadcrumb needed
@@ -358,42 +354,25 @@ const AppLayout = () => {
     const isSkuPage = location.pathname.includes('/sku/');
     const isPriceGroupPage = location.pathname.includes('/price-group/');
     
-    // Show product breadcrumb for all product pages
-    // Determine product path for linking back
-    let productPath = location.pathname;
-    if (isSkuPage) {
-      productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
-    } else if (isPriceGroupPage) {
-      productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
-    }
+    // Only show product breadcrumb for child pages (SKU, Price Group), not for the product page itself
+    if (isSkuPage || isPriceGroupPage) {
+      // Determine product path for linking back
+      let productPath = location.pathname;
+      if (isSkuPage) {
+        productPath = location.pathname.substring(0, location.pathname.indexOf('/sku/'));
+      } else if (isPriceGroupPage) {
+        productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
+      }
 
-    breadcrumbItems.push(
-      <Breadcrumb.Item key="product">
-        {(isSkuPage || isPriceGroupPage) ? (
+      breadcrumbItems.push(
+        <Breadcrumb.Item key="product">
           <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
             {productName}
           </Link>
-        ) : (
-          <span style={{ color: 'var(--ant-color-text)'}}>{productName}</span>
-        )}
-      </Breadcrumb.Item>
-    );
-
-    if (isSkuPage && skuId) {
-      breadcrumbItems.push(
-        <Breadcrumb.Item key="sku">
-          <span>SKU details</span>
         </Breadcrumb.Item>
       );
     }
-
-    if (isPriceGroupPage && priceGroupId) {
-      breadcrumbItems.push(
-        <Breadcrumb.Item key="priceGroup">
-          <span>Price group details</span>
-        </Breadcrumb.Item>
-      );
-    }
+    // Note: Product page itself doesn't show product name in breadcrumb - only parent navigation
 
 
   }

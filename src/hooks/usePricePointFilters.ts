@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { PricePoint } from '../utils/types';
-import { categorizePricePoints, toSentenceCase } from '../utils/formatters';
+import { categorizePricePoints, toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 import { getCurrencyRegion } from '../utils/regionUtils';
+import { getDefaultValidityFilter, getAvailableGroupByOptions } from '../utils/channelConfigurations';
 
 
-export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
+export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?: string[]) => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState<string | null>(null);
@@ -16,6 +17,75 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [regionFilters, setRegionFilters] = useState<string[]>([]);
+  // Helper to get the newest validity period for default selection
+  const getNewestValidityPeriod = useMemo(() => {
+    if (initialPricePoints.length === 0) return 'All periods';
+    
+    const validityGroups: Record<string, PricePoint[]> = {};
+    initialPricePoints.forEach(point => {
+      const validityKey = formatValidityRange(point.validFrom, point.validTo);
+      if (!validityGroups[validityKey]) {
+        validityGroups[validityKey] = [];
+      }
+      validityGroups[validityKey].push(point);
+    });
+
+    const extractDates = (period: string) => {
+      if (period === 'Present') return { startDate: new Date(), endDate: null, isPresent: true };
+      
+      const match = period.match(/^(.+?) - (.+)$/);
+      if (match) {
+        const startDate = new Date(match[1]);
+        const endDate = match[2] === 'present' ? null : new Date(match[2]);
+        return { startDate, endDate, isPresent: match[2] === 'present' };
+      }
+      return { startDate: new Date(0), endDate: new Date(0), isPresent: false };
+    };
+
+    const sortedPeriods = Object.keys(validityGroups).sort((a, b) => {
+      const datesA = extractDates(a);
+      const datesB = extractDates(b);
+      
+      const startDiff = datesB.startDate.getTime() - datesA.startDate.getTime();
+      if (startDiff !== 0) return startDiff;
+      
+      if (datesA.isPresent && !datesB.isPresent) return -1;
+      if (!datesA.isPresent && datesB.isPresent) return 1;
+      
+      if (datesA.endDate && datesB.endDate) {
+        return datesB.endDate.getTime() - datesA.endDate.getTime();
+      }
+      
+      return 0;
+    });
+
+    return sortedPeriods[0] || 'All periods';
+  }, [initialPricePoints]);
+
+  // Get the default validity filter based on channel configuration
+  const getDefaultValidityFilterValue = useMemo(() => {
+    const channelDefault = getDefaultValidityFilter(channels || []);
+    
+    // Debug: Log channel configuration for troubleshooting
+    console.log('usePricePointFilters - Channels:', channels, 'Channel default:', channelDefault, 'Newest period:', getNewestValidityPeriod);
+    
+    if (channelDefault === 'most-recent') {
+      return getNewestValidityPeriod;
+    } else {
+      return 'All periods';
+    }
+  }, [channels, getNewestValidityPeriod]);
+
+  const [validityFilter, setValidityFilter] = useState<string>(''); // Will be set by useEffect
+  
+  // Set default validity filter when data changes or channel config changes
+  useEffect(() => {
+    // Only set if we have actual data and a valid default value
+    if (initialPricePoints.length > 0 && getDefaultValidityFilterValue) {
+      console.log('usePricePointFilters - Setting validity filter to:', getDefaultValidityFilterValue, 'for channels:', channels);
+      setValidityFilter(getDefaultValidityFilterValue);
+    }
+  }, [getDefaultValidityFilterValue, initialPricePoints.length, channels]);
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');
@@ -86,6 +156,78 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     }));
   }, [initialPricePoints]);
 
+  // Get unique validity period options with counts
+  const validityOptions = useMemo(() => {
+    // Group price points by validity period and count them
+    const validityGroups: Record<string, PricePoint[]> = {};
+    
+    initialPricePoints.forEach(point => {
+      const validityKey = formatValidityRange(point.validFrom, point.validTo);
+      if (!validityGroups[validityKey]) {
+        validityGroups[validityKey] = [];
+      }
+      validityGroups[validityKey].push(point);
+    });
+
+    // Helper function to extract dates and compare periods
+    const extractDates = (period: string) => {
+      if (period === 'Present') return { startDate: new Date(), endDate: null, isPresent: true };
+      
+      const match = period.match(/^(.+?) - (.+)$/);
+      if (match) {
+        const startDate = new Date(match[1]);
+        const endDate = match[2] === 'present' ? null : new Date(match[2]);
+        return { startDate, endDate, isPresent: match[2] === 'present' };
+      }
+      return { startDate: new Date(0), endDate: new Date(0), isPresent: false };
+    };
+
+    // Sort validity periods: newest to oldest, with present end dates first for same start dates
+    const sortedValidityPeriods = Object.keys(validityGroups).sort((a, b) => {
+      const datesA = extractDates(a);
+      const datesB = extractDates(b);
+      
+      // First, compare by start date (newest first)
+      const startDiff = datesB.startDate.getTime() - datesA.startDate.getTime();
+      
+      if (startDiff !== 0) {
+        return startDiff;
+      }
+      
+      // If same start date, "present" end dates come first
+      if (datesA.isPresent && !datesB.isPresent) return -1;
+      if (!datesA.isPresent && datesB.isPresent) return 1;
+      
+      // If both have specific end dates, newer end date comes first
+      if (datesA.endDate && datesB.endDate) {
+        return datesB.endDate.getTime() - datesA.endDate.getTime();
+      }
+      
+      return 0;
+    });
+
+    // Create options array with individual validity periods first
+    const options = [];
+    
+    sortedValidityPeriods.forEach((period, index) => {
+      const isLatest = index === 0; // First item is the latest
+      options.push({
+        label: `${period} (${validityGroups[period].length})`,
+        value: period,
+        isLatest // Add flag for the UI to show "Latest" tag
+      });
+    });
+
+    // Add "All periods" at the bottom with divider info
+    options.push({
+      label: `All periods (${initialPricePoints.length})`,
+      value: 'All periods',
+      showDivider: true // Flag to show divider above this option
+    });
+
+    return options;
+  }, [initialPricePoints]);
+
   // Apply filters and search
   const filteredPricePoints = useMemo(() => {
     let filtered = [...initialPricePoints];
@@ -132,8 +274,17 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       });
     }
 
+    // Apply validity filter
+    if (validityFilter && validityFilter !== 'All periods') {
+      // Filter to show only price points matching the selected validity period
+      filtered = filtered.filter(point => {
+        const pointValidityPeriod = formatValidityRange(point.validFrom, point.validTo);
+        return pointValidityPeriod === validityFilter;
+      });
+    }
+
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters, regionFilters]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters, regionFilters, validityFilter]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -230,18 +381,8 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
       const groups: Record<string, PricePoint[]> = {};
       
       filteredPricePoints.forEach(point => {
-        // Create a validity range string for grouping
-        const validFrom = point.validFrom || '';
-        const validTo = point.validTo || '';
-        let validityKey: string;
-        
-        if (!validFrom && !validTo) {
-          validityKey = 'No validity specified';
-        } else if (!validTo) {
-          validityKey = `${validFrom} - Present`;
-        } else {
-          validityKey = `${validFrom} - ${validTo}`;
-        }
+        // Use the same formatting as the Validity column
+        const validityKey = formatValidityRange(point.validFrom, point.validTo);
         
         if (!groups[validityKey]) {
           groups[validityKey] = [];
@@ -356,10 +497,13 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[]) => {
     setCategoryFilters,
     regionFilters,
     setRegionFilters,
+    validityFilter,
+    setValidityFilter,
     currencyOptions,
     statusOptions,
     categoryOptions,
     regionOptions,
+    validityOptions,
     
     // View controls
     sortOrder,

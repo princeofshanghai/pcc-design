@@ -1315,826 +1315,6 @@ if (premiumCareerProduct) {
       revenueRecognition: "Accrual",
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
-      origin: "manual",
-      createdBy: "System",
-      createdDate: "2021-03-01T08:00:00Z"
-    },
-    {
-      id: "8435009",
-      status: "Active",
-      salesChannel: "Desktop",
-      billingCycle: "Quarterly",
-      priceGroup: {
-        id: "117005",
-        status: "Active",
-        pricePoints: [
-          { 
-            id: "6721135", 
-            currencyCode: "USD", 
-            amount: 89.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721145", 
-            currencyCode: "BRL", 
-            amount: 158.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721155", 
-            currencyCode: "INR", 
-            amount: 1906.75, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721165", 
-            currencyCode: "ZAR", 
-            amount: 487.8, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721175", 
-            currencyCode: "JPY", 
-            amount: 8182, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721185", 
-            currencyCode: "EUR", 
-            amount: 57, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721195", 
-            currencyCode: "AUD", 
-            amount: 114.52, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721205", 
-            currencyCode: "CAD", 
-            amount: 108.54, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721215", 
-            currencyCode: "GBP", 
-            amount: 57.48, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721225", 
-            currencyCode: "DKK", 
-            amount: 343.18, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721235", 
-            currencyCode: "SEK", 
-            amount: 631.18, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721245", 
-            currencyCode: "NOK", 
-            amount: 496.78, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721255", 
-            currencyCode: "CHF", 
-            amount: 83.54, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721265", 
-            currencyCode: "SGD", 
-            amount: 105.53, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721275", 
-            currencyCode: "HKD", 
-            amount: 620.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721285", 
-            currencyCode: "NZD", 
-            amount: 78.23, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721295", 
-            currencyCode: "MXN", 
-            amount: 1163.77, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721305", 
-            currencyCode: "AED", 
-            amount: 205.69, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721315", 
-            currencyCode: "PHP", 
-            amount: 3149.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721325", 
-            currencyCode: "CZK", 
-            amount: 1283.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721335", 
-            currencyCode: "PEN", 
-            amount: 203.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721345", 
-            currencyCode: "SAR", 
-            amount: 195.63, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721355", 
-            currencyCode: "MYR", 
-            amount: 248.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721365", 
-            currencyCode: "CLP", 
-            amount: 43487.37, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721375", 
-            currencyCode: "RON", 
-            amount: 224.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721385", 
-            currencyCode: "PLN", 
-            amount: 165.83, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721395", 
-            currencyCode: "PKR", 
-            amount: 9674.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721405", 
-            currencyCode: "ARS", 
-            amount: 4049.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721415", 
-            currencyCode: "TRY", 
-            amount: 210.99, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721425", 
-            currencyCode: "EGP", 
-            amount: 1124.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721435", 
-            currencyCode: "BDT", 
-            amount: 5607.42, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721445", 
-            currencyCode: "BGN", 
-            amount: 95.98, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721455", 
-            currencyCode: "BYN", 
-            amount: 134.38, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721465", 
-            currencyCode: "COP", 
-            amount: 220340.25, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721475", 
-            currencyCode: "CRC", 
-            amount: 37602.24, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721485", 
-            currencyCode: "GTQ", 
-            amount: 509.49, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721495", 
-            currencyCode: "HNL", 
-            amount: 1649.82, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721505", 
-            currencyCode: "HUF", 
-            amount: 16144.66, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721515", 
-            currencyCode: "IDR", 
-            amount: 1027813.83, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721525", 
-            currencyCode: "ILS", 
-            amount: 231.55, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721535", 
-            currencyCode: "JOD", 
-            amount: 45.33, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721545", 
-            currencyCode: "KES", 
-            amount: 7058.49, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721555", 
-            currencyCode: "KRW", 
-            amount: 74357.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721565", 
-            currencyCode: "KWD", 
-            amount: 20.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721575", 
-            currencyCode: "LBP", 
-            amount: 100912.62, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721585", 
-            currencyCode: "LKR", 
-            amount: 13004.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721595", 
-            currencyCode: "MAD", 
-            amount: 647.98, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721605", 
-            currencyCode: "NGN", 
-            amount: 26176.55, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721615", 
-            currencyCode: "QAR", 
-            amount: 245.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721625", 
-            currencyCode: "RSD", 
-            amount: 7041.58, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721635", 
-            currencyCode: "RUB", 
-            amount: 4838.38, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721645", 
-            currencyCode: "THB", 
-            amount: 2170.59, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721655", 
-            currencyCode: "TWD", 
-            amount: 1923.72, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721665", 
-            currencyCode: "TZS", 
-            amount: 150222.34, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721675", 
-            currencyCode: "UAH", 
-            amount: 1749.58, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721685", 
-            currencyCode: "UYU", 
-            amount: 2782.24, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721695", 
-            currencyCode: "VND", 
-            amount: 1577797.02, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6721705", 
-            currencyCode: "XOF", 
-            amount: 40814.97, 
-            validFrom: "2025-03-04T08:00:00Z",
-            validTo: "2025-03-11",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884785", 
-            currencyCode: "BDT", 
-            amount: 5736.5, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884795", 
-            currencyCode: "BGN", 
-            amount: 99.98, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884805", 
-            currencyCode: "BYN", 
-            amount: 139.98, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884815", 
-            currencyCode: "COP", 
-            amount: 228592.44, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884825", 
-            currencyCode: "CRC", 
-            amount: 38248.65, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884835", 
-            currencyCode: "GTQ", 
-            amount: 516.94, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884845", 
-            currencyCode: "HNL", 
-            amount: 1687.8, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884855", 
-            currencyCode: "HUF", 
-            amount: 17414.15, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884865", 
-            currencyCode: "IDR", 
-            amount: 1040402.7, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884875", 
-            currencyCode: "ILS", 
-            amount: 238.44, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884885", 
-            currencyCode: "JOD", 
-            amount: 46.53, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884895", 
-            currencyCode: "KES", 
-            amount: 7243.94, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884905", 
-            currencyCode: "KRW", 
-            amount: 75109.06, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884915", 
-            currencyCode: "KWD", 
-            amount: 20.97, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884925", 
-            currencyCode: "LBP", 
-            amount: 102148.62, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884935", 
-            currencyCode: "LKR", 
-            amount: 13004.97, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884945", 
-            currencyCode: "MAD", 
-            amount: 674.98, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884955", 
-            currencyCode: "NGN", 
-            amount: 26324.62, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884965", 
-            currencyCode: "QAR", 
-            amount: 245.97, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884975", 
-            currencyCode: "RSD", 
-            amount: 7334.98, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884985", 
-            currencyCode: "RUB", 
-            amount: 5039.98, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6884995", 
-            currencyCode: "THB", 
-            amount: 2181.28, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885005", 
-            currencyCode: "TWD", 
-            amount: 1928.54, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885015", 
-            currencyCode: "TZS", 
-            amount: 155252.52, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885025", 
-            currencyCode: "UAH", 
-            amount: 1822.48, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885035", 
-            currencyCode: "UYU", 
-            amount: 2923.75, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885045", 
-            currencyCode: "VND", 
-            amount: 1581751.4, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          },
-          { 
-            id: "6885055", 
-            currencyCode: "XOF", 
-            amount: 40814.97, 
-            validFrom: "2025-03-12",
-            pricingRule: "NONE",
-            priceType: "BASE_AMOUNT",
-            isTaxInclusive: false
-          }
-        ]
-      },
-      revenueRecognition: "Accrual",
-      switcherLogic: [],
-      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       lix: {
         key: "premium-quarterly-billing-2025",
         treatment: "treatment"
@@ -2310,14 +1490,816 @@ if (recruiterLiteProduct) {
   ];
 }
 
+// Add 10 Demo Products for UI scaling testing
+const demoProducts: Product[] = [
+  {
+    id: '0000001',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop only',
+    lob: 'Premium',
+    folder: 'Premium Core Products',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct001',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-001",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-001",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-001", 
+              currencyCode: "USD", 
+              amount: 29.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000002',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
+    lob: 'LTS',
+    folder: 'Recruiter',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct002',
+    family: 'RECRUITERPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-002a",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-002a",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-002a", 
+              currencyCode: "USD", 
+              amount: 39.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-002b",
+        status: "Active",
+        salesChannel: "iOS",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-002b",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-002b", 
+              currencyCode: "USD", 
+              amount: 39.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-002c",
+        status: "Active",
+        salesChannel: "GPB",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-002c",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-002c", 
+              currencyCode: "USD", 
+              amount: 39.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000003',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Field only',
+    lob: 'LMS',
+    folder: 'All LMS Products',
+    status: 'Inactive',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct003',
+    family: 'LMS',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-003",
+        status: "Inactive",
+        salesChannel: "Field",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-003",
+          status: "Inactive",
+          pricePoints: [
+            { 
+              id: "demo-pp-003", 
+              currencyCode: "USD", 
+              amount: 199.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000004',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop only',
+    lob: 'Premium',
+    folder: 'Premium Multiseat Products',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct004',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-004",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-004",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-004", 
+              currencyCode: "USD", 
+              amount: 299.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000005',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
+    lob: 'LTS',
+    folder: 'Learning',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct005',
+    family: 'RECRUITERPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-005a",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-005a",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-005a", 
+              currencyCode: "USD", 
+              amount: 399.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-005b",
+        status: "Active",
+        salesChannel: "iOS",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-005b",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-005b", 
+              currencyCode: "USD", 
+              amount: 399.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-005c",
+        status: "Active",
+        salesChannel: "GPB",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-005c",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-005c", 
+              currencyCode: "USD", 
+              amount: 399.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000006',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Field only',
+    lob: 'LSS',
+    folder: 'All LSS Products',
+    status: 'Archived',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct006',
+    family: 'LSS',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-006",
+        status: "Archived",
+        salesChannel: "Field",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-006",
+          status: "Archived",
+          pricePoints: [
+            { 
+              id: "demo-pp-006", 
+              currencyCode: "USD", 
+              amount: 49.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000007',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
+    lob: 'Premium',
+    folder: 'Premium Company Page',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct007',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-007a",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-007a",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-007a", 
+              currencyCode: "USD", 
+              amount: 19.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-007b",
+        status: "Active",
+        salesChannel: "iOS",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-007b",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-007b", 
+              currencyCode: "USD", 
+              amount: 19.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-007c",
+        status: "Active",
+        salesChannel: "GPB",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-007c",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-007c", 
+              currencyCode: "USD", 
+              amount: 19.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000008',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Field only',
+    lob: 'LTS',
+    folder: 'Jobs',
+    status: 'Inactive',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct008',
+    family: 'RECRUITERPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-008",
+        status: "Inactive",
+        salesChannel: "Field",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-008",
+          status: "Inactive",
+          pricePoints: [
+            { 
+              id: "demo-pp-008", 
+              currencyCode: "USD", 
+              amount: 249.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000009',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop only',
+    lob: 'Premium',
+    folder: 'Premium Small Business',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct009',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-009",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Monthly",
+        priceGroup: {
+          id: "demo-pg-009",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-009", 
+              currencyCode: "USD", 
+              amount: 34.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  },
+  {
+    id: '0000010',
+    name: 'Demo Product',
+    description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
+    lob: 'Other',
+    folder: 'All Other Products',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://demo.example.com/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: ['Demo feature 1', 'Demo feature 2'],
+    code: 'DemoProduct010',
+    family: 'OTHER',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://demo.example.com/terms',
+    productUrl: 'https://demo.example.com/product',
+    helpCenterUrl: 'https://demo.example.com/help',
+    skus: [
+      {
+        id: "demo-sku-010a",
+        status: "Active",
+        salesChannel: "Desktop",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-010a",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-010a", 
+              currencyCode: "USD", 
+              amount: 349.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-010b",
+        status: "Active",
+        salesChannel: "iOS",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-010b",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-010b", 
+              currencyCode: "USD", 
+              amount: 349.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      },
+      {
+        id: "demo-sku-010c",
+        status: "Active",
+        salesChannel: "GPB",
+        billingCycle: "Annual",
+        priceGroup: {
+          id: "demo-pg-010c",
+          status: "Active",
+          pricePoints: [
+            { 
+              id: "demo-pp-010c", 
+              currencyCode: "USD", 
+              amount: 349.99, 
+              validFrom: "2025-01-01T00:00:00Z",
+              pricingRule: "NONE",
+              priceType: "BASE_AMOUNT",
+              isTaxInclusive: false
+            }
+          ]
+        },
+        revenueRecognition: "Accrual",
+        switcherLogic: [],
+        refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+        origin: "manual",
+        createdBy: "System",
+        createdDate: "2025-01-01T00:00:00Z"
+      }
+    ],
+  }
+];
+
 // Process all price points to calculate statuses and auto-fill validTo dates
-export const mockProducts: Product[] = rawMockProducts.map(product => ({
-  ...product,
-  skus: product.skus.map(sku => ({
-    ...sku,
-    priceGroup: {
-      ...sku.priceGroup,
-      pricePoints: processPricePointStatuses(sku.priceGroup.pricePoints)
-    }
+export const mockProducts: Product[] = [
+  ...rawMockProducts.map(product => ({
+    ...product,
+    skus: product.skus.map(sku => ({
+      ...sku,
+      priceGroup: {
+        ...sku.priceGroup,
+        pricePoints: processPricePointStatuses(sku.priceGroup.pricePoints)
+      }
+    }))
+  })),
+  ...demoProducts.map(product => ({
+    ...product,
+    skus: product.skus.map(sku => ({
+      ...sku,
+      priceGroup: {
+        ...sku.priceGroup,
+        pricePoints: processPricePointStatuses(sku.priceGroup.pricePoints)
+      }
+    }))
   }))
-}));
+];

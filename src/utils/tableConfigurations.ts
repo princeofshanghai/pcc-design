@@ -5,7 +5,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'price', label: 'Price', required: false },
-  { key: 'lix', label: 'Experiments', required: false },
+  { key: 'lix', label: 'LIX', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
@@ -20,12 +20,13 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'pricingRule', label: 'Pricing rule', required: false },
   { key: 'quantityRange', label: 'Quantity range', required: false },
   { key: 'priceType', label: 'Price type', required: false },
+  { key: 'pricingTier', label: 'Pricing tier', required: false },
   { key: 'usdEquivalent', label: 'USD equivalent', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'validity', 'status'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
@@ -36,8 +37,8 @@ export const PRICE_GROUP_SORT_OPTIONS = [
   'Channel (Z-A)',
   'Billing Cycle (A-Z)',
   'Billing Cycle (Z-A)',
-  'Experiment (A-Z)',
-  'Experiment (Z-A)',
+  'LIX (A-Z)',
+  'LIX (Z-A)',
   'Status (A-Z)',
   'Status (Z-A)',
 ];
@@ -47,7 +48,7 @@ export const PRICE_GROUP_GROUP_BY_OPTIONS = [
   'None',
   'Billing Cycle',
   'Channel',
-  'Experiment',
+  'LIX',
   'Status',
 ];
 
@@ -61,6 +62,8 @@ export const PRICE_POINT_SORT_OPTIONS = [
   'Currency (Z-A)', 
   'Price type (A-Z)',
   'Price type (Z-A)',
+  'Pricing tier (A-Z)',
+  'Pricing tier (Z-A)',
   'Status (A-Z)',
   'Status (Z-A)',
   'USD equivalent (High to low)',
@@ -76,6 +79,7 @@ export const PRICE_POINT_GROUP_BY_OPTIONS = [
   'Currency',
   'Price type',
   'Pricing rule',
+  'Pricing tier',
   'Region',
   'Validity',
 ];
@@ -165,4 +169,64 @@ export const getColumnLabel = (columnKey: string): string => {
   }
   
   return columnKey;
+};
+
+/**
+ * Centralized filter placeholder generator.
+ * Generates consistent "All [items]" placeholders for filter dropdowns.
+ * Uses centralized column configurations and handles pluralization.
+ */
+export const getFilterPlaceholder = (columnKey: string): string => {
+  // Get the base label from centralized configuration
+  const baseLabel = getColumnLabel(columnKey);
+  
+  // Special cases for proper pluralization and naming
+  const pluralMap: Record<string, string> = {
+    'status': 'statuses',
+    'lix': 'LIX', // LIX is already an acronym, don't pluralize
+    'currency': 'currencies', 
+    'category': 'categories',
+    'currencyType': 'categories', // Currency type column shows as "categories" in filters
+    'channel': 'channels',
+    'billingCycle': 'billing cycles',
+    'priceGroup': 'price groups',
+    'validity': 'validity',
+    'priceType': 'price types',
+    'pricingRule': 'pricing rules',
+    'pricingTier': 'pricing tiers',
+    'quantityRange': 'quantity ranges',
+    'folder': 'folders',
+    'lob': 'LOBs',
+    'domain': 'domains',
+    'type': 'types',
+    'region': 'regions',
+    'experiment': 'experiments', // Legacy fallback
+  };
+  
+  // Check for exact key match first
+  if (pluralMap[columnKey]) {
+    return `All ${pluralMap[columnKey]}`;
+  }
+  
+  // Check for label-based match (case insensitive)
+  const labelKey = Object.keys(pluralMap).find(key => 
+    getColumnLabel(key).toLowerCase() === baseLabel.toLowerCase()
+  );
+  if (labelKey) {
+    return `All ${pluralMap[labelKey]}`;
+  }
+  
+  // Default: try to pluralize the base label intelligently
+  let pluralized = baseLabel.toLowerCase();
+  
+  // Simple pluralization rules
+  if (pluralized.endsWith('y') && !pluralized.endsWith('ay') && !pluralized.endsWith('ey') && !pluralized.endsWith('oy')) {
+    pluralized = pluralized.slice(0, -1) + 'ies'; // company -> companies
+  } else if (pluralized.endsWith('s') || pluralized.endsWith('sh') || pluralized.endsWith('ch') || pluralized.endsWith('x') || pluralized.endsWith('z')) {
+    pluralized = pluralized + 'es'; // status -> statuses
+  } else if (pluralized !== pluralized.toUpperCase()) { // Don't pluralize acronyms
+    pluralized = pluralized + 's'; // channel -> channels
+  }
+  
+  return `All ${pluralized}`;
 }; 

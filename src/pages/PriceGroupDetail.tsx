@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Typography, Space, Button, Modal, Tooltip, Tag, Alert, theme } from 'antd';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
@@ -18,6 +18,7 @@ import {
   BillingCycleDisplay,
   BillingModelDisplay
 } from '../components';
+import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -25,7 +26,8 @@ import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
   PRICE_POINT_SORT_OPTIONS,
-  DEFAULT_PRICE_POINT_COLUMNS
+  DEFAULT_PRICE_POINT_COLUMNS,
+  getFilterPlaceholder
 } from '../utils/tableConfigurations';
 import { Download } from 'lucide-react';
 
@@ -36,11 +38,8 @@ const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId, setPriceGroupName, setFolderName } = useBreadcrumb();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Get the tab we came from (for smart back navigation)
-  const searchParams = new URLSearchParams(location.search);
-  const fromTab = searchParams.get('from') || 'overview';
+
 
   const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +76,12 @@ const PriceGroupDetail: React.FC = () => {
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
 
+  // Extract unique channels early for channel configuration
+  const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
+
+  // Debug: Log channel detection for troubleshooting
+  console.log('PriceGroupDetail - Detected channels:', uniqueChannels, 'for price group:', priceGroupId);
+
   // IMPORTANT: All hooks must be called before any conditional returns
   // Price point filtering hook - must always be called even if priceGroup is null
   const {
@@ -87,32 +92,24 @@ const PriceGroupDetail: React.FC = () => {
     setStatusFilters,
     categoryFilters,
     setCategoryFilters,
+    validityFilter,
+    setValidityFilter,
     currencyOptions,
     statusOptions,
     categoryOptions,
+    validityOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy,
     setGroupBy: setPricePointGroupBy,
     filteredPricePoints,
     groupedPricePoints: groupedPricePointsData,
-  } = usePricePointFilters(priceGroup?.pricePoints || []);
+  } = usePricePointFilters(priceGroup?.pricePoints || [], uniqueChannels);
 
-  // Default column visibility configuration for PricePointTable
+  // Default column visibility configuration for PricePointTable - use channel configuration
   const pricePointDefaultVisibility = useMemo(() => {
-    const defaultVisibility: ColumnVisibility = {};
-    PRICE_POINT_COLUMNS.forEach(col => {
-      // Show region and category (currencyType) by default
-      // Hide pricingRule, quantityRange, and priceType by default
-      // ID column is now visible by default to match PriceGroupTable pattern
-      if (col.key === 'pricingRule' || col.key === 'quantityRange' || col.key === 'priceType') {
-        defaultVisibility[col.key] = false;
-      } else {
-        defaultVisibility[col.key] = true;
-      }
-    });
-    return defaultVisibility;
-  }, []);
+    return getDefaultColumnVisibility(uniqueChannels);
+  }, [uniqueChannels]);
 
   // Column visibility state for PricePointTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
@@ -202,10 +199,17 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters([]);
     setStatusFilters([]);
     setCategoryFilters([]);
+    // Reset to channel-specific default validity filter
+    const channelDefault = getDefaultValidityFilter(uniqueChannels);
+    if (channelDefault === 'most-recent' && validityOptions.length > 0) {
+      const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
+      setValidityFilter(newestPeriod || 'All periods');
+    } else {
+      setValidityFilter('All periods');
+    }
   };
 
-  // Extract unique channels and billing cycles from associated SKUs
-  const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
+  // Extract unique billing cycles from associated SKUs 
   const uniqueBillingCycles = [...new Set(skusWithPriceGroup.map(sku => sku.billingCycle))];
   
   // Check if this price group has mobile channels (iOS or GPB)
@@ -405,7 +409,31 @@ const PriceGroupDetail: React.FC = () => {
             }}
             filters={[
               {
-                placeholder: "All currencies",
+                placeholder: getFilterPlaceholder('validity'),
+                options: validityOptions,
+                multiSelect: false,
+                value: validityFilter,
+                onChange: (value: string | null) => {
+                  if (value) {
+                    setValidityFilter(value);
+                  } else {
+                    // Reset to channel-specific default when cleared
+                    const channelDefault = getDefaultValidityFilter(uniqueChannels);
+                    if (channelDefault === 'most-recent') {
+                      const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
+                      setValidityFilter(newestPeriod || 'All periods');
+                    } else {
+                      setValidityFilter('All periods');
+                    }
+                  }
+                },
+                disableSearch: true,
+                // Required for TypeScript interface compatibility
+                multiValue: [],
+                onMultiChange: () => {},
+              },
+              {
+                placeholder: getFilterPlaceholder('currency'),
                 options: currencyOptions,
                 multiSelect: true,
                 multiValue: currencyFilters,
@@ -415,22 +443,21 @@ const PriceGroupDetail: React.FC = () => {
                 onChange: () => {},
               },
               {
-                placeholder: "All statuses",
-                options: statusOptions,
-                multiSelect: true,
-                multiValue: statusFilters,
-                onMultiChange: (values: string[]) => setStatusFilters(values),
-                // Required for TypeScript interface compatibility
-                value: null,
-                onChange: () => {},
-              },
-
-              {
-                placeholder: "All categories",
+                placeholder: getFilterPlaceholder('currencyType'),
                 options: categoryOptions,
                 multiSelect: true,
                 multiValue: categoryFilters,
                 onMultiChange: (values: string[]) => setCategoryFilters(values),
+                // Required for TypeScript interface compatibility
+                value: null,
+                onChange: () => {},
+              },
+              {
+                placeholder: getFilterPlaceholder('status'),
+                options: statusOptions,
+                multiSelect: true,
+                multiValue: statusFilters,
+                onMultiChange: (values: string[]) => setStatusFilters(values),
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},
@@ -446,7 +473,7 @@ const PriceGroupDetail: React.FC = () => {
               groupBy: {
                 value: pricePointGroupBy,
                 setter: setPricePointGroupBy,
-                options: ['None', 'Category', 'Currency', 'Pricing rule', 'Price type', 'Validity'],
+                options: getAvailableGroupByOptions(uniqueChannels),
               },
               columnOptions,
               visibleColumns,
@@ -462,10 +489,7 @@ const PriceGroupDetail: React.FC = () => {
                 key="export"
                 icon={<Download size={16} />}
                 size="middle"
-                style={{
-                  height: '28px',
-                  minHeight: '28px',
-                }}
+
                 onClick={() => {
                   Modal.info({
                     title: 'Export Price Points',

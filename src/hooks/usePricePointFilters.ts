@@ -3,7 +3,7 @@ import type { PricePoint } from '../utils/types';
 import { categorizePricePoints, toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 import { getCurrencyRegion } from '../utils/regionUtils';
-import { getDefaultValidityFilter, getAvailableGroupByOptions } from '../utils/channelConfigurations';
+import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 
 
 export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?: string[]) => {

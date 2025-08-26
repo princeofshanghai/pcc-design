@@ -9,13 +9,6 @@ export const formatValidityRange = (start?: string, end?: string): string => {
   // If no validFrom date, show as "Present" (always active)
   if (!start) return 'Present';
 
-  const options: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC', // Assume dates are in UTC to prevent timezone shifts
-  };
-
   // Helper function to ensure proper capitalization
   const formatDateWithProperCapitalization = (dateString: string): string => {
     const date = new Date(dateString);

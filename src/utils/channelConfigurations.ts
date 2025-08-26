@@ -1,5 +1,5 @@
-import type { ColumnVisibility, ColumnOrder } from './types';
-import { DEFAULT_PRICE_POINT_COLUMNS, PRICE_POINT_GROUP_BY_OPTIONS } from './tableConfigurations';
+import type { ColumnVisibility } from './types';
+import { PRICE_POINT_GROUP_BY_OPTIONS } from './tableConfigurations';
 
 export interface ChannelConfig {
   // Validity filter defaults

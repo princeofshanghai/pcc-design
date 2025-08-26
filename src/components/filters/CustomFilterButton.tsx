@@ -346,7 +346,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {cleanLabel}
                             {isLatest && (
-                              <Tag size="small" color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                              <Tag color="blue" style={{ margin: 0, fontSize: '11px' }}>
                                 Latest
                               </Tag>
                             )}
@@ -361,7 +361,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {cleanLabel}
                             {isLatest && (
-                              <Tag size="small" color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                              <Tag color="blue" style={{ margin: 0, fontSize: '11px' }}>
                                 Latest
                               </Tag>
                             )}

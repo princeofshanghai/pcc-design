@@ -24,6 +24,11 @@ export interface FilterConfig {
   multiValue?: string[];
   onMultiChange?: (values: string[]) => void;
   disableSearch?: boolean;
+  
+  // View selector behavior props (new)
+  excludeFromClearAll?: boolean;
+  hideClearButton?: boolean;
+  preventDeselection?: boolean;
 }
 
 interface FilterBarProps {
@@ -90,7 +95,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
 
   const activeFilterCount = filters.filter(f => 
-    f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null
+    !f.excludeFromClearAll && (f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null)
   ).length;
 
   const showDrawer = () => setDrawerVisible(true);
@@ -138,6 +143,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 }}
                 showOptionTooltip={filter.showOptionTooltip}
                 disableSearch={filter.disableSearch}
+                excludeFromClearAll={filter.excludeFromClearAll}
+                hideClearButton={filter.hideClearButton}
+                preventDeselection={filter.preventDeselection}
               />
             ) : (
               <FilterDropdown

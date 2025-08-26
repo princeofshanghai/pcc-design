@@ -76,16 +76,29 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
     }
   }, [channels, getNewestValidityPeriod]);
 
-  const [validityFilter, setValidityFilter] = useState<string>(''); // Will be set by useEffect
+  const [validityFilter, setValidityFilterInternal] = useState<string>(''); // Will be set by useEffect
+  const [hasUserSelectedValidity, setHasUserSelectedValidity] = useState(false); // Track if user has manually selected
   
+  // Reset user selection flag when price points data completely changes (e.g., new price group)
+  useEffect(() => {
+    // Reset the flag when we get completely new data (different price points)
+    setHasUserSelectedValidity(false);
+  }, [initialPricePoints]);
+
   // Set default validity filter when data changes or channel config changes
   useEffect(() => {
-    // Only set if we have actual data and a valid default value
-    if (initialPricePoints.length > 0 && getDefaultValidityFilterValue) {
+    // Only set if we have actual data, a valid default value, AND user hasn't manually selected
+    if (initialPricePoints.length > 0 && getDefaultValidityFilterValue && !hasUserSelectedValidity) {
       console.log('usePricePointFilters - Setting validity filter to:', getDefaultValidityFilterValue, 'for channels:', channels);
-      setValidityFilter(getDefaultValidityFilterValue);
+      setValidityFilterInternal(getDefaultValidityFilterValue);
     }
-  }, [getDefaultValidityFilterValue, initialPricePoints.length, channels]);
+  }, [getDefaultValidityFilterValue, initialPricePoints.length, channels, hasUserSelectedValidity]);
+
+  // Wrapper function for manual validity filter changes
+  const setValidityFilter = (value: string) => {
+    setValidityFilterInternal(value);
+    setHasUserSelectedValidity(true); // Mark that user has made a manual selection
+  };
   
   // View options
   const [sortOrder, setSortOrder] = useState('None');

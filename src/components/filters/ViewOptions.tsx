@@ -64,13 +64,23 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     if (setVisibleColumns && columnOptions) {
       // Use contextual default if provided, otherwise fall back to "all visible" default
       const resetVisibility: ColumnVisibility = {};
+      
+      // Always include required columns as visible
       columnOptions
-        .filter(col => !col.required) // Only reset non-required columns
+        .filter(col => col.required)
+        .forEach(col => {
+          resetVisibility[col.key] = true;
+        });
+      
+      // Reset non-required columns based on defaults
+      columnOptions
+        .filter(col => !col.required)
         .forEach(col => {
           resetVisibility[col.key] = defaultVisibleColumns ? 
             (defaultVisibleColumns[col.key] ?? true) : 
             true;
         });
+      
       setVisibleColumns(resetVisibility);
     }
     if (_setColumnOrder && defaultColumnOrder) {

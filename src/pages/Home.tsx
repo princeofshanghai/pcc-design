@@ -193,6 +193,7 @@ const Home: React.FC = () => {
                   options: dynamicLobOptions,
                   value: lobFilter,
                   onChange: (value: string | null) => setLobFilter((value as LOB) ?? null),
+                  disableSearch: true,
                 },
                 {
                   placeholder: getFilterPlaceholder('folder'),
@@ -209,6 +210,7 @@ const Home: React.FC = () => {
                 multiSelect: true,
                 multiValue: channelFilters,
                 onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
+                disableSearch: true,
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},
@@ -219,6 +221,7 @@ const Home: React.FC = () => {
                 multiSelect: true,
                 multiValue: statusFilters,
                 onMultiChange: (values: string[]) => setStatusFilters(values as Status[]),
+                disableSearch: true,
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},

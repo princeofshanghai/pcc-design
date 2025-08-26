@@ -199,14 +199,8 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters([]);
     setStatusFilters([]);
     setCategoryFilters([]);
-    // Reset to channel-specific default validity filter
-    const channelDefault = getDefaultValidityFilter(uniqueChannels);
-    if (channelDefault === 'most-recent' && validityOptions.length > 0) {
-      const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
-      setValidityFilter(newestPeriod || 'All periods');
-    } else {
-      setValidityFilter('All periods');
-    }
+    // Validity filter is excluded from clear all - it's a view selector, not a filter
+    // It maintains its current selection when other filters are cleared
   };
 
   // Extract unique billing cycles from associated SKUs 
@@ -428,6 +422,10 @@ const PriceGroupDetail: React.FC = () => {
                   }
                 },
                 disableSearch: true,
+                // View selector behavior - validity is not a filter, it's a view mode
+                excludeFromClearAll: true,
+                hideClearButton: true,
+                preventDeselection: true,
                 // Required for TypeScript interface compatibility
                 multiValue: [],
                 onMultiChange: () => {},
@@ -448,6 +446,7 @@ const PriceGroupDetail: React.FC = () => {
                 multiSelect: true,
                 multiValue: categoryFilters,
                 onMultiChange: (values: string[]) => setCategoryFilters(values),
+                disableSearch: true,
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},
@@ -458,6 +457,7 @@ const PriceGroupDetail: React.FC = () => {
                 multiSelect: true,
                 multiValue: statusFilters,
                 onMultiChange: (values: string[]) => setStatusFilters(values),
+                disableSearch: true,
                 // Required for TypeScript interface compatibility
                 value: null,
                 onChange: () => {},

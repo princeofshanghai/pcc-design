@@ -38,6 +38,11 @@ interface CustomFilterButtonProps {
   dropdownStyle?: React.CSSProperties;
   className?: string;
   disableSearch?: boolean;
+  
+  // View selector behavior props (new)
+  excludeFromClearAll?: boolean;
+  hideClearButton?: boolean;
+  preventDeselection?: boolean;
 }
 
 const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
@@ -52,7 +57,10 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   size = 'middle',
   dropdownStyle,
   className,
-  disableSearch = false
+  disableSearch = false,
+  excludeFromClearAll = false,
+  hideClearButton = false,
+  preventDeselection = false
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -176,10 +184,14 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
 
   // Handle single select change
   const handleSingleSelectChange = (optionValue: string) => {
-    // For single-select filters, don't deselect when clicking the current option
-    // This prevents accidental deselection for required filters like validity
-    const newValue = optionValue;
-    onChange?.(newValue);
+    if (preventDeselection) {
+      // View selector mode - always select the clicked option (no deselection)
+      onChange?.(optionValue);
+    } else {
+      // Traditional filter mode - toggle selection
+      const newValue = value === optionValue ? null : optionValue;
+      onChange?.(newValue);
+    }
     // Keep dropdown open like multiselect
   };
 
@@ -387,7 +399,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
         </div>
 
         {/* Clear button */}
-        {hasSelections && (
+        {hasSelections && !hideClearButton && (
           <>
             <div style={{ 
               borderTop: `1px solid ${token.colorBorderSecondary}`, 
@@ -400,7 +412,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
               style={{ 
                 padding: '0',
                 height: 'auto',
-                color: token.colorText
+                color: token.colorPrimary
               }}
             >
               Clear
@@ -433,7 +445,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
             backgroundColor: token.colorBgContainer,
             padding: '4px 11px',
           }}
-          icon={hasSelections ? 
+          icon={hasSelections && !hideClearButton ? 
             <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
             <ChevronDown size={12} />
           }

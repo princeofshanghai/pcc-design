@@ -623,12 +623,14 @@ const ProductDetail: React.FC = () => {
                 multiSelect: true,
                 multiValue: channelFilters,
                 onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
+                disableSearch: true,
               },
               {
                 placeholder: getFilterPlaceholder('billingCycle'),
                 options: billingCycleOptions,
                 value: billingCycleFilter,
                 onChange: (value) => setBillingCycleFilter(value as string ?? null),
+                disableSearch: true,
               },
               {
                 placeholder: getFilterPlaceholder('lix'),
@@ -642,6 +644,7 @@ const ProductDetail: React.FC = () => {
                 options: statusOptions,
                 value: statusFilter,
                 onChange: (value) => setStatusFilter(value as Status ?? null),
+                disableSearch: true,
               },
             ]}
             viewOptions={{
@@ -717,6 +720,7 @@ const ProductDetail: React.FC = () => {
                   options: pricePointFilterOptions.statusOptions,
                   value: pricePointStatusFilter,
                   onChange: setPricePointStatusFilter,
+                  disableSearch: true,
                 },
                 {
                   placeholder: getFilterPlaceholder('channel'),
@@ -724,6 +728,7 @@ const ProductDetail: React.FC = () => {
                   multiSelect: true,
                   multiValue: pricePointChannelFilters,
                   onMultiChange: (values: string[]) => setPricePointChannelFilters(values as SalesChannel[]),
+                  disableSearch: true,
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},
@@ -733,6 +738,7 @@ const ProductDetail: React.FC = () => {
                   options: pricePointFilterOptions.billingCycleOptions,
                   value: pricePointBillingCycleFilter,
                   onChange: setPricePointBillingCycleFilter,
+                  disableSearch: true,
                 },
               ] : [
                 {
@@ -741,6 +747,7 @@ const ProductDetail: React.FC = () => {
                   multiSelect: true,
                   multiValue: priceGroupChannelFilters,
                   onMultiChange: (values: string[]) => setPriceGroupChannelFilters(values as SalesChannel[]),
+                  disableSearch: true,
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},
@@ -750,6 +757,7 @@ const ProductDetail: React.FC = () => {
                   options: priceGroupBillingCycleOptions,
                   value: priceGroupBillingCycleFilter,
                   onChange: setPriceGroupBillingCycleFilter,
+                  disableSearch: true,
                 },
                 {
                   placeholder: getFilterPlaceholder('lix'),
@@ -764,6 +772,7 @@ const ProductDetail: React.FC = () => {
                   multiSelect: true,
                   multiValue: priceGroupStatusFilters,
                   onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
+                  disableSearch: true,
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},

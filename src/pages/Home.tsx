@@ -20,13 +20,14 @@ import {
 const urlToFolderName = (urlFolder: string): string => {
   // Handle special cases where folder names have specific capitalization
   const specialCases: Record<string, string> = {
-    'premium-core-products': 'Premium Core Products',
-    'premium-multiseat-products': 'Premium Multiseat Products',
+    'premium-core': 'Premium Core',
+    'premium-multiseat': 'Premium Multiseat',
     'premium-company-page': 'Premium Company Page',
     'premium-small-business': 'Premium Small Business',
     'premium-entitlements': 'Premium Entitlements',
     'career-page': 'Career Page',
-    'all-lss-products': 'All LSS Products',
+    'sales-navigator': 'Sales Navigator',
+    'sales-insights': 'Sales Insights',
     'all-lms-products': 'All LMS Products'
   };
   
@@ -68,11 +69,19 @@ const Home: React.FC = () => {
     };
   }, [currentFolder, setFolderName]);
 
+  // Update column visibility when folder context changes
+  useEffect(() => {
+    setVisibleColumns(prev => ({
+      ...prev,
+      folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
+    }));
+  }, [currentFolder]);
+
   // Column visibility state for ProductListTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
     id: true,       // Always visible (required)
     name: true,     // Always visible (required)
-    folder: true,   // Toggleable
+    folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     channel: true,  // Toggleable
     skus: true,     // Toggleable
     status: true,   // Toggleable
@@ -88,11 +97,12 @@ const Home: React.FC = () => {
     'status'
   ]);
 
-  // Column configuration for ProductListTable
+  // Column configuration for ProductListTable - exclude folder column when in specific folder
   const columnOptions: ColumnConfig[] = [
     { key: 'id', label: 'Product ID', required: true },
     { key: 'name', label: 'Name', required: true },
-    { key: 'folder', label: 'Folder', required: false },
+    // Only show folder as toggleable when viewing all products
+    ...(currentFolder ? [] : [{ key: 'folder', label: 'Folder', required: false }]),
     { key: 'channel', label: 'Channel', required: false },
     { key: 'skus', label: 'SKUs', required: false },
     { key: 'status', label: 'Status', required: false },

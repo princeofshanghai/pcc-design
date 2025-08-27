@@ -23,10 +23,12 @@ export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
 // Pricing components
 export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
+export { default as FieldPricingView } from './pricing/FieldPricingView';
 export { default as OverrideComparison } from './pricing/OverrideComparison';
 export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
+export { default as PricePointMatrix } from './pricing/PricePointMatrix';
 export { default as PricePointTable } from './pricing/PricePointTable';
 
 

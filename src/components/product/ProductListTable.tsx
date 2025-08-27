@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space, theme } from 'antd';
+import { Table, Space, theme, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
@@ -8,7 +8,6 @@ import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import SecondaryText from '../shared/SecondaryText';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
-import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import type { ColumnsType } from 'antd/es/table';
 
 
@@ -51,8 +50,13 @@ export const getProductListTableColumns = (
       dataIndex: 'name',
       key: 'name',
       minWidth: 200,
-      render: (name: string) => (
-        <div>{name}</div>
+      render: (name: string, record: Product) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>{name}</span>
+          {record.isBundle && (
+            <Tag>Bundle</Tag>
+          )}
+        </div>
       ),
     } : null,
     folder: visibleColumns.folder === true ? {
@@ -87,7 +91,11 @@ export const getProductListTableColumns = (
       },
     } : null,
     skus: visibleColumns.skus === true ? {
-      title: getColumnTitleWithTooltip(getColumnLabel('skus'), 'Number of SKUs in this product'),
+      title: (
+        <span>
+          {getColumnLabel('skus')} <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
+        </span>
+      ),
       dataIndex: 'skus',
       key: 'skus',
       // Hide on screens smaller than 576px (mobile)

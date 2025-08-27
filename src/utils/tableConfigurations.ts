@@ -17,10 +17,10 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'currencyType', label: 'Category', required: false },
   { key: 'amount', label: 'Amount', required: false },
 
-  { key: 'pricingRule', label: 'Pricing rule', required: false },
-  { key: 'quantityRange', label: 'Quantity range', required: false },
-  { key: 'priceType', label: 'Price type', required: false },
-  { key: 'pricingTier', label: 'Pricing tier', required: false },
+  { key: 'pricingRule', label: 'Rule', required: false },
+  { key: 'quantityRange', label: 'Seats', required: false },
+  { key: 'priceType', label: 'Type', required: false },
+  { key: 'pricingTier', label: 'Tier', required: false },
   { key: 'usdEquivalent', label: 'USD equivalent', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
@@ -80,8 +80,39 @@ export const PRICE_POINT_GROUP_BY_OPTIONS = [
   'Price type',
   'Pricing rule',
   'Pricing tier',
-  'Region',
   'Validity',
+];
+
+// Sort options for flattened price points (used in ProductDetail price point view)
+export const FLATTENED_PRICE_POINT_SORT_OPTIONS = [
+  'None',
+  'ID (A-Z)',
+  'ID (Z-A)',
+  'Currency (A-Z)',
+  'Currency (Z-A)',
+  'Amount (Low to high)',
+  'Amount (High to low)',
+  'Channel (A-Z)',
+  'Channel (Z-A)',
+  'Billing Cycle (A-Z)',
+  'Billing Cycle (Z-A)',
+  'LIX (A-Z)',
+  'LIX (Z-A)',
+  'Validity (Earliest to latest)',
+  'Validity (Latest to earliest)',
+  'Status (A-Z)',
+  'Status (Z-A)',
+];
+
+// Group by options for flattened price points (used in ProductDetail price point view)
+export const FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS = [
+  'None',
+  'Currency',
+  'Channel',
+  'Billing Cycle',
+  'LIX Key',
+  'Validity',
+  'Status',
 ];
 
 export const SKU_COLUMNS: ColumnConfig[] = [

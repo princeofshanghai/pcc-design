@@ -122,18 +122,17 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
       let key: string;
       
       if (groupBy === 'Channel') {
-        // For channel grouping, group by the primary channel (most common in SKUs)
+        // For channel grouping, group by the complete unique channel combination
         if (!product.skus || product.skus.length === 0) {
           key = 'No SKUs';
         } else {
-          const channelCounts = product.skus.reduce((counts, sku) => {
-            counts[sku.salesChannel] = (counts[sku.salesChannel] || 0) + 1;
-            return counts;
-          }, {} as Record<string, number>);
+          // Get all unique channels, normalize iOS casing, and sort alphabetically for consistent grouping
+          const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))]
+            .map(channel => channel.toLowerCase() === 'ios' ? 'iOS' : channel)
+            .sort((a, b) => a.localeCompare(b));
           
-          // Find the most common channel
-          key = Object.entries(channelCounts)
-            .sort(([,a], [,b]) => b - a)[0][0];
+          // Create key from the complete channel combination
+          key = uniqueChannels.join(', ');
         }
       } else {
         key = product[groupBy.toLowerCase() as keyof Product] as string;

@@ -13,8 +13,8 @@ import { processPricePointStatuses } from './pricingUtils';
 // This allows us to show empty folders in the sidebar
 export const folderStructure = {
   "Premium": [
-    "Premium Core Products",
-    "Premium Multiseat Products", 
+    "Premium Core",
+    "Premium Multiseat", 
     "Premium Company Page",
     "Premium Small Business",
     "Premium Entitlements"
@@ -29,7 +29,8 @@ export const folderStructure = {
     "Talent Insights"
   ],
   "LSS": [
-    "All LSS Products"
+    "Sales Navigator",
+    "Sales Insights"
   ],
   "LMS": [
     "All LMS Products"
@@ -83,7 +84,7 @@ const rawMockProducts: Product[] = [
     name: 'Premium Career',
     description: 'Get exclusive access to insights, job search tools, and direct messaging to reach the right people to grow your career.',
     lob: 'Premium',
-    folder: 'Premium Core Products',
+    folder: 'Premium Core',
     status: 'Active',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://www.linkedin.com/premium/career/',
@@ -181,6 +182,364 @@ const rawMockProducts: Product[] = [
     isPrimaryProductForPricing: true,
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://www.linkedin.com/talent/recruiter-corporate',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5073467',
+    name: 'Sales Navigator Advanced',
+    description: 'Forge deeper relationships by leveraging real-time sales intelligence and seamless collaboration with your team. Receive relevant, accurate insights on buyer interest and enhance the experience of other sales tools by embedding LinkedIn insights. Includes 50 InMail messages per month, Buyer Interest, BI Integrations, List Sharing, Smart Links, TeamLink, and other features.',
+    lob: 'LSS',
+    folder: 'Sales Navigator',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'InMail messages (50/month)',
+      'Buyer Interest insights',
+      'BI Integrations', 
+      'List Sharing',
+      'Smart Links',
+      'TeamLink',
+      'Advanced search filters',
+      'Real-time sales intelligence',
+      'Team collaboration tools',
+      'CRM sync capabilities'
+    ],
+    code: 'SalesNavAdvanced',
+    family: 'SALESPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '113000',
+    name: 'Sales Navigator Advanced',
+    description: 'Forge deeper relationships by leveraging real-time sales intelligence and seamless collaboration with your team. Receive relevant, accurate insights on buyer interest and enhance the experience of other sales tools by embedding LinkedIn insights. Includes 50 InMail messages per month, Buyer Interest, BI Integrations, List Sharing, Smart Links, TeamLink, and other features.',
+    lob: 'LSS',
+    folder: 'Sales Navigator',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'InMail messages (50/month)',
+      'Buyer Interest insights',
+      'BI Integrations', 
+      'List Sharing',
+      'Smart Links',
+      'TeamLink',
+      'Advanced search filters',
+      'Real-time sales intelligence',
+      'Team collaboration tools',
+      'CRM sync capabilities'
+    ],
+    code: 'SalesNavAdvanced113000',
+    family: 'SALESPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5095305',
+    name: 'Sales Navigator Core',
+    description: 'Build trusted relationships by using the power of LinkedIn data to find, research, and communicate with customers/prospects. Identify targets quickly and connect with them faster. Includes 50 InMail messages per month, advanced search filters, real-time alerts and other foundational features.',
+    lob: 'LSS',
+    folder: 'Sales Navigator',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'InMail messages (50/month)',
+      'Advanced search filters',
+      'Real-time alerts',
+      'Lead recommendations',
+      'Save leads and accounts',
+      'Notes and tags',
+      'Basic LinkedIn data access',
+      'Mobile app access'
+    ],
+    code: 'SalesNavCore5095305',
+    family: 'SALESPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5106528',
+    name: 'Sales Navigator Core',
+    description: 'Build trusted relationships by using the power of LinkedIn data to find, research, and communicate with customers/prospects. Identify targets quickly and connect with them faster. Includes 50 InMail messages per month, advanced search filters, real-time alerts and other foundational features.',
+    lob: 'LSS',
+    folder: 'Sales Navigator',
+    status: 'Inactive',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'InMail messages (50/month)',
+      'Advanced search filters',
+      'Real-time alerts',
+      'Lead recommendations',
+      'Save leads and accounts',
+      'Notes and tags',
+      'Basic LinkedIn data access',
+      'Mobile app access'
+    ],
+    code: 'SalesNavCore5106528',
+    family: 'SALESPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5125000',
+    name: 'Sales Navigator Advanced Plus',
+    description: 'Strengthen relationships with customized intelligence generated through an integrated experience across Sales Navigator, CRM, and your sales tools. Improve sales effectiveness and productivity by automating key processes and leveraging better data to inform decision making. Includes 50 InMail Messages per month, CRM Lead and Contact Creation, CRM Activity writeback and other features.',
+    lob: 'LSS',
+    folder: 'Sales Navigator',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/advanced-plus',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'InMail Messages (50/month)',
+      'CRM Lead and Contact Creation',
+      'CRM Activity writeback',
+      'Customized intelligence',
+      'Sales Navigator + CRM integration',
+      'Automated key processes',
+      'Enhanced data insights',
+      'Advanced decision-making tools',
+      'Sales effectiveness analytics',
+      'Productivity automation'
+    ],
+    code: 'SalesNavAdvancedPlus',
+    family: 'SALESPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/advanced-plus',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5095295',
+    name: 'Premium Business',
+    description: 'Get exclusive access to insights, search tools, and direct messaging to reach the right people to grow your business.',
+    lob: 'Premium',
+    folder: 'Premium Core',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/premium/business/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'Unlimited LinkedIn Learning access',
+      'Advanced search filters',
+      'Direct messaging',
+      'Business insights',
+      'InMail credits (15)',
+      'Who viewed your profile',
+      'Applicant insights',
+      'Salary insights',
+      'Business growth tools',
+      'Premium support'
+    ],
+    code: 'PremiumBusiness',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/premium/business',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '10036',
+    name: 'Premium Career Subscription',
+    description: 'Complete career advancement bundle combining Premium Career benefits with LinkedIn Learning and additional professional development tools. Get unlimited access to courses, exclusive job insights, expanded InMail credits, and advanced career growth features.',
+    lob: 'Premium',
+    folder: 'Premium Core',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/premium/career-subscription/',
+    seatType: 'Single seat',
+    isBundle: true,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'Premium Career access',
+      'Unlimited LinkedIn Learning',
+      'Enhanced InMail credits (25)',
+      'Advanced job insights',
+      'Salary insights and trends',
+      'Career advice and coaching content',
+      'Skills assessments and badges',
+      'Private profile browsing',
+      'Extended profile views history',
+      'Priority customer support',
+      'Professional development tracking',
+      'Exclusive webinars and events'
+    ],
+    code: 'PremiumCareerBundle',
+    family: 'BUNDLEPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/premium/career-subscription',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5255644',
+    name: 'Premium Business Suite',
+    description: 'Comprehensive business solution designed for small businesses to build their brand, find talent, and grow their network. Includes advanced business insights, expanded search capabilities, enhanced messaging tools, and team collaboration features.',
+    lob: 'Premium',
+    folder: 'Premium Small Business',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/premium/business-suite/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'Advanced business insights',
+      'Expanded search filters',
+      'Enhanced messaging tools',
+      'InMail credits (20)',
+      'Company page analytics',
+      'Team collaboration features',
+      'Lead generation tools',
+      'Industry benchmarking',
+      'Business network growth',
+      'Premium customer support'
+    ],
+    code: 'PremiumBusinessSuite',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/premium/business-suite',
+    helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    skus: [],
+  },
+  {
+    id: '5124922',
+    name: 'Premium Company Page',
+    description: 'Enhance your company\'s LinkedIn presence with advanced company page features, detailed analytics, and powerful tools to attract top talent and grow your business. Build your brand, showcase your culture, and reach your target audience effectively.',
+    lob: 'Premium',
+    folder: 'Premium Company Page',
+    status: 'Active',
+    billingModel: 'Subscription',
+    postPurchaseLandingUrl: 'https://www.linkedin.com/premium/company-page/',
+    seatType: 'Single seat',
+    isBundle: false,
+    taxClass: 'Taxable',
+    paymentFailureFreeToPaidGracePeriod: 0,
+    paymentFailurePaidToPaidGracePeriod: 7,
+    seatMin: 1,
+    seatMax: 1,
+    features: [
+      'Advanced company page analytics',
+      'Talent brand spotlight',
+      'Custom company page themes',
+      'Employee advocacy tools',
+      'Targeted company updates',
+      'Company page visitor insights',
+      'Enhanced follower demographics',
+      'Brand awareness campaigns',
+      'Recruitment marketing tools',
+      'Premium support'
+    ],
+    code: 'PremiumCompanyPage',
+    family: 'SUBPKG',
+    isVisibleOnBillingEmails: true,
+    isVisibleOnRenewalEmails: true,
+    isCancellable: true,
+    isEligibleForRoboRefund: true,
+    isPrimaryProductForPricing: true,
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    productUrl: 'https://www.linkedin.com/premium/company-page',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
     skus: [],
   }
@@ -1490,14 +1849,881 @@ if (recruiterLiteProduct) {
   ];
 }
 
+// Add SKUs to Sales Navigator Advanced product
+const salesNavAdvancedProduct = rawMockProducts.find((p: Product) => p.id === '5073467');
+if (salesNavAdvancedProduct) {
+  salesNavAdvancedProduct.skus = [
+    {
+      id: "sna-monthly-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "SNA_MONTHLY",
+        name: "SNA_FY25_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "sna-pp-001", 
+            currencyCode: "USD", 
+            amount: 79.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    {
+      id: "sna-annual-001",
+      status: "Active",
+      salesChannel: "Desktop", 
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "SNA_ANNUAL",
+        name: "SNA_FY25_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "sna-pp-002", 
+            currencyCode: "USD", 
+            amount: 959.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Sales Navigator Advanced product (ID: 113000) 
+const salesNavAdvanced113000Product = rawMockProducts.find((p: Product) => p.id === '113000');
+if (salesNavAdvanced113000Product) {
+  salesNavAdvanced113000Product.skus = [
+    {
+      id: "sna-field-annual-001",
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "SNA_FIELD_ANNUAL",
+        name: "SNA_FY25_FIELD_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "sna-field-pp-001", 
+            currencyCode: "USD", 
+            amount: 1199.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Sales Navigator Core product (ID: 5095305) - Active status
+const salesNavCore5095305Product = rawMockProducts.find((p: Product) => p.id === '5095305');
+if (salesNavCore5095305Product) {
+  salesNavCore5095305Product.skus = [
+    {
+      id: "snc-5095305-monthly",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "SNC_5095305_MONTHLY",
+        name: "SNC_FY25_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "snc-5095305-pp-monthly", 
+            currencyCode: "USD", 
+            amount: 59.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    {
+      id: "snc-5095305-annual",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "SNC_5095305_ANNUAL",
+        name: "SNC_FY25_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "snc-5095305-pp-annual", 
+            currencyCode: "USD", 
+            amount: 719.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Sales Navigator Core product (ID: 5106528) - Inactive status
+const salesNavCore5106528Product = rawMockProducts.find((p: Product) => p.id === '5106528');
+if (salesNavCore5106528Product) {
+  salesNavCore5106528Product.skus = [
+    {
+      id: "snc-5106528-monthly",
+      status: "Inactive",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "SNC_5106528_MONTHLY",
+        name: "SNC_FY25_MONTHLY_SIMPLE_INACTIVE",
+        status: "Inactive",
+        pricePoints: [
+          { 
+            id: "snc-5106528-pp-monthly", 
+            currencyCode: "USD", 
+            amount: 59.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    {
+      id: "snc-5106528-annual",
+      status: "Inactive",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "SNC_5106528_ANNUAL",
+        name: "SNC_FY25_ANNUAL_SIMPLE_INACTIVE",
+        status: "Inactive",
+        pricePoints: [
+          { 
+            id: "snc-5106528-pp-annual", 
+            currencyCode: "USD", 
+            amount: 719.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Sales Navigator Advanced Plus product (ID: 5125000)
+const salesNavAdvancedPlusProduct = rawMockProducts.find((p: Product) => p.id === '5125000');
+if (salesNavAdvancedPlusProduct) {
+  salesNavAdvancedPlusProduct.skus = [
+    {
+      id: "snap-field-annual-001",
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "SNAP_FIELD_ANNUAL",
+        name: "SNAP_FY25_FIELD_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "snap-field-pp-001", 
+            currencyCode: "USD", 
+            amount: 1599.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Premium Business product (ID: 5095295)
+const premiumBusinessProduct = rawMockProducts.find((p: Product) => p.id === '5095295');
+if (premiumBusinessProduct) {
+  premiumBusinessProduct.skus = [
+    // Desktop Monthly
+    {
+      id: "pb-desktop-monthly-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PB_DESKTOP_MONTHLY",
+        name: "PB_FY25_DESKTOP_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-desktop-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 59.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // Desktop Annual
+    {
+      id: "pb-desktop-annual-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PB_DESKTOP_ANNUAL",
+        name: "PB_FY25_DESKTOP_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-desktop-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 719.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Monthly
+    {
+      id: "pb-ios-monthly-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PB_IOS_MONTHLY",
+        name: "PB_FY25_IOS_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-ios-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 59.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Annual
+    {
+      id: "pb-ios-annual-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PB_IOS_ANNUAL",
+        name: "PB_FY25_IOS_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-ios-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 719.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Monthly
+    {
+      id: "pb-gpb-monthly-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PB_GPB_MONTHLY",
+        name: "PB_FY25_GPB_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-gpb-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 59.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Annual
+    {
+      id: "pb-gpb-annual-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PB_GPB_ANNUAL",
+        name: "PB_FY25_GPB_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pb-gpb-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 719.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Premium Career Subscription bundle (ID: 10036)
+const premiumCareerBundleProduct = rawMockProducts.find((p: Product) => p.id === '10036');
+if (premiumCareerBundleProduct) {
+  premiumCareerBundleProduct.skus = [
+    // Desktop Monthly
+    {
+      id: "pcb-desktop-monthly-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCB_DESKTOP_MONTHLY",
+        name: "PCB_FY25_DESKTOP_MONTHLY_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-desktop-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 79.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // Desktop Annual
+    {
+      id: "pcb-desktop-annual-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCB_DESKTOP_ANNUAL",
+        name: "PCB_FY25_DESKTOP_ANNUAL_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-desktop-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 959.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Monthly
+    {
+      id: "pcb-ios-monthly-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCB_IOS_MONTHLY",
+        name: "PCB_FY25_IOS_MONTHLY_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-ios-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 79.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Annual
+    {
+      id: "pcb-ios-annual-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCB_IOS_ANNUAL",
+        name: "PCB_FY25_IOS_ANNUAL_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-ios-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 959.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Monthly
+    {
+      id: "pcb-gpb-monthly-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCB_GPB_MONTHLY",
+        name: "PCB_FY25_GPB_MONTHLY_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-gpb-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 79.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Annual
+    {
+      id: "pcb-gpb-annual-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCB_GPB_ANNUAL",
+        name: "PCB_FY25_GPB_ANNUAL_BUNDLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcb-gpb-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 959.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Premium Business Suite product (ID: 5255644)
+const premiumBusinessSuiteProduct = rawMockProducts.find((p: Product) => p.id === '5255644');
+if (premiumBusinessSuiteProduct) {
+  premiumBusinessSuiteProduct.skus = [
+    // Desktop Monthly
+    {
+      id: "pbs-desktop-monthly-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PBS_DESKTOP_MONTHLY",
+        name: "PBS_FY25_DESKTOP_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pbs-desktop-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 69.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // Desktop Annual
+    {
+      id: "pbs-desktop-annual-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PBS_DESKTOP_ANNUAL",
+        name: "PBS_FY25_DESKTOP_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pbs-desktop-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 839.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
+// Add SKUs to Premium Company Page product (ID: 5124922)
+const premiumCompanyPageProduct = rawMockProducts.find((p: Product) => p.id === '5124922');
+if (premiumCompanyPageProduct) {
+  premiumCompanyPageProduct.skus = [
+    // Desktop Monthly
+    {
+      id: "pcp-desktop-monthly-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCP_DESKTOP_MONTHLY",
+        name: "PCP_FY25_DESKTOP_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-desktop-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 49.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // Desktop Annual
+    {
+      id: "pcp-desktop-annual-001",
+      status: "Active",
+      salesChannel: "Desktop",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCP_DESKTOP_ANNUAL",
+        name: "PCP_FY25_DESKTOP_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-desktop-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 599.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Monthly
+    {
+      id: "pcp-ios-monthly-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCP_IOS_MONTHLY",
+        name: "PCP_FY25_IOS_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-ios-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 49.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // iOS Annual
+    {
+      id: "pcp-ios-annual-001",
+      status: "Active",
+      salesChannel: "iOS",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCP_IOS_ANNUAL",
+        name: "PCP_FY25_IOS_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-ios-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 599.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Monthly
+    {
+      id: "pcp-gpb-monthly-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Monthly",
+      priceGroup: {
+        id: "PCP_GPB_MONTHLY",
+        name: "PCP_FY25_GPB_MONTHLY_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-gpb-monthly-pp-001", 
+            currencyCode: "USD", 
+            amount: 49.99, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    },
+    // GPB Annual
+    {
+      id: "pcp-gpb-annual-001",
+      status: "Active",
+      salesChannel: "GPB",
+      billingCycle: "Annual",
+      priceGroup: {
+        id: "PCP_GPB_ANNUAL",
+        name: "PCP_FY25_GPB_ANNUAL_SIMPLE",
+        status: "Active",
+        pricePoints: [
+          { 
+            id: "pcp-gpb-annual-pp-001", 
+            currencyCode: "USD", 
+            amount: 599.88, 
+            validFrom: "2025-01-01T00:00:00Z",
+            pricingRule: "NONE",
+            priceType: "BASE_AMOUNT",
+            isTaxInclusive: false
+          }
+        ]
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      origin: "manual",
+      createdBy: TEAM_MEMBERS.LUXI_KANAZIR.fullName,
+      createdDate: "2025-01-01T00:00:00Z"
+    }
+  ];
+}
+
 // Add 10 Demo Products for UI scaling testing
 const demoProducts: Product[] = [
   {
     id: '0000001',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop only',
     lob: 'Premium',
-    folder: 'Premium Core Products',
+    folder: 'Premium Core',
     status: 'Active',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://demo.example.com/',
@@ -1551,7 +2777,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000002',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
     lob: 'LTS',
     folder: 'Recruiter',
@@ -1662,7 +2888,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000003',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Field only',
     lob: 'LMS',
     folder: 'All LMS Products',
@@ -1719,10 +2945,10 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000004',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop only',
     lob: 'Premium',
-    folder: 'Premium Multiseat Products',
+    folder: 'Premium Multiseat',
     status: 'Active',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://demo.example.com/',
@@ -1776,7 +3002,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000005',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
     lob: 'LTS',
     folder: 'Learning',
@@ -1887,10 +3113,10 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000006',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Field only',
     lob: 'LSS',
-    folder: 'All LSS Products',
+    folder: 'Sales Navigator',
     status: 'Archived',
     billingModel: 'Subscription',
     postPurchaseLandingUrl: 'https://demo.example.com/',
@@ -1944,7 +3170,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000007',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
     lob: 'Premium',
     folder: 'Premium Company Page',
@@ -2055,7 +3281,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000008',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Field only',
     lob: 'LTS',
     folder: 'Jobs',
@@ -2112,7 +3338,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000009',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop only',
     lob: 'Premium',
     folder: 'Premium Small Business',
@@ -2169,7 +3395,7 @@ const demoProducts: Product[] = [
   },
   {
     id: '0000010',
-    name: 'Demo Product',
+    name: 'Test',
     description: 'Demo product for UI scaling testing - Desktop + iOS + GPB',
     lob: 'Other',
     folder: 'All Other Products',

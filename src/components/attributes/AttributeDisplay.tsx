@@ -25,11 +25,11 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   }
 
   const labelContent = (
-    <Text style={{ fontSize: '13px', letterSpacing: '0.1px', color: token.colorTextSecondary }}>
+    <Text style={{ fontSize: '13px', letterSpacing: '0.1px', color: token.colorTextSecondary, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {toSentenceCase(label)}
       {tooltip && (
         <Tooltip title={tooltip}>
-          <Info size={13} strokeWidth={2.5} style={{ marginLeft: '4px', color: token.colorTextTertiary }} />
+          <Info size={13} strokeWidth={2.5} style={{ color: token.colorTextTertiary, flexShrink: 0 }} />
         </Tooltip>
       )}
     </Text>

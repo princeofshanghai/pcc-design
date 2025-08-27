@@ -17,6 +17,7 @@ import CalculationSchemesPlaceholder from './pages/CalculationSchemesPlaceholder
 import PicassoNPIPlaceholder from './pages/PicassoNPIPlaceholder';
 import PlatformEntityMappingPlaceholder from './pages/PlatformEntityMappingPlaceholder';
 import AttributeDictionary from './pages/AttributeDictionary';
+import PriceMatrixTest from './pages/PriceMatrixTest';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
                 <Route path="/platform-entity-mapping" element={<PlatformEntityMappingPlaceholder />} />
                 <Route path="/attribute-dictionary" element={<AttributeDictionary />} />
+                <Route path="/test-matrix" element={<PriceMatrixTest />} />
               </Route>
             </Routes>
           </LayoutProvider>

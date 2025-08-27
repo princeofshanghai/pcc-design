@@ -414,6 +414,31 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
       return sortedGroups;
     }
 
+    if (groupBy === 'Status') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const status = point.status || 'Unspecified';
+        // Format the status for display
+        const statusKey = toSentenceCase(status);
+        
+        if (!groups[statusKey]) {
+          groups[statusKey] = [];
+        }
+        groups[statusKey].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(statusKey => {
+          sortedGroups[statusKey] = sortPricePoints(groups[statusKey]);
+        });
+      
+      return sortedGroups;
+    }
+
     if (groupBy === 'Pricing rule') {
       const groups: Record<string, PricePoint[]> = {};
       

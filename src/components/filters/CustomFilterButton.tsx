@@ -1,9 +1,59 @@
 import React, { useState } from 'react';
 import { Button, Dropdown, Checkbox, Radio, Input, Space, theme, Tag } from 'antd';
-import { ChevronDown, X, Search } from 'lucide-react';
+import { ChevronDown, X, Search, CirclePlus } from 'lucide-react';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { toSentenceCase } from '../../utils/formatters';
 import { TAILWIND_COLORS } from '../../theme';
+
+// Create CSS for hover states - this will be injected once per component instance
+const createFilterButtonStyles = (primaryColor: string) => `
+  .custom-filter-button {
+    transition: all 0.2s ease;
+  }
+  
+  .custom-filter-button.has-selections {
+    border: 1px solid ${TAILWIND_COLORS.gray[300]} !important;
+  }
+  
+  .custom-filter-button.no-selections {
+    border: 1px dashed ${TAILWIND_COLORS.gray[300]} !important;
+  }
+  
+  .custom-filter-button:hover:not(:disabled) {
+    border-color: ${primaryColor} !important;
+    color: ${primaryColor} !important;
+  }
+  
+  .custom-filter-button:focus:not(:disabled) {
+    border-color: ${primaryColor} !important;
+    box-shadow: 0 0 0 2px ${primaryColor}1a !important;
+  }
+  
+  /* Custom thin scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  /* Firefox scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+`;
 
 // Reuse the same interfaces from FilterDropdown for compatibility
 export interface Option {
@@ -58,18 +108,41 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   dropdownStyle,
   className,
   disableSearch = false,
-  excludeFromClearAll = false,
   hideClearButton = false,
   preventDeselection = false
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const searchInputRef = React.useRef<any>(null);
+
+  // Inject styles with theme colors if not already present
+  React.useEffect(() => {
+    if (typeof document !== 'undefined' && !document.getElementById('custom-filter-button-styles')) {
+      const styleElement = document.createElement('style');
+      styleElement.id = 'custom-filter-button-styles';
+      styleElement.textContent = createFilterButtonStyles(token.colorPrimary);
+      document.head.appendChild(styleElement);
+    }
+  }, [token.colorPrimary]);
+
+  // Auto-focus search input when dropdown opens
+  React.useEffect(() => {
+    if (isOpen && !disableSearch && searchInputRef.current) {
+      // Use setTimeout to ensure the input is rendered before focusing
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen, disableSearch]);
 
   // Determine if filter has selections
   const hasSelections = multiSelect ? 
     (multiValue?.length ?? 0) > 0 : 
     value != null;
+
+  // Determine if this is a validity filter (should keep original behavior)
+  const isValidityFilter = preventDeselection;
 
   // Get clean label without count
   const getCleanLabel = (fullLabel: string): string => {
@@ -247,6 +320,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
         {!disableSearch && (
           <div style={{ marginBottom: '8px' }}>
             <Input
+              ref={searchInputRef}
               placeholder="Search..."
               prefix={<Search size={14} color={'#9ca3af'} />}
               value={searchText}
@@ -264,7 +338,15 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
         )}
 
         {/* Options list */}
-        <div style={{ maxHeight: 'min(400px, 40vh)', overflowY: 'auto' }}>
+        <div 
+          style={{ 
+            maxHeight: 'min(400px, 40vh)', 
+            overflowY: 'auto',
+            paddingRight: '8px', // Extra space for scrollbar
+            marginRight: '-8px'   // Pull back to align with container
+          }}
+          className="custom-scrollbar"
+        >
           <Space direction="vertical" style={{ width: '100%' }} size={4}>
             {filteredOptions.map(opt => {
               if ('options' in opt) {
@@ -276,7 +358,8 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                       color: token.colorTextSecondary, 
                       fontSize: '12px',
                       marginTop: '8px',
-                      marginBottom: '4px'
+                      marginBottom: '4px',
+                      paddingLeft: '4px'
                     }}>
                       {opt.label}
                     </div>
@@ -290,7 +373,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                             display: 'flex', 
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            padding: '4px 0'
+                            padding: '4px 8px 4px 0'
                           }}>
                             {multiSelect ? (
                               <Checkbox
@@ -347,7 +430,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                       display: 'flex', 
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '4px 0'
+                      padding: '4px 8px 4px 0'
                     }}>
                       {multiSelect ? (
                         <Checkbox
@@ -358,7 +441,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {cleanLabel}
                             {isLatest && (
-                              <Tag color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                              <Tag color="orange" style={{ margin: 0, fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px' }}>
                                 Latest
                               </Tag>
                             )}
@@ -373,7 +456,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {cleanLabel}
                             {isLatest && (
-                              <Tag color="blue" style={{ margin: 0, fontSize: '11px' }}>
+                              <Tag color="orange" style={{ margin: 0, fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px' }}>
                                 Latest
                               </Tag>
                             )}
@@ -434,22 +517,27 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
       >
         <Button
           size={size}
+          className={`custom-filter-button ${hasSelections ? 'has-selections' : 'no-selections'}`}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            border: hasSelections 
-              ? `1px solid ${TAILWIND_COLORS.gray[300]}` 
-              : `1px dashed ${TAILWIND_COLORS.gray[300]}`,
-            color: token.colorText,
-            backgroundColor: token.colorBgContainer,
             padding: '4px 11px',
           }}
-          icon={hasSelections && !hideClearButton ? 
-            <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
-            <ChevronDown size={12} />
-          }
-          iconPosition="end"
+          icon={(() => {
+            if (isValidityFilter) {
+              // Validity filters: keep original behavior (ChevronDown/X on right)
+              return hasSelections && !hideClearButton ? 
+                <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
+                <ChevronDown size={12} />;
+            } else {
+              // Regular filters: new behavior (CirclePlus/X on left)
+              return hasSelections && !hideClearButton ? 
+                <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
+                <CirclePlus size={12} />;
+            }
+          })()}
+          iconPosition={isValidityFilter ? "end" : "start"}
         >
           {(() => {
             const buttonText = getButtonText();

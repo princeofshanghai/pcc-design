@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox, Drawer } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox, Drawer, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Pencil, Check, X } from 'lucide-react';
+import { Download, Pencil, Check } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -27,15 +28,19 @@ import {
   FilterBar,
   CopyableId,
   PricePointStatusTag,
+  GroupHeader,
 } from '../components';
-import { toSentenceCase } from '../utils/formatters';
+import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import {
   PRICE_GROUP_COLUMNS, 
   PRICE_GROUP_SORT_OPTIONS, 
   SKU_SORT_OPTIONS,
   SKU_GROUP_BY_OPTIONS,
   PRICE_GROUP_GROUP_BY_OPTIONS,
+  FLATTENED_PRICE_POINT_SORT_OPTIONS,
+  FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
   getFilterPlaceholder} from '../utils/tableConfigurations';
+import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 
 
 const { Title } = Typography;
@@ -43,6 +48,98 @@ const { Title } = Typography;
 // Complete lists of all possible values
 const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
 const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
+
+/**
+ * Currency names mapping for tooltips (consistent with PricePointTable)
+ */
+const currencyNames: Record<string, string> = {
+  'AED': 'UAE Dirham',
+  'ARS': 'Argentine Peso',
+  'AUD': 'Australian Dollar',
+  'BDT': 'Bangladeshi Taka',
+  'BGN': 'Bulgarian Lev',
+  'BIF': 'Burundian Franc',
+  'BYN': 'Belarusian Ruble',
+  'BRL': 'Brazilian Real',
+  'CAD': 'Canadian Dollar',
+  'CHF': 'Swiss Franc',
+  'CLP': 'Chilean Peso',
+  'CNY': 'Chinese Yuan',
+  'COP': 'Colombian Peso',
+  'CRC': 'Costa Rican Colon',
+  'CZK': 'Czech Koruna',
+  'DJF': 'Djiboutian Franc',
+  'DKK': 'Danish Krone',
+  'EGP': 'Egyptian Pound',
+  'EUR': 'Euro',
+  'GBP': 'British Pound',
+  'GNF': 'Guinean Franc',
+  'GTQ': 'Guatemalan Quetzal',
+  'HKD': 'Hong Kong Dollar',
+  'HNL': 'Honduran Lempira',
+  'HUF': 'Hungarian Forint',
+  'IDR': 'Indonesian Rupiah',
+  'ILS': 'Israeli New Shekel',
+  'INR': 'Indian Rupee',
+  'JOD': 'Jordanian Dinar',
+  'JPY': 'Japanese Yen',
+  'KES': 'Kenyan Shilling',
+  'KMF': 'Comorian Franc',
+  'KRW': 'South Korean Won',
+  'KWD': 'Kuwaiti Dinar',
+  'LBP': 'Lebanese Pound',
+  'LKR': 'Sri Lankan Rupee',
+  'MAD': 'Moroccan Dirham',
+  'MGA': 'Malagasy Ariary',
+  'MXN': 'Mexican Peso',
+  'MYR': 'Malaysian Ringgit',
+  'NGN': 'Nigerian Naira',
+  'NOK': 'Norwegian Krone',
+  'NZD': 'New Zealand Dollar',
+  'PEN': 'Peruvian Sol',
+  'PHP': 'Philippine Peso',
+  'PKR': 'Pakistani Rupee',
+  'PLN': 'Polish Zloty',
+  'PYG': 'Paraguayan Guarani',
+  'QAR': 'Qatari Riyal',
+  'RON': 'Romanian Leu',
+  'RSD': 'Serbian Dinar',
+  'RUB': 'Russian Ruble',
+  'RWF': 'Rwandan Franc',
+  'SAR': 'Saudi Riyal',
+  'SEK': 'Swedish Krona',
+  'SGD': 'Singapore Dollar',
+  'THB': 'Thai Baht',
+  'TRY': 'Turkish Lira',
+  'TWD': 'Taiwan Dollar',
+  'TZS': 'Tanzanian Shilling',
+  'UAH': 'Ukrainian Hryvnia',
+  'UGX': 'Ugandan Shilling',
+  'USD': 'US Dollar',
+  'UYU': 'Uruguayan Peso',
+  'VND': 'Vietnamese Dong',
+  'VUV': 'Vanuatu Vatu',
+  'XAF': 'Central African CFA Franc',
+  'XOF': 'West African CFA Franc',
+  'XPF': 'CFP Franc',
+  'ZAR': 'South African Rand',
+};
+
+// Type for table rows in flattened price points table (supports both data and group headers)
+type FlattenedPricePointTableRow = {
+  priceGroupId: string;
+  priceGroupName: string;
+  pricePoint: PricePoint;
+  channels: SalesChannel[];
+  billingCycles: BillingCycle[];
+  lix: any;
+} | {
+  isGroupHeader: true;
+  key: string;
+  title: string;
+  count: number;
+  groupKey: string;
+};
 
 
 const renderValue = (value: any, isBoolean = false, themeToken?: any) => {
@@ -56,7 +153,7 @@ const renderValue = (value: any, isBoolean = false, themeToken?: any) => {
           </>
         ) : (
           <>
-            <X size={14} style={{ color: themeToken?.colorError || '#ef4444' }} />
+            <span style={{ color: themeToken?.colorError || '#ef4444', fontSize: '14px', fontWeight: 'bold' }}>✗</span>
             <span>No</span>
           </>
         )}
@@ -104,7 +201,6 @@ const ProductDetail: React.FC = () => {
   
   // Alert dismissal state
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
-  const [featuresAlertDismissed, setFeaturesAlertDismissed] = useState(false);
 
   // Price view toggle state - starts unchecked (price groups view by default)
   const [showPricePointView, setShowPricePointView] = useState(false);
@@ -186,10 +282,12 @@ const ProductDetail: React.FC = () => {
 
   // Price point view filtering state
   const [pricePointSearchQuery, setPricePointSearchQuery] = useState('');
-  const [pricePointCurrencyFilter, setPricePointCurrencyFilter] = useState<string | null>(null);
+  const [pricePointValidityFilter, setPricePointValidityFilter] = useState<string>('All periods');
+  const [pricePointCurrencyFilters, setPricePointCurrencyFilters] = useState<string[]>([]);
   const [pricePointStatusFilter, setPricePointStatusFilter] = useState<string | null>(null);
   const [pricePointChannelFilters, setPricePointChannelFilters] = useState<SalesChannel[]>([]);
   const [pricePointBillingCycleFilter, setPricePointBillingCycleFilter] = useState<string | null>(null);
+  const [pricePointLixFilter, setPricePointLixFilter] = useState<string | null>(null);
 
   // Flatten price points with inferred SKU attributes for price point view
   const allFlattenedPricePoints = useMemo(() => {
@@ -214,17 +312,28 @@ const ProductDetail: React.FC = () => {
     if (!showPricePointView) return [];
     
     return allFlattenedPricePoints.filter(item => {
-      // Search filter (currency or price point ID)
+      // Validity filter - filter by validity period using formatValidityRange
+      if (pricePointValidityFilter !== 'All periods') {
+        const itemValidityPeriod = formatValidityRange(item.pricePoint.validFrom, item.pricePoint.validTo);
+        
+        if (itemValidityPeriod !== pricePointValidityFilter) {
+          return false;
+        }
+      }
+
+      // Search filter (currency, price point ID, or LIX key/treatment)
       if (pricePointSearchQuery) {
         const searchLower = pricePointSearchQuery.toLowerCase();
         const matchesSearch = 
           item.pricePoint.currencyCode?.toLowerCase().includes(searchLower) ||
-          item.pricePoint.id?.toLowerCase().includes(searchLower);
+          item.pricePoint.id?.toLowerCase().includes(searchLower) ||
+          (item.lix?.key && item.lix.key.toLowerCase().includes(searchLower)) ||
+          (item.lix?.treatment && item.lix.treatment.toLowerCase().includes(searchLower));
         if (!matchesSearch) return false;
       }
 
-      // Currency filter
-      if (pricePointCurrencyFilter && item.pricePoint.currencyCode !== pricePointCurrencyFilter) {
+      // Currency filter (multiselect)
+      if (pricePointCurrencyFilters.length > 0 && !pricePointCurrencyFilters.includes(item.pricePoint.currencyCode)) {
         return false;
       }
 
@@ -248,77 +357,183 @@ const ProductDetail: React.FC = () => {
         }
       }
 
+      // LIX filter
+      if (pricePointLixFilter && item.lix?.key !== pricePointLixFilter) {
+        return false;
+      }
+
       return true;
     });
   }, [
     showPricePointView,
     allFlattenedPricePoints,
+    pricePointValidityFilter,
     pricePointSearchQuery,
-    pricePointCurrencyFilter,
+    pricePointCurrencyFilters,
     pricePointStatusFilter,
     pricePointChannelFilters,
     pricePointBillingCycleFilter,
+    pricePointLixFilter,
   ]);
 
-  // Generate filter options for price point view
+  // Generate filter options for price point view with counts (following project patterns)
   const pricePointFilterOptions = useMemo(() => {
     if (!showPricePointView || allFlattenedPricePoints.length === 0) {
       return {
+        validityOptions: [{ label: 'All periods', value: 'All periods' }],
         currencyOptions: [],
         statusOptions: [],
         channelOptions: [],
         billingCycleOptions: [],
+        lixOptions: [],
       };
     }
 
-    // Extract unique values from all flattened price points
-    const currencies = [...new Set(allFlattenedPricePoints.map(item => item.pricePoint.currencyCode))];
-    const statuses = [...new Set(allFlattenedPricePoints.map(item => item.pricePoint.status))];
-    const channels = [...new Set(allFlattenedPricePoints.flatMap(item => item.channels))];
-    const billingCycles = [...new Set(allFlattenedPricePoints.flatMap(item => item.billingCycles))];
+    // Extract price points for counting
+    const pricePoints = allFlattenedPricePoints.map(item => item.pricePoint);
+
+    // Generate validity options using the same logic as usePricePointFilters
+    const validityGroups: Record<string, typeof pricePoints> = {};
+    
+    pricePoints.forEach(point => {
+      const validityKey = formatValidityRange(point.validFrom, point.validTo);
+      if (!validityGroups[validityKey]) {
+        validityGroups[validityKey] = [];
+      }
+      validityGroups[validityKey].push(point);
+    });
+
+    // Helper function to extract dates and compare periods (same as usePricePointFilters)
+    const extractDates = (period: string) => {
+      if (period === 'Present') return { startDate: new Date(), endDate: null, isPresent: true };
+      
+      const match = period.match(/^(.+?) - (.+)$/);
+      if (match) {
+        const startDate = new Date(match[1]);
+        const endDate = match[2] === 'present' ? null : new Date(match[2]);
+        return { startDate, endDate, isPresent: match[2] === 'present' };
+      }
+      return { startDate: new Date(0), endDate: new Date(0), isPresent: false };
+    };
+
+    // Sort validity periods: newest to oldest, with present end dates first for same start dates
+    const sortedValidityPeriods = Object.keys(validityGroups).sort((a, b) => {
+      const datesA = extractDates(a);
+      const datesB = extractDates(b);
+      
+      // First, compare by start date (newest first)
+      const startDiff = datesB.startDate.getTime() - datesA.startDate.getTime();
+      
+      if (startDiff !== 0) {
+        return startDiff;
+      }
+      
+      // If same start date, "present" end dates come first
+      if (datesA.isPresent && !datesB.isPresent) return -1;
+      if (!datesA.isPresent && datesB.isPresent) return 1;
+      
+      // If both have specific end dates, newer end date comes first
+      if (datesA.endDate && datesB.endDate) {
+        return datesB.endDate.getTime() - datesA.endDate.getTime();
+      }
+      
+      return 0;
+    });
+
+    // Create options array with individual validity periods first, then All periods at the end
+    const validityOptions = [
+      ...sortedValidityPeriods.map((period, index) => ({
+        label: `${period} (${validityGroups[period].length})`,
+        value: period,
+        isLatest: index === 0 // First item is the latest
+      })),
+      // Add "All periods" at the end with total count
+      {
+        label: `All periods (${pricePoints.length})`,
+        value: 'All periods'
+      }
+    ];
+
+    // Currency options with counts
+    const currencyCounts = pricePoints.reduce((acc, point) => {
+      acc[point.currencyCode] = (acc[point.currencyCode] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const currencyOptions = Object.keys(currencyCounts).sort().map(currency => ({ 
+      label: `${currency} (${currencyCounts[currency]})`, 
+      value: currency 
+    }));
+
+    // Status options with counts
+    const statusCounts = pricePoints.reduce((acc, point) => {
+      const status = point.status || 'Unspecified';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const statusOptions = Object.keys(statusCounts).sort().map(status => ({ 
+      label: `${toSentenceCase(status)} (${statusCounts[status]})`, 
+      value: status 
+    }));
+
+    // Channel options with counts (from flattened data)
+    const channelCounts = allFlattenedPricePoints.reduce((acc, item) => {
+      item.channels.forEach((channel: SalesChannel) => {
+        acc[channel] = (acc[channel] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    const channelOptions = Object.keys(channelCounts).sort().map(channel => ({ 
+      label: `${channel === 'iOS' ? 'iOS' : toSentenceCase(channel)} (${channelCounts[channel]})`, 
+      value: channel 
+    }));
+
+    // Billing cycle options with counts (from flattened data)
+    const billingCycleCounts = allFlattenedPricePoints.reduce((acc, item) => {
+      item.billingCycles.forEach((cycle: BillingCycle) => {
+        acc[cycle] = (acc[cycle] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    const billingCycleOptions = Object.keys(billingCycleCounts).sort().map(cycle => ({ 
+      label: `${toSentenceCase(cycle)} (${billingCycleCounts[cycle]})`, 
+      value: cycle 
+    }));
+
+    // LIX options with counts
+    const lixCounts = allFlattenedPricePoints.reduce((acc, item) => {
+      if (item.lix?.key) {
+        acc[item.lix.key] = (acc[item.lix.key] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+    const lixOptions = Object.keys(lixCounts).sort().map(lixKey => ({ 
+      label: `${lixKey} (${lixCounts[lixKey]})`, 
+      value: lixKey 
+    }));
 
     return {
-      currencyOptions: currencies.sort().map(currency => ({ label: currency, value: currency })),
-      statusOptions: statuses.sort().map(status => ({ label: status, value: status })),
-      channelOptions: channels.sort().map(channel => ({ label: channel, value: channel })),
-      billingCycleOptions: billingCycles.sort().map(cycle => ({ label: cycle, value: cycle })),
+      validityOptions,
+      currencyOptions,
+      statusOptions, 
+      channelOptions,
+      billingCycleOptions,
+      lixOptions,
     };
   }, [showPricePointView, allFlattenedPricePoints]);
 
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
-    setPricePointCurrencyFilter(null);
+    setPricePointCurrencyFilters([]);
     setPricePointStatusFilter(null);
     setPricePointChannelFilters([]);
     setPricePointBillingCycleFilter(null);
+    setPricePointLixFilter(null);
   };
-
-  // Price point view sorting and grouping options
-  const PRICE_POINT_SORT_OPTIONS = [
-    'None',
-    'Currency (A-Z)',
-    'Currency (Z-A)', 
-    'Amount (Low to high)',
-    'Amount (High to low)',
-    'Status (A-Z)',
-    'Status (Z-A)',
-    'Validity (Earliest to latest)',
-    'Validity (Latest to earliest)',
-  ];
-
-  // TODO: Group by options for future implementation
-  // const PRICE_POINT_GROUP_BY_OPTIONS = [
-  //   'None',
-  //   'Currency',
-  //   'Status', 
-  //   'Channel',
-  //   'Billing Cycle',
-  //   'Price Group',
-  // ];
 
   // Price point view state
   const [pricePointSortOrder, setPricePointSortOrder] = useState('None');
-  // const [pricePointGroupBy, setPricePointGroupBy] = useState('None');
+  const [pricePointGroupBy, setPricePointGroupBy] = useState('None');
+  const [expandedPricePointGroups, setExpandedPricePointGroups] = useState<string[]>([]);
 
   // Sort price points based on selected sort order
   const sortedFlattenedPricePoints = useMemo(() => {
@@ -329,6 +544,10 @@ const ProductDetail: React.FC = () => {
     const sorted = [...filteredFlattenedPricePoints];
 
     switch (pricePointSortOrder) {
+      case 'ID (A-Z)':
+        return sorted.sort((a, b) => a.pricePoint.id.localeCompare(b.pricePoint.id));
+      case 'ID (Z-A)':
+        return sorted.sort((a, b) => b.pricePoint.id.localeCompare(a.pricePoint.id));
       case 'Currency (A-Z)':
         return sorted.sort((a, b) => a.pricePoint.currencyCode.localeCompare(b.pricePoint.currencyCode));
       case 'Currency (Z-A)':
@@ -337,10 +556,42 @@ const ProductDetail: React.FC = () => {
         return sorted.sort((a, b) => a.pricePoint.amount - b.pricePoint.amount);
       case 'Amount (High to low)':
         return sorted.sort((a, b) => b.pricePoint.amount - a.pricePoint.amount);
-      case 'Status (A-Z)':
-        return sorted.sort((a, b) => (a.pricePoint.status || '').localeCompare(b.pricePoint.status || ''));
-      case 'Status (Z-A)':
-        return sorted.sort((a, b) => (b.pricePoint.status || '').localeCompare(a.pricePoint.status || ''));
+      case 'Channel (A-Z)':
+        return sorted.sort((a, b) => {
+          const aChannel = a.channels[0] || '';
+          const bChannel = b.channels[0] || '';
+          return aChannel.localeCompare(bChannel);
+        });
+      case 'Channel (Z-A)':
+        return sorted.sort((a, b) => {
+          const aChannel = a.channels[0] || '';
+          const bChannel = b.channels[0] || '';
+          return bChannel.localeCompare(aChannel);
+        });
+      case 'Billing Cycle (A-Z)':
+        return sorted.sort((a, b) => {
+          const aCycle = a.billingCycles[0] || '';
+          const bCycle = b.billingCycles[0] || '';
+          return aCycle.localeCompare(bCycle);
+        });
+      case 'Billing Cycle (Z-A)':
+        return sorted.sort((a, b) => {
+          const aCycle = a.billingCycles[0] || '';
+          const bCycle = b.billingCycles[0] || '';
+          return bCycle.localeCompare(aCycle);
+        });
+      case 'LIX (A-Z)':
+        return sorted.sort((a, b) => {
+          const aLix = a.lix?.key || '';
+          const bLix = b.lix?.key || '';
+          return aLix.localeCompare(bLix);
+        });
+      case 'LIX (Z-A)':
+        return sorted.sort((a, b) => {
+          const aLix = a.lix?.key || '';
+          const bLix = b.lix?.key || '';
+          return bLix.localeCompare(aLix);
+        });
       case 'Validity (Earliest to latest)':
         return sorted.sort((a, b) => {
           const aDate = new Date(a.pricePoint.validFrom || '').getTime();
@@ -353,16 +604,239 @@ const ProductDetail: React.FC = () => {
           const bDate = new Date(b.pricePoint.validFrom || '').getTime();
           return bDate - aDate;
         });
+      case 'Status (A-Z)':
+        return sorted.sort((a, b) => (a.pricePoint.status || '').localeCompare(b.pricePoint.status || ''));
+      case 'Status (Z-A)':
+        return sorted.sort((a, b) => (b.pricePoint.status || '').localeCompare(a.pricePoint.status || ''));
       default:
         return sorted;
     }
   }, [showPricePointView, filteredFlattenedPricePoints, pricePointSortOrder]);
 
-  // TODO: Group price points based on selected group by option
-  // Implementation ready for when grouping UI is enabled
+  // Group price points based on selected group by option
+  const groupedFlattenedPricePoints = useMemo(() => {
+    if (!showPricePointView || pricePointGroupBy === 'None') {
+      return null;
+    }
 
-  // TODO: Implement grouping display like other tables
-  // const finalPricePointData = groupedFlattenedPricePoints || sortedFlattenedPricePoints;
+    const grouped: Record<string, typeof sortedFlattenedPricePoints> = {};
+
+    sortedFlattenedPricePoints.forEach(item => {
+      let groupKey: string;
+
+      switch (pricePointGroupBy) {
+        case 'Currency':
+          groupKey = item.pricePoint.currencyCode;
+          break;
+        case 'Channel':
+          groupKey = item.channels.join(', ') || 'No Channel';
+          break;
+        case 'Billing Cycle':
+          groupKey = item.billingCycles.join(', ') || 'No Billing Cycle';
+          break;
+        case 'LIX Key':
+          groupKey = item.lix?.key || 'No LIX';
+          break;
+        case 'Validity':
+          groupKey = formatValidityRange(item.pricePoint.validFrom, item.pricePoint.validTo);
+          break;
+        case 'Status':
+          groupKey = item.pricePoint.status || 'No Status';
+          break;
+        default:
+          groupKey = 'Other';
+      }
+
+      if (!grouped[groupKey]) {
+        grouped[groupKey] = [];
+      }
+      grouped[groupKey].push(item);
+    });
+
+    return grouped;
+  }, [showPricePointView, sortedFlattenedPricePoints, pricePointGroupBy]);
+
+  // Keep all groups collapsed by default when groupedFlattenedPricePoints changes
+  useEffect(() => {
+    if (groupedFlattenedPricePoints) {
+      // Start with no expanded groups (all collapsed)
+      setExpandedPricePointGroups([]);
+    } else {
+      setExpandedPricePointGroups([]);
+    }
+  }, [groupedFlattenedPricePoints]);
+
+  const handlePricePointGroupToggle = (groupKey: string) => {
+    setExpandedPricePointGroups(prev => 
+      prev.includes(groupKey) 
+        ? prev.filter(key => key !== groupKey)
+        : [...prev, groupKey]
+    );
+  };
+
+  // Create data source with group headers for flattened price points table
+  const flattenedPricePointDataSource: FlattenedPricePointTableRow[] = useMemo(() => {
+    if (!showPricePointView) return [];
+
+    if (groupedFlattenedPricePoints) {
+      // Grouped data - create table rows with group headers
+      const result: FlattenedPricePointTableRow[] = [];
+      Object.entries(groupedFlattenedPricePoints).forEach(([groupTitle, points]) => {
+        result.push({
+          isGroupHeader: true,
+          key: `header-${groupTitle}`,
+          title: groupTitle,
+          count: points.length,
+          groupKey: groupTitle,
+        });
+        // Only add group items if the group is expanded
+        if (expandedPricePointGroups.includes(groupTitle)) {
+          result.push(...points);
+        }
+      });
+      return result;
+    } else {
+      // Non-grouped data - return sorted points directly
+      return sortedFlattenedPricePoints;
+    }
+  }, [showPricePointView, groupedFlattenedPricePoints, sortedFlattenedPricePoints, expandedPricePointGroups]);
+
+  // Define columns for flattened price points table
+  const flattenedPricePointColumns: ColumnsType<FlattenedPricePointTableRow> = [
+    {
+      title: 'Price Point ID', 
+      dataIndex: ['pricePoint', 'id'],
+      key: 'pricePointId',
+      fixed: 'left',
+      minWidth: 150,
+      render: (_: any, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <CopyableId id={record.pricePoint.id || ''} variant="prominent" />
+          </div>
+        );
+      },
+      className: 'table-col-first',
+    },
+    {
+      title: 'Currency',
+      dataIndex: ['pricePoint', 'currencyCode'],
+      key: 'currency',
+      render: (currencyCode: string, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        const currencyName = currencyNames[currencyCode];
+        return (
+          <Tooltip title={currencyName || currencyCode}>
+            <Typography.Text style={{ fontWeight: 500 }}>
+              {currencyCode}
+            </Typography.Text>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: 'Amount',
+      dataIndex: ['pricePoint', 'amount'],
+      key: 'amount',
+      render: (amount: number, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <Typography.Text style={{ 
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {amount.toFixed(2)}
+          </Typography.Text>
+        );
+      },
+    },
+    {
+      title: 'Channels',
+      dataIndex: 'channels',
+      key: 'channels',
+      render: (channels: SalesChannel[], record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <Space size="small">
+            {channels.map((channel) => (
+              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+            ))}
+          </Space>
+        );
+      },
+    },
+    {
+      title: 'Billing Cycles',
+      dataIndex: 'billingCycles',
+      key: 'billingCycles',
+      render: (billingCycles: BillingCycle[], record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        return (
+          <Space size="small">
+            {billingCycles.map((cycle) => (
+              <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
+            ))}
+          </Space>
+        );
+      },
+    },
+    {
+      title: 'LIX',
+      dataIndex: 'lix',
+      key: 'lix',
+      render: (lix: any, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        if (!lix) {
+          return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
+        }
+        
+        // Middle truncation for LIX key if it's longer than 24 characters
+        const truncateMiddle = (str: string, maxLength: number = 24) => {
+          if (str.length <= maxLength) return str;
+          const start = Math.ceil((maxLength - 3) / 2);
+          const end = Math.floor((maxLength - 3) / 2);
+          return `${str.slice(0, start)}...${str.slice(-end)}`;
+        };
+        
+        const truncatedKey = truncateMiddle(lix.key);
+        
+        const tooltipTitle = `LIX Key: ${lix.key}\nTreatment: ${lix.treatment}`;
+        
+        return (
+          <Tooltip title={tooltipTitle} placement="top">
+            <div style={{ cursor: 'help' }}>
+              <Typography.Text>{truncatedKey}</Typography.Text>
+              <Typography.Text style={{ color: token.colorTextSecondary }}> | </Typography.Text>
+              <Typography.Text style={{ color: token.colorTextSecondary }}>{lix.treatment}</Typography.Text>
+            </div>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: 'Validity',
+      key: 'validity',
+      render: (_: any, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        const validityText = formatValidityRange(record.pricePoint.validFrom, record.pricePoint.validTo);
+
+        return (
+          <Typography.Text style={{ color: token.colorTextSecondary }}>
+            {validityText}
+          </Typography.Text>
+        );
+      },
+    },
+    {
+      title: 'Status',
+      dataIndex: ['pricePoint', 'status'],
+      key: 'status',
+      render: (_: any, record: FlattenedPricePointTableRow) => {
+        if ('isGroupHeader' in record) return null;
+        return <PricePointStatusTag pricePoint={record.pricePoint} variant="small" />;
+      },
+    },
+  ];
 
   const clearAllSkuFilters = () => {
     setChannelFilters([]);
@@ -569,7 +1043,320 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // SKUs tab (moved to be second)
+    // New Prices tab
+    {
+      key: 'pricing',
+      label: 'Prices',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection 
+            title="Prices"
+            subtitle="A price is a set of price points, defined by a channel × billing cycle pairing"
+            hideDivider={true}
+          >
+            <FilterBar
+              useCustomFilters={true}
+              search={{
+                placeholder: showPricePointView 
+                  ? "Search by Currency, Price Point ID, or LIX Key..." 
+                  : "Search by Price ID or LIX Key...",
+                onChange: showPricePointView 
+                  ? setPricePointSearchQuery 
+                  : setPriceGroupSearchQuery,
+              }}
+              inlineActions={[
+                <div key="price-point-toggle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Checkbox
+                    checked={showPricePointView}
+                    onChange={(e: any) => setShowPricePointView(e.target.checked)}
+                  />
+                  <Typography.Text 
+                    style={{ 
+                      fontSize: '13px', 
+                      color: token.colorTextSecondary,
+                      fontWeight: 400 
+                    }}
+                  >
+                    Show all price points
+                  </Typography.Text>
+                </div>
+              ]}
+              filters={showPricePointView ? [
+                {
+                  placeholder: getFilterPlaceholder('validity'),
+                  options: pricePointFilterOptions.validityOptions,
+                  multiSelect: false,
+                  value: pricePointValidityFilter,
+                  onChange: (value: string | null) => {
+                    if (value) {
+                      setPricePointValidityFilter(value);
+                    } else {
+                      // Reset to channel-specific default when cleared
+                      const uniqueChannels = [...new Set(allFlattenedPricePoints.flatMap(item => item.channels))];
+                      const channelDefault = getDefaultValidityFilter(uniqueChannels);
+                      if (channelDefault === 'most-recent') {
+                        const newestPeriod = pricePointFilterOptions.validityOptions.find(opt => opt.value !== 'All periods')?.value;
+                        setPricePointValidityFilter(newestPeriod || 'All periods');
+                      } else {
+                        setPricePointValidityFilter('All periods');
+                      }
+                    }
+                  },
+                  disableSearch: true,
+                  // View selector behavior - validity is not a filter, it's a view mode
+                  excludeFromClearAll: true,
+                  hideClearButton: true,
+                  preventDeselection: true,
+                  // Required for TypeScript interface compatibility
+                  multiValue: [],
+                  onMultiChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('currency'),
+                  options: pricePointFilterOptions.currencyOptions,
+                  multiSelect: true,
+                  multiValue: pricePointCurrencyFilters,
+                  onMultiChange: (values: string[]) => setPricePointCurrencyFilters(values),
+                  disableSearch: true,
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('channel'),
+                  options: pricePointFilterOptions.channelOptions,
+                  multiSelect: true,
+                  multiValue: pricePointChannelFilters,
+                  onMultiChange: (values: string[]) => setPricePointChannelFilters(values as SalesChannel[]),
+                  disableSearch: true,
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('billingCycle'),
+                  options: pricePointFilterOptions.billingCycleOptions,
+                  value: pricePointBillingCycleFilter,
+                  onChange: setPricePointBillingCycleFilter,
+                  disableSearch: true,
+                },
+                {
+                  placeholder: getFilterPlaceholder('lix'),
+                  options: pricePointFilterOptions.lixOptions,
+                  value: pricePointLixFilter,
+                  onChange: setPricePointLixFilter,
+                },
+                {
+                  placeholder: getFilterPlaceholder('status'), 
+                  options: pricePointFilterOptions.statusOptions,
+                  value: pricePointStatusFilter,
+                  onChange: setPricePointStatusFilter,
+                  disableSearch: true,
+                },
+              ] : [
+                {
+                  placeholder: getFilterPlaceholder('channel'),
+                  options: priceGroupChannelOptions,
+                  multiSelect: true,
+                  multiValue: priceGroupChannelFilters,
+                  onMultiChange: (values: string[]) => setPriceGroupChannelFilters(values as SalesChannel[]),
+                  disableSearch: true,
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('billingCycle'),
+                  options: priceGroupBillingCycleOptions,
+                  value: priceGroupBillingCycleFilter,
+                  onChange: setPriceGroupBillingCycleFilter,
+                  disableSearch: true,
+                },
+                {
+                  placeholder: getFilterPlaceholder('lix'),
+                  options: priceGroupExperimentOptions,
+                  value: priceGroupExperimentFilter,
+                  onChange: setPriceGroupExperimentFilter,
+                  dropdownStyle: { minWidth: '320px' },
+                },
+                {
+                  placeholder: getFilterPlaceholder('status'),
+                  options: priceGroupStatusOptions,
+                  multiSelect: true,
+                  multiValue: priceGroupStatusFilters,
+                  onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
+                  disableSearch: true,
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+              ]}
+              onClearAll={showPricePointView 
+                ? clearAllPricePointFilters 
+                : clearAllPriceGroupFilters}
+              viewOptions={showPricePointView ? {
+                groupBy: {
+                  value: pricePointGroupBy,
+                  setter: setPricePointGroupBy,
+                  options: FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
+                },
+                sortOrder: {
+                  value: pricePointSortOrder,
+                  setter: setPricePointSortOrder,
+                  options: FLATTENED_PRICE_POINT_SORT_OPTIONS,
+                },
+                // TODO: Add column options for price point view later
+              } : {
+                groupBy: {
+                  value: priceGroupGroupBy,
+                  setter: setPriceGroupGroupBy,
+                  options: PRICE_GROUP_GROUP_BY_OPTIONS,
+                },
+                sortOrder: {
+                  value: priceGroupSortOrder,
+                  setter: setPriceGroupSortOrder,
+                  options: PRICE_GROUP_SORT_OPTIONS,
+                },
+                columnOptions: priceGroupColumnOptions,
+                visibleColumns: priceGroupVisibleColumns,
+                setVisibleColumns: setPriceGroupVisibleColumns,
+                columnOrder: priceGroupColumnOrder,
+                setColumnOrder: setPriceGroupColumnOrder,
+                defaultVisibleColumns: priceGroupDefaultVisibility,
+              }}
+              displayMode="inline"
+              rightActions={[
+                <Button 
+                  key="export"
+                  icon={<Download size={16} />}
+                  size="middle"
+                  onClick={() => {
+                    Modal.info({
+                      title: 'Export Price Groups',
+                      content: (
+                        <div>
+                          <p>This would export all price group data for <strong>{product?.name}</strong> to CSV format.</p>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+                            Includes: Price group IDs, names, channels, billing cycles, USD prices, currency counts, and validity periods.
+                          </p>
+                        </div>
+                      ),
+                      okText: 'Got it',
+                      width: 400,
+                    });
+                  }}
+                >
+                  Export
+                </Button>
+              ]}
+            />
+            {showPricePointView ? (
+              <div style={{ marginTop: '16px' }}>
+                <Table
+                  size="small"
+                  columns={flattenedPricePointColumns}
+                  dataSource={flattenedPricePointDataSource}
+                  rowKey={record => ('isGroupHeader' in record ? record.key : `${record.priceGroupId}-${record.pricePoint.id}`)}
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                  rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
+                  components={{
+                    body: {
+                      row: (props: any) => {
+                        if (props.children[0]?.props?.record?.isGroupHeader) {
+                          const { title, count, groupKey } = props.children[0].props.record;
+                          const isExpanded = expandedPricePointGroups.includes(groupKey);
+                          return (
+                            <tr {...props} className="ant-table-row-group-header">
+                              <td colSpan={flattenedPricePointColumns.length} style={{ padding: '12px 16px', backgroundColor: '#fafafa' }}>
+                                <GroupHeader 
+                                  title={title}
+                                  count={count}
+                                  contextType="price points"
+                                  isExpanded={isExpanded}
+                                  onToggle={() => handlePricePointGroupToggle(groupKey)}
+                                  isExpandable={true}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        }
+                        return <tr {...props} />;
+                      },
+                    },
+                  }}
+                />
+              </div>
+            ) : (
+              <PriceGroupTable 
+                priceGroups={filteredPriceGroups} 
+                groupedPriceGroups={groupedPriceGroups}
+                productId={product.id}
+                visibleColumns={priceGroupVisibleColumns}
+                columnOrder={priceGroupColumnOrder}
+                currentTab={currentTab}
+              />
+            )}
+          </PageSection>
+        </Space>
+      ),
+    },
+    // Settings tab
+    {
+      key: 'configurations',
+      label: 'Settings',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* Business Rules Section */}
+          <PageSection title={toSentenceCase('Business Rules')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Visibility Controls Section */}
+          <PageSection title={toSentenceCase('Visibility Controls')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true, token)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Links & Resources Section */}
+          <PageSection title={toSentenceCase('Links & Resources')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                  {product.postPurchaseLandingUrl}
+                </a>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+        </Space>
+      ),
+    },
+    // SKUs tab (moved to be last)
     {
       key: 'skus',
       label: (
@@ -670,439 +1457,6 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // New Pricing tab
-    {
-      key: 'pricing',
-      label: 'Pricing',
-      children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection 
-            title="Price groups"
-            subtitle="A price group is a collection of price points for a specific channel and billing cycle"
-            inlineContent={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Checkbox
-                  checked={showPricePointView}
-                  onChange={(e: any) => setShowPricePointView(e.target.checked)}
-                />
-                <Typography.Text 
-                  style={{ 
-                    fontSize: '13px', 
-                    color: token.colorTextSecondary,
-                    fontWeight: 400 
-                  }}
-                >
-                  Show price points across all groups
-                </Typography.Text>
-              </div>
-            }
-            hideDivider={true}
-          >
-            <FilterBar
-              useCustomFilters={true}
-              search={{
-                placeholder: showPricePointView 
-                  ? "Search by Currency or Price Point ID..." 
-                  : "Search by price ID...",
-                onChange: showPricePointView 
-                  ? setPricePointSearchQuery 
-                  : setPriceGroupSearchQuery,
-              }}
-              filters={showPricePointView ? [
-                {
-                  placeholder: getFilterPlaceholder('currency'),
-                  options: pricePointFilterOptions.currencyOptions,
-                  value: pricePointCurrencyFilter,
-                  onChange: setPricePointCurrencyFilter,
-                },
-                {
-                  placeholder: getFilterPlaceholder('status'), 
-                  options: pricePointFilterOptions.statusOptions,
-                  value: pricePointStatusFilter,
-                  onChange: setPricePointStatusFilter,
-                  disableSearch: true,
-                },
-                {
-                  placeholder: getFilterPlaceholder('channel'),
-                  options: pricePointFilterOptions.channelOptions,
-                  multiSelect: true,
-                  multiValue: pricePointChannelFilters,
-                  onMultiChange: (values: string[]) => setPricePointChannelFilters(values as SalesChannel[]),
-                  disableSearch: true,
-                  // Required for TypeScript interface compatibility
-                  value: null,
-                  onChange: () => {},
-                },
-                {
-                  placeholder: getFilterPlaceholder('billingCycle'),
-                  options: pricePointFilterOptions.billingCycleOptions,
-                  value: pricePointBillingCycleFilter,
-                  onChange: setPricePointBillingCycleFilter,
-                  disableSearch: true,
-                },
-              ] : [
-                {
-                  placeholder: getFilterPlaceholder('channel'),
-                  options: priceGroupChannelOptions,
-                  multiSelect: true,
-                  multiValue: priceGroupChannelFilters,
-                  onMultiChange: (values: string[]) => setPriceGroupChannelFilters(values as SalesChannel[]),
-                  disableSearch: true,
-                  // Required for TypeScript interface compatibility
-                  value: null,
-                  onChange: () => {},
-                },
-                {
-                  placeholder: getFilterPlaceholder('billingCycle'),
-                  options: priceGroupBillingCycleOptions,
-                  value: priceGroupBillingCycleFilter,
-                  onChange: setPriceGroupBillingCycleFilter,
-                  disableSearch: true,
-                },
-                {
-                  placeholder: getFilterPlaceholder('lix'),
-                  options: priceGroupExperimentOptions,
-                  value: priceGroupExperimentFilter,
-                  onChange: setPriceGroupExperimentFilter,
-                  dropdownStyle: { minWidth: '320px' },
-                },
-                {
-                  placeholder: getFilterPlaceholder('status'),
-                  options: priceGroupStatusOptions,
-                  multiSelect: true,
-                  multiValue: priceGroupStatusFilters,
-                  onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
-                  disableSearch: true,
-                  // Required for TypeScript interface compatibility
-                  value: null,
-                  onChange: () => {},
-                },
-              ]}
-              onClearAll={showPricePointView 
-                ? clearAllPricePointFilters 
-                : clearAllPriceGroupFilters}
-              viewOptions={showPricePointView ? {
-                // TODO: Enable groupBy once grouping display is implemented
-                // groupBy: {
-                //   value: pricePointGroupBy,
-                //   setter: setPricePointGroupBy,
-                //   options: PRICE_POINT_GROUP_BY_OPTIONS,
-                // },
-                sortOrder: {
-                  value: pricePointSortOrder,
-                  setter: setPricePointSortOrder,
-                  options: PRICE_POINT_SORT_OPTIONS,
-                },
-                // TODO: Add column options for price point view later
-              } : {
-                groupBy: {
-                  value: priceGroupGroupBy,
-                  setter: setPriceGroupGroupBy,
-                  options: PRICE_GROUP_GROUP_BY_OPTIONS,
-                },
-                sortOrder: {
-                  value: priceGroupSortOrder,
-                  setter: setPriceGroupSortOrder,
-                  options: PRICE_GROUP_SORT_OPTIONS,
-                },
-                columnOptions: priceGroupColumnOptions,
-                visibleColumns: priceGroupVisibleColumns,
-                setVisibleColumns: setPriceGroupVisibleColumns,
-                columnOrder: priceGroupColumnOrder,
-                setColumnOrder: setPriceGroupColumnOrder,
-                defaultVisibleColumns: priceGroupDefaultVisibility,
-              }}
-              displayMode="inline"
-              rightActions={[
-                <Button 
-                  key="export"
-                  icon={<Download size={16} />}
-                  size="middle"
-                  onClick={() => {
-                    Modal.info({
-                      title: 'Export Price Groups',
-                      content: (
-                        <div>
-                          <p>This would export all price group data for <strong>{product?.name}</strong> to CSV format.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                            Includes: Price group IDs, names, channels, billing cycles, USD prices, currency counts, and validity periods.
-                          </p>
-                        </div>
-                      ),
-                      okText: 'Got it',
-                      width: 400,
-                    });
-                  }}
-                >
-                  Export
-                </Button>
-              ]}
-            />
-            {showPricePointView ? (
-              <div style={{ marginTop: '16px' }}>
-                <Table
-                  size="small"
-                  dataSource={sortedFlattenedPricePoints}
-                  rowKey={record => `${record.priceGroupId}-${record.pricePoint.id}`}
-                  columns={[
-                    {
-                      title: 'Price Point ID', 
-                      dataIndex: ['pricePoint', 'id'],
-                      key: 'pricePointId',
-                      width: 150,
-                      render: (_: any, record: any) => (
-                        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                          <CopyableId id={record.pricePoint.id} variant="prominent" />
-                        </div>
-                      ),
-                    },
-                    {
-                      title: 'Currency',
-                      dataIndex: ['pricePoint', 'currencyCode'],
-                      key: 'currency',
-                      width: 100,
-                      render: (currencyCode: string) => (
-                        <Typography.Text style={{ fontWeight: 500 }}>
-                          {currencyCode}
-                        </Typography.Text>
-                      ),
-                    },
-                    {
-                      title: 'Amount',
-                      dataIndex: ['pricePoint', 'amount'],
-                      key: 'amount',
-                      width: 120,
-                      render: (amount: number) => (
-                        <Typography.Text>
-                          {amount.toFixed(2)}
-                        </Typography.Text>
-                      ),
-                    },
-                    {
-                      title: 'Channels',
-                      dataIndex: 'channels',
-                      key: 'channels',
-                      width: 200,
-                      render: (channels: SalesChannel[]) => (
-                        <Space size="small">
-                          {channels.map((channel) => (
-                            <SalesChannelDisplay key={channel} channel={channel} variant="small" />
-                          ))}
-                        </Space>
-                      ),
-                    },
-                    {
-                      title: 'Billing Cycles',
-                      dataIndex: 'billingCycles',
-                      key: 'billingCycles',
-                      width: 180,
-                      render: (billingCycles: BillingCycle[]) => (
-                        <Space size="small">
-                          {billingCycles.map((cycle) => (
-                            <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
-                          ))}
-                        </Space>
-                      ),
-                    },
-                    {
-                      title: 'LIX',
-                      dataIndex: 'lix',
-                      key: 'lix',
-                      width: 150,
-                      render: (lix: any) => {
-                        if (!lix) {
-                          return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
-                        }
-                        
-                        return (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-                            <Typography.Text>
-                              {lix.key}
-                            </Typography.Text>
-                            <Typography.Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
-                              {lix.treatment}
-                            </Typography.Text>
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      title: 'Validity',
-                      key: 'validity',
-                      width: 180,
-                      render: (_: any, record: any) => {
-                        const validFrom = record.pricePoint.validFrom;
-                        const validTo = record.pricePoint.validTo;
-                        
-                        if (!validFrom && !validTo) {
-                          return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
-                        }
-                        
-                        const formatDate = (dateString: string) => {
-                          if (!dateString) return '';
-                          return new Date(dateString).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          });
-                        };
-                        
-                        if (!validTo) {
-                          return (
-                            <Typography.Text style={{ color: token.colorTextSecondary }}>
-                              From {formatDate(validFrom)}
-                            </Typography.Text>
-                          );
-                        }
-                        
-                        if (!validFrom) {
-                          return (
-                            <Typography.Text style={{ color: token.colorTextSecondary }}>
-                              Until {formatDate(validTo)}
-                            </Typography.Text>
-                          );
-                        }
-                        
-                        return (
-                          <Typography.Text style={{ color: token.colorTextSecondary }}>
-                            {formatDate(validFrom)} - {formatDate(validTo)}
-                          </Typography.Text>
-                        );
-                      },
-                    },
-                    {
-                      title: 'Status',
-                      dataIndex: ['pricePoint', 'status'],
-                      key: 'status',
-                      width: 100,
-                      render: (_: any, record: any) => (
-                        <PricePointStatusTag pricePoint={record.pricePoint} variant="small" />
-                      ),
-                    },
-                  ]}
-                  pagination={false}
-                  scroll={{ x: 'max-content' }}
-                />
-              </div>
-            ) : (
-              <PriceGroupTable 
-                priceGroups={filteredPriceGroups} 
-                groupedPriceGroups={groupedPriceGroups}
-                productId={product.id}
-                visibleColumns={priceGroupVisibleColumns}
-                columnOrder={priceGroupColumnOrder}
-                currentTab={currentTab}
-              />
-            )}
-          </PageSection>
-        </Space>
-      ),
-    },
-    {
-      key: 'features',
-      label: (
-        <span>
-          Features <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
-        </span>
-      ),
-      children: (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {!featuresAlertDismissed && (
-            <Alert
-              message="Note from Charles - WIP exploration only, don't build"
-              type="warning"
-              showIcon
-              closable
-              onClose={() => setFeaturesAlertDismissed(true)}
-            />
-          )}
-          <PageSection title={toSentenceCase('Features')}>
-            {product.features && product.features.length > 0 ? (
-              <Table
-                columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                dataSource={product.features.map((feature, idx) => ({ key: idx, feature }))}
-                pagination={false}
-                size="small"
-                rowKey="key"
-                showHeader={false}
-                style={{ marginTop: '-16px' }}
-              />
-            ) : (
-              <span style={{ color: token.colorTextTertiary }}>No features listed for this product.</span>
-            )}
-          </PageSection>
-        </Space>
-      ),
-    },
-    // Settings tab
-    {
-      key: 'configurations',
-      label: 'Settings',
-      children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          {/* Business Rules Section */}
-          <PageSection title={toSentenceCase('Business Rules')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          
-          {/* Visibility Controls Section */}
-          <PageSection title={toSentenceCase('Visibility Controls')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true, token)}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          
-          {/* Links & Resources Section */}
-          <PageSection title={toSentenceCase('Links & Resources')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
-                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
-                  {product.postPurchaseLandingUrl}
-                </a>
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-        </Space>
-      ),
-    },
-    {
-      key: 'activity',
-      label: (
-        <span>
-          Activity <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
-        </span>
-      ),
-      children: (
-        <div style={{ padding: 32, textAlign: 'center' }}>
-          <h1>Activity</h1>
-          <p>This is a placeholder for the Activity page, to show what currently exists in go/pcc.</p>
-        </div>
-      ),
-    },
   ];
 
   // Mock translation data
@@ -1176,7 +1530,14 @@ const ProductDetail: React.FC = () => {
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         entityType="Product"
-        title={product.name}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>{product.name}</span>
+            {product.isBundle && (
+              <Tag>Bundle</Tag>
+            )}
+          </div>
+        }
         tagContent={<StatusTag status={product.status} variant="small" />}
         rightAlignedId={product.id}
         compact

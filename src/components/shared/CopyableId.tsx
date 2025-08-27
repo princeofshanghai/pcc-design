@@ -23,12 +23,15 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
                 <CheckCircle size={16} color="#52c41a" />
                 <span>Copied to clipboard</span>
               </div>
-              <div style={{ 
-                color: '#bfbfbf', 
-                fontSize: token.fontSizeSM, 
-                marginTop: '4px', 
-                marginLeft: '24px' // Align with text above (icon width + gap)
-              }}>
+              <div 
+                className="tabular-nums"
+                style={{ 
+                  color: '#bfbfbf', 
+                  fontSize: token.fontSizeSM, 
+                  marginTop: '4px', 
+                  marginLeft: '24px' // Align with text above (icon width + gap)
+                }}
+              >
                 {id}
               </div>
             </div>
@@ -51,23 +54,26 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
     
     if (variant === 'prominent') {
       return {
-        fontFamily: token.fontFamilyCode,
+        fontFamily: token.fontFamily, // Use main font family instead of code font
         fontSize: token.fontSize,
         color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
+        fontVariantNumeric: 'tabular-nums',
       };
     }
     
     // Default variant
     return {
-      fontFamily: token.fontFamilyCode,
+      fontFamily: token.fontFamily, // Use main font family instead of code font
       fontSize: token.fontSize,
       color: muted ? mutedColor : token.colorTextSecondary,
+      fontVariantNumeric: 'tabular-nums',
     };
   };
 
   return (
     <span
+      className="copyable-id-container"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -75,7 +81,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
         ...getTextStyles(),
       }}
     >
-      <span>{id}</span>
+      <span className="copyable-id-text">{id}</span>
       <Copy 
         size={12} 
         strokeWidth={3}

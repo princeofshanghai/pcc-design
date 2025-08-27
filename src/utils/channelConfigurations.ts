@@ -25,7 +25,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
     defaultColumnVisibility: {
       id: true,
       currency: true,
-      currencyType: true, // Category
+      currencyType: false, // Category
       amount: true,
       usdEquivalent: true,
       validity: true,
@@ -39,8 +39,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       'None',
       'Validity', 
       'Currency',
-      'Category',
-      'Region'
+      'Category'
     ],
     showUsdEquivalent: true,
   },
@@ -50,9 +49,9 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
     defaultColumnVisibility: {
       id: true,
       currency: true,
-      currencyType: true, // Category
+      currencyType: false, // Category
       amount: true,
-      usdEquivalent: false, // Desktop users may care less about USD equivalent
+      usdEquivalent: true,
       validity: true,
       status: true,
       pricingRule: false,
@@ -66,7 +65,6 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       'Currency', 
       'Category',
       'Status',
-      'Region',
       'Pricing rule',
       'Price type'
     ],
@@ -78,9 +76,9 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
     defaultColumnVisibility: {
       id: true,
       currency: true,
-      currencyType: true,
+      currencyType: false,
       amount: true,
-      usdEquivalent: false,
+      usdEquivalent: true,
       validity: true,
       status: true,
       pricingRule: false,
@@ -92,8 +90,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       'None',
       'Validity',
       'Currency',
-      'Category',
-      'Region'
+      'Category'
     ],
     showUsdEquivalent: false,
   },
@@ -103,9 +100,9 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
     defaultColumnVisibility: {
       id: true,
       currency: true,
-      currencyType: true,
+      currencyType: false,
       amount: true,
-      usdEquivalent: false,
+      usdEquivalent: true,
       validity: true,
       status: true,
       pricingRule: false,
@@ -117,8 +114,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       'None',
       'Validity',
       'Currency',
-      'Category', 
-      'Region'
+      'Category'
     ],
     showUsdEquivalent: false,
   },
@@ -130,7 +126,7 @@ export const DEFAULT_CHANNEL_CONFIG: ChannelConfig = {
   defaultColumnVisibility: {
     id: true,
     currency: true,
-    currencyType: true,
+    currencyType: false,
     amount: true,
     usdEquivalent: true,
     validity: true,

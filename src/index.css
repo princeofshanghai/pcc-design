@@ -9,6 +9,34 @@
   --detail-page-tab-content-offset: 0px; /* Will be calculated based on actual tab positioning */
 }
 
+/* Tabular Numbers Utility - ensures consistent digit width */
+.tabular-nums,
+.ant-typography code,
+.copyable-id-text,
+.copyable-id-container,
+.copyable-id-container span,
+.copyable-id-container * {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+/* Force tabular numbers on all ID-like content */
+[class*="copyable"] span,
+[class*="copyable"],
+.ant-typography a,
+.ant-typography-link {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+/* Specifically target numeric content that looks like IDs */
+a[href*="price-group"],
+a[href*="/product/"],
+a[href*="/sku/"] {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
 
 
 .table-col-first {

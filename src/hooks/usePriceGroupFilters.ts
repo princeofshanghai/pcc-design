@@ -97,12 +97,23 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
   const filteredPriceGroups = useMemo(() => {
     let filtered = Object.values(priceGroupMap);
 
-    // Search filter
+    // Search filter - search by price group ID and LIX key/treatment
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
-      filtered = filtered.filter((group: { priceGroup: any; skus: any[] }) => 
-        (group.priceGroup.id || '').toLowerCase().includes(lowercasedQuery)
-      );
+      filtered = filtered.filter((group: { priceGroup: any; skus: any[] }) => {
+        // Search in price group ID
+        const matchesId = (group.priceGroup.id || '').toLowerCase().includes(lowercasedQuery);
+        
+        // Search in LIX keys and treatments from associated SKUs
+        const matchesLix = group.skus.some((sku: any) => {
+          if (!sku.lix) return false;
+          const lixKey = (sku.lix.key || '').toLowerCase();
+          const lixTreatment = (sku.lix.treatment || '').toLowerCase();
+          return lixKey.includes(lowercasedQuery) || lixTreatment.includes(lowercasedQuery);
+        });
+        
+        return matchesId || matchesLix;
+      });
     }
 
     // Channel filter - use multiselect if active, otherwise single-select
@@ -346,12 +357,11 @@ export const usePriceGroupFilters = (initialSkus: Sku[]) => {
       let groupKey: string;
       
       if (groupBy === 'Channel') {
-        // Group by the primary channel (most common channel in the group)
-        const channelCounts = group.skus.reduce((acc: Record<string, number>, sku: any) => {
-          acc[sku.salesChannel] = (acc[sku.salesChannel] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-        groupKey = Object.entries(channelCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0];
+        // Group by the complete unique channel combination
+        const uniqueChannels = [...new Set(group.skus.map((sku: any) => sku.salesChannel))]
+          .map(channel => channel.toLowerCase() === 'ios' ? 'iOS' : channel)
+          .sort((a, b) => a.localeCompare(b));
+        groupKey = uniqueChannels.join(', ');
       } else if (groupBy === 'Billing Cycle') {
         // Group by the primary billing cycle
         const cycleCounts = group.skus.reduce((acc: Record<string, number>, sku: any) => {

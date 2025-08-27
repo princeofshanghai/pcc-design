@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography, Dropdown, Button, Modal, theme } from 'antd';
+import { Table, Space, Typography, Dropdown, Button, Modal, Tooltip, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -143,16 +143,33 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           displayPrice = sortedActive[0];
         }
         
-        // Calculate additional active currencies (total active - 1 displayed)
-        const additionalActiveCurrencies = activePricePoints.length - 1;
+        // Calculate additional active price points (total active - 1 displayed)
+        const additionalActivePricePoints = activePricePoints.length - 1;
+        
+        // Format currency with tabular-nums only for the numeric part
+        const formatPriceWithTabularNums = (pricePoint: any) => {
+          const zeroDecimalCurrencies = new Set([
+            'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
+            'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
+          ]);
+          
+          const amount = zeroDecimalCurrencies.has(pricePoint.currencyCode) 
+            ? Math.round(pricePoint.amount) 
+            : pricePoint.amount.toFixed(2);
+          
+          return (
+            <span>
+              {pricePoint.currencyCode}{' '}
+              <span style={{ fontVariantNumeric: 'tabular-nums' }}>{amount}</span>
+            </span>
+          );
+        };
         
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-            <div>{formatCurrency(displayPrice)}</div>
-            {additionalActiveCurrencies > 0 && (
-              <Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
-                +{additionalActiveCurrencies} active currenc{additionalActiveCurrencies !== 1 ? 'ies' : 'y'}
-              </Text>
+          <div>
+            {formatPriceWithTabularNums(displayPrice)}
+            {additionalActivePricePoints > 0 && (
+              <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
             )}
           </div>
         );
@@ -173,15 +190,26 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           return <Text style={{ color: token.colorTextSecondary }}>-</Text>;
         }
         
+        // Middle truncation for LIX key if it's longer than 24 characters
+        const truncateMiddle = (str: string, maxLength: number = 24) => {
+          if (str.length <= maxLength) return str;
+          const start = Math.ceil((maxLength - 3) / 2);
+          const end = Math.floor((maxLength - 3) / 2);
+          return `${str.slice(0, start)}...${str.slice(-end)}`;
+        };
+        
+        const truncatedKey = truncateMiddle(skuWithLix.lix.key);
+        
+        const tooltipTitle = `LIX Key: ${skuWithLix.lix.key}\nTreatment: ${skuWithLix.lix.treatment}`;
+        
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-            <Text>
-              {skuWithLix.lix.key}
-            </Text>
-            <Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }}>
-              {skuWithLix.lix.treatment}
-            </Text>
-          </div>
+          <Tooltip title={tooltipTitle} placement="top">
+            <div style={{ cursor: 'pointer' }}>
+              <Text>{truncatedKey}</Text>
+              <Text style={{ color: token.colorTextSecondary }}> | </Text>
+              <Text style={{ color: token.colorTextSecondary }}>{skuWithLix.lix.treatment}</Text>
+            </div>
+          </Tooltip>
         );
       },
     } : null,

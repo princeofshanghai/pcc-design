@@ -599,7 +599,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Text>
+          <Text style={{ 
+            fontVariantNumeric: 'tabular-nums',
+          }}>
             {formatAmount(record)}
           </Text>
         );
@@ -684,7 +686,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const rangeText = formatQuantityRange(record);
         return (
           <Tooltip title={getQuantityRangeTooltip(record)}>
-            <Text>
+            <Text style={{ 
+              fontVariantNumeric: 'tabular-nums',
+            }}>
               {rangeText}
             </Text>
           </Tooltip>
@@ -774,7 +778,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       },
     } : null,
     usdEquivalent: showUsdEquivalent ? {
-      title: getColumnTitleWithTooltip('USD equivalent', 'How much this amount is worth in USD, relative to the USD price'),
+      title: getColumnTitleWithTooltip('USD equivalent', 'How much this amount is worth in USD, relative to the USD price. Calculated hourly.'),
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
@@ -785,7 +789,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           <Text style={{ 
             color: percentage === null 
               ? token.colorTextTertiary 
-              : (percentage === 100 ? token.colorTextSecondary : token.colorText)
+              : (percentage === 100 ? token.colorTextSecondary : token.colorText),
+            fontVariantNumeric: 'tabular-nums',
           }}>
             {formattedValue}
           </Text>

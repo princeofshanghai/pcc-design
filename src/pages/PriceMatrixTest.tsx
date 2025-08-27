@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Space, Card, Row, Col, theme, Tabs } from 'antd';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
@@ -7,7 +7,6 @@ import {
   PageHeader,
   FilterBar,
 } from '../components';
-import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 import PricePointMatrix from '../components/pricing/PricePointMatrix';
 import VolumeDiscountChart from '../components/pricing/VolumeDiscountChart';
 import { 
@@ -25,7 +24,7 @@ const createMockPricingTierData = (originalPricePoints: any[]) => {
   const demoPoints = originalPricePoints.filter(p => ['USD', 'EUR'].includes(p.currencyCode));
   
   demoPoints.forEach((originalPoint) => {
-    pricingTiers.forEach((tier, index) => {
+    pricingTiers.forEach((tier) => {
       // Create variation in prices based on tier
       const priceMultiplier = {
         'STFF': 0.7,      // Staff discount
@@ -56,7 +55,7 @@ const PriceMatrixTest: React.FC = () => {
   const productId = "130200";
   const priceGroupId = "1602004";
   
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -80,9 +79,9 @@ const PriceMatrixTest: React.FC = () => {
   }, []);
   
   // Find SKUs with the specific price group
-  const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
+  const skusWithPriceGroup = product?.skus?.filter((sku: any) => sku.priceGroup.id === priceGroupId) || [];
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;
-  const uniqueChannels = [...new Set(skusWithPriceGroup.map(sku => sku.salesChannel))];
+  const uniqueChannels = [...new Set(skusWithPriceGroup.map((sku: any) => sku.salesChannel))];
 
   // Use the same filtering logic as PriceGroupDetail
   const {
@@ -91,21 +90,14 @@ const PriceMatrixTest: React.FC = () => {
     setCurrencyFilters,
     statusFilters,
     setStatusFilters,
-    categoryFilters,
     setCategoryFilters,
     validityFilter,
     setValidityFilter,
     currencyOptions,
     statusOptions,
-    categoryOptions,
     validityOptions,
-    sortOrder: pricePointSortOrder,
-    setSortOrder: setPricePointSortOrder,
-    groupBy: pricePointGroupBy,
-    setGroupBy: setPricePointGroupBy,
     filteredPricePoints,
-    groupedPricePoints: groupedPricePointsData,
-  } = usePricePointFilters(priceGroup?.pricePoints || [], uniqueChannels);
+  } = usePricePointFilters(priceGroup?.pricePoints || [], uniqueChannels as string[]);
 
 
 
@@ -113,7 +105,6 @@ const PriceMatrixTest: React.FC = () => {
     setPricePointSearchQuery('');
     setCurrencyFilters([]);
     setStatusFilters([]);
-    setCategoryFilters([]);
   };
 
   if (isLoading) {

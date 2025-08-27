@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import type { PricePoint } from '../utils/types';
 import { formatValidityRange } from '../utils/formatters';
-import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 
 export const useFieldPricingFilters = (initialPricePoints: PricePoint[]) => {
   console.log('🎛️ useFieldPricingFilters - Starting with:', initialPricePoints?.length || 0, 'price points');

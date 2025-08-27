@@ -83,7 +83,6 @@ const Home: React.FC = () => {
     name: true,     // Always visible (required)
     folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     channel: true,  // Toggleable
-    skus: true,     // Toggleable
     status: true,   // Toggleable
   });
 
@@ -93,7 +92,6 @@ const Home: React.FC = () => {
     'name',
     'folder',
     'channel',
-    'skus',
     'status'
   ]);
 
@@ -104,7 +102,6 @@ const Home: React.FC = () => {
     // Only show folder as toggleable when viewing all products
     ...(currentFolder ? [] : [{ key: 'folder', label: 'Folder', required: false }]),
     { key: 'channel', label: 'Channel', required: false },
-    { key: 'skus', label: 'SKUs', required: false },
     { key: 'status', label: 'Status', required: false },
   ];
 

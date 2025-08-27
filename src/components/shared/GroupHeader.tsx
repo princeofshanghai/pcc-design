@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, theme } from 'antd';
 import { ChevronRight, ChevronDown } from 'lucide-react';
-import { toSentenceCase } from '../../utils/formatters';
+import { formatGroupHeader } from '../../utils/formatters';
 
 const { Text } = Typography;
 
@@ -24,7 +24,7 @@ const GroupHeader: React.FC<GroupHeaderProps> = ({
   const { token } = theme.useToken();
 
   // Format the title - show only the value, not the attribute name
-  const displayTitle = toSentenceCase(title);
+  const displayTitle = formatGroupHeader(title);
 
   const handleClick = () => {
     if (isExpandable && onToggle) {

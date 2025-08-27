@@ -5,6 +5,7 @@ import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS, DEFAULT_PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
+import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
@@ -110,7 +111,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       },
     } : null,
     price: visibleColumns.price === true ? {
-      title: getColumnLabel('price'),
+      title: getColumnTitleWithTooltip(getColumnLabel('price'), 'The default price before any discounts or offers are applied.'),
       dataIndex: 'price',
       key: 'price',
       render: (_: any, record: any) => {

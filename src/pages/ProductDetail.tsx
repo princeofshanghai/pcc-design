@@ -938,7 +938,7 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title={toSentenceCase('General')}
+            title={toSentenceCase('Name and description')}
             actions={
               <Space size="small">
                 <Button 
@@ -961,18 +961,8 @@ const ProductDetail: React.FC = () => {
             }
           >
             <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Public name" tooltip="Appears to customers and internal LinkedIn employees in invoices, admin center, help center, chooser, checkout, solution builder, and order forms.">{product.name}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Public description" tooltip="Appears to customers and internal LinkedIn employees in invoices, admin center, help center, chooser, checkout, solution builder, and order forms.">{product.description}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelDisplay model={product.billingModel} variant="small" />
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
-              {product.code && (
-                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
-              )}
-              {product.family && (
-                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
-              )}
+              <AttributeDisplay layout="horizontal" label="Public name" tooltip="Visible to customers and employees on contracts and invoices">{product.name}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Public description" tooltip="Visible to customers and employees on contracts and invoices">{product.description}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
 
@@ -1051,7 +1041,7 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
             title="Prices"
-            subtitle="A price is a set of price points, defined by a channel × billing cycle pairing"
+            subtitle="A price is a grouping of price points defined by a channel x billing cycle pairing, and can be part of the same LIX experiment."
             hideDivider={true}
           >
             <FilterBar
@@ -1301,12 +1291,28 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // Settings tab
+    // Attributes tab
     {
       key: 'configurations',
-      label: 'Settings',
+      label: 'Attributes',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* General Section */}
+          <PageSection title={toSentenceCase('General')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelDisplay model={product.billingModel} variant="small" />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
+              {product.code && (
+                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
+              )}
+              {product.family && (
+                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
+              )}
+            </AttributeGroup>
+          </PageSection>
+          
           {/* Business Rules Section */}
           <PageSection title={toSentenceCase('Business Rules')}>
             <AttributeGroup>

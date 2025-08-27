@@ -7,7 +7,7 @@ import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
 import { folderStructure, mockProducts } from '../../utils/mock-data';
-import { toSentenceCase, toTitleCase } from '../../utils/formatters/text';
+import { formatGroupHeader, toTitleCase } from '../../utils/formatters/text';
 
 const { Sider, Header, Content } = Layout;
 
@@ -66,7 +66,7 @@ const generateMenuStructure = () => {
           })
           .map(([lob, folders]) => ({
             key: lob.toLowerCase(),
-            label: toSentenceCase(lob),
+            label: formatGroupHeader(lob),
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>

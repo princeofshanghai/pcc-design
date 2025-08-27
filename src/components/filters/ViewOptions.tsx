@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
 import { Settings2, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
-import { toSentenceCase } from '../../utils/formatters';
+import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { CUSTOM_COLORS } from '../../theme';
 
@@ -338,7 +338,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               >
                 {sortedGroupByOptions.map(option => (
                   <Select.Option key={option} value={option}>
-                    {toSentenceCase(option)}
+                    {formatGroupHeader(option)}
                   </Select.Option>
                 ))}
               </Select>
@@ -389,7 +389,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
                 >
                   {transformedSortOptions.fields.map(field => (
                     <Select.Option key={field} value={field}>
-                      {toSentenceCase(field)}
+                      {formatGroupHeader(field)}
                     </Select.Option>
                   ))}
                 </Select>
@@ -506,7 +506,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               disabled={!isViewActive}
               style={{ 
                 padding: 0,
-                color: token.colorPrimary
+                // Only apply primary color when enabled, let Ant Design handle disabled styling
+                ...(isViewActive ? { color: token.colorPrimary } : {})
               }}
             >
               {toSentenceCase('Reset to default')}

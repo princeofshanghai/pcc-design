@@ -2,7 +2,7 @@ import React from 'react';
 import { Collapse, Typography, theme } from 'antd';
 import type { Product } from '../../utils/types';
 import ProductListItem from './ProductListItem';
-import { toSentenceCase } from '../../utils/formatters';
+import { formatGroupHeader } from '../../utils/formatters';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -26,7 +26,7 @@ const GroupedProductList: React.FC<GroupedProductListProps> = ({ groupedProducts
                 display: 'block',
                 lineHeight: 1.2
               }}>
-                {toSentenceCase(groupName)}
+                {formatGroupHeader(groupName)}
               </Text>
               <Text 
                 type="secondary" 

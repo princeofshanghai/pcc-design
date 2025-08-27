@@ -146,10 +146,10 @@ export function toSentenceCase(str: string): string {
  * - Special LinkedIn exceptions: "products" and "other" stay lowercase (except when first)
  * 
  * Examples:
- * - "premium core products" → "Premium Core Products"
- * - "all LTS products" → "All LTS Products"  
+ * - "premium core products" → "Premium Core products"
+ * - "all LTS products" → "All LTS products"  
  * - "sales navigator advanced" → "Sales Navigator Advanced"
- * - "all other products" → "All Other Products"
+ * - "all other products" → "All other products"
  * 
  * @param str - The string to convert to title case
  * @returns The formatted string with proper title casing for product/folder names
@@ -205,4 +205,28 @@ export function toTitleCase(str: string): string {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
+}
+
+/**
+ * Formats group header titles with proper casing for display in tables and dropdowns.
+ * This is specifically for group by headers and grouped table sections.
+ * 
+ * FORMATTING RULES:
+ * - Uses title case as the base (most words capitalized)
+ * - Preserves special casing for "iOS", currencies (all caps), acronyms
+ * - Keeps small words like "products" and "other" lowercase (unless first word)
+ * - Ensures consistency across all grouped displays in the application
+ * 
+ * Examples:
+ * - "premium company page" → "Premium Company Page"
+ * - "all LMS products" → "All LMS products"
+ * - "iOS" → "iOS"
+ * - "USD" → "USD"
+ * - "all other products" → "All other products"
+ * 
+ * @param str - The string to format as a group header
+ * @returns The formatted string suitable for group header display
+ */
+export function formatGroupHeader(str: string): string {
+  return toTitleCase(str);
 } 

@@ -3,6 +3,7 @@ import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { getProductListTableColumns } from './ProductListTable';
+import { DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -23,7 +24,7 @@ type TableRow = Product | {
 const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ 
   groupedProducts, 
   visibleColumns = {},
-  columnOrder = ['id', 'name', 'folder', 'channel', 'skus', 'status']
+  columnOrder = DEFAULT_PRODUCT_COLUMNS
 }) => {
   const navigate = useNavigate();
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;

@@ -24,12 +24,12 @@ const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: st
   },
   Inactive: {
     icon: Archive,
-    description: 'Product is no longer actively being sold but still has grandfathered customers',
+    description: 'This product is no longer sold but still has active, grandfathered customers.',
     antColorType: 'warning',
   },
   Archived: {
     icon: ArchiveX,
-    description: 'Product is no longer actively being sold and does not have any customers',
+    description: 'This product is no longer sold and does not have any active customers remaining.',
     antColorType: 'default',
   },
 };

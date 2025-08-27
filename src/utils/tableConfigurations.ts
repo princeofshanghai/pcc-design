@@ -4,7 +4,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price ID', required: true },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
-  { key: 'price', label: 'Price', required: false },
+  { key: 'price', label: 'List price', required: false },
   { key: 'lix', label: 'LIX', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
@@ -150,11 +150,10 @@ export const PRODUCT_COLUMNS: ColumnConfig[] = [
   { key: 'name', label: 'Name', required: true },
   { key: 'folder', label: 'Folder', required: false },
   { key: 'channel', label: 'Channel', required: false },
-  { key: 'skus', label: 'SKUs', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'skus', 'status'];
+export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'status'];
 
 // Sort options for products
 export const PRODUCT_SORT_OPTIONS = [

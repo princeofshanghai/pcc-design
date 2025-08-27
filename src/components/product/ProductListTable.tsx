@@ -10,6 +10,29 @@ import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import type { ColumnsType } from 'antd/es/table';
 
+// Format folder names with special rules for proper names and placeholders
+const formatFolderName = (folderName: string): string => {
+  if (!folderName) return folderName;
+  
+  // Handle specific placeholder patterns
+  if (folderName.toLowerCase() === 'all lms products') {
+    return 'All LMS products';
+  }
+  if (folderName.toLowerCase() === 'all other products') {
+    return 'All other products';
+  }
+  
+  // Check if it's likely a proper name (contains multiple capital letters)
+  // This handles cases like "Premium Company Page"
+  const hasMultipleCapitals = (folderName.match(/[A-Z]/g) || []).length > 1;
+  if (hasMultipleCapitals) {
+    return folderName; // Keep proper names as-is
+  }
+  
+  // Apply sentence case for other folders
+  return toSentenceCase(folderName);
+};
+
 
 interface ProductListTableProps {
   products: Product[];
@@ -51,11 +74,16 @@ export const getProductListTableColumns = (
       key: 'name',
       minWidth: 200,
       render: (name: string, record: Product) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>{name}</span>
-          {record.isBundle && (
-            <Tag>Bundle</Tag>
-          )}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: 500 }}>{name}</span>
+            {record.isBundle && (
+              <Tag>Bundle</Tag>
+            )}
+          </div>
+          <SecondaryText style={{ fontSize: token.fontSizeSM }}>
+            {record.skus ? record.skus.length : 0} SKUs
+          </SecondaryText>
         </div>
       ),
     } : null,
@@ -67,7 +95,7 @@ export const getProductListTableColumns = (
       responsive: ['lg'],
       render: (folder: string, record: Product) => (
         <div>
-          <div>{folder}</div>
+          <div>{formatFolderName(folder)}</div>
           <SecondaryText style={{ fontSize: token.fontSizeSM }}>{toSentenceCase(record.lob)}</SecondaryText>
         </div>
       ),
@@ -90,18 +118,7 @@ export const getProductListTableColumns = (
         );
       },
     } : null,
-    skus: visibleColumns.skus === true ? {
-      title: (
-        <span>
-          {getColumnLabel('skus')} <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
-        </span>
-      ),
-      dataIndex: 'skus',
-      key: 'skus',
-      // Hide on screens smaller than 576px (mobile)
-      responsive: ['sm'],
-      render: (skus: any[]) => skus.length,
-    } : null,
+
     status: visibleColumns.status === true ? {
       title: getColumnLabel('status'),
       dataIndex: 'status',

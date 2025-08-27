@@ -1464,16 +1464,6 @@
           "priceType": "BASE_AMOUNT",
           "isTaxInclusive": false,
           "status": "Active"
-        },
-        {
-          "id": "6482949",
-          "currencyCode": "",
-          "amount": 0,
-          "validFrom": "2022-06-01T07:00:00.000Z",
-          "pricingRule": "NONE",
-          "priceType": "BASE_PRICER",
-          "isTaxInclusive": false,
-          "status": "Active"
         }
       ]
     },

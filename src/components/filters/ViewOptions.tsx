@@ -3,11 +3,15 @@ import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
 import { Settings2, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import type { ViewModeConfig } from './FilterBar';
 import { CUSTOM_COLORS } from '../../theme';
+import ViewModeToggle from '../shared/ViewModeToggle';
 
 const { CheckableTag } = Tag;
 
 interface ViewOptionsProps {
+  // View mode toggle props
+  viewMode?: ViewModeConfig;
   groupBy?: string;
   setGroupBy?: (value: string) => void;
   groupByOptions?: string[];
@@ -30,6 +34,7 @@ interface ViewOptionsProps {
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
+  viewMode,
   groupBy,
   setGroupBy,
   sortOrder,
@@ -116,11 +121,12 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     hasColumnChanges ||
     hasColumnOrderChanges;
 
+  const showViewMode = viewMode !== undefined;
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
   const showColumnOptions = columnOptions !== undefined && visibleColumns !== undefined && setVisibleColumns;
   
-  const isDisabled = !showGroupBy && !showSortBy && !showColumnOptions;
+  const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions;
 
   if (isDisabled) {
     return null;
@@ -298,22 +304,43 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   // Custom dropdown content combining standalone components
   const dropdownContent = (
     <div style={{ 
-      minWidth: 320,
-      maxWidth: 400, // Prevent dropdown from becoming too wide
+      width: 320, // Fixed width to prevent menu width changes
       backgroundColor: token.colorBgElevated,
       borderRadius: token.borderRadiusLG,
       boxShadow: token.boxShadowSecondary
     }}>
 
-
-      {/* Group By Section - Horizontal Layout */}
-      {showGroupBy && (
+      {/* View Mode Toggle Section - First Section */}
+      {viewMode && (
         <div style={{ 
-          padding: '12px 16px',
+          padding: '16px',
           backgroundColor: token.colorBgElevated,
           borderTopLeftRadius: token.borderRadiusLG,
           borderTopRightRadius: token.borderRadiusLG
         }}>
+          <ViewModeToggle
+            value={viewMode.value}
+            onChange={viewMode.setter}
+            options={viewMode.options}
+            storageKey={viewMode.storageKey}
+          />
+        </div>
+      )}
+
+      {/* Group By Section - Horizontal Layout */}
+      {showGroupBy && (
+        <>
+          {viewMode && (
+            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+          )}
+          <div style={{ 
+            padding: '12px 16px',
+            backgroundColor: token.colorBgElevated,
+            ...(!viewMode && {
+              borderTopLeftRadius: token.borderRadiusLG,
+              borderTopRightRadius: token.borderRadiusLG
+            })
+          }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -344,18 +371,19 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               </Select>
             </div>
           </div>
+        </>
       )}
 
       {/* Sort By Section - Linear Style with Direction Toggle */}
       {showSortBy && (
         <>
-          {showGroupBy && (
+          {(showGroupBy || viewMode) && (
             <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           )}
           <div style={{ 
             padding: '12px 16px',
             backgroundColor: token.colorBgElevated,
-            ...(!showGroupBy && {
+            ...(!showGroupBy && !viewMode && {
               borderTopLeftRadius: token.borderRadiusLG,
               borderTopRightRadius: token.borderRadiusLG
             })
@@ -426,14 +454,14 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       {showColumnOptions && (
         <>
           {/* Divider before Show Columns if there are other sections */}
-          {(showGroupBy || showSortBy) && (
+          {(showGroupBy || showSortBy || viewMode) && (
             <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           )}
           
           <div style={{ 
             padding: '12px 16px',
             backgroundColor: token.colorBgElevated,
-            ...(!showGroupBy && !showSortBy && {
+            ...(!showGroupBy && !showSortBy && !viewMode && {
               borderTopLeftRadius: token.borderRadiusLG,
               borderTopRightRadius: token.borderRadiusLG
             })
@@ -490,7 +518,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       )}
 
       {/* Clear All Section - Standalone */}
-      {(showGroupBy || showSortBy || showColumnOptions) && (
+      {(showGroupBy || showSortBy || showColumnOptions || viewMode) && (
         <>
           <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           <div style={{ 

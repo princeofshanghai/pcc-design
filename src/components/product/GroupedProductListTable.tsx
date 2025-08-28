@@ -30,12 +30,17 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
   const columns = getProductListTableColumns(navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Keep all groups collapsed by default when groupedProducts changes
+  // Only reset expanded groups when the group structure actually changes (not just sorting within groups)
   useEffect(() => {
     if (groupedProducts) {
-      // Start with no expanded groups (all collapsed)
-      setExpandedGroups([]);
+      const currentGroupKeys = Object.keys(groupedProducts);
+      
+      // Check if expanded groups still exist in the new structure
+      setExpandedGroups(prevExpanded => 
+        prevExpanded.filter(groupKey => currentGroupKeys.includes(groupKey))
+      );
     } else {
+      // When switching from grouped to ungrouped, clear expanded groups
       setExpandedGroups([]);
     }
   }, [groupedProducts]);

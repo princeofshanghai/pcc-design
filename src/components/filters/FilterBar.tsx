@@ -1,14 +1,62 @@
 import React, { useState } from 'react';
-import { Row, Col, Space, Button, Drawer, Badge, theme } from 'antd';
-import { ListFilter } from 'lucide-react';
-import { zIndex } from '../../theme';
+import { Row, Col, Space, Button, Drawer, Badge, theme, Dropdown } from 'antd';
+import { ListFilter, CirclePlus } from 'lucide-react';
+import { zIndex, TAILWIND_COLORS } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import CustomFilterButton from './CustomFilterButton';
 import ViewOptions from './ViewOptions';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
+import { getColumnLabel } from '../../utils/tableConfigurations';
 import './DrawerTitle.css';
+
+// Create CSS for More filters button and dropdown items to match inline filters
+const createMoreFiltersButtonStyles = (primaryColor: string, primaryBg: string) => `
+  .more-filters-button {
+    transition: all 0.2s ease;
+    border: 1px dashed ${TAILWIND_COLORS.gray[300]} !important;
+  }
+  
+  .more-filters-button:hover:not(:disabled) {
+    border-color: ${primaryColor} !important;
+    color: ${primaryColor} !important;
+  }
+  
+  .more-filters-button:focus:not(:disabled) {
+    border-color: ${primaryColor} !important;
+    box-shadow: 0 0 0 2px ${primaryColor}1a !important;
+  }
+  
+  .more-filters-dropdown-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 13px;
+    color: ${primaryColor};
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .more-filters-dropdown-item:hover {
+    background-color: ${primaryBg};
+  }
+`;
+
+export interface ViewModeOption {
+  key: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+export interface ViewModeConfig {
+  value: string;
+  setter: (value: string) => void;
+  options: ViewModeOption[];
+  storageKey?: string;
+}
 
 export interface FilterConfig {
   placeholder: string;
@@ -29,6 +77,13 @@ export interface FilterConfig {
   excludeFromClearAll?: boolean;
   hideClearButton?: boolean;
   preventDeselection?: boolean;
+  
+  // Progressive disclosure props
+  primary?: boolean; // If false, filter appears in "More filters" dropdown
+  
+  // Custom display props
+  customDisplayValue?: (value: string | null, multiValue?: string[]) => string;
+  icon?: React.ReactNode;
 }
 
 interface FilterBarProps {
@@ -40,6 +95,8 @@ interface FilterBarProps {
   filters?: FilterConfig[];
   onClearAll?: () => void;
   viewOptions?: {
+    // View mode toggle options
+    viewMode?: ViewModeConfig;
     groupBy?: {
       value: string;
       setter: (group: string) => void;
@@ -92,11 +149,47 @@ const FilterBar: React.FC<FilterBarProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const shouldRenderViewOptions = viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
+  
+  // Inject CSS styles for More filters button (only once)
+  React.useEffect(() => {
+    const styleId = 'more-filters-button-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = createMoreFiltersButtonStyles(token.colorPrimary, token.colorPrimaryBg);
+      document.head.appendChild(style);
+    }
+  }, [token.colorPrimary, token.colorPrimaryBg]);
+  
+  // State for managing provisional (temporarily added) filters
+  const [provisionalFilters, setProvisionalFilters] = useState<string[]>([]);
+  const [moreFiltersDropdownVisible, setMoreFiltersDropdownVisible] = useState(false);
+  
+  const shouldRenderViewOptions = viewOptions?.viewMode || viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
 
   const activeFilterCount = filters.filter(f => 
     !f.excludeFromClearAll && (f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null)
   ).length;
+
+  // Separate primary and secondary filters
+  const hasProgressiveDisclosure = filters.some(f => f.primary === false);
+  const primaryFilters = hasProgressiveDisclosure ? 
+    filters.filter(f => f.primary !== false) : 
+    filters; // If no progressive disclosure, all are primary
+  const secondaryFilters = hasProgressiveDisclosure ? 
+    filters.filter(f => f.primary === false) : 
+    [];
+
+  // Get currently active inline filters (primary + provisional secondary)
+  const activeInlineFilters = [
+    ...primaryFilters,
+    ...secondaryFilters.filter(f => provisionalFilters.includes(f.placeholder))
+  ];
+
+  // Get available secondary filters (not yet provisional)
+  const availableSecondaryFilters = secondaryFilters.filter(f => 
+    !provisionalFilters.includes(f.placeholder)
+  );
 
   const showDrawer = () => setDrawerVisible(true);
   const hideDrawer = () => setDrawerVisible(false);
@@ -105,34 +198,96 @@ const FilterBar: React.FC<FilterBarProps> = ({
     if (onClearAll) {
       onClearAll();
     }
+    // Also clear provisional filters
+    setProvisionalFilters([]);
+  };
+
+  // Handle adding a secondary filter provisionally
+  const handleAddProvisionalFilter = (filterPlaceholder: string) => {
+    setProvisionalFilters(prev => [...prev, filterPlaceholder]);
+    setMoreFiltersDropdownVisible(false);
+    
+    // Auto-open the filter dropdown after it's rendered
+    setTimeout(() => {
+      // Try multiple selectors to find the newly added filter button
+      const selectors = [
+        '.custom-filter-button',           // Custom filter buttons
+        '.ant-select-selector',            // Ant Design selects
+        '[role="combobox"]',               // ARIA combobox role
+        '.ant-btn'                         // Generic Ant Design buttons
+      ];
+      
+      for (const selector of selectors) {
+        const buttons = document.querySelectorAll(selector);
+        for (const button of buttons) {
+          const buttonText = button.textContent || '';
+          
+          // Try to match by placeholder text (with various formats)
+          const variations = [
+            filterPlaceholder.replace(/^All\s+/i, '').toLowerCase(),  // "statuses" -> "statuses"
+            filterPlaceholder.toLowerCase(),                          // "All statuses"
+            // Also try the proper column labels
+            ...(filterPlaceholder.toLowerCase().includes('statuses') ? ['status'] : []),
+            ...(filterPlaceholder.toLowerCase().includes('lix') ? ['lix'] : [])
+          ];
+          
+          if (variations.some(variation => buttonText.toLowerCase().includes(variation))) {
+            (button as HTMLElement).click();
+            return; // Exit all loops once we find and click
+          }
+        }
+      }
+    }, 100); // Fast response for better UX
+  };
+
+  // Handle clicks outside provisional filters to remove them if no selection made
+  const handleProvisionalFilterChange = (filterPlaceholder: string, hasValue: boolean) => {
+    if (!hasValue) {
+      // No value selected, remove from provisional
+      setProvisionalFilters(prev => prev.filter(p => p !== filterPlaceholder));
+    }
+    // If has value, keep it (it's now committed)
   };
 
   const hasFilters = filters.length > 0;
 
   // Component to render filters (can be used inline or in drawer)
-  const renderFilters = () => (
+  const renderFilters = (filtersToRender = displayMode === 'inline' ? activeInlineFilters : filters) => (
     <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
            style={{ width: '100%' }} 
            size={displayMode === 'inline' ? 6 : 32}
            wrap={displayMode === 'inline'}>
-      {filters.map((filter, index) => (
-        <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
+      {filtersToRender.map((filter, index) => {
+        const isProvisional = provisionalFilters.includes(filter.placeholder);
+        
+        return (
+          <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
                style={displayMode === 'inline' ? {} : { width: '100%' }} 
-               key={index}
+               key={`${filter.placeholder}-${index}`}
                size={displayMode === 'inline' ? 8 : 8}>
           {displayMode === 'drawer' && (
             <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
           )}
-          <div>
+          <div data-filter-placeholder={filter.placeholder}>
             {useCustomFilters ? (
               <CustomFilterButton
                 placeholder={toSentenceCase(filter.placeholder)}
                 options={filter.options}
                 multiSelect={filter.multiSelect}
                 value={filter.multiSelect ? undefined : filter.value}
-                onChange={filter.multiSelect ? undefined : filter.onChange}
+                onChange={filter.multiSelect ? undefined : (value) => {
+                  filter.onChange(value);
+                  if (isProvisional) {
+                    handleProvisionalFilterChange(filter.placeholder, value != null);
+                  }
+                }}
                 multiValue={filter.multiSelect ? filter.multiValue : undefined}
-                onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
+                onMultiChange={filter.multiSelect ? (values) => {
+                  filter.onMultiChange?.(values);
+                  if (isProvisional) {
+                    handleProvisionalFilterChange(filter.placeholder, values.length > 0);
+                  }
+                } : undefined}
                 size={displayMode === 'inline' ? 'middle' : 'large'}
                 style={{ 
                   ...(filter.style || {}) 
@@ -146,6 +301,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 excludeFromClearAll={filter.excludeFromClearAll}
                 hideClearButton={filter.hideClearButton}
                 preventDeselection={filter.preventDeselection}
+                customDisplayValue={filter.customDisplayValue}
+                icon={filter.icon}
               />
             ) : (
               <FilterDropdown
@@ -153,9 +310,19 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 options={filter.options}
                 multiSelect={filter.multiSelect}
                 value={filter.multiSelect ? undefined : filter.value}
-                onChange={filter.multiSelect ? undefined : filter.onChange}
+                onChange={filter.multiSelect ? undefined : (value) => {
+                  filter.onChange(value);
+                  if (isProvisional) {
+                    handleProvisionalFilterChange(filter.placeholder, value != null);
+                  }
+                }}
                 multiValue={filter.multiSelect ? filter.multiValue : undefined}
-                onMultiChange={filter.multiSelect ? filter.onMultiChange : undefined}
+                onMultiChange={filter.multiSelect ? (values) => {
+                  filter.onMultiChange?.(values);
+                  if (isProvisional) {
+                    handleProvisionalFilterChange(filter.placeholder, values.length > 0);
+                  }
+                } : undefined}
                 size={displayMode === 'inline' ? 'middle' : 'large'}
                 style={{ 
                   width: displayMode === 'inline' ? 'auto' : '100%', 
@@ -170,8 +337,65 @@ const FilterBar: React.FC<FilterBarProps> = ({
               />
             )}
           </div>
-        </Space>
-      ))}
+          </Space>
+        );
+      })}
+      
+      {/* More filters button - only show in inline mode when there are available secondary filters */}
+      {displayMode === 'inline' && availableSecondaryFilters.length > 0 && (
+        <Dropdown
+          open={moreFiltersDropdownVisible}
+          onOpenChange={setMoreFiltersDropdownVisible}
+          dropdownRender={() => (
+            <div style={{
+              backgroundColor: token.colorBgElevated,
+              borderRadius: token.borderRadiusLG,
+              boxShadow: token.boxShadowSecondary,
+              padding: '8px',
+              minWidth: '160px'
+            }}>
+              {availableSecondaryFilters.map((filter, index) => {
+                // Get proper display name by figuring out the column key from placeholder
+                let displayName = filter.placeholder.replace(/^All\s+/i, '');
+                
+                // Map common placeholder patterns back to their proper column labels
+                if (filter.placeholder.toLowerCase().includes('statuses')) {
+                  displayName = getColumnLabel('status');
+                } else if (filter.placeholder.toLowerCase().includes('lix')) {
+                  displayName = getColumnLabel('lix');
+                } else if (filter.placeholder.toLowerCase().includes('channels')) {
+                  displayName = getColumnLabel('channel');
+                } else if (filter.placeholder.toLowerCase().includes('billing cycles')) {
+                  displayName = getColumnLabel('billingCycle');
+                } else if (filter.placeholder.toLowerCase().includes('currencies')) {
+                  displayName = getColumnLabel('currency');
+                }
+                
+                return (
+                  <div
+                    key={`secondary-${filter.placeholder}-${index}`}
+                    onClick={() => handleAddProvisionalFilter(filter.placeholder)}
+                    className="more-filters-dropdown-item"
+                  >
+                    <CirclePlus size={14} />
+                    {displayName}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          trigger={['click']}
+        >
+          <Button 
+            size="middle"
+            icon={<ListFilter size={14} />}
+            className="more-filters-button"
+          >
+            More filters
+          </Button>
+        </Dropdown>
+      )}
+      
       {displayMode === 'inline' && hasFilters && activeFilterCount > 0 && (
         <Button 
           type="link" 
@@ -216,6 +440,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
             {shouldRenderViewOptions && displayMode === 'drawer' && (
               <ViewOptions 
+                viewMode={viewOptions?.viewMode}
+
                 groupBy={viewOptions?.groupBy?.value}
                 setGroupBy={viewOptions?.groupBy?.setter}
                 groupByOptions={viewOptions?.groupBy?.options}
@@ -266,6 +492,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
           {shouldRenderViewOptions && (
             <Col flex="none" style={{ marginLeft: 16 }}>
               <ViewOptions 
+                viewMode={viewOptions?.viewMode}
+
                 groupBy={viewOptions?.groupBy?.value}
                 setGroupBy={viewOptions?.groupBy?.setter}
                 groupByOptions={viewOptions?.groupBy?.options}

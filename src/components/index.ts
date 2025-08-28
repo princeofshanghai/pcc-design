@@ -57,6 +57,7 @@ export { default as GroupHeader } from './shared/GroupHeader';
 export { default as UserAvatar } from './shared/UserAvatar';
 export { default as BaseChip } from './shared/BaseChip';
 export { default as SecondaryText } from './shared/SecondaryText';
+export { default as ViewModeToggle } from './shared/ViewModeToggle';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
@@ -65,4 +66,5 @@ export { default as AttributeDictionaryTable } from './attribute-dictionary/Attr
 export { default as ActivityFeedItem } from './activity/ActivityFeedItem';
 
 // Export types that might be imported from components
-export type { SelectOption } from './filters/FilterDropdown'; 
+export type { SelectOption } from './filters/FilterDropdown';
+export type { ViewModeOption, ViewModeConfig } from './filters/FilterBar'; 

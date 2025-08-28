@@ -7,7 +7,6 @@ const { Text } = Typography;
 
 interface PricePointMatrixProps {
   pricePoints: PricePoint[];
-  isTaxInclusive?: boolean;
 }
 
 // Helper to format quantity range consistently
@@ -23,7 +22,7 @@ const formatQuantityRange = (minQuantity?: number, maxQuantity?: number): string
 };
 
 // Helper to create a sort key for quantity ranges
-const getQuantityRangeSortKey = (minQuantity?: number, maxQuantity?: number): number => {
+const getQuantityRangeSortKey = (minQuantity?: number): number => {
   return minQuantity || 1;
 };
 
@@ -72,8 +71,7 @@ const formatPricingTier = (tier: string | null): string => {
 };
 
 const PricePointMatrix: React.FC<PricePointMatrixProps> = React.memo(({ 
-  pricePoints,
-  isTaxInclusive = false 
+  pricePoints
 }) => {
   const { token } = theme.useToken();
 
@@ -107,12 +105,13 @@ const PricePointMatrix: React.FC<PricePointMatrixProps> = React.memo(({
 
     // Convert to matrix structure
     const matrixRows: MatrixRow[] = [];
-    rangeMap.forEach((currencyMap, rangeKey) => {
+    rangeMap.forEach((currencyMap) => {
       // Find any price point to get quantity info
-      let firstPricePoint: PricePoint | null = null;
+      let firstPricePoint: PricePoint | undefined = undefined;
       currencyMap.forEach(tierMap => {
         if (!firstPricePoint) {
-          firstPricePoint = Array.from(tierMap.values())[0];
+          const values = Array.from(tierMap.values()) as PricePoint[];
+          firstPricePoint = values.length > 0 ? values[0] : undefined;
         }
       });
 
@@ -126,9 +125,10 @@ const PricePointMatrix: React.FC<PricePointMatrixProps> = React.memo(({
           });
         });
 
+        const pricePointForQuantity = firstPricePoint as PricePoint;
         matrixRows.push({
-          quantityRange: formatQuantityRange(firstPricePoint.minQuantity, firstPricePoint.maxQuantity),
-          sortKey: getQuantityRangeSortKey(firstPricePoint.minQuantity, firstPricePoint.maxQuantity),
+          quantityRange: formatQuantityRange(pricePointForQuantity.minQuantity, pricePointForQuantity.maxQuantity),
+          sortKey: getQuantityRangeSortKey(pricePointForQuantity.minQuantity),
           prices
         });
       }
@@ -271,7 +271,9 @@ const PricePointMatrix: React.FC<PricePointMatrixProps> = React.memo(({
             <div><strong>Currency:</strong> {currency}</div>
             {tier !== 'Base' && <div><strong>Pricing Tier:</strong> {formatPricingTier(tier)}</div>}
             <div><strong>Status:</strong> {pricePoint.status}</div>
-            <div><strong>Validity:</strong> {new Date(pricePoint.validFrom).toLocaleDateString()} - {new Date(pricePoint.validTo).toLocaleDateString()}</div>
+            {pricePoint.validFrom && pricePoint.validTo && (
+              <div><strong>Validity:</strong> {new Date(pricePoint.validFrom).toLocaleDateString()} - {new Date(pricePoint.validTo).toLocaleDateString()}</div>
+            )}
             {pricePoint.priceType && <div><strong>Type:</strong> {pricePoint.priceType}</div>}
           </div>
         }

@@ -3,7 +3,7 @@ import { Table, Space, Typography, Dropdown, Button, Modal, Tooltip, theme } fro
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { formatCurrency, toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS, DEFAULT_PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
 import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 
@@ -324,12 +324,17 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Keep all groups collapsed by default when groupedPriceGroups changes
+  // Only reset expanded groups when the group structure actually changes (not just sorting within groups)
   useEffect(() => {
     if (groupedPriceGroups) {
-      // Start with no expanded groups (all collapsed)
-      setExpandedGroups([]);
+      const currentGroupKeys = Object.keys(groupedPriceGroups);
+      
+      // Check if expanded groups still exist in the new structure
+      setExpandedGroups(prevExpanded => 
+        prevExpanded.filter(groupKey => currentGroupKeys.includes(groupKey))
+      );
     } else {
+      // When switching from grouped to ungrouped, clear expanded groups
       setExpandedGroups([]);
     }
   }, [groupedPriceGroups]);

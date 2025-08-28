@@ -20,12 +20,17 @@ const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, 
   const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Keep all groups collapsed by default when groupedSkus changes
+  // Only reset expanded groups when the group structure actually changes (not just sorting within groups)
   useEffect(() => {
     if (groupedSkus) {
-      // Start with no expanded groups (all collapsed)
-      setExpandedGroups([]);
+      const currentGroupKeys = Object.keys(groupedSkus);
+      
+      // Check if expanded groups still exist in the new structure
+      setExpandedGroups(prevExpanded => 
+        prevExpanded.filter(groupKey => currentGroupKeys.includes(groupKey))
+      );
     } else {
+      // When switching from grouped to ungrouped, clear expanded groups
       setExpandedGroups([]);
     }
   }, [groupedSkus]);

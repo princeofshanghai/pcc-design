@@ -169,7 +169,6 @@ const FieldPricingView: React.FC<FieldPricingViewProps> = ({
         {activeTab === 'matrix' && (
           <PricePointMatrix 
             pricePoints={matrixPricePoints}
-            isTaxInclusive={isTaxInclusive}
           />
         )}
 

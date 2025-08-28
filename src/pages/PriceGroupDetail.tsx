@@ -30,7 +30,7 @@ import {
   DEFAULT_PRICE_POINT_COLUMNS,
   getFilterPlaceholder
 } from '../utils/tableConfigurations';
-import { Download } from 'lucide-react';
+import { Download, Calendar } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -439,6 +439,12 @@ const PriceGroupDetail: React.FC = () => {
                   excludeFromClearAll: true,
                   hideClearButton: true,
                   preventDeselection: true,
+                  // Custom display: show "All" instead of "All periods" on button
+                  customDisplayValue: (value) => {
+                    return value === 'All periods' ? 'All' : value || 'All';
+                  },
+                  // Add Calendar icon
+                  icon: <Calendar size={12} />,
                   // Required for TypeScript interface compatibility
                   multiValue: [],
                   onMultiChange: () => {},
@@ -460,6 +466,7 @@ const PriceGroupDetail: React.FC = () => {
                   multiValue: statusFilters,
                   onMultiChange: (values: string[]) => setStatusFilters(values),
                   disableSearch: true,
+                  primary: false, // Put Status behind "More filters" button
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},

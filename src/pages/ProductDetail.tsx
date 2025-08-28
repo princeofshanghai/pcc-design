@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Checkbox, Drawer, Tooltip } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Drawer, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Pencil, Check } from 'lucide-react';
+import { Download, Pencil, Check, Rows2, Rows4, Calendar } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -202,8 +202,8 @@ const ProductDetail: React.FC = () => {
   // Alert dismissal state
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
 
-  // Price view toggle state - starts unchecked (price groups view by default)
-  const [showPricePointView, setShowPricePointView] = useState(false);
+  // Price view toggle state - starts with 'price' (price groups view by default) 
+  const [priceViewMode, setPriceViewMode] = useState('price');
 
   // Translations drawer state
   const [translationsDrawerOpen, setTranslationsDrawerOpen] = useState(false);
@@ -291,7 +291,7 @@ const ProductDetail: React.FC = () => {
 
   // Flatten price points with inferred SKU attributes for price point view
   const allFlattenedPricePoints = useMemo(() => {
-    if (!showPricePointView) return [];
+    if (priceViewMode !== 'pricePoints') return [];
     
     return filteredPriceGroups.flatMap(({ priceGroup, skus }) => 
       priceGroup.pricePoints.map((pricePoint: PricePoint) => ({
@@ -305,11 +305,11 @@ const ProductDetail: React.FC = () => {
         lix: skus.find(sku => sku.lix)?.lix || null,
       }))
     );
-  }, [showPricePointView, filteredPriceGroups]);
+  }, [priceViewMode, filteredPriceGroups]);
 
   // Filter the flattened price points based on price point view filters
   const filteredFlattenedPricePoints = useMemo(() => {
-    if (!showPricePointView) return [];
+    if (priceViewMode !== 'pricePoints') return [];
     
     return allFlattenedPricePoints.filter(item => {
       // Validity filter - filter by validity period using formatValidityRange
@@ -365,7 +365,7 @@ const ProductDetail: React.FC = () => {
       return true;
     });
   }, [
-    showPricePointView,
+    priceViewMode,
     allFlattenedPricePoints,
     pricePointValidityFilter,
     pricePointSearchQuery,
@@ -378,7 +378,7 @@ const ProductDetail: React.FC = () => {
 
   // Generate filter options for price point view with counts (following project patterns)
   const pricePointFilterOptions = useMemo(() => {
-    if (!showPricePointView || allFlattenedPricePoints.length === 0) {
+    if (priceViewMode !== 'pricePoints' || allFlattenedPricePoints.length === 0) {
       return {
         validityOptions: [{ label: 'All periods', value: 'All periods' }],
         currencyOptions: [],
@@ -519,7 +519,7 @@ const ProductDetail: React.FC = () => {
       billingCycleOptions,
       lixOptions,
     };
-  }, [showPricePointView, allFlattenedPricePoints]);
+  }, [priceViewMode, allFlattenedPricePoints]);
 
   const clearAllPricePointFilters = () => {
     setPricePointSearchQuery('');
@@ -537,7 +537,7 @@ const ProductDetail: React.FC = () => {
 
   // Sort price points based on selected sort order
   const sortedFlattenedPricePoints = useMemo(() => {
-    if (!showPricePointView || pricePointSortOrder === 'None') {
+    if (priceViewMode !== 'pricePoints' || pricePointSortOrder === 'None') {
       return filteredFlattenedPricePoints;
     }
 
@@ -611,11 +611,11 @@ const ProductDetail: React.FC = () => {
       default:
         return sorted;
     }
-  }, [showPricePointView, filteredFlattenedPricePoints, pricePointSortOrder]);
+  }, [priceViewMode, filteredFlattenedPricePoints, pricePointSortOrder]);
 
   // Group price points based on selected group by option
   const groupedFlattenedPricePoints = useMemo(() => {
-    if (!showPricePointView || pricePointGroupBy === 'None') {
+    if (priceViewMode !== 'pricePoints' || pricePointGroupBy === 'None') {
       return null;
     }
 
@@ -654,7 +654,7 @@ const ProductDetail: React.FC = () => {
     });
 
     return grouped;
-  }, [showPricePointView, sortedFlattenedPricePoints, pricePointGroupBy]);
+  }, [priceViewMode, sortedFlattenedPricePoints, pricePointGroupBy]);
 
   // Keep all groups collapsed by default when groupedFlattenedPricePoints changes
   useEffect(() => {
@@ -676,7 +676,7 @@ const ProductDetail: React.FC = () => {
 
   // Create data source with group headers for flattened price points table
   const flattenedPricePointDataSource: FlattenedPricePointTableRow[] = useMemo(() => {
-    if (!showPricePointView) return [];
+    if (priceViewMode !== 'pricePoints') return [];
 
     if (groupedFlattenedPricePoints) {
       // Grouped data - create table rows with group headers
@@ -699,7 +699,7 @@ const ProductDetail: React.FC = () => {
       // Non-grouped data - return sorted points directly
       return sortedFlattenedPricePoints;
     }
-  }, [showPricePointView, groupedFlattenedPricePoints, sortedFlattenedPricePoints, expandedPricePointGroups]);
+  }, [priceViewMode, groupedFlattenedPricePoints, sortedFlattenedPricePoints, expandedPricePointGroups]);
 
   // Define columns for flattened price points table
   const flattenedPricePointColumns: ColumnsType<FlattenedPricePointTableRow> = [
@@ -1047,31 +1047,15 @@ const ProductDetail: React.FC = () => {
             <FilterBar
               useCustomFilters={true}
               search={{
-                placeholder: showPricePointView 
+                placeholder: priceViewMode === 'pricePoints'
                   ? "Search by Currency, Price Point ID, or LIX Key..." 
                   : "Search by Price ID or LIX Key...",
-                onChange: showPricePointView 
+                onChange: priceViewMode === 'pricePoints'
                   ? setPricePointSearchQuery 
                   : setPriceGroupSearchQuery,
               }}
-              inlineActions={[
-                <div key="price-point-toggle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Checkbox
-                    checked={showPricePointView}
-                    onChange={(e: any) => setShowPricePointView(e.target.checked)}
-                  />
-                  <Typography.Text 
-                    style={{ 
-                      fontSize: '13px', 
-                      color: token.colorTextSecondary,
-                      fontWeight: 400 
-                    }}
-                  >
-                    Show all price points
-                  </Typography.Text>
-                </div>
-              ]}
-              filters={showPricePointView ? [
+              inlineActions={[]}
+              filters={priceViewMode === 'pricePoints' ? [
                 {
                   placeholder: getFilterPlaceholder('validity'),
                   options: pricePointFilterOptions.validityOptions,
@@ -1097,6 +1081,12 @@ const ProductDetail: React.FC = () => {
                   excludeFromClearAll: true,
                   hideClearButton: true,
                   preventDeselection: true,
+                  // Custom display: show "All" instead of "All periods" on button
+                  customDisplayValue: (value) => {
+                    return value === 'All periods' ? 'All' : value || 'All';
+                  },
+                  // Add Calendar icon
+                  icon: <Calendar size={12} />,
                   // Required for TypeScript interface compatibility
                   multiValue: [],
                   onMultiChange: () => {},
@@ -1168,6 +1158,7 @@ const ProductDetail: React.FC = () => {
                   value: priceGroupExperimentFilter,
                   onChange: setPriceGroupExperimentFilter,
                   dropdownStyle: { minWidth: '320px' },
+                  primary: false, // Put LIX behind "More filters" button
                 },
                 {
                   placeholder: getFilterPlaceholder('status'),
@@ -1176,43 +1167,55 @@ const ProductDetail: React.FC = () => {
                   multiValue: priceGroupStatusFilters,
                   onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
                   disableSearch: true,
+                  primary: false, // Put Status behind "More filters" button
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},
                 },
               ]}
-              onClearAll={showPricePointView 
+              onClearAll={priceViewMode === 'pricePoints'
                 ? clearAllPricePointFilters 
                 : clearAllPriceGroupFilters}
-              viewOptions={showPricePointView ? {
-                groupBy: {
-                  value: pricePointGroupBy,
-                  setter: setPricePointGroupBy,
-                  options: FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
+              viewOptions={{
+                viewMode: {
+                  value: priceViewMode,
+                  setter: setPriceViewMode,
+                  options: [
+                    { key: 'price', label: 'View by price', icon: <Rows2 size={20} /> },
+                    { key: 'pricePoints', label: 'View by price points', icon: <Rows4 size={20} /> }
+                  ],
+                  storageKey: 'priceViewMode'
                 },
-                sortOrder: {
-                  value: pricePointSortOrder,
-                  setter: setPricePointSortOrder,
-                  options: FLATTENED_PRICE_POINT_SORT_OPTIONS,
-                },
-                // TODO: Add column options for price point view later
-              } : {
-                groupBy: {
-                  value: priceGroupGroupBy,
-                  setter: setPriceGroupGroupBy,
-                  options: PRICE_GROUP_GROUP_BY_OPTIONS,
-                },
-                sortOrder: {
-                  value: priceGroupSortOrder,
-                  setter: setPriceGroupSortOrder,
-                  options: PRICE_GROUP_SORT_OPTIONS,
-                },
-                columnOptions: priceGroupColumnOptions,
-                visibleColumns: priceGroupVisibleColumns,
-                setVisibleColumns: setPriceGroupVisibleColumns,
-                columnOrder: priceGroupColumnOrder,
-                setColumnOrder: setPriceGroupColumnOrder,
-                defaultVisibleColumns: priceGroupDefaultVisibility,
+                ...(priceViewMode === 'pricePoints' ? {
+                  groupBy: {
+                    value: pricePointGroupBy,
+                    setter: setPricePointGroupBy,
+                    options: FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
+                  },
+                  sortOrder: {
+                    value: pricePointSortOrder,
+                    setter: setPricePointSortOrder,
+                    options: FLATTENED_PRICE_POINT_SORT_OPTIONS,
+                  },
+                  // TODO: Add column options for price point view later
+                } : {
+                  groupBy: {
+                    value: priceGroupGroupBy,
+                    setter: setPriceGroupGroupBy,
+                    options: PRICE_GROUP_GROUP_BY_OPTIONS,
+                  },
+                  sortOrder: {
+                    value: priceGroupSortOrder,
+                    setter: setPriceGroupSortOrder,
+                    options: PRICE_GROUP_SORT_OPTIONS,
+                  },
+                  columnOptions: priceGroupColumnOptions,
+                  visibleColumns: priceGroupVisibleColumns,
+                  setVisibleColumns: setPriceGroupVisibleColumns,
+                  columnOrder: priceGroupColumnOrder,
+                  setColumnOrder: setPriceGroupColumnOrder,
+                  defaultVisibleColumns: priceGroupDefaultVisibility,
+                })
               }}
               displayMode="inline"
               rightActions={[
@@ -1240,7 +1243,7 @@ const ProductDetail: React.FC = () => {
                 </Button>
               ]}
             />
-            {showPricePointView ? (
+            {priceViewMode === 'pricePoints' ? (
               <div style={{ marginTop: '16px' }}>
                 <Table
                   size="small"

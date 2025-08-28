@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Space, Card, Row, Col, theme, Tabs } from 'antd';
+import { Calendar } from 'lucide-react';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
 
@@ -90,7 +91,7 @@ const PriceMatrixTest: React.FC = () => {
     setCurrencyFilters,
     statusFilters,
     setStatusFilters,
-    setCategoryFilters,
+
     validityFilter,
     setValidityFilter,
     currencyOptions,
@@ -174,6 +175,8 @@ const PriceMatrixTest: React.FC = () => {
               excludeFromClearAll: true,
               hideClearButton: true,
               preventDeselection: true,
+              // Add Calendar icon
+              icon: <Calendar size={12} />,
               multiValue: [],
               onMultiChange: () => {},
             },
@@ -224,7 +227,6 @@ const PriceMatrixTest: React.FC = () => {
                   
                   <PricePointMatrix 
                     pricePoints={createMockPricingTierData(filteredPricePoints)}
-                    isTaxInclusive={false}
                   />
                 </div>
               ),

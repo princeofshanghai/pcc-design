@@ -93,6 +93,10 @@ interface CustomFilterButtonProps {
   excludeFromClearAll?: boolean;
   hideClearButton?: boolean;
   preventDeselection?: boolean;
+  
+  // Custom display props
+  customDisplayValue?: (value: string | null, multiValue?: string[]) => string;
+  icon?: React.ReactNode;
 }
 
 const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
@@ -109,7 +113,9 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   className,
   disableSearch = false,
   hideClearButton = false,
-  preventDeselection = false
+  preventDeselection = false,
+  customDisplayValue,
+  icon
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -183,6 +189,11 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
 
   // Generate button text based on selections (without numbers)
   const getButtonText = () => {
+    // Use custom display value function if provided
+    if (customDisplayValue) {
+      return customDisplayValue(value || null, multiValue);
+    }
+    
     if (multiSelect && multiValue && multiValue.length > 0) {
       const selectedLabels = multiValue.map(val => {
         // Find label for this value in options and clean it of numbers
@@ -526,10 +537,10 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
           }}
           icon={(() => {
             if (isValidityFilter) {
-              // Validity filters: keep original behavior (ChevronDown/X on right)
+              // Validity filters: use custom icon or ChevronDown, X on right when selected
               return hasSelections && !hideClearButton ? 
                 <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
-                <ChevronDown size={12} />;
+                (icon || <ChevronDown size={12} />);
             } else {
               // Regular filters: new behavior (CirclePlus/X on left)
               return hasSelections && !hideClearButton ? 

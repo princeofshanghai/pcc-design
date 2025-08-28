@@ -503,12 +503,17 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   const { token } = theme.useToken();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  // Keep all groups collapsed by default when groupedPricePoints changes
+  // Only reset expanded groups when the group structure actually changes (not just sorting within groups)
   useEffect(() => {
     if (groupedPricePoints) {
-      // Start with no expanded groups (all collapsed)
-      setExpandedGroups([]);
+      const currentGroupKeys = Object.keys(groupedPricePoints);
+      
+      // Check if expanded groups still exist in the new structure
+      setExpandedGroups(prevExpanded => 
+        prevExpanded.filter(groupKey => currentGroupKeys.includes(groupKey))
+      );
     } else {
+      // When switching from grouped to ungrouped, clear expanded groups
       setExpandedGroups([]);
     }
   }, [groupedPricePoints]);

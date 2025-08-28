@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import SecondaryText from '../shared/SecondaryText';
+import VerticalSeparator from '../shared/VerticalSeparator';
+import { getChannelIcon } from '../../utils/channelIcons';
 import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import type { ColumnsType } from 'antd/es/table';
@@ -63,7 +64,7 @@ export const getProductListTableColumns = (
       minWidth: 150,
       render: (_: any, record: Product) => (
         <div onClick={(e) => e.stopPropagation()}>
-          <CopyableId id={record.id} variant="prominent" />
+          <CopyableId id={record.id} variant="default" />
         </div>
       ),
       className: 'table-col-first',
@@ -110,11 +111,17 @@ export const getProductListTableColumns = (
         if (!record.skus || record.skus.length === 0) return null;
         const uniqueChannels = [...new Set(record.skus.map(sku => sku.salesChannel))];
         return (
-          <Space size={4} wrap>
-            {uniqueChannels.map(channel => (
-              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            {uniqueChannels.map((channel, index) => (
+              <React.Fragment key={channel}>
+                {index > 0 && <VerticalSeparator />}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  {getChannelIcon(channel)}
+                  {channel}
+                </span>
+              </React.Fragment>
             ))}
-          </Space>
+          </div>
         );
       },
     } : null,

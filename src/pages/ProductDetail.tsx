@@ -23,15 +23,16 @@ import {
   AttributeGroup,
   StatusTag,
   BillingModelDisplay,
-  SalesChannelDisplay,
   FilterBar,
   CopyableId,
   PricePointStatusTag,
   GroupHeader,
+  VerticalSeparator,
 } from '../components';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import {
-  PRICE_GROUP_COLUMNS, 
+  PRICE_GROUP_COLUMNS,
+  DEFAULT_PRICE_GROUP_COLUMNS,
   PRICE_GROUP_SORT_OPTIONS, 
   SKU_SORT_OPTIONS,
   SKU_GROUP_BY_OPTIONS,
@@ -40,6 +41,7 @@ import {
   FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
   getFilterPlaceholder} from '../utils/tableConfigurations';
 import { getDefaultValidityFilter } from '../utils/channelConfigurations';
+import { getChannelIcon } from '../utils/channelIcons';
 
 const { Title } = Typography;
 
@@ -270,7 +272,7 @@ const ProductDetail: React.FC = () => {
 
   // Column order state for PriceGroupTable
   const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>(
-    PRICE_GROUP_COLUMNS.map(col => col.key)
+    DEFAULT_PRICE_GROUP_COLUMNS
   );
 
   // Column configuration for PriceGroupTable - use centralized configuration
@@ -717,7 +719,7 @@ const ProductDetail: React.FC = () => {
         if ('isGroupHeader' in record) return null;
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.pricePoint.id || ''} variant="prominent" />
+            <CopyableId id={record.pricePoint.id || ''} variant="default" />
           </div>
         );
       },
@@ -761,11 +763,17 @@ const ProductDetail: React.FC = () => {
       render: (channels: SalesChannel[], record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Space size="small">
-            {channels.map((channel) => (
-              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            {channels.map((channel, index) => (
+              <React.Fragment key={channel}>
+                {index > 0 && <VerticalSeparator />}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  {getChannelIcon(channel)}
+                  {channel}
+                </span>
+              </React.Fragment>
             ))}
-          </Space>
+          </div>
         );
       },
     },

@@ -14,10 +14,11 @@ import {
   FilterBar,
   AttributeDisplay,
   AttributeGroup,
-  SalesChannelDisplay,
-  BillingModelDisplay
+  BillingModelDisplay,
+  VerticalSeparator
 } from '../components';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
+import { getChannelIcon } from '../utils/channelIcons';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -306,8 +307,14 @@ const PriceGroupDetail: React.FC = () => {
               {product?.billingModel && (
                 <BillingModelDisplay model={product.billingModel} variant="small" />
               )}
-              {uniqueChannels.map(channel => (
-                <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+              {uniqueChannels.map((channel, index) => (
+                <React.Fragment key={channel}>
+                  {index > 0 && <VerticalSeparator />}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    {getChannelIcon(channel)}
+                    {channel}
+                  </span>
+                </React.Fragment>
               ))}
               <Typography.Text>
                 {uniqueBillingCycles.join(', ')}

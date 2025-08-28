@@ -13,7 +13,6 @@ import {
   PageSection,
   AttributeDisplay,
   AttributeGroup,
-  SalesChannelDisplay,
   OverrideIndicator,
   OverrideComparison,
   FilterBar
@@ -21,6 +20,7 @@ import {
 import PricePointTable from '../components/pricing/PricePointTable';
 import CopyableId from '../components/shared/CopyableId';
 import { AlertCircle } from 'lucide-react';
+import { getChannelIcon } from '../utils/channelIcons';
 
 const { Title } = Typography;
 
@@ -144,7 +144,10 @@ const SkuDetail: React.FC = () => {
           <PageSection title={toSentenceCase("Configuration")}>
             <AttributeGroup>
               <AttributeDisplay label="Sales Channel" layout="horizontal">
-                <SalesChannelDisplay channel={sku.salesChannel} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {getChannelIcon(sku.salesChannel)}
+                  <span>{sku.salesChannel}</span>
+                </div>
               </AttributeDisplay>
               
               <AttributeDisplay label="Billing Cycle" layout="horizontal">

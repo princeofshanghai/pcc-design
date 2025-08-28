@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Space, Typography, Dropdown, Button, Modal, Tooltip, theme } from 'antd';
+import { Table, Typography, Dropdown, Button, Modal, Tooltip, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -10,7 +10,8 @@ import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import VerticalSeparator from '../shared/VerticalSeparator';
+import { getChannelIcon } from '../../utils/channelIcons';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -68,7 +69,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.priceGroup.id || ''} variant="prominent" />
+            <CopyableId id={record.priceGroup.id || ''} variant="default" />
           </div>
         );
       },
@@ -84,11 +85,17 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         // Get all unique channels from SKUs using this price group
         const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
         return (
-          <Space size="small">
-            {uniqueChannels.map((channel: any) => (
-              <SalesChannelDisplay key={channel} channel={channel} variant="small" />
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            {uniqueChannels.map((channel: any, index: number) => (
+              <React.Fragment key={channel}>
+                {index > 0 && <VerticalSeparator />}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  {getChannelIcon(channel)}
+                  {channel}
+                </span>
+              </React.Fragment>
             ))}
-          </Space>
+          </div>
         );
       },
     } : null,
@@ -156,7 +163,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
             : pricePoint.amount.toFixed(2);
           
           return (
-            <span>
+            <span style={{ fontWeight: 500 }}>
               {pricePoint.currencyCode}{' '}
               <span style={{ fontVariantNumeric: 'tabular-nums' }}>{amount}</span>
             </span>

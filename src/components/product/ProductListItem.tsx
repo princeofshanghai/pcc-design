@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
+import VerticalSeparator from '../shared/VerticalSeparator';
+import { getChannelIcon } from '../../utils/channelIcons';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;
@@ -56,11 +57,17 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
         {/* Show channel pills */}
         {uniqueChannels.length > 0 && (
           <div style={{ marginTop: '8px' }}>
-            <Space size={4} wrap>
-              {uniqueChannels.map(channel => (
-                <SalesChannelDisplay key={channel} channel={channel} />
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+              {uniqueChannels.map((channel, index) => (
+                <React.Fragment key={channel}>
+                  {index > 0 && <VerticalSeparator />}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    {getChannelIcon(channel)}
+                    {channel}
+                  </span>
+                </React.Fragment>
               ))}
-            </Space>
+            </div>
           </div>
         )}
       </Space>

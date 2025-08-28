@@ -5,8 +5,8 @@ import { FlaskConical } from 'lucide-react';
 import type { Sku, Status, Product, SalesChannel, BillingCycle } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
+import { getChannelIcon } from '../../utils/channelIcons';
 
 import type { ColumnsType } from 'antd/es/table';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
@@ -60,7 +60,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.id} variant="prominent" />
+            <CopyableId id={record.id} variant="default" />
           </div>
           {hasSkuOverrides(record, product) && <OverrideIndicator />}
         </div>
@@ -72,7 +72,12 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     title: getColumnLabel('channel'),
     dataIndex: 'salesChannel',
     key: 'channel',
-    render: (channel: SalesChannel) => <SalesChannelDisplay channel={channel} variant="small" />,
+    render: (channel: SalesChannel) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {getChannelIcon(channel)}
+        <Typography.Text>{channel}</Typography.Text>
+      </div>
+    ),
   },
   {
     title: getColumnLabel('billingCycle'),

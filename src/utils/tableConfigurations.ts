@@ -9,7 +9,7 @@ export const PRICE_GROUP_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'channel', 'billingCycle', 'price', 'lix', 'status'];
+export const DEFAULT_PRICE_GROUP_COLUMNS = ['id', 'price', 'channel', 'billingCycle', 'lix', 'status'];
 
 export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Price point ID', required: true },

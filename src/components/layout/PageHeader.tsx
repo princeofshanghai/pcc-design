@@ -1,10 +1,10 @@
 import React from 'react';
 import { Typography, Space, theme, Button, Tooltip } from 'antd';
 import { Edit, TestTubeDiagonal } from 'lucide-react';
-import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
 import VerticalSeparator from '../shared/VerticalSeparator';
+import { getChannelIconForPageHeader } from '../../utils/channelIcons';
 import type { SalesChannel, BillingCycle } from '../../utils/types';
 import './PageHeader.css';
 
@@ -175,7 +175,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     <React.Fragment key={channel}>
                       {index > 0 && <VerticalSeparator />}
                       <Space size={6} align="center">
-                        <SalesChannelDisplay channel={channel as SalesChannel} iconOnly />
+                        {getChannelIconForPageHeader(channel as SalesChannel)}
                         <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
                           {cycles.join(', ')}
                         </Text>
@@ -188,7 +188,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     <React.Fragment key={channel}>
                       {index > 0 && <VerticalSeparator />}
                       <Space size={6} align="center">
-                        <SalesChannelDisplay channel={channel} iconOnly />
+                        {getChannelIconForPageHeader(channel)}
                         {billingCycles.length > 0 && (
                           <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
                             {billingCycles.join(', ')}

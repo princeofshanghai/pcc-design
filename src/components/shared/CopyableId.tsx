@@ -1,5 +1,5 @@
 import React from 'react';
-import { message, theme } from 'antd';
+import { message, theme, Tooltip } from 'antd';
 import { Copy, CheckCircle } from 'lucide-react';
 import './CopyableId.css';
 
@@ -7,9 +7,10 @@ interface CopyableIdProps {
   id: string;
   variant?: 'default' | 'prominent';
   muted?: boolean;
+  withBackground?: boolean; // New prop for PageHeader background styling
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted = false }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted = false, withBackground = false }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -78,26 +79,34 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
         display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
+        ...(withBackground && {
+          backgroundColor: token.colorBgLayout,
+          padding: '4px 8px',
+          borderRadius: token.borderRadiusSM,
+          border: `1px solid ${token.colorBorder}`,
+        }),
         ...getTextStyles(),
       }}
     >
       <span className="copyable-id-text">{id}</span>
-      <Copy 
-        size={12} 
-        strokeWidth={3}
-        style={{ 
-          cursor: 'pointer',
-          opacity: 0.6,
-          transition: 'opacity 0.2s ease'
-        }}
-        onClick={handleCopy}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.opacity = '1';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '0.6';
-        }}
-      />
+      <Tooltip title="Click to copy">
+        <Copy 
+          size={12} 
+          strokeWidth={3}
+          style={{ 
+            cursor: 'pointer',
+            opacity: 0.6,
+            transition: 'opacity 0.2s ease'
+          }}
+          onClick={handleCopy}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6';
+          }}
+        />
+      </Tooltip>
     </span>
   );
 };

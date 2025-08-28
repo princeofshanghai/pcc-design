@@ -1,10 +1,9 @@
 import React from 'react';
-import { Card, Space } from 'antd';
+import { Card, Space, Typography } from 'antd';
 import type { Sku } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
-import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 
 interface SkuListItemProps {
   sku: Sku;
@@ -19,7 +18,7 @@ const SkuListItem: React.FC<SkuListItemProps> = ({ sku }) => {
           <StatusTag status={sku.status} variant="small" />
         </Space>
         <Space size={[0, 8]} wrap>
-                      <BillingCycleDisplay billingCycle={sku.billingCycle} variant="small" />
+          <Typography.Text>{sku.billingCycle}</Typography.Text>
         </Space>
         <CopyableId id={sku.id} />
       </Space>

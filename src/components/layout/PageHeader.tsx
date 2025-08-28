@@ -1,10 +1,10 @@
 import React from 'react';
 import { Typography, Space, theme, Button, Tooltip } from 'antd';
-import { Edit } from 'lucide-react';
+import { Edit, TestTubeDiagonal } from 'lucide-react';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
-import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
+import VerticalSeparator from '../shared/VerticalSeparator';
 import type { SalesChannel, BillingCycle } from '../../utils/types';
 import './PageHeader.css';
 
@@ -14,9 +14,12 @@ interface PageHeaderProps {
   entityType?: string;
   title?: React.ReactNode;
   rightAlignedId?: string; // ID that appears inline with entity type
-  channels?: SalesChannel[]; // New prop for channels
-  billingCycles?: BillingCycle[]; // New prop for billing cycles
+  channels?: SalesChannel[]; // Legacy prop for channels (backward compatibility)
+  billingCycles?: BillingCycle[]; // Legacy prop for billing cycles (backward compatibility)
+  channelBillingGroups?: Record<SalesChannel, BillingCycle[]>; // New prop: each channel with its specific billing cycles
   validityText?: string; // New prop for validity period text
+  lixKey?: string; // New prop for experiment key
+  lixTreatment?: string; // New prop for experiment treatment
   tagContent?: React.ReactNode;
   actions?: React.ReactNode;
   // Keep subtitle for backward compatibility, but it will be replaced by channels/cycles
@@ -65,7 +68,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   rightAlignedId,
   channels = [],
   billingCycles = [],
+  channelBillingGroups,
   validityText,
+  lixKey,
+  lixTreatment,
   tagContent, 
   actions,
   subtitle,
@@ -81,28 +87,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="page-header-grid">
         {/* Main Content Area */}
         <div className="page-header-content page-header-content--no-back">
-          {/* Top row: Entity Type + ID (inline) */}
+          {/* Top row: Entity Type + ID (spread layout) */}
           {(entityType || rightAlignedId) && (
             <div className="page-header-top-row">
-              <Space align="center" size={4}>
-                {entityType && (
-                  <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
-                    {entityType}
-                  </Text>
-                )}
-                {rightAlignedId && (
-                  <>
-                    <div style={{ 
-                      color: token.colorBorder,
-                      fontSize: '14px',
-                      margin: '0 4px'
-                    }}>
-                      |
-                    </div>
-                    <CopyableId id={rightAlignedId} />
-                  </>
-                )}
-              </Space>
+              {entityType && (
+                <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                  {entityType}
+                </Text>
+              )}
+              {rightAlignedId && (
+                <CopyableId id={rightAlignedId} withBackground />
+              )}
             </div>
           )}
           
@@ -170,28 +165,65 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             ) : null}
           </div>
           
-          {/* Bottom row: Channels, Billing Cycles, and Validity */}
-          {(channels.length > 0 || billingCycles.length > 0 || validityText) ? (
+          {/* Bottom row: Channel-Billing Groups, Validity, and Experiments */}
+          {(channelBillingGroups || channels.length > 0 || validityText || (lixKey && lixTreatment)) ? (
             <div>
-              <Space size={4} wrap>
-                {channels.map(channel => (
-                  <SalesChannelDisplay key={channel} channel={channel} />
-                ))}
-                {billingCycles.map(cycle => (
-                  <BillingCycleDisplay key={cycle} billingCycle={cycle} />
-                ))}
-                {validityText && (
-                  <Text 
-                    style={{ 
-                      fontSize: '13px', 
-                      color: token.colorTextSecondary,
-                      fontWeight: 500 
-                    }}
-                  >
-                    {validityText}
-                  </Text>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                {channelBillingGroups ? (
+                  // New logic: Each channel shows only its specific billing cycles
+                  Object.entries(channelBillingGroups).map(([channel, cycles], index) => (
+                    <React.Fragment key={channel}>
+                      {index > 0 && <VerticalSeparator />}
+                      <Space size={6} align="center">
+                        <SalesChannelDisplay channel={channel as SalesChannel} iconOnly />
+                        <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                          {cycles.join(', ')}
+                        </Text>
+                      </Space>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  // Legacy logic: All billing cycles for all channels (backward compatibility)
+                  channels.map((channel, index) => (
+                    <React.Fragment key={channel}>
+                      {index > 0 && <VerticalSeparator />}
+                      <Space size={6} align="center">
+                        <SalesChannelDisplay channel={channel} iconOnly />
+                        {billingCycles.length > 0 && (
+                          <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                            {billingCycles.join(', ')}
+                          </Text>
+                        )}
+                      </Space>
+                    </React.Fragment>
+                  ))
                 )}
-              </Space>
+                {validityText && (
+                  <>
+                    {(channelBillingGroups || channels.length > 0) && <VerticalSeparator />}
+                    <Text 
+                      style={{ 
+                        fontSize: '13px', 
+                        color: token.colorTextSecondary,
+                        fontWeight: 500 
+                      }}
+                    >
+                      {validityText}
+                    </Text>
+                  </>
+                )}
+                {lixKey && lixTreatment && (
+                  <>
+                    {(channelBillingGroups || channels.length > 0 || validityText) && <VerticalSeparator />}
+                    <Space size={6} align="center">
+                      <TestTubeDiagonal size={16} style={{ color: '#ff7a00' }} />
+                      <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                        {lixKey} ({lixTreatment})
+                      </Text>
+                    </Space>
+                  </>
+                )}
+              </div>
             </div>
           ) : subtitle ? (
             <div>

@@ -548,7 +548,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                 <CirclePlus size={12} />;
             }
           })()}
-          iconPosition={isValidityFilter ? "end" : "start"}
+          iconPosition={isValidityFilter && icon ? "start" : (isValidityFilter ? "end" : "start")}
         >
           {(() => {
             const buttonText = getButtonText();

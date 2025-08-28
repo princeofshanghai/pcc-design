@@ -24,7 +24,6 @@ import {
   StatusTag,
   BillingModelDisplay,
   SalesChannelDisplay,
-  BillingCycleDisplay,
   FilterBar,
   CopyableId,
   PricePointStatusTag,
@@ -42,12 +41,7 @@ import {
   getFilterPlaceholder} from '../utils/tableConfigurations';
 import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 
-
 const { Title } = Typography;
-
-// Complete lists of all possible values
-const ALL_SALES_CHANNELS: SalesChannel[] = ['Desktop', 'iOS', 'GPB', 'Field'];
-const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
 
 /**
  * Currency names mapping for tooltips (consistent with PricePointTable)
@@ -203,7 +197,17 @@ const ProductDetail: React.FC = () => {
   const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
 
   // Price view toggle state - starts with 'price' (price groups view by default) 
-  const [priceViewMode, setPriceViewMode] = useState('price');
+  const [priceViewMode, setPriceViewMode] = useState(() => {
+    // Load from localStorage on initial mount
+    const saved = localStorage.getItem('priceViewMode');
+    return (saved === 'price' || saved === 'pricePoints') ? saved : 'price';
+  });
+
+  // Wrapper function that also saves to localStorage
+  const handlePriceViewModeChange = (newMode: string) => {
+    setPriceViewMode(newMode);
+    localStorage.setItem('priceViewMode', newMode);
+  };
 
   // Translations drawer state
   const [translationsDrawerOpen, setTranslationsDrawerOpen] = useState(false);
@@ -772,11 +776,9 @@ const ProductDetail: React.FC = () => {
       render: (billingCycles: BillingCycle[], record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Space size="small">
-            {billingCycles.map((cycle) => (
-              <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
-            ))}
-          </Space>
+          <Typography.Text>
+            {billingCycles.join(', ')}
+          </Typography.Text>
         );
       },
     },
@@ -966,70 +968,7 @@ const ProductDetail: React.FC = () => {
             </AttributeGroup>
           </PageSection>
 
-          <PageSection 
-            title={toSentenceCase('Configurations')}
-            subtitle="Shows the channels this product is currently being sold through and their corresponding billing cycles"
-          >
-            <Table
-                dataSource={ALL_SALES_CHANNELS.map(channel => ({
-                  key: channel,
-                  channel,
-                }))}
-                columns={[
-                  {
-                    title: 'Channel',
-                    dataIndex: 'channel',
-                    key: 'channel',
-                    width: 120,
-                    render: (channel: SalesChannel) => {
-                      const channelIsSupported = product.skus.some(sku => sku.salesChannel === channel);
-                      return (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <SalesChannelDisplay channel={channel} variant="small" muted={!channelIsSupported} />
-                        </div>
-                      );
-                    },
-                  },
-                  {
-                    title: 'Billing Cycles',
-                    key: 'cycles',
-                    render: (_, record) => {
-                      const channelIsSupported = product.skus.some(sku => sku.salesChannel === record.channel);
-                      
-                      if (!channelIsSupported) {
-                        return (
-                          <span style={{ color: token.colorTextTertiary, fontSize: token.fontSize }}>
-                            This product is not currently sold through this channel
-                          </span>
-                        );
-                      }
 
-                      return (
-                        <Space size={4}>
-                          {ALL_BILLING_CYCLES.map(cycle => {
-                            const hasConfiguration = product.skus.some(sku => 
-                              sku.salesChannel === record.channel && sku.billingCycle === cycle
-                            );
-                            return (
-                              <BillingCycleDisplay 
-                                key={cycle}
-                                billingCycle={cycle} 
-                                variant="small"
-                                muted={!hasConfiguration}
-                              />
-                            );
-                          })}
-                        </Space>
-                      );
-                    },
-                  },
-                ]}
-                pagination={false}
-                size="small"
-                showHeader={false}
-                style={{ border: 'none', marginTop: '-16px' }}
-              />
-          </PageSection>
         </Space>
       ),
     },
@@ -1125,6 +1064,7 @@ const ProductDetail: React.FC = () => {
                   options: pricePointFilterOptions.lixOptions,
                   value: pricePointLixFilter,
                   onChange: setPricePointLixFilter,
+                  primary: false, // Put LIX behind "More filters" button
                 },
                 {
                   placeholder: getFilterPlaceholder('status'), 
@@ -1132,6 +1072,7 @@ const ProductDetail: React.FC = () => {
                   value: pricePointStatusFilter,
                   onChange: setPricePointStatusFilter,
                   disableSearch: true,
+                  primary: false, // Put Status behind "More filters" button
                 },
               ] : [
                 {
@@ -1158,7 +1099,6 @@ const ProductDetail: React.FC = () => {
                   value: priceGroupExperimentFilter,
                   onChange: setPriceGroupExperimentFilter,
                   dropdownStyle: { minWidth: '320px' },
-                  primary: false, // Put LIX behind "More filters" button
                 },
                 {
                   placeholder: getFilterPlaceholder('status'),
@@ -1167,7 +1107,6 @@ const ProductDetail: React.FC = () => {
                   multiValue: priceGroupStatusFilters,
                   onMultiChange: (values: string[]) => setPriceGroupStatusFilters(values as any[]),
                   disableSearch: true,
-                  primary: false, // Put Status behind "More filters" button
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},
@@ -1179,7 +1118,7 @@ const ProductDetail: React.FC = () => {
               viewOptions={{
                 viewMode: {
                   value: priceViewMode,
-                  setter: setPriceViewMode,
+                  setter: handlePriceViewModeChange,
                   options: [
                     { key: 'price', label: 'View by price', icon: <Rows2 size={20} /> },
                     { key: 'pricePoints', label: 'View by price points', icon: <Rows4 size={20} /> }
@@ -1535,6 +1474,36 @@ const ProductDetail: React.FC = () => {
     return english ? [english, ...others] : others;
   }, [product?.name, product?.description]);
 
+  // Helper function to sort billing cycles in consistent order
+  const sortBillingCycles = (cycles: BillingCycle[]): BillingCycle[] => {
+    const order: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
+    return cycles.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  };
+
+  // Group billing cycles by channel from SKU data
+  const channelBillingGroups = product.skus.reduce((groups, sku) => {
+    const channel = sku.salesChannel;
+    const billingCycle = sku.billingCycle;
+    
+    if (!groups[channel]) {
+      groups[channel] = [];
+    }
+    
+    // Add billing cycle if not already present for this channel
+    if (!groups[channel].includes(billingCycle)) {
+      groups[channel].push(billingCycle);
+    }
+    
+    return groups;
+  }, {} as Record<SalesChannel, BillingCycle[]>);
+
+  // Sort billing cycles for each channel
+  Object.keys(channelBillingGroups).forEach(channel => {
+    channelBillingGroups[channel as SalesChannel] = sortBillingCycles(channelBillingGroups[channel as SalesChannel]);
+  });
+
+
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
@@ -1549,6 +1518,7 @@ const ProductDetail: React.FC = () => {
         }
         tagContent={<StatusTag status={product.status} variant="small" />}
         rightAlignedId={product.id}
+        channelBillingGroups={channelBillingGroups}
         compact
       />
 

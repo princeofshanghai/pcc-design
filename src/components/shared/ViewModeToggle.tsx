@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { theme } from 'antd';
 
 interface ViewModeOption {
@@ -21,20 +21,6 @@ const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
   storageKey
 }) => {
   const { token } = theme.useToken();
-
-  // Load from localStorage on mount if storageKey is provided
-  useEffect(() => {
-    if (storageKey) {
-      const savedValue = localStorage.getItem(storageKey);
-      if (savedValue && options.some(opt => opt.key === savedValue)) {
-        // Only call onChange if the saved value is different from current value
-        if (savedValue !== value) {
-          onChange(savedValue);
-        }
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on initial mount
 
   const handleOptionClick = (optionKey: string) => {
     onChange(optionKey);

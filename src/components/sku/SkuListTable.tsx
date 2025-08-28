@@ -6,7 +6,6 @@ import type { Sku, Status, Product, SalesChannel, BillingCycle } from '../../uti
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
-import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 
 import type { ColumnsType } from 'antd/es/table';
@@ -79,7 +78,7 @@ export const getSkuTableColumns = (product: Product, navigate: (path: string) =>
     title: getColumnLabel('billingCycle'),
     dataIndex: 'billingCycle',
     key: 'billingCycle',
-    render: (billingCycle: BillingCycle) => <BillingCycleDisplay billingCycle={billingCycle} variant="small" />,
+    render: (billingCycle: BillingCycle) => <Typography.Text>{billingCycle}</Typography.Text>,
   },
   ...(hidePriceGroupColumn ? [] : [{
     title: getColumnLabel('priceGroup'),

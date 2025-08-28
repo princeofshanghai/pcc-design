@@ -23,12 +23,10 @@ export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
 // Pricing components
 export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
-export { default as FieldPricingView } from './pricing/FieldPricingView';
 export { default as OverrideComparison } from './pricing/OverrideComparison';
 export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
-export { default as PricePointMatrix } from './pricing/PricePointMatrix';
 export { default as PricePointTable } from './pricing/PricePointTable';
 
 
@@ -58,6 +56,7 @@ export { default as UserAvatar } from './shared/UserAvatar';
 export { default as BaseChip } from './shared/BaseChip';
 export { default as SecondaryText } from './shared/SecondaryText';
 export { default as ViewModeToggle } from './shared/ViewModeToggle';
+export { default as VerticalSeparator } from './shared/VerticalSeparator';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';

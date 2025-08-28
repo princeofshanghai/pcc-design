@@ -11,7 +11,6 @@ import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
 import SalesChannelDisplay from '../attributes/SalesChannelDisplay';
-import BillingCycleDisplay from '../attributes/BillingCycleDisplay';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -102,11 +101,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         // Get all unique billing cycles from SKUs using this price group
         const uniqueBillingCycles = [...new Set(record.skus.map((sku: Sku) => sku.billingCycle))];
         return (
-          <Space size="small">
-            {uniqueBillingCycles.map((billingCycle: any) => (
-              <BillingCycleDisplay key={billingCycle} billingCycle={billingCycle} variant="small" />
-            ))}
-          </Space>
+          <Typography.Text>
+            {uniqueBillingCycles.join(', ')}
+          </Typography.Text>
         );
       },
     } : null,

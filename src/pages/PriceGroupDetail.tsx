@@ -6,7 +6,7 @@ import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 import { usePricePointFilters } from '../hooks/usePricePointFilters';
-import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
+import type { ColumnConfig, ColumnVisibility, ColumnOrder, SalesChannel, BillingCycle } from '../utils/types';
 import {
   PageHeader,
   PriceGroupStatusTag,
@@ -15,14 +15,12 @@ import {
   AttributeDisplay,
   AttributeGroup,
   SalesChannelDisplay,
-  BillingCycleDisplay,
   BillingModelDisplay
 } from '../components';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
-import FieldPricingView from '../components/pricing/FieldPricingView';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
@@ -70,13 +68,9 @@ const PriceGroupDetail: React.FC = () => {
   // Find all SKUs that use this price group
   const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
   
-  // Field pricing detection - check if any SKU uses Field sales channel
-  const isFieldPricing = skusWithPriceGroup.some(sku => sku.salesChannel === 'Field');
-  
   console.log('PriceGroupDetail - productId:', productId, 'priceGroupId:', priceGroupId);
   console.log('Product SKUs:', product?.skus.map(sku => ({ id: sku.id, priceGroupId: sku.priceGroup.id })));
   console.log('Matching SKUs:', skusWithPriceGroup.length);
-  console.log('🔍 Field pricing detected:', isFieldPricing, 'for price group:', priceGroupId);
   console.log('📋 Sales channels in price group:', skusWithPriceGroup.map(sku => sku.salesChannel));
   
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
@@ -263,13 +257,44 @@ const PriceGroupDetail: React.FC = () => {
 
 
 
+  // Helper function to sort billing cycles in consistent order
+  const sortBillingCycles = (cycles: BillingCycle[]): BillingCycle[] => {
+    const order: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
+    return cycles.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  };
+
+  // Group billing cycles by channel from SKU data  
+  const channelBillingGroups = skusWithPriceGroup.reduce((groups, sku) => {
+    const channel = sku.salesChannel;
+    const billingCycle = sku.billingCycle;
+    
+    if (!groups[channel]) {
+      groups[channel] = [];
+    }
+    
+    // Add billing cycle if not already present for this channel
+    if (!groups[channel].includes(billingCycle)) {
+      groups[channel].push(billingCycle);
+    }
+    
+    return groups;
+  }, {} as Record<SalesChannel, BillingCycle[]>);
+
+  // Sort billing cycles for each channel
+  Object.keys(channelBillingGroups).forEach(channel => {
+    channelBillingGroups[channel as SalesChannel] = sortBillingCycles(channelBillingGroups[channel as SalesChannel]);
+  });
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={48}>
       <PageHeader
-        entityType="Price group"
-        title={priceGroup.name || `Price group for ${product.name}`}
+        entityType="Price"
+        title={`Prices for ${product.name}`}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
+        channelBillingGroups={channelBillingGroups}
+        lixKey={lixKey}
+        lixTreatment={lixTreatment}
         compact
       />
 
@@ -284,9 +309,9 @@ const PriceGroupDetail: React.FC = () => {
               {uniqueChannels.map(channel => (
                 <SalesChannelDisplay key={channel} channel={channel} variant="small" />
               ))}
-              {uniqueBillingCycles.map(cycle => (
-                <BillingCycleDisplay key={cycle} billingCycle={cycle} variant="small" />
-              ))}
+              <Typography.Text>
+                {uniqueBillingCycles.join(', ')}
+              </Typography.Text>
             </Space>
           </AttributeDisplay>
           
@@ -398,137 +423,124 @@ const PriceGroupDetail: React.FC = () => {
       <PageSection 
         title={toSentenceCase("Price points")}
       >
-        {isFieldPricing ? (
-          <FieldPricingView 
-            pricePoints={priceGroup?.pricePoints || []} 
-            visibleColumns={visibleColumns}
-            columnOrder={columnOrder}
-            sortOrder={pricePointSortOrder}
-            isTaxInclusive={isMobileOnlyPriceGroup}
-          />
-        ) : (
-          <>
-            <FilterBar
-              useCustomFilters={true}
-              search={{
-                placeholder: "Search by currency or ID...",
-                onChange: setPricePointSearchQuery,
-              }}
-              filters={[
-                {
-                  placeholder: getFilterPlaceholder('validity'),
-                  options: validityOptions,
-                  multiSelect: false,
-                  value: validityFilter,
-                  onChange: (value: string | null) => {
-                    if (value) {
-                      setValidityFilter(value);
-                    } else {
-                      // Reset to channel-specific default when cleared
-                      const channelDefault = getDefaultValidityFilter(uniqueChannels);
-                      if (channelDefault === 'most-recent') {
-                        const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
-                        setValidityFilter(newestPeriod || 'All periods');
-                      } else {
-                        setValidityFilter('All periods');
-                      }
-                    }
-                  },
-                  disableSearch: true,
-                  // View selector behavior - validity is not a filter, it's a view mode
-                  excludeFromClearAll: true,
-                  hideClearButton: true,
-                  preventDeselection: true,
-                  // Custom display: show "All" instead of "All periods" on button
-                  customDisplayValue: (value) => {
-                    return value === 'All periods' ? 'All' : value || 'All';
-                  },
-                  // Add Calendar icon
-                  icon: <Calendar size={12} />,
-                  // Required for TypeScript interface compatibility
-                  multiValue: [],
-                  onMultiChange: () => {},
-                },
-                {
-                  placeholder: getFilterPlaceholder('currency'),
-                  options: currencyOptions,
-                  multiSelect: true,
-                  multiValue: currencyFilters,
-                  onMultiChange: (values: string[]) => setCurrencyFilters(values),
-                  // Required for TypeScript interface compatibility
-                  value: null,
-                  onChange: () => {},
-                },
-                {
-                  placeholder: getFilterPlaceholder('status'),
-                  options: statusOptions,
-                  multiSelect: true,
-                  multiValue: statusFilters,
-                  onMultiChange: (values: string[]) => setStatusFilters(values),
-                  disableSearch: true,
-                  primary: false, // Put Status behind "More filters" button
-                  // Required for TypeScript interface compatibility
-                  value: null,
-                  onChange: () => {},
-                },
-              ]}
-              onClearAll={clearAllPricePointFilters}
-              viewOptions={{
-                sortOrder: {
-                  value: pricePointSortOrder,
-                  setter: setPricePointSortOrder,
-                  options: sortOptions,
-                },
-                groupBy: {
-                  value: pricePointGroupBy,
-                  setter: setPricePointGroupBy,
-                  options: getAvailableGroupByOptions(uniqueChannels),
-                },
-                columnOptions,
-                visibleColumns,
-                setVisibleColumns,
-                columnOrder,
-                setColumnOrder,
-                defaultVisibleColumns: pricePointDefaultVisibility,
-                defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
-              }}
-              displayMode="inline"
-              rightActions={[
-                <Button 
-                  key="export"
-                  icon={<Download size={16} />}
-                  size="middle"
+        <FilterBar
+          useCustomFilters={true}
+          search={{
+            placeholder: "Search by currency or ID...",
+            onChange: setPricePointSearchQuery,
+          }}
+          filters={[
+            {
+              placeholder: getFilterPlaceholder('validity'),
+              options: validityOptions,
+              multiSelect: false,
+              value: validityFilter,
+              onChange: (value: string | null) => {
+                if (value) {
+                  setValidityFilter(value);
+                } else {
+                  // Reset to channel-specific default when cleared
+                  const channelDefault = getDefaultValidityFilter(uniqueChannels);
+                  if (channelDefault === 'most-recent') {
+                    const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
+                    setValidityFilter(newestPeriod || 'All periods');
+                  } else {
+                    setValidityFilter('All periods');
+                  }
+                }
+              },
+              disableSearch: true,
+              // View selector behavior - validity is not a filter, it's a view mode
+              excludeFromClearAll: true,
+              hideClearButton: true,
+              preventDeselection: true,
+              // Custom display: show "All" instead of "All periods" on button
+              customDisplayValue: (value) => {
+                return value === 'All periods' ? 'All' : value || 'All';
+              },
+              // Add Calendar icon
+              icon: <Calendar size={12} />,
+              // Required for TypeScript interface compatibility
+              multiValue: [],
+              onMultiChange: () => {},
+            },
+            {
+              placeholder: getFilterPlaceholder('currency'),
+              options: currencyOptions,
+              multiSelect: true,
+              multiValue: currencyFilters,
+              onMultiChange: (values: string[]) => setCurrencyFilters(values),
+              // Required for TypeScript interface compatibility
+              value: null,
+              onChange: () => {},
+            },
+            {
+              placeholder: getFilterPlaceholder('status'),
+              options: statusOptions,
+              multiSelect: true,
+              multiValue: statusFilters,
+              onMultiChange: (values: string[]) => setStatusFilters(values),
+              disableSearch: true,
+              // Required for TypeScript interface compatibility
+              value: null,
+              onChange: () => {},
+            },
+          ]}
+          onClearAll={clearAllPricePointFilters}
+          viewOptions={{
+            sortOrder: {
+              value: pricePointSortOrder,
+              setter: setPricePointSortOrder,
+              options: sortOptions,
+            },
+            groupBy: {
+              value: pricePointGroupBy,
+              setter: setPricePointGroupBy,
+              options: getAvailableGroupByOptions(uniqueChannels),
+            },
+            columnOptions,
+            visibleColumns,
+            setVisibleColumns,
+            columnOrder,
+            setColumnOrder,
+            defaultVisibleColumns: pricePointDefaultVisibility,
+            defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
+          }}
+          displayMode="inline"
+          rightActions={[
+            <Button 
+              key="export"
+              icon={<Download size={16} />}
+              size="middle"
 
-                  onClick={() => {
-                    Modal.info({
-                      title: 'Export Price Points',
-                      content: (
-                        <div>
-                          <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
-                          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                            Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
-                          </p>
-                        </div>
-                      ),
-                      okText: 'Got it',
-                      width: 400,
-                    });
-                  }}
-                >
-                  Export
-                </Button>
-              ]}
-            />
-            <PricePointTable 
-              pricePoints={filteredPricePoints} 
-              groupedPricePoints={groupedPricePointsData}
-              visibleColumns={visibleColumns}
-              columnOrder={columnOrder}
-              sortOrder={pricePointSortOrder}
-              isTaxInclusive={isMobileOnlyPriceGroup}
-            />
-          </>
-        )}
+              onClick={() => {
+                Modal.info({
+                  title: 'Export Price Points',
+                  content: (
+                    <div>
+                      <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
+                      <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+                        Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
+                      </p>
+                    </div>
+                  ),
+                  okText: 'Got it',
+                  width: 400,
+                });
+              }}
+            >
+              Export
+            </Button>
+          ]}
+        />
+        <PricePointTable 
+          pricePoints={filteredPricePoints} 
+          groupedPricePoints={groupedPricePointsData}
+          visibleColumns={visibleColumns}
+          columnOrder={columnOrder}
+          sortOrder={pricePointSortOrder}
+          isTaxInclusive={isMobileOnlyPriceGroup}
+        />
       </PageSection>
     </Space>
   );

@@ -98,6 +98,7 @@ const Home: React.FC = () => {
     // Only show folder as toggleable when viewing all products
     ...(currentFolder ? [] : [{ key: 'folder', label: 'Folder', required: false }]),
     { key: 'channel', label: 'Channel', required: false },
+    { key: 'customers', label: 'Customers', required: false },
     { key: 'status', label: 'Status', required: false },
   ];
 

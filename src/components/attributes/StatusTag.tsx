@@ -1,6 +1,6 @@
 import React from 'react';
-import { theme } from 'antd';
-import { Check, Archive, ArchiveX } from 'lucide-react';
+import { theme, Tooltip } from 'antd';
+import { Check, Archive, ArchiveX, CirclePause, CircleCheckBig } from 'lucide-react';
 
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
@@ -18,12 +18,12 @@ interface StatusTagProps {
 
 const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'warning' | 'default' }> = {
   Active: {
-    icon: Check,
+    icon: CircleCheckBig,
     description: 'Product is actively being sold',
     antColorType: 'success',
   },
   Inactive: {
-    icon: Archive,
+    icon: CirclePause,
     description: 'This product is no longer sold but still has active, grandfathered customers.',
     antColorType: 'warning',
   },
@@ -58,7 +58,7 @@ const StatusTag: React.FC<StatusTagProps> = ({
       case 'warning':
         return {
           backgroundColor: token.colorWarningBg,
-          textColor: token.colorWarningText,
+          textColor: token.colorWarning,
           borderColor: token.colorWarningBorder,
         };
       default: // 'default' for legacy/neutral
@@ -74,12 +74,14 @@ const StatusTag: React.FC<StatusTagProps> = ({
 
   // If showLabel is false, render just the icon without background
   if (!showLabel) {
-    // For icon-only, we'll use a simple span with the icon
-    const iconSize = variant === 'small' ? 12 : 14;
+    // For icon-only, we'll use a simple span with the icon wrapped in a tooltip
+    const iconSize = variant === 'small' ? 12 : 16;
     return (
-      <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
-        <Icon size={iconSize} strokeWidth={variant === 'small' ? 2.5 : 2} />
-      </span>
+      <Tooltip title={description}>
+        <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
+          <Icon size={iconSize} strokeWidth={variant === 'small' ? 2.5 : 2} />
+        </span>
+      </Tooltip>
     );
   }
 

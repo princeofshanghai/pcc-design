@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
-import { Settings2, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
+import { Settings, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import type { ViewModeConfig } from './FilterBar';
@@ -555,15 +555,20 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       disabled={isDisabled}
     >
       <Button 
-        icon={
-          <Badge dot={isViewActive || false}>
-            <Settings2 size={16} />
-          </Badge>
-        } 
         size={size}
-        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        style={{
+          height: '28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 12px',
+          gap: '6px',
+        }}
       >
-        {toSentenceCase('Display')}
+        <Badge dot={isViewActive || false} size="small">
+          <Settings size={14} />
+        </Badge>
+        <span>{toSentenceCase('View')}</span>
       </Button>
     </Dropdown>
   );

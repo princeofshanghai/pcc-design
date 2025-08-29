@@ -161,7 +161,7 @@ export const PRODUCT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'status'];
+export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel'];
 
 // Sort options for products
 export const PRODUCT_SORT_OPTIONS = [

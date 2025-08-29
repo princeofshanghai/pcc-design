@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, theme, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
@@ -76,6 +77,7 @@ export const getProductListTableColumns = (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontWeight: 500 }}>{name}</span>
+            <StatusTag status={record.status} showLabel={false} variant="default" />
             {record.isBundle && (
               <Tag>Bundle</Tag>
             )}
@@ -146,11 +148,37 @@ export const getProductListTableColumns = (
     ...allVisibleColumnKeys.filter(key => !columnOrder.includes(key))
   ];
   
-  return formatColumnTitles(
+  const baseColumns = formatColumnTitles(
     orderedColumnKeys
       .map(key => allColumnsMap[key])
       .filter(Boolean)
   );
+
+  // Action column (always visible, fixed to right) - visual indicator for clickability
+  const actionColumn = {
+    title: '', // No column title
+    key: 'actions',
+    fixed: 'right' as const,
+    width: 48,
+    render: (_: any, _record: Product) => (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+      }}>
+        <ChevronRight 
+          size={16} 
+          style={{ 
+            color: token.colorTextTertiary,
+          }} 
+        />
+      </div>
+    ),
+  };
+
+  // Combine base columns with action column
+  return [...baseColumns, actionColumn];
 };
 
 const ProductListTable: React.FC<ProductListTableProps> = ({ 

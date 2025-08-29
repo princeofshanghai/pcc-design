@@ -995,7 +995,118 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // New Prices tab
+    // SKUs tab (moved to be second)
+    {
+      key: 'skus',
+      label: (
+        <span>
+          SKUs <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
+        </span>
+      ),
+      children: (
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+
+          <PageSection
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{toSentenceCase('SKUs')}</span>
+                {priceGroupFilter && (
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                    (filtered by price: {priceGroupFilter})
+                  </Typography.Text>
+                )}
+              </div>
+            }
+            hideDivider={true}
+        >
+          <FilterBar
+            useCustomFilters={true}
+            search={{
+              placeholder: "Search by SKU ID or Name...",
+              onChange: setSearchQuery,
+            }}
+            onClearAll={clearAllSkuFilters}
+            filters={[
+              {
+                placeholder: "All channels",
+                options: channelOptions,
+                value: channelFilters.length === 1 ? channelFilters[0] : null,
+                onChange: (value) => {
+                  if (value) {
+                    setChannelFilters([value as SalesChannel]);
+                  } else {
+                    setChannelFilters([]);
+                  }
+                },
+                multiSelect: true,
+                multiValue: channelFilters,
+                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
+                disableSearch: true,
+              },
+              {
+                placeholder: getFilterPlaceholder('billingCycle'),
+                options: billingCycleOptions,
+                value: billingCycleFilter,
+                onChange: (value) => setBillingCycleFilter(value as string ?? null),
+                disableSearch: true,
+              },
+              {
+                placeholder: getFilterPlaceholder('lix'),
+                options: lixKeyOptions,
+                value: lixKeyFilter,
+                onChange: (value) => setLixKeyFilter(value as string ?? null),
+              },
+
+              {
+                placeholder: getFilterPlaceholder('status'),
+                options: statusOptions,
+                value: statusFilter,
+                onChange: (value) => setStatusFilter(value as Status ?? null),
+                disableSearch: true,
+              },
+            ]}
+            viewOptions={{
+              sortOrder: {
+                value: sortOrder,
+                setter: setSortOrder,
+                options: SKU_SORT_OPTIONS,
+              },
+              groupBy: {
+                value: groupBy,
+                setter: setGroupBy,
+                options: SKU_GROUP_BY_OPTIONS,
+              },
+              columnOptions: skuColumnOptions,
+              visibleColumns: skuVisibleColumns,
+              setVisibleColumns: setSkuVisibleColumns,
+              columnOrder: skuColumnOrder,
+              setColumnOrder: setSkuColumnOrder,
+              defaultVisibleColumns: skuDefaultVisibility,
+              defaultColumnOrder: DEFAULT_SKU_COLUMNS,
+            }}
+          />
+          {finalGroupedSkus ? (
+            <GroupedSkuListTable 
+              groupedSkus={finalGroupedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
+          ) : (
+            <SkuListTable 
+              skus={finalSortedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
+          )}
+          </PageSection>
+        </Space>
+      ),
+    },
+    // Prices tab
     {
       key: 'pricing',
       label: 'Prices',
@@ -1349,117 +1460,6 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
             </AttributeGroup>
-          </PageSection>
-        </Space>
-      ),
-    },
-    // SKUs tab (moved to be last)
-    {
-      key: 'skus',
-      label: (
-        <span>
-          SKUs <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
-        </span>
-      ),
-      children: (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-
-          <PageSection
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>{toSentenceCase('SKUs')}</span>
-                {priceGroupFilter && (
-                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-                    (filtered by price: {priceGroupFilter})
-                  </Typography.Text>
-                )}
-              </div>
-            }
-            hideDivider={true}
-        >
-          <FilterBar
-            useCustomFilters={true}
-            search={{
-              placeholder: "Search by SKU ID or Name...",
-              onChange: setSearchQuery,
-            }}
-            onClearAll={clearAllSkuFilters}
-            filters={[
-              {
-                placeholder: "All channels",
-                options: channelOptions,
-                value: channelFilters.length === 1 ? channelFilters[0] : null,
-                onChange: (value) => {
-                  if (value) {
-                    setChannelFilters([value as SalesChannel]);
-                  } else {
-                    setChannelFilters([]);
-                  }
-                },
-                multiSelect: true,
-                multiValue: channelFilters,
-                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
-                disableSearch: true,
-              },
-              {
-                placeholder: getFilterPlaceholder('billingCycle'),
-                options: billingCycleOptions,
-                value: billingCycleFilter,
-                onChange: (value) => setBillingCycleFilter(value as string ?? null),
-                disableSearch: true,
-              },
-              {
-                placeholder: getFilterPlaceholder('lix'),
-                options: lixKeyOptions,
-                value: lixKeyFilter,
-                onChange: (value) => setLixKeyFilter(value as string ?? null),
-              },
-
-              {
-                placeholder: getFilterPlaceholder('status'),
-                options: statusOptions,
-                value: statusFilter,
-                onChange: (value) => setStatusFilter(value as Status ?? null),
-                disableSearch: true,
-              },
-            ]}
-            viewOptions={{
-              sortOrder: {
-                value: sortOrder,
-                setter: setSortOrder,
-                options: SKU_SORT_OPTIONS,
-              },
-              groupBy: {
-                value: groupBy,
-                setter: setGroupBy,
-                options: SKU_GROUP_BY_OPTIONS,
-              },
-              columnOptions: skuColumnOptions,
-              visibleColumns: skuVisibleColumns,
-              setVisibleColumns: setSkuVisibleColumns,
-              columnOrder: skuColumnOrder,
-              setColumnOrder: setSkuColumnOrder,
-              defaultVisibleColumns: skuDefaultVisibility,
-              defaultColumnOrder: DEFAULT_SKU_COLUMNS,
-            }}
-          />
-          {finalGroupedSkus ? (
-            <GroupedSkuListTable 
-              groupedSkus={finalGroupedSkus} 
-              product={product} 
-              visibleColumns={skuVisibleColumns}
-              columnOrder={skuColumnOrder}
-              currentTab={currentTab} 
-            />
-          ) : (
-            <SkuListTable 
-              skus={finalSortedSkus} 
-              product={product} 
-              visibleColumns={skuVisibleColumns}
-              columnOrder={skuColumnOrder}
-              currentTab={currentTab} 
-            />
-          )}
           </PageSection>
         </Space>
       ),

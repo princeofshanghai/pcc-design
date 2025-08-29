@@ -6,7 +6,7 @@ import { mockProducts } from '../utils/mock-data';
 import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
 import type { Status, LOB, SalesChannel, ColumnConfig, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { useProductFilters } from '../hooks/useProductFilters';
-import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS, getFilterPlaceholder } from '../utils/tableConfigurations';
+import { PRODUCT_GROUP_BY_OPTIONS, PRODUCT_SORT_OPTIONS, getFilterPlaceholder, DEFAULT_PRODUCT_COLUMNS } from '../utils/tableConfigurations';
 import {
   PageHeader,
   ProductListTable,
@@ -83,17 +83,11 @@ const Home: React.FC = () => {
     name: true,     // Always visible (required)
     folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     channel: true,  // Toggleable
-    status: true,   // Toggleable
+    status: false,  // Hidden by default (status shown inline with product name)
   });
 
   // Column order state for ProductListTable
-  const [columnOrder, setColumnOrder] = useState<ColumnOrder>([
-    'id',
-    'name',
-    'folder',
-    'channel',
-    'status'
-  ]);
+  const [columnOrder, setColumnOrder] = useState<ColumnOrder>(DEFAULT_PRODUCT_COLUMNS);
 
   // Column configuration for ProductListTable - exclude folder column when in specific folder
   const columnOptions: ColumnConfig[] = [
@@ -159,15 +153,17 @@ const Home: React.FC = () => {
     if (!currentFolder) {
       setFolderFilter(null);
     }
-    // Reset columns to show all toggleable columns
-    const resetColumns: ColumnVisibility = {};
-    columnOptions.forEach(col => {
-      resetColumns[col.key] = true;
-    });
+    // Reset columns to proper defaults
+    const resetColumns: ColumnVisibility = {
+      id: true,       // Always visible (required)
+      name: true,     // Always visible (required)
+      folder: !currentFolder, // Hide folder column when in a specific folder
+      channel: true,  // Toggleable, default visible
+      status: false,  // Hidden by default (status shown inline with product name)
+    };
     setVisibleColumns(resetColumns);
-    // Reset column order to original order
-    const originalOrder = columnOptions.map(col => col.key);
-    setColumnOrder(originalOrder);
+    // Reset column order to default order
+    setColumnOrder(DEFAULT_PRODUCT_COLUMNS);
   };
 
   // Generate page title and subtitle based on current context
@@ -250,6 +246,14 @@ const Home: React.FC = () => {
               setVisibleColumns,
               columnOrder,
               setColumnOrder,
+              defaultVisibleColumns: {
+                id: true,       // Always visible (required)
+                name: true,     // Always visible (required)
+                folder: !currentFolder, // Hide folder column when in a specific folder
+                channel: true,  // Toggleable, default visible
+                status: false,  // Hidden by default (status shown inline with product name)
+              },
+              defaultColumnOrder: DEFAULT_PRODUCT_COLUMNS,
             }}
           />
         </Space>

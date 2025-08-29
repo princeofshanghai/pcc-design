@@ -530,10 +530,10 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
           size={size}
           className={`custom-filter-button ${hasSelections ? 'has-selections' : 'no-selections'}`}
           style={{
+            height: '28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '4px 11px',
           }}
           icon={(() => {
             if (isValidityFilter) {

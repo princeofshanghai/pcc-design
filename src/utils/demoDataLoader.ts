@@ -126,7 +126,7 @@ export async function loadProductWithPricing(productId: string): Promise<Product
       }
 
       // Create SKUs from price groups (one SKU per price group for demo purposes)
-      const enhancedSkus = priceGroups.map((priceGroup: any, index: number) => {
+      const enhancedSkus = priceGroups.map((priceGroup: any) => {
         const salesChannel = priceGroup.channel || 'Desktop';
         
         // Preserve customer data from original SKUs if they exist

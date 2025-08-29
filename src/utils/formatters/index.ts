@@ -38,7 +38,7 @@ export const formatCustomerNumber = (num: number): string => {
 };
 
 // Generate a fake percentage change for demo purposes
-export const generateFakePercentageChange = (isActive: boolean, baseValue: number): { value: number; isPositive: boolean } => {
+export const generateFakePercentageChange = (isActive: boolean): { value: number; isPositive: boolean } => {
   // For inactive products, always show negative change
   if (!isActive) {
     const change = -(Math.random() * 6 + 2); // -2% to -8%

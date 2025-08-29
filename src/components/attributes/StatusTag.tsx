@@ -1,10 +1,9 @@
 import React from 'react';
 import { theme, Tooltip } from 'antd';
-import { Check, Archive, ArchiveX, CirclePause, CircleCheckBig } from 'lucide-react';
-
-import BaseChip, { type ChipVariant } from '../shared/BaseChip';
+import { ArchiveX, CirclePause, CircleCheckBig } from 'lucide-react';
 
 export type ProductStatus = 'Active' | 'Inactive' | 'Archived';
+export type ChipVariant = 'default' | 'small';
 
 interface StatusTagProps {
   status?: ProductStatus;

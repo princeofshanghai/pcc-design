@@ -155,7 +155,7 @@ export const getProductListTableColumns = (
           (record.totalSubscriptions || 0);
         
         const isActive = record.status === 'Active';
-        const percentageChange = generateFakePercentageChange(isActive, totalCustomers);
+        const percentageChange = generateFakePercentageChange(isActive);
         
         return (
           <Tooltip title="Updated a week ago" placement="top">

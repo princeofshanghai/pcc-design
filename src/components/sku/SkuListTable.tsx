@@ -232,7 +232,7 @@ export const getSkuTableColumns = (
           (sku.subscriptions || 0);
         
         const isActive = sku.status === 'Active';
-        const percentageChange = generateFakePercentageChange(isActive, customerCount);
+        const percentageChange = generateFakePercentageChange(isActive);
         
         return (
           <Tooltip title="Updated a week ago" placement="top">

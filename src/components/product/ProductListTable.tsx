@@ -1,14 +1,14 @@
 import React from 'react';
-import { Table, theme, Tag } from 'antd';
+import { Table, theme, Tag, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import SecondaryText from '../shared/SecondaryText';
 import VerticalSeparator from '../shared/VerticalSeparator';
 import { getChannelIcon } from '../../utils/channelIcons';
-import { formatColumnTitles, toSentenceCase } from '../../utils/formatters';
+import { formatColumnTitles, toSentenceCase, formatCustomerNumber, generateFakePercentageChange } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -88,6 +88,7 @@ export const getProductListTableColumns = (
         </div>
       ),
     } : null,
+
     folder: visibleColumns.folder === true ? {
       title: getColumnLabel('folder'),
       dataIndex: 'folder',
@@ -132,6 +133,62 @@ export const getProductListTableColumns = (
       key: 'status',
       // Status is important, keep visible on all screens
       render: (status: Product['status']) => <StatusTag status={status} variant="small" />,
+    } : null,
+
+    customers: visibleColumns.customers === true ? {
+      title: getColumnLabel('customers'),
+      key: 'customers',
+      // Hide on screens smaller than 1024px (desktop)
+      responsive: ['lg'],
+      render: (_: any, record: Product) => {
+        // Determine if this product has field channels or online channels
+        const hasFieldChannel = record.skus?.some(sku => sku.salesChannel === 'Field') || false;
+        const hasOnlineChannels = record.skus?.some(sku => 
+          ['Desktop', 'iOS', 'GPB'].includes(sku.salesChannel)
+        ) || false;
+        
+        // If product has both field and online, prioritize the dominant one
+        // If only field, show contracts; if only online or mixed, show subscriptions
+        const showContracts = hasFieldChannel && !hasOnlineChannels;
+        const totalCustomers = showContracts ? 
+          (record.totalActiveContracts || 0) : 
+          (record.totalSubscriptions || 0);
+        
+        const isActive = record.status === 'Active';
+        const percentageChange = generateFakePercentageChange(isActive, totalCustomers);
+        
+        return (
+          <Tooltip title="Updated a week ago" placement="top">
+            <div>
+              {/* First row: Number + percentage change indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontWeight: 500 }}>
+                  {formatCustomerNumber(totalCustomers)}
+                </span>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '2px',
+                  color: percentageChange.isPositive ? token.colorSuccess : token.colorError,
+                  fontSize: '12px'
+                }}>
+                  {percentageChange.isPositive ? (
+                    <TrendingUp size={12} />
+                  ) : (
+                    <TrendingDown size={12} />
+                  )}
+                  {percentageChange.value.toFixed(1)}%
+                </div>
+              </div>
+              
+              {/* Second row: Secondary text */}
+              <SecondaryText style={{ fontSize: token.fontSizeSM }}>
+                {showContracts ? 'contracts' : 'subscriptions'}
+              </SecondaryText>
+            </div>
+          </Tooltip>
+        );
+      },
     } : null,
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Space, theme, Button, Tooltip } from 'antd';
+import { Typography, Space, theme, Button, Tooltip, Dropdown } from 'antd';
 import { Edit, TestTubeDiagonal } from 'lucide-react';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
@@ -30,6 +30,9 @@ interface PageHeaderProps {
   lastUpdatedBy?: string; // Now just the user identifier (full name or LDAP)
   lastUpdatedAt?: Date;
   onEdit?: () => void;
+  editDropdown?: () => React.ReactNode; // Custom dropdown content for edit button
+  editButtonText?: string; // Custom text for edit button
+  editButtonIcon?: React.ReactNode; // Custom icon for edit button
   // New prop to reduce spacing when followed by tabs
   compact?: boolean;
 }
@@ -78,6 +81,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   lastUpdatedBy,
   lastUpdatedAt,
   onEdit,
+  editDropdown,
+  editButtonText = "Edit",
+  editButtonIcon = <Edit size={14} />,
   compact = false}) => {
   const { token } = theme.useToken();
 
@@ -87,21 +93,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="page-header-grid">
         {/* Main Content Area */}
         <div className="page-header-content page-header-content--no-back">
-          {/* Top row: Entity Type + ID (spread layout) */}
-          {(entityType || rightAlignedId) && (
+          {/* Top row: Entity Type only */}
+          {entityType && (
             <div className="page-header-top-row">
-              {entityType && (
-                <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
-                  {entityType}
-                </Text>
-              )}
-              {rightAlignedId && (
-                <CopyableId id={rightAlignedId} withBackground />
-              )}
+              <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                {entityType}
+              </Text>
             </div>
           )}
           
-          {/* Title row: Title + Tag + Meta info (responsive) */}
+          {/* Title row: Title + Tag + ID + Meta info (responsive) */}
           <div className="page-header-title-row">
             {/* Left side: Title + Tag */}
             <div className="page-header-title-left">
@@ -117,52 +118,76 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 </div>
               )}
             </div>
-            
-            {/* Right side: Last Updated + Edit Button + Actions (will wrap on mobile) */}
-            {(lastUpdatedBy && lastUpdatedAt) || onEdit || actions ? (
-              <div className="page-header-meta">
-                {lastUpdatedBy && lastUpdatedAt && (
-                  <Space align="center" size={8}>
-                    <Text 
-                      type="secondary" 
-                      className="page-header-last-updated-text"
-                      style={{ fontSize: '13px' }}
-                    >
-                      Last updated
-                    </Text>
-                    <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
-                      <Space align="center" size={6}>
-                        <Text style={{ fontSize: '13px' }}>
-                          {formatDateShort(lastUpdatedAt)}
-                        </Text>
-                        <UserAvatar 
-                          user={lastUpdatedBy}
-                          size={20} 
-                          showTooltip={false}
-                        />
-                      </Space>
-                    </Tooltip>
-                  </Space>
-                )}
-                
-                {onEdit && (
-                  <Button 
-                    type="default"
-                    className="page-header-edit-button"
-                    icon={<Edit size={14} />}
-                    onClick={onEdit}
-                  >
-                    <span className="page-header-edit-button-text">
-                      Edit
-                    </span>
-                  </Button>
-                )}
 
-                {actions && (
-                  <Space wrap>{actions}</Space>
-                )}
-              </div>
-            ) : null}
+            {/* Right side: ID + Last Updated + Edit Button + Actions */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+              {rightAlignedId && (
+                <CopyableId id={rightAlignedId} withBackground />
+              )}
+              
+              {((lastUpdatedBy && lastUpdatedAt) || onEdit || actions) && (
+                <div className="page-header-meta">
+                  {lastUpdatedBy && lastUpdatedAt && (
+                    <Space align="center" size={8}>
+                      <Text 
+                        type="secondary" 
+                        className="page-header-last-updated-text"
+                        style={{ fontSize: '13px' }}
+                      >
+                        Last updated
+                      </Text>
+                      <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
+                        <Space align="center" size={6}>
+                          <Text style={{ fontSize: '13px' }}>
+                            {formatDateShort(lastUpdatedAt)}
+                          </Text>
+                          <UserAvatar 
+                            user={lastUpdatedBy}
+                            size={20} 
+                            showTooltip={false}
+                          />
+                        </Space>
+                      </Tooltip>
+                    </Space>
+                  )}
+                  
+                  {(onEdit || editDropdown) && (
+                    editDropdown ? (
+                      <Dropdown
+                        dropdownRender={editDropdown}
+                        trigger={['click']}
+                        placement="bottomRight"
+                      >
+                        <Button 
+                          type="default"
+                          className="page-header-edit-button"
+                          icon={editButtonIcon}
+                        >
+                          <span className="page-header-edit-button-text">
+                            {editButtonText}
+                          </span>
+                        </Button>
+                      </Dropdown>
+                    ) : (
+                      <Button 
+                        type="default"
+                        className="page-header-edit-button"
+                        icon={editButtonIcon}
+                        onClick={onEdit}
+                      >
+                        <span className="page-header-edit-button-text">
+                          {editButtonText}
+                        </span>
+                      </Button>
+                    )
+                  )}
+
+                  {actions && (
+                    <Space wrap>{actions}</Space>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Bottom row: Channel-Billing Groups, Validity, and Experiments */}

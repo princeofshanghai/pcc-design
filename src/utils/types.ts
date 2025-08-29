@@ -90,6 +90,9 @@ export type Sku = {
   revenueRecognition: RevenueRecognition;
   switcherLogic: SwitcherPath[];
   refundPolicy: RefundPolicy;
+  // Customer data
+  activeContracts?: number;
+  subscriptions?: number;
   // Optional overrides for Product-level defaults
   taxClass?: string;
   paymentFailureFreeToPaidGracePeriod?: GracePeriod;
@@ -117,6 +120,9 @@ export type Product = {
   status: Status;
   billingModel: BillingModel;
   skus: Sku[];
+  // Customer data
+  totalActiveContracts?: number;
+  totalSubscriptions?: number;
   // Product-level attributes
   postPurchaseLandingUrl: string;
   seatType: SeatType;

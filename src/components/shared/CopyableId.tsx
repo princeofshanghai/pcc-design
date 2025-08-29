@@ -73,41 +73,41 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
   };
 
   return (
-    <span
-      className="copyable-id-container"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '4px',
-        ...(withBackground && {
-          backgroundColor: token.colorBgLayout,
-          padding: '4px 8px',
-          borderRadius: token.borderRadiusSM,
-          border: `1px solid ${token.colorBorder}`,
-        }),
-        ...getTextStyles(),
-      }}
-    >
-      <span className="copyable-id-text">{id}</span>
-      <Tooltip title="Click to copy">
+    <Tooltip title="Click to copy">
+      <span
+        className="copyable-id-container"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          cursor: 'pointer',
+          transition: 'opacity 0.2s ease',
+          ...(withBackground && {
+            backgroundColor: token.colorBgLayout,
+            padding: '4px 6px',
+            borderRadius: token.borderRadiusSM,
+            border: `1px solid ${token.colorBorder}`,
+          }),
+          ...getTextStyles(),
+        }}
+        onClick={handleCopy}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = '0.8';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '1';
+        }}
+      >
+        <span className="copyable-id-text">{id}</span>
         <Copy 
           size={12} 
           strokeWidth={3}
           style={{ 
-            cursor: 'pointer',
             opacity: 0.6,
-            transition: 'opacity 0.2s ease'
-          }}
-          onClick={handleCopy}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = '1';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = '0.6';
           }}
         />
-      </Tooltip>
-    </span>
+      </span>
+    </Tooltip>
   );
 };
 

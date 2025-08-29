@@ -126,12 +126,24 @@ export async function loadProductWithPricing(productId: string): Promise<Product
       }
 
       // Create SKUs from price groups (one SKU per price group for demo purposes)
-      const enhancedSkus = priceGroups.map((priceGroup: any) => {
+      const enhancedSkus = priceGroups.map((priceGroup: any, index: number) => {
+        const salesChannel = priceGroup.channel || 'Desktop';
+        
+        // Preserve customer data from original SKUs if they exist
+        const billingCycle = priceGroup.billingCycle || 'Monthly';
+        const originalSku = baseProduct.skus?.find(sku => 
+          sku.priceGroup?.id === priceGroup.id || 
+          (sku.salesChannel === salesChannel && sku.billingCycle === billingCycle)
+        );
+        
         return {
           id: `sku-${priceGroup.id}`,
           status: priceGroup.status,
-          salesChannel: priceGroup.channel || 'Desktop',
+          salesChannel: salesChannel,
           billingCycle: priceGroup.billingCycle || 'Monthly',
+          // Preserve customer data from original SKUs
+          activeContracts: originalSku?.activeContracts,
+          subscriptions: originalSku?.subscriptions,
           // Add LIX data to SKU if available
           lix: priceGroup.lixKey ? {
             key: priceGroup.lixKey,
@@ -197,23 +209,37 @@ export async function loadProductsWithAccurateCounts(): Promise<Product[]> {
             // Product has JSON data - SKU count = number of price groups
             return {
               ...product,
-              skus: priceGroups.map((priceGroup: any) => ({
-                id: `sku-${priceGroup.id}`,
-                status: priceGroup.status,
-                salesChannel: priceGroup.channel || 'Desktop',
-                billingCycle: priceGroup.billingCycle || 'Monthly',
-                // Lightweight SKU structure for list view performance
-                priceGroup: { 
-                  id: priceGroup.id, 
-                  status: priceGroup.status || 'Active',
-                  validFrom: priceGroup.validFrom || new Date().toISOString(),
-                  pricePoints: [] 
-                },
-                revenueRecognition: "Accrual" as RevenueRecognition,
-                switcherLogic: [],
-                refundPolicy: { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
-                origin: "manual" as const
-              }))
+              skus: priceGroups.map((priceGroup: any) => {
+                const salesChannel = priceGroup.channel || 'Desktop';
+                
+                // Preserve customer data from original SKUs if they exist
+                const billingCycle = priceGroup.billingCycle || 'Monthly';
+                const originalSku = product.skus?.find(sku => 
+                  sku.priceGroup?.id === priceGroup.id || 
+                  (sku.salesChannel === salesChannel && sku.billingCycle === billingCycle)
+                );
+                
+                return {
+                  id: `sku-${priceGroup.id}`,
+                  status: priceGroup.status,
+                  salesChannel: salesChannel,
+                  billingCycle: priceGroup.billingCycle || 'Monthly',
+                  // Preserve customer data from original SKUs
+                  activeContracts: originalSku?.activeContracts,
+                  subscriptions: originalSku?.subscriptions,
+                  // Lightweight SKU structure for list view performance
+                  priceGroup: { 
+                    id: priceGroup.id, 
+                    status: priceGroup.status || 'Active',
+                    validFrom: priceGroup.validFrom || new Date().toISOString(),
+                    pricePoints: [] 
+                  },
+                  revenueRecognition: "Accrual" as RevenueRecognition,
+                  switcherLogic: [],
+                  refundPolicy: { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
+                  origin: "manual" as const
+                };
+              })
             };
           } else {
             // No JSON data - use original embedded SKU count

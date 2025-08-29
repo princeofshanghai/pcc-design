@@ -73,6 +73,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     setVisibleColumns(prev => ({
       ...prev,
+      customers: true, // Always show customers column
       folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     }));
   }, [currentFolder]);
@@ -81,6 +82,7 @@ const Home: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
     id: true,       // Always visible (required)
     name: true,     // Always visible (required)
+    customers: true, // Show customers column by default
     folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     channel: true,  // Toggleable
     status: false,  // Hidden by default (status shown inline with product name)

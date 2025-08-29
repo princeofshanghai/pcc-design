@@ -116,6 +116,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://www.linkedin.com/premium/career',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 4100000,
+    totalSubscriptions: 4100000,
     skus: [],
   },
   {
@@ -142,9 +144,11 @@ const rawMockProducts: Product[] = [
     isCancellable: true,
     isEligibleForRoboRefund: false,
     isPrimaryProductForPricing: true,
-    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
+    termsOfServiceUrl: 'https://www.linkedin.com/legal/l/sa',
     productUrl: 'https://www.linkedin.com/talent/recruiter-lite',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 7500,
+    totalSubscriptions: 7500,
     skus: [],
   },
   {
@@ -183,6 +187,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://www.linkedin.com/talent/recruiter-corporate',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 8500,
+    totalSubscriptions: 8500,
     skus: [],
   },
   {
@@ -223,6 +229,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 92400,
+    totalSubscriptions: 92400,
     skus: [],
   },
   {
@@ -263,6 +271,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 3870,
+    totalSubscriptions: 3870,
     skus: [],
   },
   {
@@ -301,6 +311,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 1500000,
+    totalSubscriptions: 1500000,
     skus: [],
   },
   {
@@ -337,8 +349,10 @@ const rawMockProducts: Product[] = [
     isEligibleForRoboRefund: true,
     isPrimaryProductForPricing: true,
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
-    productUrl: 'https://business.linkedin.com/sales-solutions/sales-navigator/core',
+    productUrl: 'https://business.linkedin.com/sales-navigator/core',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 583,
+    totalSubscriptions: 583,
     skus: [],
   },
   {
@@ -419,6 +433,8 @@ const rawMockProducts: Product[] = [
     termsOfServiceUrl: 'https://www.linkedin.com/legal/l/lsa',
     productUrl: 'https://www.linkedin.com/premium/business',
     helpCenterUrl: 'https://www.linkedin.com/help/linkedin',
+    totalActiveContracts: 2300000,
+    totalSubscriptions: 2300000,
     skus: [],
   },
   {
@@ -567,6 +583,8 @@ if (premiumCareerProduct) {
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Monthly",
+      activeContracts: 0,
+      subscriptions: 1350000,
       priceGroup: {
         id: "117004",
         status: "Active",
@@ -846,6 +864,8 @@ if (premiumCareerProduct) {
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Annual",
+      activeContracts: 0,
+      subscriptions: 1080000,
       priceGroup: {
         id: "118003",
         status: "Active",
@@ -1921,6 +1941,8 @@ if (salesNavAdvanced113000Product) {
       status: "Active",
       salesChannel: "Field",
       billingCycle: "Annual",
+      activeContracts: 6500,
+      subscriptions: 0,
       priceGroup: {
         id: "SNA_FIELD_ANNUAL",
         name: "SNA_FY25_FIELD_ANNUAL_SIMPLE",
@@ -2082,6 +2104,8 @@ if (salesNavAdvancedPlusProduct) {
       status: "Active",
       salesChannel: "Field",
       billingCycle: "Annual",
+      activeContracts: 8500,
+      subscriptions: 0,
       priceGroup: {
         id: "SNAP_FIELD_ANNUAL",
         name: "SNAP_FY25_FIELD_ANNUAL_SIMPLE",
@@ -2118,6 +2142,8 @@ if (premiumBusinessProduct) {
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Monthly",
+      activeContracts: 0,
+      subscriptions: 2300000,
       priceGroup: {
         id: "PB_DESKTOP_MONTHLY",
         name: "PB_FY25_DESKTOP_MONTHLY_SIMPLE",
@@ -2176,6 +2202,8 @@ if (premiumBusinessProduct) {
       status: "Active",
       salesChannel: "iOS",
       billingCycle: "Monthly",
+      activeContracts: 0,
+      subscriptions: 720000,
       priceGroup: {
         id: "PB_IOS_MONTHLY",
         name: "PB_FY25_IOS_MONTHLY_SIMPLE",
@@ -2205,6 +2233,8 @@ if (premiumBusinessProduct) {
       status: "Active",
       salesChannel: "iOS",
       billingCycle: "Annual",
+      activeContracts: 0,
+      subscriptions: 530000,
       priceGroup: {
         id: "PB_IOS_ANNUAL",
         name: "PB_FY25_IOS_ANNUAL_SIMPLE",
@@ -2234,6 +2264,8 @@ if (premiumBusinessProduct) {
       status: "Active",
       salesChannel: "GPB",
       billingCycle: "Monthly",
+      activeContracts: 0,
+      subscriptions: 250000,
       priceGroup: {
         id: "PB_GPB_MONTHLY",
         name: "PB_FY25_GPB_MONTHLY_SIMPLE",
@@ -2263,6 +2295,8 @@ if (premiumBusinessProduct) {
       status: "Active",
       salesChannel: "GPB",
       billingCycle: "Annual",
+      activeContracts: 0,
+      subscriptions: 170000,
       priceGroup: {
         id: "PB_GPB_ANNUAL",
         name: "PB_FY25_GPB_ANNUAL_SIMPLE",
@@ -2299,6 +2333,8 @@ if (premiumCareerBundleProduct) {
       status: "Active",
       salesChannel: "Desktop",
       billingCycle: "Monthly",
+      activeContracts: 0,
+      subscriptions: 800000,
       priceGroup: {
         id: "PCB_DESKTOP_MONTHLY",
         name: "PCB_FY25_DESKTOP_MONTHLY_BUNDLE",
@@ -2919,6 +2955,8 @@ const demoProducts: Product[] = [
         status: "Inactive",
         salesChannel: "Field",
         billingCycle: "Annual",
+        activeContracts: 150,
+        subscriptions: 0,
         priceGroup: {
           id: "demo-pg-003",
           status: "Inactive",

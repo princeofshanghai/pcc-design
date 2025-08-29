@@ -25,4 +25,27 @@ export function formatColumnTitles<T = any>(columns: ColumnsType<T>): ColumnsTyp
 // Re-export everything from existing files
 export * from './currency';
 export * from './dates';
-export * from './text'; 
+export * from './text';
+
+// Format customer numbers with M/K suffixes
+export const formatCustomerNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(2)}M`;
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(2)}K`;
+  }
+  return num.toString();
+};
+
+// Generate a fake percentage change for demo purposes
+export const generateFakePercentageChange = (isActive: boolean, baseValue: number): { value: number; isPositive: boolean } => {
+  // For inactive products, always show negative change
+  if (!isActive) {
+    const change = -(Math.random() * 6 + 2); // -2% to -8%
+    return { value: Math.abs(change), isPositive: false };
+  }
+  
+  // For active products, show small positive or negative change
+  const change = (Math.random() * 6 + 2) * (Math.random() > 0.5 ? 1 : -1); // ±2% to ±8%
+  return { value: Math.abs(change), isPositive: change > 0 };
+}; 

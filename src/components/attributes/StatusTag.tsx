@@ -86,16 +86,24 @@ const StatusTag: React.FC<StatusTagProps> = ({
   }
 
   return (
-    <BaseChip
-      variant={variant}
-      icon={<Icon />}
-      tooltip={description}
-      backgroundColor={colors.backgroundColor}
-      textColor={colors.textColor}
-      borderColor={colors.borderColor}
-    >
-      {calculatedStatus}
-    </BaseChip>
+    <Tooltip title={description}>
+      <span 
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: variant === 'small' ? '4px' : '6px',
+          fontSize: '13px',
+          color: token.colorText
+        }}
+      >
+        <Icon 
+          size={variant === 'small' ? 12 : 16} 
+          strokeWidth={variant === 'small' ? 2.5 : 2}
+          color={colors.textColor}
+        />
+        {calculatedStatus}
+      </span>
+    </Tooltip>
   );
 };
 

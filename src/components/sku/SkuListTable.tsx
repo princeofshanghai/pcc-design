@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Typography, Tooltip, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { Sku, Status, Product, SalesChannel, BillingCycle, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
@@ -10,7 +11,7 @@ import { ChevronRight } from 'lucide-react';
 
 import type { ColumnsType } from 'antd/es/table';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
-import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
+import { toSentenceCase, formatColumnTitles, formatCustomerNumber, generateFakePercentageChange } from '../../utils/formatters';
 import { SKU_COLUMNS, DEFAULT_SKU_COLUMNS } from '../../utils/tableConfigurations';
 
 const { Text } = Typography;
@@ -167,6 +168,7 @@ export const getSkuTableColumns = (
         );
       },
     } : null,
+
     channel: visibleColumns.channel === true ? {
       title: getColumnLabel('channel'),
       dataIndex: 'salesChannel',
@@ -215,6 +217,58 @@ export const getSkuTableColumns = (
       key: 'status',
       // Status is important, keep visible on all screens
       render: (status: Status) => <StatusTag status={status} variant="small" />, 
+    } : null,
+
+    customers: visibleColumns.customers === true ? {
+      title: getColumnLabel('customers'),
+      key: 'customers',
+      // Hide on screens smaller than 1024px (desktop)
+      responsive: ['lg' as Breakpoint],
+      render: (_: any, sku: Sku) => {
+        // Determine if this SKU should show contracts or subscriptions based on channel
+        const isFieldChannel = sku.salesChannel === 'Field';
+        const customerCount = isFieldChannel ? 
+          (sku.activeContracts || 0) :
+          (sku.subscriptions || 0);
+        
+        const isActive = sku.status === 'Active';
+        const percentageChange = generateFakePercentageChange(isActive, customerCount);
+        
+        return (
+          <Tooltip title="Updated a week ago" placement="top">
+            <div>
+              {/* First row: Number + percentage change indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontWeight: 500 }}>
+                  {formatCustomerNumber(customerCount)}
+                </span>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '2px',
+                  color: percentageChange.isPositive ? token.colorSuccess : token.colorError,
+                  fontSize: '12px'
+                }}>
+                  {percentageChange.isPositive ? (
+                    <TrendingUp size={12} />
+                  ) : (
+                    <TrendingDown size={12} />
+                  )}
+                  {percentageChange.value.toFixed(1)}%
+                </div>
+              </div>
+              
+              {/* Second row: Secondary text */}
+              <Typography.Text style={{ 
+                fontSize: token.fontSizeSM, 
+                color: token.colorTextSecondary 
+              }}>
+                {isFieldChannel ? 'contracts' : 'subscriptions'}
+              </Typography.Text>
+            </div>
+          </Tooltip>
+        );
+      },
     } : null,
   };
 

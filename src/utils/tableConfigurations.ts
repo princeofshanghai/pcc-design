@@ -118,6 +118,7 @@ export const FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS = [
 export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'SKU ID', required: true },
   { key: 'priceGroup', label: 'Price', required: false },
+  { key: 'customers', label: 'Customers', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
   { key: 'lix', label: 'LIX', required: false },
@@ -125,7 +126,7 @@ export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'lix', 'status'];
+export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'lix', 'status', 'customers'];
 
 export const SKU_SORT_OPTIONS = [
   'None',
@@ -156,12 +157,13 @@ export const SKU_GROUP_BY_OPTIONS = [
 export const PRODUCT_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Product ID', required: true },
   { key: 'name', label: 'Name', required: true },
+  { key: 'customers', label: 'Customers', required: false },
   { key: 'folder', label: 'Folder', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel'];
+export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'customers'];
 
 // Sort options for products
 export const PRODUCT_SORT_OPTIONS = [

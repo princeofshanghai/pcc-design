@@ -27,6 +27,7 @@ import {
   PricePointStatusTag,
   GroupHeader,
   VerticalSeparator,
+  MetricCard,
 } from '../components';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import {
@@ -704,6 +705,60 @@ const ProductDetail: React.FC = () => {
     );
   };
 
+  // Calculate key metrics for overview
+  const keyMetrics = useMemo(() => {
+    if (!product) return null;
+
+    const activeSkus = product.skus.filter(sku => sku.status === 'Active');
+    const uniquePriceGroups = [...new Set(product.skus.map(sku => sku.priceGroup.id))];
+    const uniqueChannels = [...new Set(product.skus.map(sku => sku.salesChannel))];
+    const uniqueCurrencies = [...new Set(
+      product.skus.flatMap(sku => sku.priceGroup.pricePoints.map(pp => pp.currencyCode))
+    )];
+    
+    // Calculate total SKU-level contracts and subscriptions
+    const skuLevelContracts = product.skus.reduce((sum, sku) => sum + (sku.activeContracts || 0), 0);
+    const skuLevelSubscriptions = product.skus.reduce((sum, sku) => sum + (sku.subscriptions || 0), 0);
+    
+    // Use product-level totals if available, otherwise use SKU-level sums
+    const totalContracts = product.totalActiveContracts || skuLevelContracts;
+    const totalSubscriptions = product.totalSubscriptions || skuLevelSubscriptions;
+
+    // Generate mock trending data for contracts (simulate 12 weeks of data)
+    const generateTrendData = (current: number, changePercent: number) => {
+      const data = [];
+      const baseValue = current / (1 + (changePercent / 100)); // Work backwards from current value
+      
+      for (let i = 0; i < 12; i++) {
+        // Create realistic fluctuation with overall upward/downward trend
+        const progress = i / 11; // 0 to 1
+        const trendValue = baseValue + (baseValue * (changePercent / 100) * progress);
+        const randomVariation = (Math.random() - 0.5) * 0.1; // ±5% random variation
+        const value = Math.max(0, trendValue * (1 + randomVariation));
+        data.push(Math.round(value));
+      }
+      
+      return data;
+    };
+
+    // Mock trend data - in real app this would come from analytics API
+    const contractsChangePercent = 12; // 12% growth example
+    const contractsTrendData = generateTrendData(totalContracts, contractsChangePercent);
+
+    return {
+      totalContracts,
+      totalSubscriptions,
+      activeSkusCount: activeSkus.length,
+      totalSkusCount: product.skus.length,
+      priceGroupsCount: uniquePriceGroups.length,
+      channelsCount: uniqueChannels.length,
+      currenciesCount: uniqueCurrencies.length,
+      channels: uniqueChannels,
+      contractsTrendData,
+      contractsChangePercent,
+    };
+  }, [product]);
+
   // Create data source with group headers for flattened price points table
   const flattenedPricePointDataSource: FlattenedPricePointTableRow[] = useMemo(() => {
     if (priceViewMode !== 'pricePoints') return [];
@@ -940,7 +995,140 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  // Dropdown menu items
+  // Edit product handlers
+  const handleUpdateProductName = () => {
+    Modal.info({
+      title: 'Update Product Name',
+      content: (
+        <div>
+          <p>Here you can update the product name for <strong>{product?.name}</strong>.</p>
+          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+            This would open a form to edit the product's internal name and configuration details.
+          </p>
+        </div>
+      ),
+      okText: 'Got it',
+      width: 400,
+    });
+  };
+
+  const handleUpdateProductDescription = () => {
+    Modal.info({
+      title: 'Update Product Description',
+      content: (
+        <div>
+          <p>Here you can update the product description for <strong>{product?.name}</strong>.</p>
+          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+            This would open a form to edit the product's internal description and metadata.
+          </p>
+        </div>
+      ),
+      okText: 'Got it',
+      width: 400,
+    });
+  };
+
+  const handleUpdatePrices = () => {
+    Modal.info({
+      title: 'Update Prices',
+      content: (
+        <div>
+          <p>Here you can update pricing for <strong>{product?.name}</strong>.</p>
+          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+            This would open the price management interface where you can modify price groups, price points, and pricing rules.
+          </p>
+        </div>
+      ),
+      okText: 'Got it',
+      width: 400,
+    });
+  };
+
+  // Main edit dropdown for PageHeader
+  const mainEditDropdown = () => {
+    console.log('mainEditDropdown called');
+    return (
+    <div style={{
+      minWidth: '240px',
+      backgroundColor: token.colorBgElevated,
+      borderRadius: token.borderRadius,
+      boxShadow: token.boxShadowSecondary,
+      padding: '8px',
+    }}>
+      {/* Product Section */}
+      <div style={{ 
+        fontWeight: 500, 
+        color: token.colorTextSecondary, 
+        fontSize: '12px',
+        marginTop: '8px',
+        marginBottom: '4px',
+        paddingLeft: '4px'
+      }}>
+        Product
+      </div>
+      <div style={{ marginBottom: '8px' }}>
+        <div 
+          style={{
+            padding: '8px 12px',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontSize: '14px',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          onClick={handleUpdateProductName}
+        >
+          Update product name
+        </div>
+        <div 
+          style={{
+            padding: '8px 12px',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontSize: '14px',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          onClick={handleUpdateProductDescription}
+        >
+          Update product description
+        </div>
+      </div>
+
+      {/* Pricing Section */}
+      <div style={{ 
+        fontWeight: 500, 
+        color: token.colorTextSecondary, 
+        fontSize: '12px',
+        marginTop: '8px',
+        marginBottom: '4px',
+        paddingLeft: '4px'
+      }}>
+        Pricing
+      </div>
+      <div>
+        <div 
+          style={{
+            padding: '8px 12px',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontSize: '14px',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          onClick={handleUpdatePrices}
+        >
+          Update prices
+        </div>
+      </div>
+    </div>
+    );
+  };
+
+  // Dropdown menu items for name/description section
   const editMenuItems: MenuProps['items'] = [
     {
       key: 'edit-name',
@@ -962,6 +1150,57 @@ const ProductDetail: React.FC = () => {
       label: 'Overview',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* Summary Section */}
+          <PageSection 
+            title="Summary"
+            hideDivider={true}
+          >
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr 2fr', 
+              gap: '24px'
+            }}>
+              {/* Active Contracts Card with Sparkline */}
+              <MetricCard
+                title="Active Contracts"
+                value={keyMetrics?.totalContracts || 0}
+                change={{
+                  value: keyMetrics?.contractsChangePercent || 0,
+                  isPositive: (keyMetrics?.contractsChangePercent || 0) > 0,
+                  timeframe: "from last month"
+                }}
+                sparklineData={keyMetrics?.contractsTrendData}
+                style={{ 
+                  borderColor: token.colorBorder,
+                  borderWidth: '1px'
+                }}
+              />
+
+              {/* Active SKUs Card with Link */}
+              <MetricCard
+                title="Active SKUs"
+                value={`${keyMetrics?.activeSkusCount || 0}/${keyMetrics?.totalSkusCount || 0}`}
+                bottomLink={{
+                  text: "View SKUs",
+                  onClick: () => {
+                    // Navigate to SKUs tab
+                    const newSearchParams = new URLSearchParams(location.search);
+                    newSearchParams.set('tab', 'skus');
+                    const newSearch = newSearchParams.toString();
+                    navigate(`/product/${productId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+                  }
+                }}
+                style={{ 
+                  borderColor: token.colorBorder,
+                  borderWidth: '1px'
+                }}
+              />
+
+              {/* Empty space for future metrics */}
+              <div></div>
+            </div>
+          </PageSection>
+
           <PageSection 
             title={toSentenceCase('Name and description')}
             actions={
@@ -990,7 +1229,6 @@ const ProductDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Public description" tooltip="Visible to customers and employees on contracts and invoices">{product.description}</AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-
 
         </Space>
       ),
@@ -1575,9 +1813,13 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
         }
-        tagContent={<StatusTag status={product.status} variant="small" />}
+        tagContent={<StatusTag status={product.status} />}
         rightAlignedId={product.id}
         channelBillingGroups={channelBillingGroups}
+        onEdit={() => console.log('Edit clicked')}
+        editDropdown={mainEditDropdown}
+        editButtonText="Edit product.."
+        editButtonIcon={<Pencil size={14} />}
         compact
       />
 

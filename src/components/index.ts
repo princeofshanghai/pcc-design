@@ -55,6 +55,7 @@ export { default as BaseChip } from './shared/BaseChip';
 export { default as SecondaryText } from './shared/SecondaryText';
 export { default as ViewModeToggle } from './shared/ViewModeToggle';
 export { default as VerticalSeparator } from './shared/VerticalSeparator';
+export { default as MetricCard } from './shared/MetricCard';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';

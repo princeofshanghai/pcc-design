@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Sku, Product } from '../../utils/types';
+import type { Sku, Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { getSkuTableColumns } from './SkuListTable';
+import { DEFAULT_SKU_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import { type ColumnsType } from 'antd/es/table';
 
 interface GroupedSkuListTableProps {
   groupedSkus: Record<string, Sku[]>;
   product: Product;
+  visibleColumns?: ColumnVisibility;
+  columnOrder?: ColumnOrder;
   currentTab?: string; // Add current tab to remember where we came from
 }
 
 // A special type to handle rows that can be either a real Sku or a group header
 type TableRow = Sku | { isGroupHeader: true; key: string; title: string; count: number; groupKey: string };
 
-const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ groupedSkus, product, currentTab = 'skus' }) => {
+const GroupedSkuListTable: React.FC<GroupedSkuListTableProps> = ({ 
+  groupedSkus, 
+  product, 
+  visibleColumns = {},
+  columnOrder = DEFAULT_SKU_COLUMNS,
+  currentTab = 'skus' 
+}) => {
   const navigate = useNavigate();
-  const columns = getSkuTableColumns(product, navigate, false) as ColumnsType<TableRow>;
+  const columns = getSkuTableColumns(product, navigate, visibleColumns, columnOrder) as ColumnsType<TableRow>;
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
   // Only reset expanded groups when the group structure actually changes (not just sorting within groups)

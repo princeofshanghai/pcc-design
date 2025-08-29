@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space, Button, Modal, Tooltip, Tag, theme } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Typography, Space, Button, Modal, Tooltip, Tag, theme, Tabs } from 'antd';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
@@ -14,11 +14,11 @@ import {
   FilterBar,
   AttributeDisplay,
   AttributeGroup,
-  BillingModelDisplay,
   VerticalSeparator
 } from '../components';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
 import { getChannelIcon } from '../utils/channelIcons';
+import { getBillingModelIcon } from '../utils/billingModelIcons';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -38,8 +38,11 @@ const PriceGroupDetail: React.FC = () => {
   const { productId, priceGroupId } = useParams<{ productId: string; priceGroupId: string }>();
   const { setProductName, setPriceGroupId, setPriceGroupName, setFolderName } = useBreadcrumb();
   const navigate = useNavigate();
+  const location = useLocation();
 
-
+  // Get URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab') || 'pricing';
 
   const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +117,11 @@ const PriceGroupDetail: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>(() => {
     return pricePointDefaultVisibility;
   });
+
+  // Update column visibility when channel configuration changes
+  useEffect(() => {
+    setVisibleColumns(pricePointDefaultVisibility);
+  }, [pricePointDefaultVisibility]);
 
   // Column order state for PricePointTable - use default order from table configurations
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(
@@ -286,8 +294,278 @@ const PriceGroupDetail: React.FC = () => {
     channelBillingGroups[channel as SalesChannel] = sortBillingCycles(channelBillingGroups[channel as SalesChannel]);
   });
 
+  const tabItems = [
+    // Price Points tab (first tab)
+    {
+      key: 'pricing',
+      label: 'Price points',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection 
+            title={toSentenceCase("Price points")}
+          >
+            <FilterBar
+              useCustomFilters={true}
+              search={{
+                placeholder: "Search by currency or ID...",
+                onChange: setPricePointSearchQuery,
+              }}
+              filters={[
+                {
+                  placeholder: getFilterPlaceholder('validity'),
+                  options: validityOptions,
+                  multiSelect: false,
+                  value: validityFilter,
+                  onChange: (value: string | null) => {
+                    if (value) {
+                      setValidityFilter(value);
+                    } else {
+                      // Reset to channel-specific default when cleared
+                      const channelDefault = getDefaultValidityFilter(uniqueChannels);
+                      if (channelDefault === 'most-recent') {
+                        const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
+                        setValidityFilter(newestPeriod || 'All periods');
+                      } else {
+                        setValidityFilter('All periods');
+                      }
+                    }
+                  },
+                  disableSearch: true,
+                  // View selector behavior - validity is not a filter, it's a view mode
+                  excludeFromClearAll: true,
+                  hideClearButton: true,
+                  preventDeselection: true,
+                  // Custom display: show "All" instead of "All periods" on button
+                  customDisplayValue: (value) => {
+                    return value === 'All periods' ? 'All' : value || 'All';
+                  },
+                  // Add Calendar icon
+                  icon: <Calendar size={12} />,
+                  // Required for TypeScript interface compatibility
+                  multiValue: [],
+                  onMultiChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('currency'),
+                  options: currencyOptions,
+                  multiSelect: true,
+                  multiValue: currencyFilters,
+                  onMultiChange: (values: string[]) => setCurrencyFilters(values),
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+                {
+                  placeholder: getFilterPlaceholder('status'),
+                  options: statusOptions,
+                  multiSelect: true,
+                  multiValue: statusFilters,
+                  onMultiChange: (values: string[]) => setStatusFilters(values),
+                  disableSearch: true,
+                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
+                },
+              ]}
+              onClearAll={clearAllPricePointFilters}
+              viewOptions={{
+                sortOrder: {
+                  value: pricePointSortOrder,
+                  setter: setPricePointSortOrder,
+                  options: sortOptions,
+                },
+                groupBy: {
+                  value: pricePointGroupBy,
+                  setter: setPricePointGroupBy,
+                  options: getAvailableGroupByOptions(uniqueChannels),
+                },
+                columnOptions,
+                visibleColumns,
+                setVisibleColumns,
+                columnOrder,
+                setColumnOrder,
+                defaultVisibleColumns: pricePointDefaultVisibility,
+                defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
+              }}
+
+              rightActions={[
+                <Button 
+                  key="export"
+                  icon={<Download size={16} />}
+                  size="middle"
+                  onClick={() => {
+                    Modal.info({
+                      title: 'Export Price Points',
+                      content: (
+                        <div>
+                          <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
+                          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
+                            Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
+                          </p>
+                        </div>
+                      ),
+                      okText: 'Got it',
+                      width: 400,
+                    });
+                  }}
+                >
+                  Export
+                </Button>
+              ]}
+            />
+            <PricePointTable 
+              pricePoints={filteredPricePoints} 
+              groupedPricePoints={groupedPricePointsData}
+              visibleColumns={visibleColumns}
+              columnOrder={columnOrder}
+              sortOrder={pricePointSortOrder}
+              isTaxInclusive={isMobileOnlyPriceGroup}
+            />
+          </PageSection>
+        </Space>
+      ),
+    },
+    // Details tab (second tab)  
+    {
+      key: 'details',
+      label: 'Details',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection title={toSentenceCase('General')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Configuration">
+                <Space size={4}>
+                  {product?.billingModel && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {getBillingModelIcon(product.billingModel)}
+                      {product.billingModel}
+                    </span>
+                  )}
+                  {uniqueChannels.map((channel, index) => (
+                    <React.Fragment key={channel}>
+                      {index > 0 && <VerticalSeparator />}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {getChannelIcon(channel)}
+                        {channel}
+                      </span>
+                    </React.Fragment>
+                  ))}
+                  <Typography.Text>
+                    {uniqueBillingCycles.join(', ')}
+                  </Typography.Text>
+                </Space>
+              </AttributeDisplay>
+              
+              {appInfo.length > 0 && (
+                <AttributeDisplay layout="horizontal" label="App">
+                  <Space size="small">
+                    {appInfo.map(app => (
+                      <Space key={app.channel} size={6} align="center">
+                        <img 
+                          src={app.icon} 
+                          alt={`${app.name} icon`}
+                          style={{ 
+                            width: 24, 
+                            height: 24, 
+                            borderRadius: '4px',
+                            objectFit: 'cover'
+                          }}
+                        />
+                        <span>{app.name}</span>
+                      </Space>
+                    ))}
+                  </Space>
+                </AttributeDisplay>
+              )}
+              
+              {hasMobileChannels && (
+                <AttributeDisplay layout="horizontal" label="External product identifier">
+                  <Tag 
+                    style={{ fontSize: '11px', margin: 0, padding: '0 6px', lineHeight: '18px' }}
+                  >
+                    ext_prod_id
+                  </Tag>
+                </AttributeDisplay>
+              )}
+
+              <AttributeDisplay layout="horizontal" label="Tax">
+                <span style={{ 
+                  fontSize: token.fontSize,
+                  color: token.colorText
+                }}>
+                  {isMobileOnlyPriceGroup ? 'Tax inclusive' : 'Tax exclusive'}
+                </span>
+              </AttributeDisplay>
+
+              <AttributeDisplay layout="horizontal" label="Experiment">
+                {(lixKey || lixTreatment) ? (
+                  <Space size="small" align="center">
+                    {lixKey && (
+                      <Tooltip title="LIX Key" mouseEnterDelay={0.5}>
+                        <span style={{ 
+                          fontSize: token.fontSize,
+                          color: token.colorText,
+                          cursor: 'default'
+                        }}>
+                          {lixKey}
+                        </span>
+                      </Tooltip>
+                    )}
+                    {lixKey && lixTreatment && <span>/</span>}
+                    {lixTreatment && (
+                      <Tooltip title="LIX Treatment" mouseEnterDelay={0.5}>
+                        <span style={{ 
+                          fontSize: token.fontSize,
+                          color: token.colorText,
+                          cursor: 'default'
+                        }}>
+                          {lixTreatment}
+                        </span>
+                      </Tooltip>
+                    )}
+                  </Space>
+                ) : (
+                  <span style={{ color: token.colorTextTertiary }}>None</span>
+                )}
+              </AttributeDisplay>
+              {otherPriceGroupsInExperiment.length > 0 && (
+                <AttributeDisplay layout="horizontal" label="Other prices in experiment">
+                  <Space size="small" wrap>
+                    {otherPriceGroupsInExperiment.map(pg => (
+                      <a
+                        key={pg.id}
+                        href={`/product/${productId}/price-group/${pg.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(`/product/${productId}/price-group/${pg.id}`);
+                        }}
+                        style={{
+                          color: token.colorPrimary,
+                          textDecoration: 'none',
+                          fontSize: '13px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.textDecoration = 'underline';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.textDecoration = 'none';
+                        }}
+                      >
+                        {pg.id}
+                      </a>
+                    ))}
+                  </Space>
+                </AttributeDisplay>
+              )}
+            </AttributeGroup>
+          </PageSection>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size={48}>
+    <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         entityType="Price"
         title={`Prices for ${product.name}`}
@@ -299,256 +577,22 @@ const PriceGroupDetail: React.FC = () => {
         compact
       />
 
-      {/* Details Section */}
-      <PageSection title={toSentenceCase('Details')}>
-        <AttributeGroup>
-          <AttributeDisplay layout="horizontal" label="Configuration">
-            <Space size={4}>
-              {product?.billingModel && (
-                <BillingModelDisplay model={product.billingModel} variant="small" />
-              )}
-              {uniqueChannels.map((channel, index) => (
-                <React.Fragment key={channel}>
-                  {index > 0 && <VerticalSeparator />}
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    {getChannelIcon(channel)}
-                    {channel}
-                  </span>
-                </React.Fragment>
-              ))}
-              <Typography.Text>
-                {uniqueBillingCycles.join(', ')}
-              </Typography.Text>
-            </Space>
-          </AttributeDisplay>
-          
-          {appInfo.length > 0 && (
-            <AttributeDisplay layout="horizontal" label="App">
-              <Space size="small">
-                {appInfo.map(app => (
-                  <Space key={app.channel} size={6} align="center">
-                    <img 
-                      src={app.icon} 
-                      alt={`${app.name} icon`}
-                      style={{ 
-                        width: 24, 
-                        height: 24, 
-                        borderRadius: '4px',
-                        objectFit: 'cover'
-                      }}
-                    />
-                    <span>{app.name}</span>
-                  </Space>
-                ))}
-              </Space>
-            </AttributeDisplay>
-          )}
-          
-          {hasMobileChannels && (
-            <AttributeDisplay layout="horizontal" label="External product identifier">
-              <Tag 
-                style={{ fontSize: '11px', margin: 0, padding: '0 6px', lineHeight: '18px' }}
-              >
-                ext_prod_id
-              </Tag>
-            </AttributeDisplay>
-          )}
-
-          <AttributeDisplay layout="horizontal" label="Tax">
-            <span style={{ 
-              fontSize: token.fontSize,
-              color: token.colorText
-            }}>
-              {isMobileOnlyPriceGroup ? 'Tax inclusive' : 'Tax exclusive'}
-            </span>
-          </AttributeDisplay>
-
-          <AttributeDisplay layout="horizontal" label="Experiment">
-            {(lixKey || lixTreatment) ? (
-              <Space size="small" align="center">
-                {lixKey && (
-                  <Tooltip title="LIX Key" mouseEnterDelay={0.5}>
-                    <span style={{ 
-                      fontSize: token.fontSize,
-                      color: token.colorText,
-                      cursor: 'default'
-                    }}>
-                      {lixKey}
-                    </span>
-                  </Tooltip>
-                )}
-                {lixKey && lixTreatment && <span>/</span>}
-                {lixTreatment && (
-                  <Tooltip title="LIX Treatment" mouseEnterDelay={0.5}>
-                    <span style={{ 
-                      fontSize: token.fontSize,
-                      color: token.colorText,
-                      cursor: 'default'
-                    }}>
-                      {lixTreatment}
-                    </span>
-                  </Tooltip>
-                )}
-              </Space>
-            ) : (
-              <span style={{ color: token.colorTextTertiary }}>None</span>
-            )}
-          </AttributeDisplay>
-          {otherPriceGroupsInExperiment.length > 0 && (
-            <AttributeDisplay layout="horizontal" label="Other prices in experiment">
-              <Space size="small" wrap>
-                {otherPriceGroupsInExperiment.map(pg => (
-                  <a
-                    key={pg.id}
-                    href={`/product/${productId}/price-group/${pg.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(`/product/${productId}/price-group/${pg.id}`);
-                    }}
-                    style={{
-                      color: token.colorPrimary,
-                      textDecoration: 'none',
-                      fontSize: '13px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.textDecoration = 'underline';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.textDecoration = 'none';
-                    }}
-                  >
-                    {pg.id}
-                  </a>
-                ))}
-              </Space>
-            </AttributeDisplay>
-          )}
-        </AttributeGroup>
-      </PageSection>
-
-      {/* Price Points */}
-      <PageSection 
-        title={toSentenceCase("Price points")}
-      >
-        <FilterBar
-          useCustomFilters={true}
-          search={{
-            placeholder: "Search by currency or ID...",
-            onChange: setPricePointSearchQuery,
-          }}
-          filters={[
-            {
-              placeholder: getFilterPlaceholder('validity'),
-              options: validityOptions,
-              multiSelect: false,
-              value: validityFilter,
-              onChange: (value: string | null) => {
-                if (value) {
-                  setValidityFilter(value);
-                } else {
-                  // Reset to channel-specific default when cleared
-                  const channelDefault = getDefaultValidityFilter(uniqueChannels);
-                  if (channelDefault === 'most-recent') {
-                    const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
-                    setValidityFilter(newestPeriod || 'All periods');
-                  } else {
-                    setValidityFilter('All periods');
-                  }
-                }
-              },
-              disableSearch: true,
-              // View selector behavior - validity is not a filter, it's a view mode
-              excludeFromClearAll: true,
-              hideClearButton: true,
-              preventDeselection: true,
-              // Custom display: show "All" instead of "All periods" on button
-              customDisplayValue: (value) => {
-                return value === 'All periods' ? 'All' : value || 'All';
-              },
-              // Add Calendar icon
-              icon: <Calendar size={12} />,
-              // Required for TypeScript interface compatibility
-              multiValue: [],
-              onMultiChange: () => {},
-            },
-            {
-              placeholder: getFilterPlaceholder('currency'),
-              options: currencyOptions,
-              multiSelect: true,
-              multiValue: currencyFilters,
-              onMultiChange: (values: string[]) => setCurrencyFilters(values),
-              // Required for TypeScript interface compatibility
-              value: null,
-              onChange: () => {},
-            },
-            {
-              placeholder: getFilterPlaceholder('status'),
-              options: statusOptions,
-              multiSelect: true,
-              multiValue: statusFilters,
-              onMultiChange: (values: string[]) => setStatusFilters(values),
-              disableSearch: true,
-              // Required for TypeScript interface compatibility
-              value: null,
-              onChange: () => {},
-            },
-          ]}
-          onClearAll={clearAllPricePointFilters}
-          viewOptions={{
-            sortOrder: {
-              value: pricePointSortOrder,
-              setter: setPricePointSortOrder,
-              options: sortOptions,
-            },
-            groupBy: {
-              value: pricePointGroupBy,
-              setter: setPricePointGroupBy,
-              options: getAvailableGroupByOptions(uniqueChannels),
-            },
-            columnOptions,
-            visibleColumns,
-            setVisibleColumns,
-            columnOrder,
-            setColumnOrder,
-            defaultVisibleColumns: pricePointDefaultVisibility,
-            defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
-          }}
-          displayMode="inline"
-          rightActions={[
-            <Button 
-              key="export"
-              icon={<Download size={16} />}
-              size="middle"
-
-              onClick={() => {
-                Modal.info({
-                  title: 'Export Price Points',
-                  content: (
-                    <div>
-                      <p>This would export all price point data for <strong>{priceGroup?.name}</strong> to CSV format.</p>
-                      <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                        Includes: Price point IDs, currencies, amounts, pricing rules, quantity ranges, USD equivalents, and validity periods.
-                      </p>
-                    </div>
-                  ),
-                  okText: 'Got it',
-                  width: 400,
-                });
-              }}
-            >
-              Export
-            </Button>
-          ]}
-        />
-        <PricePointTable 
-          pricePoints={filteredPricePoints} 
-          groupedPricePoints={groupedPricePointsData}
-          visibleColumns={visibleColumns}
-          columnOrder={columnOrder}
-          sortOrder={pricePointSortOrder}
-          isTaxInclusive={isMobileOnlyPriceGroup}
-        />
-      </PageSection>
+      <Tabs
+        activeKey={currentTab}
+        items={tabItems}
+        onChange={(key) => {
+          // Update URL when tab changes
+          const newSearchParams = new URLSearchParams(location.search);
+          if (key === 'pricing') {
+            // Remove tab parameter for pricing (default)
+            newSearchParams.delete('tab');
+          } else {
+            newSearchParams.set('tab', key);
+          }
+          const newSearch = newSearchParams.toString();
+          navigate(`/product/${productId}/price-group/${priceGroupId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+        }}
+      />
     </Space>
   );
 };

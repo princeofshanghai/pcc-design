@@ -185,7 +185,6 @@ const Home: React.FC = () => {
           />
 
           <FilterBar
-            displayMode="inline"
             useCustomFilters={true}
             search={{
               placeholder: "Search by Name, ID, or Folder...",

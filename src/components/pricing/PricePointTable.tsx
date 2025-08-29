@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Table, Typography, theme, Tooltip } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -502,6 +502,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+  
+  // Lazy loading state - show first 50 items initially
+  const INITIAL_LOAD_SIZE = 50;
+  const LOAD_MORE_SIZE = 25;
+  const [visibleItemsLimit, setVisibleItemsLimit] = useState(INITIAL_LOAD_SIZE);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Only reset expanded groups when the group structure actually changes (not just sorting within groups)
   useEffect(() => {
@@ -517,6 +523,11 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       setExpandedGroups([]);
     }
   }, [groupedPricePoints]);
+
+  // Reset lazy loading when data changes
+  useEffect(() => {
+    setVisibleItemsLimit(INITIAL_LOAD_SIZE);
+  }, [pricePoints, groupedPricePoints]);
 
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {
@@ -787,9 +798,12 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'usdEquivalent',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
+        
+        // Performance optimization: Only calculate USD equivalents when column is visible
         const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
         const formattedValue = formatUsdEquivalent(record, matchingUsdPoint);
         const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
+        
         return (
           <Text style={{ 
             color: percentage === null 
@@ -853,8 +867,8 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     );
   };
 
-  // Prepare data source with sorting applied
-  const dataSource: TableRow[] = useMemo(() => {
+  // Prepare full data source with sorting applied (without lazy loading limit)
+  const fullDataSource: TableRow[] = useMemo(() => {
     if (groupedPricePoints) {
       // Grouped data - sort within each group
       const result: TableRow[] = [];
@@ -879,6 +893,45 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       return sortedPoints;
     }
   }, [pricePoints, groupedPricePoints, sortOrder, allPricePoints, expandedGroups]);
+
+  // Infinite scroll handler - listens to main page scroll
+  const handleScroll = useCallback(() => {
+    // Check if there are more items to load
+    const hasMoreItems = fullDataSource.length > visibleItemsLimit;
+    
+    if (isLoading || !hasMoreItems) return;
+    
+    // Check if user scrolled near bottom of the page
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = window.innerHeight;
+    
+    // Load more when user scrolls to within 300px of bottom
+    if (scrollTop + clientHeight >= scrollHeight - 300) {
+      setIsLoading(true);
+      
+      // Add slight delay to simulate loading (makes it feel more natural)
+      setTimeout(() => {
+        setVisibleItemsLimit(prev => prev + LOAD_MORE_SIZE);
+        setIsLoading(false);
+      }, 100);
+    }
+  }, [isLoading, fullDataSource, visibleItemsLimit, LOAD_MORE_SIZE]);
+
+  // Add scroll listener to window
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
+
+  // Apply lazy loading - only show limited items for performance
+  const dataSource = useMemo(() => {
+    return fullDataSource.slice(0, visibleItemsLimit);
+  }, [fullDataSource, visibleItemsLimit]);
 
   return (
     <div style={{ marginTop: '16px' }}>
@@ -916,6 +969,32 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
           },
         }}
       />
+      
+      {/* Loading indicator when fetching more items */}
+      {isLoading && fullDataSource.length > visibleItemsLimit && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '16px',
+          color: token.colorTextSecondary,
+          fontSize: '14px'
+        }}>
+          Loading more...
+        </div>
+      )}
+      
+      {/* End indicator when all items are loaded */}
+      {fullDataSource.length <= visibleItemsLimit && fullDataSource.length > INITIAL_LOAD_SIZE && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '12px',
+          color: token.colorTextTertiary,
+          fontSize: '13px',
+          borderTop: `1px solid ${token.colorBorderSecondary}`,
+          marginTop: '8px'
+        }}>
+          All {fullDataSource.length} price points loaded
+        </div>
+      )}
     </div>
   );
 };

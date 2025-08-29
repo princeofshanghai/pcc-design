@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Alert, Modal, Dropdown, theme, Tag, Drawer, Tooltip } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Modal, Dropdown, theme, Tag, Drawer, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
@@ -22,7 +22,6 @@ import {
   PageSection,
   AttributeGroup,
   StatusTag,
-  BillingModelDisplay,
   FilterBar,
   CopyableId,
   PricePointStatusTag,
@@ -34,6 +33,8 @@ import {
   PRICE_GROUP_COLUMNS,
   DEFAULT_PRICE_GROUP_COLUMNS,
   PRICE_GROUP_SORT_OPTIONS, 
+  SKU_COLUMNS,
+  DEFAULT_SKU_COLUMNS,
   SKU_SORT_OPTIONS,
   SKU_GROUP_BY_OPTIONS,
   PRICE_GROUP_GROUP_BY_OPTIONS,
@@ -42,6 +43,7 @@ import {
   getFilterPlaceholder} from '../utils/tableConfigurations';
 import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 import { getChannelIcon } from '../utils/channelIcons';
+import { getBillingModelIcon } from '../utils/billingModelIcons';
 
 const { Title } = Typography;
 
@@ -195,8 +197,7 @@ const ProductDetail: React.FC = () => {
   
 
   
-  // Alert dismissal state
-  const [skuAlertDismissed, setSkuAlertDismissed] = useState(false);
+
 
   // Price view toggle state - starts with 'price' (price groups view by default) 
   const [priceViewMode, setPriceViewMode] = useState(() => {
@@ -277,6 +278,29 @@ const ProductDetail: React.FC = () => {
 
   // Column configuration for PriceGroupTable - use centralized configuration
   const priceGroupColumnOptions: ColumnConfig[] = PRICE_GROUP_COLUMNS;
+
+  // Default column visibility configuration for SkuListTable
+  const skuDefaultVisibility = useMemo(() => {
+    const defaultVisibility: ColumnVisibility = {};
+    SKU_COLUMNS.forEach(col => {
+      // All columns visible by default except validity (removed from default)
+      defaultVisibility[col.key] = col.key !== 'validity';
+    });
+    return defaultVisibility;
+  }, []);
+
+  // Column visibility state for SkuListTable
+  const [skuVisibleColumns, setSkuVisibleColumns] = useState<ColumnVisibility>(() => {
+    return skuDefaultVisibility;
+  });
+
+  // Column order state for SkuListTable
+  const [skuColumnOrder, setSkuColumnOrder] = useState<ColumnOrder>(
+    DEFAULT_SKU_COLUMNS
+  );
+
+  // Column configuration for SkuListTable - use centralized configuration
+  const skuColumnOptions: ColumnConfig[] = SKU_COLUMNS;
 
   const clearAllPriceGroupFilters = () => {
     setPriceGroupSearchQuery('');
@@ -714,7 +738,6 @@ const ProductDetail: React.FC = () => {
       dataIndex: ['pricePoint', 'id'],
       key: 'pricePointId',
       fixed: 'left',
-      minWidth: 150,
       render: (_: any, record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
         return (
@@ -800,22 +823,14 @@ const ProductDetail: React.FC = () => {
           return <Typography.Text style={{ color: token.colorTextSecondary }}>-</Typography.Text>;
         }
         
-        // Middle truncation for LIX key if it's longer than 24 characters
-        const truncateMiddle = (str: string, maxLength: number = 24) => {
-          if (str.length <= maxLength) return str;
-          const start = Math.ceil((maxLength - 3) / 2);
-          const end = Math.floor((maxLength - 3) / 2);
-          return `${str.slice(0, start)}...${str.slice(-end)}`;
-        };
-        
-        const truncatedKey = truncateMiddle(lix.key);
+        const lixKey = lix.key;
         
         const tooltipTitle = `LIX Key: ${lix.key}\nTreatment: ${lix.treatment}`;
         
         return (
           <Tooltip title={tooltipTitle} placement="top">
             <div style={{ cursor: 'help' }}>
-              <Typography.Text>{truncatedKey}</Typography.Text>
+              <Typography.Text>{lixKey}</Typography.Text>
               <Typography.Text style={{ color: token.colorTextSecondary }}> | </Typography.Text>
               <Typography.Text style={{ color: token.colorTextSecondary }}>{lix.treatment}</Typography.Text>
             </div>
@@ -1164,7 +1179,7 @@ const ProductDetail: React.FC = () => {
                   defaultVisibleColumns: priceGroupDefaultVisibility,
                 })
               }}
-              displayMode="inline"
+
               rightActions={[
                 <Button 
                   key="export"
@@ -1250,8 +1265,34 @@ const ProductDetail: React.FC = () => {
           {/* General Section */}
           <PageSection title={toSentenceCase('General')}>
             <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Product ID">
+                <CopyableId id={product.id} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Status">
+                <StatusTag status={product.status} />
+              </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelDisplay model={product.billingModel} variant="small" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {getBillingModelIcon(product.billingModel)}
+                  <span>{product.billingModel}</span>
+                </div>
+              </AttributeDisplay>
+              <AttributeDisplay 
+                layout="horizontal" 
+                label="Supported sales channels" 
+                tooltip="Product contains SKUs sold in these channels"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel, index) => (
+                    <React.Fragment key={channel}>
+                      {index > 0 && <VerticalSeparator />}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        {getChannelIcon(channel)}
+                        {channel}
+                      </span>
+                    </React.Fragment>
+                  ))}
+                </div>
               </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
               {product.code && (
@@ -1322,15 +1363,7 @@ const ProductDetail: React.FC = () => {
       ),
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {!skuAlertDismissed && (
-            <Alert
-              message="Note from Charles - WIP exploration only, don't build"
-              type="warning"
-              showIcon
-              closable
-              onClose={() => setSkuAlertDismissed(true)}
-            />
-          )}
+
           <PageSection
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1401,13 +1434,31 @@ const ProductDetail: React.FC = () => {
                 setter: setGroupBy,
                 options: SKU_GROUP_BY_OPTIONS,
               },
+              columnOptions: skuColumnOptions,
+              visibleColumns: skuVisibleColumns,
+              setVisibleColumns: setSkuVisibleColumns,
+              columnOrder: skuColumnOrder,
+              setColumnOrder: setSkuColumnOrder,
+              defaultVisibleColumns: skuDefaultVisibility,
+              defaultColumnOrder: DEFAULT_SKU_COLUMNS,
             }}
-            displayMode="inline"
           />
           {finalGroupedSkus ? (
-            <GroupedSkuListTable groupedSkus={finalGroupedSkus} product={product} currentTab={currentTab} />
+            <GroupedSkuListTable 
+              groupedSkus={finalGroupedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
           ) : (
-            <SkuListTable skus={finalSortedSkus} product={product} currentTab={currentTab} />
+            <SkuListTable 
+              skus={finalSortedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
           )}
           </PageSection>
         </Space>

@@ -22,7 +22,6 @@ export { default as GroupedSkuListTable } from './sku/GroupedSkuListTable';
 export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
 // Pricing components
-export { default as BillingModelDisplay } from './pricing/BillingModelDisplay';
 export { default as OverrideComparison } from './pricing/OverrideComparison';
 export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as PriceDetailView } from './pricing/PriceDetailView';

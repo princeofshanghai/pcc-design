@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Space, theme, Tag } from 'antd';
+import { Table, theme, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
@@ -61,7 +61,6 @@ export const getProductListTableColumns = (
       key: 'id',
       // ID column always visible and fixed left
       fixed: 'left',
-      minWidth: 150,
       render: (_: any, record: Product) => (
         <div onClick={(e) => e.stopPropagation()}>
           <CopyableId id={record.id} variant="default" />
@@ -73,7 +72,6 @@ export const getProductListTableColumns = (
       title: getColumnLabel('name'),
       dataIndex: 'name',
       key: 'name',
-      minWidth: 200,
       render: (name: string, record: Product) => (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -346,7 +346,7 @@ const SkuDetail: React.FC = () => {
                     options: PRICE_POINT_GROUP_BY_OPTIONS,
                   },
                 }}
-                displayMode="inline"
+
               />
               <PricePointTable 
                 pricePoints={filteredPricePoints} 

@@ -63,7 +63,6 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'id',
       // ID column always visible
       fixed: 'left',
-      minWidth: 150,
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
         
@@ -195,22 +194,14 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           return <Text style={{ color: token.colorTextSecondary }}>-</Text>;
         }
         
-        // Middle truncation for LIX key if it's longer than 24 characters
-        const truncateMiddle = (str: string, maxLength: number = 24) => {
-          if (str.length <= maxLength) return str;
-          const start = Math.ceil((maxLength - 3) / 2);
-          const end = Math.floor((maxLength - 3) / 2);
-          return `${str.slice(0, start)}...${str.slice(-end)}`;
-        };
-        
-        const truncatedKey = truncateMiddle(skuWithLix.lix.key);
+        const lixKey = skuWithLix.lix.key;
         
         const tooltipTitle = `LIX Key: ${skuWithLix.lix.key}\nTreatment: ${skuWithLix.lix.treatment}`;
         
         return (
           <Tooltip title={tooltipTitle} placement="top">
             <div style={{ cursor: 'pointer' }}>
-              <Text>{truncatedKey}</Text>
+              <Text>{lixKey}</Text>
               <Text style={{ color: token.colorTextSecondary }}> | </Text>
               <Text style={{ color: token.colorTextSecondary }}>{skuWithLix.lix.treatment}</Text>
             </div>

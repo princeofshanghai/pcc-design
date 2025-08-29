@@ -27,13 +27,13 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       currency: true,
       currencyType: false, // Category
       amount: true,
-      usdEquivalent: true,
+      usdEquivalent: false,
       validity: true,
       status: true,
       pricingRule: false,
-      quantityRange: false,
+      quantityRange: true, // Show seats for Field channel
       priceType: false,
-      pricingTier: false,
+      pricingTier: true, // Show tier for Field channel
     },
     availableGroupByOptions: [
       'None',
@@ -51,7 +51,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       currency: true,
       currencyType: false, // Category
       amount: true,
-      usdEquivalent: true,
+      usdEquivalent: false,
       validity: true,
       status: true,
       pricingRule: false,
@@ -78,7 +78,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       currency: true,
       currencyType: false,
       amount: true,
-      usdEquivalent: true,
+      usdEquivalent: false,
       validity: true,
       status: true,
       pricingRule: false,
@@ -102,7 +102,7 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       currency: true,
       currencyType: false,
       amount: true,
-      usdEquivalent: true,
+      usdEquivalent: false,
       validity: true,
       status: true,
       pricingRule: false,
@@ -128,7 +128,7 @@ export const DEFAULT_CHANNEL_CONFIG: ChannelConfig = {
     currency: true,
     currencyType: false,
     amount: true,
-    usdEquivalent: true,
+    usdEquivalent: false,
     validity: true,
     status: true,
     pricingRule: false,

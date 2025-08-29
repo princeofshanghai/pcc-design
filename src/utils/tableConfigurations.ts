@@ -26,7 +26,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
@@ -117,32 +117,40 @@ export const FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS = [
 
 export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'SKU ID', required: true },
+  { key: 'priceGroup', label: 'Price', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
-  { key: 'priceGroup', label: 'Price group', required: false },
   { key: 'lix', label: 'LIX', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_SKU_COLUMNS = ['id', 'channel', 'billingCycle', 'priceGroup', 'lix', 'validity', 'status'];
+export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'lix', 'status'];
 
 export const SKU_SORT_OPTIONS = [
-  'None', 
-  'Validity', 
-  'Channel (A-Z)', 
-  'Channel (Z-A)', 
-  'Billing Cycle (A-Z)', 
-  'Billing Cycle (Z-A)'
+  'None',
+  'SKU ID (A-Z)',
+  'SKU ID (Z-A)',
+  'Price (A-Z)',
+  'Price (Z-A)',
+  'Channel (A-Z)',
+  'Channel (Z-A)',
+  'Billing Cycle (A-Z)',
+  'Billing Cycle (Z-A)',
+  'LIX (A-Z)',
+  'LIX (Z-A)',
+  'Status (A-Z)',
+  'Status (Z-A)',
 ];
 
 // Group by options for SKUs
 export const SKU_GROUP_BY_OPTIONS = [
   'None',
-  'Status', 
+  'Price',
   'Channel',
   'Billing Cycle',
-  'LIX Key'
+  'LIX',
+  'Status',
 ];
 
 export const PRODUCT_COLUMNS: ColumnConfig[] = [

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Row, Col, Space, Button, Drawer, Badge, theme, Dropdown } from 'antd';
+import { Row, Col, Space, Button, theme, Dropdown } from 'antd';
 import { ListFilter, CirclePlus } from 'lucide-react';
-import { zIndex, TAILWIND_COLORS } from '../../theme';
+import { TAILWIND_COLORS } from '../../theme';
 import SearchBar from './SearchBar';
 import FilterDropdown, { type SelectOption } from './FilterDropdown';
 import CustomFilterButton from './CustomFilterButton';
@@ -9,7 +9,6 @@ import ViewOptions from './ViewOptions';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase } from '../../utils/formatters/text';
 import { getColumnLabel } from '../../utils/tableConfigurations';
-import './DrawerTitle.css';
 
 // Create CSS for More filters button and dropdown items to match inline filters
 const createMoreFiltersButtonStyles = (primaryColor: string, primaryBg: string) => `
@@ -120,18 +119,15 @@ interface FilterBarProps {
     // Default column order for this specific context
     defaultColumnOrder?: ColumnOrder;
   };
-  // New prop to control how filters are displayed
-  displayMode?: 'inline' | 'drawer';
-
-  // New prop to control search bar and view options size
+  // Control search bar and view options size
   searchAndViewSize?: 'small' | 'middle' | 'large';
-  // New prop for custom action buttons
+  // Custom action buttons (legacy - use rightActions instead)
   actions?: React.ReactNode[];
-  // New prop for custom actions that appear in the inline filters row (before ViewOptions)
+  // Custom actions that appear in the inline filters row (before ViewOptions)
   inlineActions?: React.ReactNode[];
-  // New prop for custom actions that appear in the inline filters row (after ViewOptions)
+  // Custom actions that appear in the inline filters row (after ViewOptions)
   rightActions?: React.ReactNode[];
-  // New prop to use custom filter buttons instead of Ant Design Select
+  // Use custom filter buttons instead of Ant Design Select
   useCustomFilters?: boolean;
 }
 
@@ -140,15 +136,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
   filters = [],
   onClearAll,
   viewOptions,
-  displayMode = 'drawer', // Default to current behavior
-  searchAndViewSize = 'middle', // Default search and view options size
-  actions = [], // Default to empty array
-  inlineActions = [], // Default to empty array
-  rightActions = [], // Default to empty array
-  useCustomFilters = false, // Default to existing behavior
+  searchAndViewSize = 'middle',
+  actions = [],
+  inlineActions = [],
+  rightActions = [],
+  useCustomFilters = false,
 }) => {
   const { token } = theme.useToken();
-  const [drawerVisible, setDrawerVisible] = useState(false);
   
   // Inject CSS styles for More filters button (only once)
   React.useEffect(() => {
@@ -190,9 +184,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const availableSecondaryFilters = secondaryFilters.filter(f => 
     !provisionalFilters.includes(f.placeholder)
   );
-
-  const showDrawer = () => setDrawerVisible(true);
-  const hideDrawer = () => setDrawerVisible(false);
 
   const handleClearAll = () => {
     if (onClearAll) {
@@ -251,23 +242,19 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   const hasFilters = filters.length > 0;
 
-  // Component to render filters (can be used inline or in drawer)
-  const renderFilters = (filtersToRender = displayMode === 'inline' ? activeInlineFilters : filters) => (
-    <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
+  // Component to render filters inline
+  const renderFilters = (filtersToRender = activeInlineFilters) => (
+    <Space direction="horizontal" 
            style={{ width: '100%' }} 
-           size={displayMode === 'inline' ? 6 : 32}
-           wrap={displayMode === 'inline'}>
+           size={6}
+           wrap>
       {filtersToRender.map((filter, index) => {
         const isProvisional = provisionalFilters.includes(filter.placeholder);
         
         return (
-          <Space direction={displayMode === 'inline' ? 'horizontal' : 'vertical'} 
-               style={displayMode === 'inline' ? {} : { width: '100%' }} 
+          <Space direction="horizontal" 
                key={`${filter.placeholder}-${index}`}
-               size={displayMode === 'inline' ? 8 : 8}>
-          {displayMode === 'drawer' && (
-            <div style={{ fontWeight: 500 }}>{toSentenceCase(filter.placeholder.replace('All ', ''))}</div>
-          )}
+               size={8}>
           <div data-filter-placeholder={filter.placeholder}>
             {useCustomFilters ? (
               <CustomFilterButton
@@ -288,7 +275,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     handleProvisionalFilterChange(filter.placeholder, values.length > 0);
                   }
                 } : undefined}
-                size={displayMode === 'inline' ? 'middle' : 'large'}
+                size="middle"
                 style={{ 
                   ...(filter.style || {}) 
                 }}
@@ -323,10 +310,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     handleProvisionalFilterChange(filter.placeholder, values.length > 0);
                   }
                 } : undefined}
-                size={displayMode === 'inline' ? 'middle' : 'large'}
+                size="middle"
                 style={{ 
-                  width: displayMode === 'inline' ? 'auto' : '100%', 
-                  minWidth: displayMode === 'inline' ? 'auto' : 140,
+                  width: 'auto', 
+                  minWidth: 'auto',
                   ...(filter.style || {}) 
                 }}
                 dropdownStyle={{
@@ -341,8 +328,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
         );
       })}
       
-      {/* More filters button - only show in inline mode when there are available secondary filters */}
-      {displayMode === 'inline' && availableSecondaryFilters.length > 0 && (
+      {/* More filters button - only show when there are available secondary filters */}
+      {availableSecondaryFilters.length > 0 && (
         <Dropdown
           open={moreFiltersDropdownVisible}
           onOpenChange={setMoreFiltersDropdownVisible}
@@ -396,7 +383,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </Dropdown>
       )}
       
-      {displayMode === 'inline' && hasFilters && activeFilterCount > 0 && (
+      {hasFilters && activeFilterCount > 0 && (
         <Button 
           type="link" 
           onClick={handleClearAll} 
@@ -426,43 +413,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </Col>
         <Col>
           <Space>
-            {hasFilters && displayMode === 'drawer' && (
-               <Badge count={activeFilterCount}>
-                <Button 
-                  icon={<ListFilter size={16} />} 
-                  onClick={showDrawer}
-                  size={searchAndViewSize}
-                >
-                  Filters
-                </Button>
-              </Badge>
-            )}
-
-            {shouldRenderViewOptions && displayMode === 'drawer' && (
-              <ViewOptions 
-                viewMode={viewOptions?.viewMode}
-
-                groupBy={viewOptions?.groupBy?.value}
-                setGroupBy={viewOptions?.groupBy?.setter}
-                groupByOptions={viewOptions?.groupBy?.options}
-                isGroupingDisabled={viewOptions?.groupBy?.disabled}
-
-                sortOrder={viewOptions?.sortOrder?.value}
-                setSortOrder={viewOptions?.sortOrder?.setter}
-                sortOptions={viewOptions?.sortOrder?.options}
-
-                columnOptions={viewOptions?.columnOptions}
-                visibleColumns={viewOptions?.visibleColumns}
-                setVisibleColumns={viewOptions?.setVisibleColumns}
-                columnOrder={viewOptions?.columnOrder}
-                setColumnOrder={viewOptions?.setColumnOrder}
-                defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
-                defaultColumnOrder={viewOptions?.defaultColumnOrder}
-                
-                size={searchAndViewSize}
-              />
-            )}
-
             {actions.map((action, index) => (
               <React.Fragment key={index}>
                 {action}
@@ -472,9 +422,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </Col>
       </Row>
 
-      {/* Inline filters row */}
-      {displayMode === 'inline' && (hasFilters || shouldRenderViewOptions) && (
-        <Row style={{ marginTop: 24 }} justify="space-between" align="middle">
+      {/* Filters row */}
+      {(hasFilters || shouldRenderViewOptions) && (
+        <Row style={{ marginTop: 12 }} justify="space-between" align="middle">
           <Col flex="auto" style={{ minWidth: 0 }}>
             {hasFilters && renderFilters()}
           </Col>
@@ -527,41 +477,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
             </Col>
           )}
         </Row>
-      )}
-
-      {/* Drawer for drawer mode */}
-      {displayMode === 'drawer' && (
-        <Drawer
-          title={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="drawer-title-text">Filters</span>
-              <Button 
-                type="link" 
-                onClick={handleClearAll} 
-                disabled={activeFilterCount === 0}
-                style={{ 
-                  padding: 0,
-                  color: token.colorPrimary
-                }}
-              >
-                Clear All
-              </Button>
-            </div>
-          }
-          placement="right"
-          onClose={hideDrawer}
-          open={drawerVisible}
-          zIndex={zIndex.drawer}
-          footer={
-            <div style={{ textAlign: 'right' }}>
-              <Button type="default" onClick={hideDrawer}>
-                Done
-              </Button>
-            </div>
-          }
-        >
-          {renderFilters()}
-        </Drawer>
       )}
     </>
   );

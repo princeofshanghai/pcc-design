@@ -64,13 +64,13 @@ export const getChannelIcon = (channel: SalesChannel): React.ReactNode => {
 export const getChannelIconForPageHeader = (channel: SalesChannel): React.ReactNode => {
   switch (channel) {
     case 'Desktop':
-      return <Monitor size={18} />;
+      return <Monitor size={16} />;
     case 'iOS':
       return <AppleIconPageHeader />;
     case 'GPB':
       return <GooglePlayIconPageHeader />;
     case 'Field':
-      return <Headset size={18} />;
+      return <Headset size={16} />;
     default:
       return null;
   }

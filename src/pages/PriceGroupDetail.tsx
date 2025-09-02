@@ -479,7 +479,6 @@ const PriceGroupDetail: React.FC = () => {
             {viewMode === 'pivot' && uniqueChannels.includes('Field') ? (
               <PivotTable 
                 pricePoints={filteredPricePoints}
-                isTaxInclusive={isMobileOnlyPriceGroup}
                 validityFilter={validityFilter}
               />
             ) : (

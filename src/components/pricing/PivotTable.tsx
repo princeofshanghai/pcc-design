@@ -9,7 +9,6 @@ const { Text, Title } = Typography;
 
 interface PivotTableProps {
   pricePoints: PricePoint[];
-  isTaxInclusive?: boolean;
   validityFilter?: string | null;
 }
 
@@ -107,7 +106,6 @@ interface PivotTableData {
 
 const PivotTable: React.FC<PivotTableProps> = ({ 
   pricePoints,
-  isTaxInclusive = false,
   validityFilter,
 }) => {
   const { token } = theme.useToken();
@@ -403,36 +401,6 @@ const PivotTable: React.FC<PivotTableProps> = ({
           scroll={{ x: 'max-content' }}
           bordered
           className="pivot-table"
-          style={{
-            // Match the existing table styling from PricePointTable
-            '& .ant-table-thead > tr > th': {
-              backgroundColor: token.colorFillAlter,
-              borderBottom: `1px solid ${token.colorBorder}`,
-              fontWeight: 600,
-              fontSize: '12px',
-              padding: '8px 12px',
-            },
-            '& .ant-table-tbody > tr > td': {
-              borderRight: `1px solid ${token.colorBorderSecondary}`,
-              padding: '8px 12px',
-              fontSize: '12px',
-            },
-            '& .table-col-first': {
-              backgroundColor: token.colorBgContainer,
-              borderRight: `2px solid ${token.colorBorder}`,
-              fontWeight: 500,
-            },
-            '& .pivot-currency-column': {
-              borderLeft: `1px solid ${token.colorBorder}`,
-            },
-            // Nested header styling for tier sub-columns
-            '& .ant-table-thead > tr:last-child > th': {
-              borderBottom: `1px solid ${token.colorBorder}`,
-              fontSize: '11px',
-              textAlign: 'center',
-              padding: '6px 8px',
-            }
-          }}
         />
       </div>
     );

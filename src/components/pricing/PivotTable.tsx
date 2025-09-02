@@ -263,7 +263,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
         key: 'seatRange',
         fixed: 'left',
         width: 200,
-        className: 'table-col-first',
+        className: 'table-col-first seat-range-column',
         render: (text: string) => (
           <Text style={{ 
             fontWeight: 500,
@@ -401,6 +401,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
           scroll={{ x: 'max-content' }}
           bordered
           className="pivot-table"
+          tableLayout="fixed"
         />
       </div>
     );
@@ -408,6 +409,22 @@ const PivotTable: React.FC<PivotTableProps> = ({
 
   return (
     <div style={{ marginTop: '16px' }}>
+      <style>{`
+        .pivot-table .seat-range-column {
+          width: 200px !important;
+          min-width: 200px !important;
+          max-width: 200px !important;
+        }
+        .pivot-table .ant-table-fixed-left {
+          width: 200px !important;
+        }
+        .pivot-table .ant-table-thead > tr > th.seat-range-column,
+        .pivot-table .ant-table-tbody > tr > td.seat-range-column {
+          width: 200px !important;
+          min-width: 200px !important;
+          max-width: 200px !important;
+        }
+      `}</style>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {validityGroupedData.map((periodData, index) => renderPivotTable(periodData, index))}
       </Space>

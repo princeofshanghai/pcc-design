@@ -14,7 +14,8 @@ import {
   FilterBar,
   AttributeDisplay,
   AttributeGroup,
-  VerticalSeparator
+  VerticalSeparator,
+  AnalyticsChart
 } from '../components';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
 import { getChannelIcon } from '../utils/channelIcons';
@@ -322,11 +323,8 @@ const PriceGroupDetail: React.FC = () => {
       key: 'pricing',
       label: 'Price points',
       children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection 
-            title={toSentenceCase("Price points")}
-          >
-            <FilterBar
+        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+          <FilterBar
               useCustomFilters={true}
               search={{
                 placeholder: "Search by currency or ID...",
@@ -402,8 +400,8 @@ const PriceGroupDetail: React.FC = () => {
                     onChange: () => {},
                   },
                 ] : []),
-                // Only show status filter in list view, not in pivot view
-                ...(viewMode === 'list' ? [{
+                // Show status filter for: non-Field products (always) OR Field products in list view (not pivot view)
+                ...(!uniqueChannels.includes('Field') || viewMode === 'list' ? [{
                   placeholder: getFilterPlaceholder('status'),
                   options: statusOptions,
                   multiSelect: true,
@@ -429,8 +427,8 @@ const PriceGroupDetail: React.FC = () => {
                     storageKey: 'pricePointViewMode'
                   }
                 } : {}),
-                // Only show sort/group/column options in list view, not in pivot view
-                ...(viewMode === 'list' ? {
+                // Show sort/group/column options for: non-Field products (always) OR Field products in list view (not pivot view)
+                ...(!uniqueChannels.includes('Field') || viewMode === 'list' ? {
                   sortOrder: {
                     value: pricePointSortOrder,
                     setter: setPricePointSortOrder,
@@ -491,11 +489,23 @@ const PriceGroupDetail: React.FC = () => {
                 isTaxInclusive={isMobileOnlyPriceGroup}
               />
             )}
-          </PageSection>
         </Space>
       ),
     },
-    // Details tab (second tab)  
+    // Analytics tab (Field products only)
+    ...(uniqueChannels.includes('Field') ? [{
+      key: 'analytics',
+      label: 'Analytics',
+      children: (
+        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+          <AnalyticsChart 
+            pricePoints={priceGroup?.pricePoints || []}
+            validityOptions={validityOptions}
+          />
+        </Space>
+      ),
+    }] : []),
+    // Details tab
     {
       key: 'details',
       label: 'Details',

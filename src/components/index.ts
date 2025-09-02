@@ -28,6 +28,8 @@ export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
 export { default as PricePointTable } from './pricing/PricePointTable';
 export { default as PivotTable } from './pricing/PivotTable';
+export { default as AnalyticsChart } from './pricing/AnalyticsChart';
+export { default as ChartControls } from './pricing/ChartControls';
 
 
 // Attribute components

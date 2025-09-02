@@ -62,27 +62,7 @@ const formatAmount = (pricePoint: PricePoint): string => {
   return pricePoint.amount.toFixed(2);
 };
 
-/**
- * Formats quantity range for seat ranges
- */
-const formatSeatRange = (pricePoint: PricePoint): string => {
-  if (!pricePoint.minQuantity && !pricePoint.maxQuantity) {
-    return 'No restrictions';
-  }
-  
-  const min = pricePoint.minQuantity || 1;
-  const max = pricePoint.maxQuantity;
-  
-  if (!max) {
-    return `${min}+ seats`;
-  }
-  
-  if (min === max) {
-    return `${min} seat${min === 1 ? '' : 's'}`;
-  }
-  
-  return `${min}-${max} seats`;
-};
+
 
 /**
  * Creates a unique key for seat ranges to group price points

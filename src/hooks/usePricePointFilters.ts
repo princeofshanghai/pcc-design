@@ -17,6 +17,8 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [regionFilters, setRegionFilters] = useState<string[]>([]);
+  const [seatFilters, setSeatFilters] = useState<string[]>([]);
+  const [tierFilters, setTierFilters] = useState<string[]>([]);
   // Helper to get the newest validity period for default selection
   const getNewestValidityPeriod = useMemo(() => {
     if (initialPricePoints.length === 0) return 'All periods';
@@ -169,6 +171,68 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
     }));
   }, [initialPricePoints]);
 
+  // Get unique seat (quantity range) options with counts
+  const seatOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialPricePoints,
+      point => {
+        // Format quantity range for display
+        if (!point.minQuantity && !point.maxQuantity) {
+          return 'No limit';
+        }
+        
+        const min = point.minQuantity || 1;
+        const max = point.maxQuantity;
+        
+        if (!max) {
+          return `${min}+ seats`;
+        }
+        
+        if (min === max) {
+          return `${min} seat${min === 1 ? '' : 's'}`;
+        }
+        
+        return `${min}-${max} seats`;
+      },
+      range => range
+    );
+    
+    // Sort seat options by minimum quantity (fewest to most seats)
+    const sortedOptions = optionsWithCounts.sort((a, b) => {
+      // Extract min quantity from the seat range text
+      const getMinQuantity = (rangeText: string): number => {
+        if (rangeText === 'No limit') return 0;
+        
+        // Match patterns like "1-3 seats", "251+ seats", "1 seat"
+        const match = rangeText.match(/^(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+      
+      const minA = getMinQuantity(a.label);
+      const minB = getMinQuantity(b.label);
+      
+      return minA - minB;
+    });
+    
+    return sortedOptions.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialPricePoints]);
+
+  // Get unique tier (pricing tier) options with counts
+  const tierOptions = useMemo(() => {
+    const optionsWithCounts = generateDynamicOptionsWithCounts(
+      initialPricePoints,
+      point => point.pricingTier || 'Unspecified',
+      tier => tier === 'Unspecified' ? 'No tier' : tier
+    );
+    return optionsWithCounts.map(option => ({
+      value: option.value,
+      label: `${option.label} (${option.count})`
+    }));
+  }, [initialPricePoints]);
+
   // Get unique validity period options with counts
   const validityOptions = useMemo(() => {
     // Group price points by validity period and count them
@@ -287,6 +351,38 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
       });
     }
 
+    // Apply seat (quantity range) filters
+    if (seatFilters.length > 0) {
+      filtered = filtered.filter(point => {
+        // Format quantity range for comparison
+        let pointSeatRange;
+        if (!point.minQuantity && !point.maxQuantity) {
+          pointSeatRange = 'No limit';
+        } else {
+          const min = point.minQuantity || 1;
+          const max = point.maxQuantity;
+          
+          if (!max) {
+            pointSeatRange = `${min}+ seats`;
+          } else if (min === max) {
+            pointSeatRange = `${min} seat${min === 1 ? '' : 's'}`;
+          } else {
+            pointSeatRange = `${min}-${max} seats`;
+          }
+        }
+        
+        return seatFilters.includes(pointSeatRange);
+      });
+    }
+
+    // Apply tier (pricing tier) filters
+    if (tierFilters.length > 0) {
+      filtered = filtered.filter(point => {
+        const tier = point.pricingTier || 'Unspecified';
+        return tierFilters.includes(tier);
+      });
+    }
+
     // Apply validity filter
     if (validityFilter && validityFilter !== 'All periods') {
       // Filter to show only price points matching the selected validity period
@@ -297,7 +393,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
     }
 
     return filtered;
-  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters, regionFilters, validityFilter]);
+  }, [initialPricePoints, searchQuery, currencyFilter, currencyFilters, statusFilter, statusFilters, categoryFilters, regionFilters, seatFilters, tierFilters, validityFilter]);
 
   // Helper function to sort price points
   const sortPricePoints = (pricePoints: PricePoint[]) => {
@@ -516,6 +612,90 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
       return sortedGroups;
     }
 
+    if (groupBy === 'Seats') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        // Use the same formatting logic as the seat filter options
+        let seatRange;
+        if (!point.minQuantity && !point.maxQuantity) {
+          seatRange = 'No limit';
+        } else {
+          const min = point.minQuantity || 1;
+          const max = point.maxQuantity;
+          
+          if (!max) {
+            seatRange = `${min}+ seats`;
+          } else if (min === max) {
+            seatRange = `${min} seat${min === 1 ? '' : 's'}`;
+          } else {
+            seatRange = `${min}-${max} seats`;
+          }
+        }
+        
+        if (!groups[seatRange]) {
+          groups[seatRange] = [];
+        }
+        groups[seatRange].push(point);
+      });
+      
+      // Sort each group and apply logical ordering to group keys (by quantity)
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => {
+          // Custom sort for seat ranges - "No limit" goes last
+          if (a === 'No limit') return 1;
+          if (b === 'No limit') return -1;
+          
+          // Extract numbers for proper numerical sorting
+          const getMinQuantity = (range: string): number => {
+            if (range.includes('+')) {
+              return parseInt(range.match(/(\d+)\+/)?.[1] || '0', 10);
+            }
+            if (range.includes('-')) {
+              return parseInt(range.match(/(\d+)-/)?.[1] || '0', 10);
+            }
+            // Single seat format
+            return parseInt(range.match(/(\d+) seat/)?.[1] || '0', 10);
+          };
+          
+          return getMinQuantity(a) - getMinQuantity(b);
+        })
+        .forEach(seatRange => {
+          sortedGroups[seatRange] = sortPricePoints(groups[seatRange]);
+        });
+      
+      return sortedGroups;
+    }
+
+    if (groupBy === 'Tier') {
+      const groups: Record<string, PricePoint[]> = {};
+      
+      filteredPricePoints.forEach(point => {
+        const tier = point.pricingTier || 'No tier';
+        
+        if (!groups[tier]) {
+          groups[tier] = [];
+        }
+        groups[tier].push(point);
+      });
+      
+      // Sort each group and apply alphabetical ordering to group keys
+      const sortedGroups: Record<string, PricePoint[]> = {};
+      Object.keys(groups)
+        .sort((a, b) => {
+          // Put "No tier" last
+          if (a === 'No tier') return 1;
+          if (b === 'No tier') return -1;
+          return a.localeCompare(b);
+        })
+        .forEach(tierKey => {
+          sortedGroups[tierKey] = sortPricePoints(groups[tierKey]);
+        });
+      
+      return sortedGroups;
+    }
+
     return null;
   }, [filteredPricePoints, groupBy, sortOrder]);
 
@@ -535,12 +715,18 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?
     setCategoryFilters,
     regionFilters,
     setRegionFilters,
+    seatFilters,
+    setSeatFilters,
+    tierFilters,
+    setTierFilters,
     validityFilter,
     setValidityFilter,
     currencyOptions,
     statusOptions,
     categoryOptions,
     regionOptions,
+    seatOptions,
+    tierOptions,
     validityOptions,
     
     // View controls

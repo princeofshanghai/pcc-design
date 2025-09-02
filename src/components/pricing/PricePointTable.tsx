@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { Table, Typography, theme, Tooltip } from 'antd';
+import { Table, Typography, theme } from 'antd';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
@@ -9,6 +9,7 @@ import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PricePointStatusTag from '../attributes/PricePointStatusTag';
+import InfoPopover from '../shared/InfoPopover';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -473,14 +474,14 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
         return bStatus.localeCompare(aStatus);
       });
     
-    case 'Pricing tier (A-Z)':
+    case 'Tier (A-Z)':
       return sorted.sort((a, b) => {
         const aTier = a.pricingTier || '';
         const bTier = b.pricingTier || '';
         return aTier.localeCompare(bTier);
       });
     
-    case 'Pricing tier (Z-A)':
+    case 'Tier (Z-A)':
       return sorted.sort((a, b) => {
         const aTier = a.pricingTier || '';
         const bTier = b.pricingTier || '';
@@ -575,13 +576,13 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         const currencyName = currencyNames[record.currencyCode];
         return (
           <div>
-            <Tooltip title={currencyName || record.currencyCode}>
+            <InfoPopover content={currencyName || record.currencyCode} placement="right">
               <Text style={{ 
                 fontWeight: 500
               }}>
                 {record.currencyCode}
               </Text>
-            </Tooltip>
+            </InfoPopover>
           </div>
         );
       },
@@ -625,26 +626,58 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
     },
 
     pricingRule: visibleColumns.pricingRule === true ? {
-      title: getColumnLabel('pricingRule'),
+      title: getColumnTitleWithTooltip(
+        getColumnLabel('pricingRule'),
+        <div style={{ lineHeight: '1.4' }}>
+          <div style={{ fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+            Price Rule
+          </div>
+          <div style={{ marginBottom: '10px', color: token.colorTextSecondary, fontSize: '12px' }}>
+            How the price is applied — flat, by quantity, or with special logic:
+          </div>
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>None (Flat):</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Same unit price always.</span>{' '}
+            <span style={{ fontStyle: 'italic', color: token.colorTextTertiary }}>Ex: 6×$1 = $6</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>Range:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>One unit price for the whole order if quantity is in a range.</span>{' '}
+            <span style={{ fontStyle: 'italic', color: token.colorTextTertiary }}>Ex: 6 in 6–10 × $1 = $6</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>Slab:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Split into ranges; each portion has its own price.</span>{' '}
+            <span style={{ fontStyle: 'italic', color: token.colorTextTertiary }}>Ex: 5×$2 + 1×$1 = $11</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>Block:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>One fixed price covers the whole block.</span>{' '}
+            <span style={{ fontStyle: 'italic', color: token.colorTextTertiary }}>Ex: $10 for 1–10 units, so 6 = $10</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>Spreadsheet:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Pricing calculated via a spreadsheet-driven custom pricer (Jaxel).</span>
+          </div>
+        </div>
+      ),
       dataIndex: 'pricingRule',
       key: 'pricingRule',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        
-        const getPricingRuleTooltip = (rule: string): string => {
-          switch (rule) {
-            case 'NONE':
-              return 'Flat rate pricing - same price regardless of quantity';
-            case 'SLAB':
-              return 'Slab pricing - different price per unit for different quantity ranges';
-            case 'RANGE':
-              return 'Range pricing - different total price for different quantity ranges';
-            case 'BLOCK':
-              return 'Block pricing - fixed price per block of units';
-            default:
-              return 'Pricing rule not specified';
-          }
-        };
         
         const formatPricingRule = (rule: string): string => {
           if (!rule || rule === 'NONE') return 'None';
@@ -653,11 +686,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         
         const rule = record.pricingRule || 'NONE';
         return (
-          <Tooltip title={getPricingRuleTooltip(rule)}>
-            <Text>
-              {formatPricingRule(rule)}
-            </Text>
-          </Tooltip>
+          <Text>
+            {formatPricingRule(rule)}
+          </Text>
         );
       },
     } : null,
@@ -701,33 +732,58 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         
         const rangeText = formatQuantityRange(record);
         return (
-          <Tooltip title={getQuantityRangeTooltip(record)}>
+          <InfoPopover content={getQuantityRangeTooltip(record)} placement="top">
             <Text style={{ 
               fontVariantNumeric: 'tabular-nums',
             }}>
               {rangeText}
             </Text>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,
     priceType: visibleColumns.priceType === true ? {
-      title: getColumnLabel('priceType'),
+      title: getColumnTitleWithTooltip(
+        getColumnLabel('priceType'),
+        <div style={{ lineHeight: '1.4' }}>
+          <div style={{ fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+            Price Type
+          </div>
+          <div style={{ marginBottom: '10px', color: token.colorTextSecondary, fontSize: '12px' }}>
+            Defines what the price entry represents:
+          </div>
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>BASE_AMOUNT:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Price to define the base money amount for a product.</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>BASE_PRICER:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Custom pricer, used by iOS or ads settable price.</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>ADJUSTMENT_AMOUNT:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Price to adjust the base prices, in the form of absolute amount.</span>
+          </div>
+          
+          <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}`, margin: '6px 0' }} />
+          
+          <div style={{ fontSize: '12px' }}>
+            <span style={{ fontWeight: 500 }}>ADJUSTMENT_PERCENT:</span>{' '}
+            <span style={{ color: token.colorTextSecondary }}>Price to adjust the base prices, in the form of percentage.</span>
+          </div>
+        </div>
+      ),
       dataIndex: 'priceType',
       key: 'priceType',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        
-        const getPriceTypeTooltip = (type: string): string => {
-          switch (type) {
-            case 'BASE_AMOUNT':
-              return 'Base pricing with specific currency amounts';
-            case 'BASE_PRICER':
-              return 'Configuration-only entry without specific amounts';
-            default:
-              return 'Price type not specified';
-          }
-        };
         
         const formatPriceType = (type: string): string => {
           if (!type) return '-';
@@ -739,11 +795,9 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         
         const priceType = record.priceType || '';
         return (
-          <Tooltip title={getPriceTypeTooltip(priceType)}>
-            <Text>
-              {formatPriceType(priceType)}
-            </Text>
-          </Tooltip>
+          <Text>
+            {formatPriceType(priceType)}
+          </Text>
         );
       },
     } : null,
@@ -771,7 +825,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
             case 'CORP ARH TIER 1 DSC':
               return 'Corporate ARH tier 1 with discount';
             default:
-              return tier ? `Pricing tier: ${tier}` : 'No specific pricing tier';
+              return tier ? `Tier: ${tier}` : 'No specific tier';
           }
         };
         
@@ -783,13 +837,13 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         
         const pricingTier = record.pricingTier || '';
         return (
-          <Tooltip title={getPricingTierTooltip(pricingTier)}>
+          <InfoPopover content={getPricingTierTooltip(pricingTier)} placement="top">
             <Text style={{ 
               color: pricingTier ? token.colorText : token.colorTextTertiary
             }}>
               {formatPricingTier(pricingTier)}
             </Text>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,

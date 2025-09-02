@@ -27,6 +27,7 @@ export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
 export { default as PricePointTable } from './pricing/PricePointTable';
+export { default as PivotTable } from './pricing/PivotTable';
 
 
 // Attribute components
@@ -56,6 +57,7 @@ export { default as SecondaryText } from './shared/SecondaryText';
 export { default as ViewModeToggle } from './shared/ViewModeToggle';
 export { default as VerticalSeparator } from './shared/VerticalSeparator';
 export { default as MetricCard } from './shared/MetricCard';
+export { default as InfoPopover } from './shared/InfoPopover';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';

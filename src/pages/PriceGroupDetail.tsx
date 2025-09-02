@@ -22,6 +22,7 @@ import { getBillingModelIcon } from '../utils/billingModelIcons';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
+import PivotTable from '../components/pricing/PivotTable';
 import { toSentenceCase } from '../utils/formatters';
 import { 
   PRICE_POINT_COLUMNS, 
@@ -29,7 +30,7 @@ import {
   DEFAULT_PRICE_POINT_COLUMNS,
   getFilterPlaceholder
 } from '../utils/tableConfigurations';
-import { Download, Calendar } from 'lucide-react';
+import { Download, Calendar, Rows2, Table2 } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -47,6 +48,19 @@ const PriceGroupDetail: React.FC = () => {
   const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // View mode toggle state - only for Field products
+  const [viewMode, setViewMode] = useState(() => {
+    // Load from localStorage on initial mount
+    const saved = localStorage.getItem('pricePointViewMode');
+    return (saved === 'list' || saved === 'pivot') ? saved : 'list';
+  });
+
+  // Wrapper function that also saves to localStorage
+  const handleViewModeChange = (newMode: string) => {
+    setViewMode(newMode);
+    localStorage.setItem('pricePointViewMode', newMode);
+  };
   
   // Load enhanced product data with price groups from JSON files
   useEffect(() => {
@@ -95,10 +109,16 @@ const PriceGroupDetail: React.FC = () => {
     statusFilters,
     setStatusFilters,
     setCategoryFilters,
+    seatFilters,
+    setSeatFilters,
+    tierFilters,
+    setTierFilters,
     validityFilter,
     setValidityFilter,
     currencyOptions,
     statusOptions,
+    seatOptions,
+    tierOptions,
     validityOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
@@ -206,6 +226,8 @@ const PriceGroupDetail: React.FC = () => {
     setCurrencyFilters([]);
     setStatusFilters([]);
     setCategoryFilters([]);
+    setSeatFilters([]);
+    setTierFilters([]);
     // Validity filter is excluded from clear all - it's a view selector, not a filter
     // It maintains its current selection when other filters are cleared
   };
@@ -355,7 +377,33 @@ const PriceGroupDetail: React.FC = () => {
                   value: null,
                   onChange: () => {},
                 },
-                {
+                // Only show seat and tier filters for Field price groups
+                ...(uniqueChannels.includes('Field') ? [
+                  {
+                    placeholder: getFilterPlaceholder('quantityRange'),
+                    options: seatOptions,
+                    multiSelect: true,
+                    multiValue: seatFilters,
+                    onMultiChange: (values: string[]) => setSeatFilters(values),
+                    disableSearch: true,
+                    // Required for TypeScript interface compatibility
+                    value: null,
+                    onChange: () => {},
+                  },
+                  {
+                    placeholder: getFilterPlaceholder('pricingTier'),
+                    options: tierOptions,
+                    multiSelect: true,
+                    multiValue: tierFilters,
+                    onMultiChange: (values: string[]) => setTierFilters(values),
+                    // Tier filter is now searchable
+                    // Required for TypeScript interface compatibility
+                    value: null,
+                    onChange: () => {},
+                  },
+                ] : []),
+                // Only show status filter in list view, not in pivot view
+                ...(viewMode === 'list' ? [{
                   placeholder: getFilterPlaceholder('status'),
                   options: statusOptions,
                   multiSelect: true,
@@ -365,27 +413,42 @@ const PriceGroupDetail: React.FC = () => {
                   // Required for TypeScript interface compatibility
                   value: null,
                   onChange: () => {},
-                },
+                }] : []),
               ]}
               onClearAll={clearAllPricePointFilters}
               viewOptions={{
-                sortOrder: {
-                  value: pricePointSortOrder,
-                  setter: setPricePointSortOrder,
-                  options: sortOptions,
-                },
-                groupBy: {
-                  value: pricePointGroupBy,
-                  setter: setPricePointGroupBy,
-                  options: getAvailableGroupByOptions(uniqueChannels),
-                },
-                columnOptions,
-                visibleColumns,
-                setVisibleColumns,
-                columnOrder,
-                setColumnOrder,
-                defaultVisibleColumns: pricePointDefaultVisibility,
-                defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
+                // Only show view mode toggle for Field products
+                ...(uniqueChannels.includes('Field') ? {
+                  viewMode: {
+                    value: viewMode,
+                    setter: handleViewModeChange,
+                    options: [
+                      { key: 'list', label: 'List view', icon: <Rows2 size={20} /> },
+                      { key: 'pivot', label: 'Pivot view', icon: <Table2 size={20} /> }
+                    ],
+                    storageKey: 'pricePointViewMode'
+                  }
+                } : {}),
+                // Only show sort/group/column options in list view, not in pivot view
+                ...(viewMode === 'list' ? {
+                  sortOrder: {
+                    value: pricePointSortOrder,
+                    setter: setPricePointSortOrder,
+                    options: sortOptions,
+                  },
+                  groupBy: {
+                    value: pricePointGroupBy,
+                    setter: setPricePointGroupBy,
+                    options: getAvailableGroupByOptions(uniqueChannels),
+                  },
+                  columnOptions,
+                  visibleColumns,
+                  setVisibleColumns,
+                  columnOrder,
+                  setColumnOrder,
+                  defaultVisibleColumns: pricePointDefaultVisibility,
+                  defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
+                } : {}),
               }}
 
               rightActions={[
@@ -413,14 +476,22 @@ const PriceGroupDetail: React.FC = () => {
                 </Button>
               ]}
             />
-            <PricePointTable 
-              pricePoints={filteredPricePoints} 
-              groupedPricePoints={groupedPricePointsData}
-              visibleColumns={visibleColumns}
-              columnOrder={columnOrder}
-              sortOrder={pricePointSortOrder}
-              isTaxInclusive={isMobileOnlyPriceGroup}
-            />
+            {viewMode === 'pivot' && uniqueChannels.includes('Field') ? (
+              <PivotTable 
+                pricePoints={filteredPricePoints}
+                isTaxInclusive={isMobileOnlyPriceGroup}
+                validityFilter={validityFilter}
+              />
+            ) : (
+              <PricePointTable 
+                pricePoints={filteredPricePoints} 
+                groupedPricePoints={groupedPricePointsData}
+                visibleColumns={visibleColumns}
+                columnOrder={columnOrder}
+                sortOrder={pricePointSortOrder}
+                isTaxInclusive={isMobileOnlyPriceGroup}
+              />
+            )}
           </PageSection>
         </Space>
       ),

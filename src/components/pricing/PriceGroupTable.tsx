@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Typography, Dropdown, Button, Modal, Tooltip, theme } from 'antd';
+import { Table, Typography, Dropdown, Button, Modal, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -11,6 +11,7 @@ import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
 import VerticalSeparator from '../shared/VerticalSeparator';
+import InfoPopover from '../shared/InfoPopover';
 import { getChannelIcon } from '../../utils/channelIcons';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -196,16 +197,21 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         const lixKey = skuWithLix.lix.key;
         
-        const tooltipTitle = `LIX Key: ${skuWithLix.lix.key}\nTreatment: ${skuWithLix.lix.treatment}`;
+        const tooltipContent = (
+          <div>
+            <div><strong>LIX Key:</strong> {skuWithLix.lix.key}</div>
+            <div><strong>Treatment:</strong> {skuWithLix.lix.treatment}</div>
+          </div>
+        );
         
         return (
-          <Tooltip title={tooltipTitle} placement="top">
+          <InfoPopover content={tooltipContent} placement="topLeft">
             <div style={{ cursor: 'pointer' }}>
               <Text>{lixKey}</Text>
               <Text style={{ color: token.colorTextSecondary }}> | </Text>
               <Text style={{ color: token.colorTextSecondary }}>{skuWithLix.lix.treatment}</Text>
             </div>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,

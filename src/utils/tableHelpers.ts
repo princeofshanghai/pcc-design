@@ -1,34 +1,24 @@
 import React from 'react';
-import { Tooltip } from 'antd';
-import { Info } from 'lucide-react';
+import InfoPopover from '../components/shared/InfoPopover';
 
 /**
- * Creates a column title with an optional tooltip icon.
- * This helper ensures consistent tooltip styling across all tables.
+ * Creates a column title with an optional info popover icon.
+ * This helper ensures consistent popover styling across all tables.
  * 
  * @param label - The column label text
- * @param tooltip - Optional tooltip text to display on hover
+ * @param tooltip - Optional rich content to display in popover on hover
  * @returns React node with label and optional info icon
  */
-export const getColumnTitleWithTooltip = (label: string, tooltip?: string): React.ReactNode => {
+export const getColumnTitleWithTooltip = (label: string, tooltip?: React.ReactNode): React.ReactNode => {
   if (!tooltip) return label;
   
   return React.createElement(
     'span',
     { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
     label,
-    React.createElement(
-      Tooltip,
-      { title: tooltip, placement: 'top' },
-      React.createElement(Info, {
-        size: 13,
-        strokeWidth: 2.5,
-        style: {
-          color: '#9ca3af', // Tailwind Gray 400 (tertiary text color)
-          cursor: 'default',  // Normal cursor, not help cursor
-          flexShrink: 0
-        }
-      })
-    )
+    React.createElement(InfoPopover, {
+      content: tooltip,
+      placement: 'top'
+    })
   );
 };

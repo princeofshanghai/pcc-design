@@ -64,10 +64,10 @@ export type PricePoint = {
   validTo?: string; // Optional validity end date
   status?: 'Active' | 'Expired'; // Status from your data (A/E converted to Active/Expired)
   // Pricing rule fields
-  pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK';
+  pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK' | 'SPREADSHEET';
   minQuantity?: number;
   maxQuantity?: number;
-  priceType?: 'BASE_AMOUNT' | 'BASE_PRICER' | string; // Price type from data
+  priceType?: 'BASE_AMOUNT' | 'BASE_PRICER' | 'ADJUSTMENT_AMOUNT' | 'ADJUSTMENT_PERCENT' | string; // Price type from data
   pricingTier?: string; // Pricing tier identifier (e.g., 'CORP TIER 1', 'STFF', etc.)
   isTaxInclusive?: boolean;
 };

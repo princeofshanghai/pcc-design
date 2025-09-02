@@ -16,17 +16,17 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'currency', label: 'Currency', required: true },
   { key: 'currencyType', label: 'Category', required: false },
   { key: 'amount', label: 'Amount', required: false },
+  { key: 'usdEquivalent', label: 'USD equivalent', required: false },
 
   { key: 'pricingRule', label: 'Rule', required: false },
   { key: 'quantityRange', label: 'Seats', required: false },
   { key: 'priceType', label: 'Type', required: false },
   { key: 'pricingTier', label: 'Tier', required: false },
-  { key: 'usdEquivalent', label: 'USD equivalent', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [
@@ -62,8 +62,8 @@ export const PRICE_POINT_SORT_OPTIONS = [
   'Currency (Z-A)', 
   'Price type (A-Z)',
   'Price type (Z-A)',
-  'Pricing tier (A-Z)',
-  'Pricing tier (Z-A)',
+  'Tier (A-Z)',
+  'Tier (Z-A)',
   'Status (A-Z)',
   'Status (Z-A)',
   'USD equivalent (High to low)',
@@ -79,7 +79,8 @@ export const PRICE_POINT_GROUP_BY_OPTIONS = [
   'Currency',
   'Price type',
   'Pricing rule',
-  'Pricing tier',
+  'Tier',
+  'Seats',
   'Validity',
 ];
 
@@ -233,8 +234,8 @@ export const getFilterPlaceholder = (columnKey: string): string => {
     'validity': 'validity',
     'priceType': 'price types',
     'pricingRule': 'pricing rules',
-    'pricingTier': 'pricing tiers',
-    'quantityRange': 'quantity ranges',
+    'pricingTier': 'tiers',
+    'quantityRange': 'seats',
     'folder': 'folders',
     'lob': 'LOBs',
     'domain': 'domains',

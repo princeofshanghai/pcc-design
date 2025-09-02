@@ -1,7 +1,7 @@
 import React from 'react';
-import { Typography, Row, Col, Tooltip, theme } from 'antd';
-import { Info } from 'lucide-react';
+import { Typography, Row, Col, theme } from 'antd';
 import { toSentenceCase } from '../../utils/formatters';
+import InfoPopover from '../shared/InfoPopover';
 
 const { Text } = Typography;
 
@@ -9,7 +9,8 @@ interface AttributeDisplayProps {
   label: string;
   children: React.ReactNode;
   layout?: 'vertical' | 'horizontal';
-  tooltip?: string;
+  /** Rich tooltip content - supports text, links, buttons, and JSX */
+  tooltip?: React.ReactNode;
 }
 
 const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
@@ -28,9 +29,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
     <Text style={{ fontSize: '13px', letterSpacing: '0.1px', color: token.colorTextSecondary, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {toSentenceCase(label)}
       {tooltip && (
-        <Tooltip title={tooltip}>
-          <Info size={13} strokeWidth={2.5} style={{ color: token.colorTextTertiary, flexShrink: 0 }} />
-        </Tooltip>
+        <InfoPopover content={tooltip} />
       )}
     </Text>
   );

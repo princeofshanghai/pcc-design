@@ -39,7 +39,9 @@ export const CHANNEL_CONFIGS: Record<string, ChannelConfig> = {
       'None',
       'Validity', 
       'Currency',
-      'Category'
+      'Category',
+      'Seats',
+      'Tier'
     ],
     showUsdEquivalent: true,
   },

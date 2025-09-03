@@ -931,9 +931,9 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 {chartType === 'volume' 
                   ? `Price per seat range in ${selectedCurrency}`
                   : chartType === 'calculator'
-                  ? `Seat Calculator in ${selectedCurrency}`
+                  ? `Total price for number of seats in ${selectedCurrency}`
                   : chartType === 'comparison'
-                  ? `Currency Comparison (USD Equivalent)`
+                  ? `USD compared to USD equivalents`
                   : chartTypeOptions.find(opt => opt.value === chartType)?.label
                 }
               </Title>

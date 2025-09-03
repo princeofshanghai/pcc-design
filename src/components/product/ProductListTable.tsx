@@ -77,7 +77,7 @@ export const getProductListTableColumns = (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontWeight: 500 }}>{name}</span>
-            <StatusTag status={record.status} showLabel={false} variant="default" />
+            <StatusTag status={record.status} showLabel={false} variant="small" />
             {record.isBundle && (
               <Tag>Bundle</Tag>
             )}

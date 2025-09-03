@@ -74,7 +74,7 @@ const StatusTag: React.FC<StatusTagProps> = ({
   // If showLabel is false, render just the icon without background
   if (!showLabel) {
     // For icon-only, we'll use a simple span with the icon wrapped in a tooltip
-    const iconSize = variant === 'small' ? 12 : 16;
+    const iconSize = variant === 'small' ? 14 : 16;
     return (
       <Tooltip title={description}>
         <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
@@ -96,7 +96,7 @@ const StatusTag: React.FC<StatusTagProps> = ({
         }}
       >
         <Icon 
-          size={variant === 'small' ? 12 : 16} 
+          size={variant === 'small' ? 14 : 16} 
           strokeWidth={variant === 'small' ? 2.5 : 2}
           color={colors.textColor}
         />

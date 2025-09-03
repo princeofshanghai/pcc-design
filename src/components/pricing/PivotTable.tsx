@@ -316,7 +316,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
           ),
           dataIndex: `${currency}-${tier}`,
           key: `${currency}-${tier}`,
-          width: 85,
+          width: 100,
           align: 'right' as const,
           render: (_: any, record: PivotTableData) => {
             const pricePoint = record[`${currency}-${tier}`];
@@ -393,7 +393,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
           </Title>
         )}
         <Table
-          size="small"
+          size="middle"
           columns={columns}
           dataSource={pivotData.pivotRows}
           rowKey={(record) => `${periodData.validityPeriod}-${record.seatRangeKey}-${record.tier}`}

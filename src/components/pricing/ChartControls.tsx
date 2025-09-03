@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Space, theme, Button, Dropdown, Radio, InputNumber } from 'antd';
-import { ChevronDown } from 'lucide-react';
-import { TAILWIND_COLORS } from '../../theme';
+import React from 'react';
+import { Space, theme, Checkbox } from 'antd';
+import { Calendar } from 'lucide-react';
+import CustomFilterButton from '../filters/CustomFilterButton';
 
 interface ChartControlsProps {
   chartType: 'volume' | 'calculator' | 'comparison';
@@ -9,17 +9,28 @@ interface ChartControlsProps {
   selectedCurrency?: string;
   onCurrencyChange?: (currency: string) => void;
   availableCurrencies?: string[];
+  // Volume specific - tier filtering (single select)
+  selectedTier?: string;
+  onTierChange?: (tier: string) => void;
+  availableTiers?: string[];
+  // Calculator specific - tier filtering (single select)
+  selectedCalculatorTier?: string;
+  onCalculatorTierChange?: (tier: string) => void;
+  // Comparison specific - currency filtering (multi-select, non-USD)
+  selectedComparisonCurrencies?: string[];
+  onComparisonCurrenciesChange?: (currencies: string[]) => void;
+  availableComparisonCurrencies?: string[];
+  selectedComparisonTier?: string;
+  onComparisonTierChange?: (tier: string) => void;
+  // Volume specific - line overlay
+  showLineOverlay?: boolean;
+  onLineOverlayChange?: (show: boolean) => void;
   // All chart types
   selectedValidity?: string;
   onValidityChange?: (validity: string) => void;
   validityOptions?: Array<{ label: string; value: string }>;
-  // Calculator specific
-  seatCount?: number;
-  onSeatCountChange?: (count: number) => void;
-  // Comparison specific
-  selectedSeatRange?: string;
-  onSeatRangeChange?: (range: string) => void;
-  availableSeatRanges?: string[];
+  // Calculator specific - simplified (no seat input)
+  // Comparison specific - no seat range needed
 }
 
 const ChartControls: React.FC<ChartControlsProps> = ({
@@ -27,286 +38,237 @@ const ChartControls: React.FC<ChartControlsProps> = ({
   selectedCurrency,
   onCurrencyChange,
   availableCurrencies = [],
+  selectedTier = '',
+  onTierChange,
+  availableTiers = [],
+  selectedCalculatorTier = '',
+  onCalculatorTierChange,
+  selectedComparisonCurrencies = [],
+  onComparisonCurrenciesChange,
+  availableComparisonCurrencies = [],
+  selectedComparisonTier = '',
+  onComparisonTierChange,
+  showLineOverlay = false,
+  onLineOverlayChange,
   selectedValidity,
   onValidityChange,
   validityOptions = [],
-  seatCount,
-  onSeatCountChange,
-  selectedSeatRange,
-  onSeatRangeChange,
-  availableSeatRanges = [],
 }) => {
   const { token } = theme.useToken();
 
-  // Inject styles similar to CustomFilterButton
+  // Minimal styles for remaining custom controls
   React.useEffect(() => {
-    if (typeof document !== 'undefined' && !document.getElementById('chart-controls-styles')) {
+    if (typeof document !== 'undefined' && !document.getElementById('remaining-chart-controls-styles')) {
       const styleElement = document.createElement('style');
-      styleElement.id = 'chart-controls-styles';
+      styleElement.id = 'remaining-chart-controls-styles';
       styleElement.textContent = `
         .chart-control-button {
           transition: all 0.2s ease;
-          border: 1px solid ${TAILWIND_COLORS.gray[300]} !important;
+          border: 1px solid ${token.colorBorder} !important;
         }
         
         .chart-control-button:hover:not(:disabled) {
           border-color: ${token.colorPrimary} !important;
           color: ${token.colorPrimary} !important;
         }
-        
-        .chart-control-button:focus:not(:disabled) {
-          border-color: ${token.colorPrimary} !important;
-          box-shadow: 0 0 0 2px ${token.colorPrimary}1a !important;
-        }
       `;
       document.head.appendChild(styleElement);
     }
-  }, [token.colorPrimary]);
+  }, [token.colorPrimary, token.colorBorder]);
 
-  // Custom button style matching CustomFilterButton's "has-selections" state
-  const buttonStyle = {
-    height: '28px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    fontFamily: token.fontFamily,
-    fontSize: token.fontSize,
-  };
 
-  // Currency dropdown
+
+  // Currency dropdown - using CustomFilterButton for consistency
   const CurrencyControl = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    
-    const dropdownContent = (
-      <div style={{
-        backgroundColor: token.colorBgElevated,
-        borderRadius: token.borderRadius,
-        boxShadow: token.boxShadowSecondary,
-        padding: '8px',
-        minWidth: '120px'
-      }}>
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
-          {availableCurrencies.map(currency => (
-            <div key={currency} style={{ 
-              width: '100%', 
-              display: 'flex', 
-              alignItems: 'center',
-              padding: '4px 8px 4px 0'
-            }}>
-              <Radio
-                checked={selectedCurrency === currency}
-                onChange={() => {
-                  onCurrencyChange?.(currency);
-                  setIsOpen(false);
-                }}
-                style={{ margin: 0, flex: 1 }}
-              >
-                {currency}
-              </Radio>
-            </div>
-          ))}
-        </Space>
-      </div>
-    );
+    if (!onCurrencyChange || availableCurrencies.length === 0) return null;
+
+    const currencyOptions = availableCurrencies.map(currency => ({
+      label: currency,
+      value: currency
+    }));
 
     return (
-      <Dropdown
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        dropdownRender={() => dropdownContent}
-        trigger={['click']}
-        placement="bottomLeft"
-      >
-        <Button
-          style={buttonStyle}
-          className="chart-control-button"
-          icon={<ChevronDown size={12} />}
-          iconPosition="end"
-        >
-          {selectedCurrency}
-        </Button>
-      </Dropdown>
+      <CustomFilterButton
+        placeholder="Currency"
+        options={currencyOptions}
+        value={selectedCurrency || null}
+        onChange={(value) => value && onCurrencyChange?.(value)}
+        disableSearch={false}
+        preventDeselection={true}
+        hideClearButton={true}
+        noXIcon={true}
+        customDisplayValue={(value) => {
+          if (!value) return 'Currency';
+          return { label: 'Currency:', values: value };
+        }}
+        style={{ minWidth: '90px' }}
+      />
     );
   };
 
-  // Validity period dropdown
+  // Tier dropdown for volume charts - single select
+  const VolumeTierControl = () => {
+    if (!onTierChange || availableTiers.length === 0) return null;
+
+    const tierOptions = availableTiers.map(tier => ({
+      label: tier,
+      value: tier
+    }));
+
+    return (
+      <CustomFilterButton
+        placeholder="Tier"
+        options={tierOptions}
+        value={selectedTier || null}
+        onChange={(value) => value && onTierChange(value)}
+        disableSearch={false}
+        preventDeselection={true}
+        hideClearButton={true}
+        noXIcon={true}
+        customDisplayValue={(value) => {
+          if (!value) return 'Tier';
+          return { label: 'Tier:', values: value };
+        }}
+        style={{ minWidth: '100px' }}
+      />
+    );
+  };
+
+  // Tier dropdown for calculator charts - single select  
+  const CalculatorTierControl = () => {
+    if (!onCalculatorTierChange || availableTiers.length === 0) return null;
+
+    const tierOptions = availableTiers.map(tier => ({
+      label: tier,
+      value: tier
+    }));
+
+    return (
+      <CustomFilterButton
+        placeholder="Tier"
+        options={tierOptions}
+        value={selectedCalculatorTier || null}
+        onChange={(value) => value && onCalculatorTierChange(value)}
+        disableSearch={false}
+        preventDeselection={true}
+        hideClearButton={true}
+        noXIcon={true}
+        customDisplayValue={(value) => {
+          if (!value) return 'Tier';
+          return { label: 'Tier:', values: value };
+        }}
+        style={{ minWidth: '100px' }}
+      />
+    );
+  };
+
+  // Currency dropdown for comparison charts - multi-select (non-USD)
+  const ComparisonCurrencyControl = () => {
+    if (!onComparisonCurrenciesChange || availableComparisonCurrencies.length === 0) return null;
+
+    const currencyOptions = availableComparisonCurrencies.map(currency => ({
+      label: currency,
+      value: currency
+    }));
+
+    return (
+      <CustomFilterButton
+        placeholder="Currencies"
+        options={currencyOptions}
+        multiSelect={true}
+        multiValue={selectedComparisonCurrencies}
+        onMultiChange={onComparisonCurrenciesChange}
+        disableSearch={false}
+        useDropdownArrow={true}
+        noXIcon={true}
+        customDisplayValue={(_, multiValue) => {
+          if (!multiValue || multiValue.length === 0) return 'Currencies';
+          if (multiValue.length === availableComparisonCurrencies.length) return { label: 'Currencies:', values: 'All' };
+          if (multiValue.length === 1) return { label: 'Currencies:', values: multiValue[0] };
+          return { label: 'Currencies:', values: `${multiValue[0]} +${multiValue.length - 1} more` };
+        }}
+        style={{ minWidth: '120px' }}
+      />
+    );
+  };
+
+  // Tier dropdown for comparison charts - single select  
+  const ComparisonTierControl = () => {
+    if (!onComparisonTierChange || availableTiers.length === 0) return null;
+
+    const tierOptions = availableTiers.map(tier => ({
+      label: tier,
+      value: tier
+    }));
+
+    return (
+      <CustomFilterButton
+        placeholder="Tier"
+        options={tierOptions}
+        value={selectedComparisonTier || null}
+        onChange={(value) => value && onComparisonTierChange(value)}
+        disableSearch={false}
+        preventDeselection={true}
+        hideClearButton={true}
+        noXIcon={true}
+        customDisplayValue={(value) => {
+          if (!value) return 'Tier';
+          return { label: 'Tier:', values: value };
+        }}
+        style={{ minWidth: '100px' }}
+      />
+    );
+  };
+
+  // Validity period dropdown - using CustomFilterButton for consistency
   const ValidityControl = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    
-    const dropdownContent = (
-      <div style={{
-        backgroundColor: token.colorBgElevated,
-        borderRadius: token.borderRadius,
-        boxShadow: token.boxShadowSecondary,
-        padding: '8px',
-        minWidth: '200px'
-      }}>
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
-          {validityOptions
-            .filter(opt => opt.value !== 'All periods')
-            .map(option => (
-              <div key={option.value} style={{ 
-                width: '100%', 
-                display: 'flex', 
-                alignItems: 'center',
-                padding: '4px 8px 4px 0'
-              }}>
-                <Radio
-                  checked={selectedValidity === option.value}
-                  onChange={() => {
-                    onValidityChange?.(option.value);
-                    setIsOpen(false);
-                  }}
-                  style={{ margin: 0, flex: 1 }}
-                >
-                  {option.label}
-                </Radio>
-              </div>
-            ))}
-        </Space>
-      </div>
-    );
+    if (!onValidityChange || validityOptions.length === 0) return null;
 
-    const displayText = validityOptions.find(opt => opt.value === selectedValidity)?.label || selectedValidity;
+    // Filter out "All periods" option for chart controls and remove counts
+    const filteredValidityOptions = validityOptions
+      .filter(opt => opt.value !== 'All periods')
+      .map(opt => ({
+        label: opt.label.replace(/\s*\(\d+\)$/, ''), // Remove count numbers like "(5)"
+        value: opt.value
+      }));
 
     return (
-      <Dropdown
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        dropdownRender={() => dropdownContent}
-        trigger={['click']}
-        placement="bottomLeft"
-      >
-        <Button
-          style={{...buttonStyle, width: '180px'}}
-          className="chart-control-button"
-          icon={<ChevronDown size={12} />}
-          iconPosition="end"
-        >
-          <span style={{ 
-            whiteSpace: 'nowrap', 
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis' 
-          }}>
-            {displayText}
-          </span>
-        </Button>
-      </Dropdown>
+      <CustomFilterButton
+        placeholder="Period"
+        options={filteredValidityOptions}
+        value={selectedValidity || null}
+        onChange={(value) => value && onValidityChange?.(value)}
+        disableSearch={false}
+        preventDeselection={true}
+        hideClearButton={true}
+        noXIcon={true}
+        icon={<Calendar size={12} />}
+        customDisplayValue={(value) => value || 'Period'}
+        style={{ minWidth: '140px' }}
+      />
     );
   };
 
-  // Seat count input control
-  const SeatCountControl = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [inputValue, setInputValue] = useState(seatCount?.toString() || '10');
-    
-    const dropdownContent = (
-      <div style={{
-        backgroundColor: token.colorBgElevated,
-        borderRadius: token.borderRadius,
-        boxShadow: token.boxShadowSecondary,
-        padding: '12px',
-        minWidth: '150px'
-      }}>
-        <Space direction="vertical" size={8} style={{ width: '100%' }}>
-          <InputNumber
-            value={parseInt(inputValue)}
-            onChange={(value) => {
-              const newValue = value || 1;
-              setInputValue(newValue.toString());
-              onSeatCountChange?.(newValue);
-            }}
-            min={1}
-            max={1000}
-            style={{ width: '100%' }}
-            placeholder="Enter seat count"
-            autoFocus
-          />
-        </Space>
-      </div>
-    );
+
+
+
+
+  // Line overlay checkbox for volume charts
+  const LineOverlayControl = () => {
+    if (chartType !== 'volume' || !onLineOverlayChange) return null;
 
     return (
-      <Dropdown
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        dropdownRender={() => dropdownContent}
-        trigger={['click']}
-        placement="bottomLeft"
+      <Checkbox
+        checked={showLineOverlay}
+        onChange={(e) => onLineOverlayChange(e.target.checked)}
+        style={{
+          fontFamily: token.fontFamily,
+          fontSize: token.fontSize,
+          color: token.colorText,
+        }}
       >
-        <Button
-          style={{...buttonStyle, width: '90px'}}
-          className="chart-control-button"
-          icon={<ChevronDown size={12} />}
-          iconPosition="end"
-        >
-          {seatCount} seats
-        </Button>
-      </Dropdown>
-    );
-  };
-
-  // Seat range dropdown
-  const SeatRangeControl = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    
-    const dropdownContent = (
-      <div style={{
-        backgroundColor: token.colorBgElevated,
-        borderRadius: token.borderRadius,
-        boxShadow: token.boxShadowSecondary,
-        padding: '8px',
-        minWidth: '140px',
-        maxHeight: '300px',
-        overflowY: 'auto'
-      }}>
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
-          {availableSeatRanges.map(range => (
-            <div key={range} style={{ 
-              width: '100%', 
-              display: 'flex', 
-              alignItems: 'center',
-              padding: '4px 8px 4px 0'
-            }}>
-              <Radio
-                checked={selectedSeatRange === range}
-                onChange={() => {
-                  onSeatRangeChange?.(range);
-                  setIsOpen(false);
-                }}
-                style={{ margin: 0, flex: 1 }}
-              >
-                {range}
-              </Radio>
-            </div>
-          ))}
-        </Space>
-      </div>
-    );
-
-    return (
-      <Dropdown
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        dropdownRender={() => dropdownContent}
-        trigger={['click']}
-        placement="bottomLeft"
-      >
-        <Button
-          style={{...buttonStyle, width: '130px'}}
-          className="chart-control-button"
-          icon={<ChevronDown size={12} />}
-          iconPosition="end"
-        >
-          <span style={{ 
-            whiteSpace: 'nowrap', 
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis' 
-          }}>
-            {selectedSeatRange}
-          </span>
-        </Button>
-      </Dropdown>
+        Show trend lines
+      </Checkbox>
     );
   };
 
@@ -316,7 +278,10 @@ const ChartControls: React.FC<ChartControlsProps> = ({
       case 'volume':
         return (
           <Space size={8}>
+            <LineOverlayControl />
             <CurrencyControl />
+            {/* Only render TierControl if we have tiers and the callback */}
+            {onTierChange && availableTiers.length > 0 && <VolumeTierControl />}
             <ValidityControl />
           </Space>
         );
@@ -324,8 +289,9 @@ const ChartControls: React.FC<ChartControlsProps> = ({
       case 'calculator':
         return (
           <Space size={8}>
-            <SeatCountControl />
             <CurrencyControl />
+            {/* Only render TierControl if we have tiers and the callback */}
+            {onCalculatorTierChange && availableTiers.length > 0 && <CalculatorTierControl />}
             <ValidityControl />
           </Space>
         );
@@ -333,7 +299,9 @@ const ChartControls: React.FC<ChartControlsProps> = ({
       case 'comparison':
         return (
           <Space size={8}>
-            <SeatRangeControl />
+            <ComparisonCurrencyControl />
+            {/* Only render TierControl if we have tiers and the callback */}
+            {onComparisonTierChange && availableTiers.length > 0 && <ComparisonTierControl />}
             <ValidityControl />
           </Space>
         );

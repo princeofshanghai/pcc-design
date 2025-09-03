@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Space, Typography, theme, Card } from 'antd';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Line, LineChart } from 'recharts';
 import type { PricePoint } from '../../utils/types';
 import { formatValidityRange } from '../../utils/formatters';
 import ChartControls from './ChartControls';
@@ -32,9 +32,20 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     return defaultOption?.value || validityOptions[0]?.value || '';
   });
   
-  // Seat calculator specific controls
-  const [seatCount, setSeatCount] = useState<number>(10);
-  const [selectedSeatRange, setSelectedSeatRange] = useState('11-31');
+  // Seat calculator specific controls - simplified (no seat input, no seat range)
+  
+  // Volume chart tier filtering - now single select
+  const [selectedTier, setSelectedTier] = useState<string>('');
+  
+  // Calculator chart tier filtering - single select
+  const [selectedCalculatorTier, setSelectedCalculatorTier] = useState<string>('');
+  
+  // Comparison chart controls - currency filtering (multi-select, non-USD)
+  const [selectedComparisonCurrencies, setSelectedComparisonCurrencies] = useState<string[]>([]);
+  const [selectedComparisonTier, setSelectedComparisonTier] = useState<string>('');
+  
+  // Line chart overlay toggle
+  const [showLineOverlay, setShowLineOverlay] = useState<boolean>(false);
 
   // Get available currencies from price points
   const availableCurrencies = useMemo(() => {
@@ -50,28 +61,17 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     });
   }, [pricePoints]);
 
-  // Get available seat ranges
-  const availableSeatRanges = useMemo(() => {
-    const ranges = new Set<string>();
-    pricePoints.forEach(pp => {
-      const min = pp.minQuantity || 1;
-      const max = pp.maxQuantity;
-      if (!max) {
-        ranges.add(`${min}+ seats`);
-      } else if (min === max) {
-        ranges.add(`${min} seat${min === 1 ? '' : 's'}`);
-      } else {
-        ranges.add(`${min}-${max} seats`);
-      }
-    });
-    return Array.from(ranges).sort((a, b) => {
-      const parseRange = (range: string) => {
-        const match = range.match(/(\d+)/);
-        return match ? parseInt(match[1]) : 0;
-      };
-      return parseRange(a) - parseRange(b);
-    });
-  }, [pricePoints]);
+  // Get non-USD currencies for comparison chart
+  const availableComparisonCurrencies = useMemo(() => {
+    return availableCurrencies.filter(currency => currency !== 'USD');
+  }, [availableCurrencies]);
+
+  // Auto-select all non-USD currencies when they change
+  useEffect(() => {
+    setSelectedComparisonCurrencies(availableComparisonCurrencies);
+  }, [availableComparisonCurrencies]);
+
+
 
   // Filter price points based on validity
   const filteredByValidity = useMemo(() => {
@@ -81,22 +81,41 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     });
   }, [pricePoints, selectedValidity]);
 
+  // Get available tiers for the selected currency
+  const availableTiers = useMemo(() => {
+    const tiersForCurrency = [...new Set(
+      filteredByValidity
+        .filter(pp => pp.currencyCode === selectedCurrency)
+        .map(pp => pp.pricingTier || 'Standard')
+    )];
+    return tiersForCurrency.sort();
+  }, [filteredByValidity, selectedCurrency]);
+
+  // Auto-select first available tier when currency changes (for all charts)
+  useEffect(() => {
+    if (availableTiers.length > 0) {
+      setSelectedTier(availableTiers[0]);
+      setSelectedCalculatorTier(availableTiers[0]);
+      setSelectedComparisonTier(availableTiers[0]);
+    }
+  }, [availableTiers]);
+
   // Chart type options
   const chartTypeOptions = [
     { 
       value: 'volume', 
-      label: 'Volume Pricing',
-      description: 'Amount vs Seat Ranges'
+      label: 'Price per seat range',
+      description: 'Shows unit price per seat range'
     },
     { 
       value: 'calculator', 
-      label: 'Seat Calculator',
-      description: 'Cost for Specific Seat Count'
+      label: 'Total price',
+      description: 'Shows total price for number of seats'
     },
     { 
       value: 'comparison', 
-      label: 'Currency Comparison',
-      description: 'USD vs Other Currencies'
+      label: 'USD comparison',
+      description: 'Compares USD price to USD equivalent of other currencies'
     }
   ];
 
@@ -160,6 +179,133 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     return { data, tiers: Array.from(allTiers) };
   }, [filteredByValidity, selectedCurrency]);
 
+  // Seat Calculator Chart Data - simplified with fixed range
+  const calculatorChartData = useMemo(() => {
+    const maxSeats = 300; // Fixed range 0-300
+    const step = 2; // Generate data points every 2 seats for smooth curves
+    const data: any[] = [];
+    
+    // Get tiers for selected currency
+    const tiersForCurrency = [...new Set(
+      filteredByValidity
+        .filter(pp => pp.currencyCode === selectedCurrency)
+        .map(pp => pp.pricingTier || 'Standard')
+    )];
+    
+    // Generate data points from 0 to maxSeats
+    for (let seats = 0; seats <= maxSeats; seats += step) {
+      const dataPoint: any = { seats };
+      
+      tiersForCurrency.forEach(tier => {
+        // Find the applicable price point for this seat count and tier
+        const applicablePricePoint = filteredByValidity
+          .filter(pp => pp.currencyCode === selectedCurrency)
+          .filter(pp => (pp.pricingTier || 'Standard') === tier)
+          .find(pp => {
+            const min = pp.minQuantity || 1;
+            const max = pp.maxQuantity;
+            return seats >= min && (max === null || max === undefined || seats <= max);
+          });
+        
+        if (applicablePricePoint) {
+          // Calculate total cost (amount per seat * number of seats)
+          dataPoint[tier] = applicablePricePoint.amount * seats;
+        } else {
+          dataPoint[tier] = null;
+        }
+      });
+      
+      data.push(dataPoint);
+    }
+    
+    return { data, tiers: tiersForCurrency };
+  }, [filteredByValidity, selectedCurrency]);
+
+  // Currency Comparison Chart Data - USD equivalent amounts
+  const comparisonChartData = useMemo(() => {
+    // Helper function to get default exchange rates (approximate, for demo purposes)
+    const getDefaultExchangeRate = (currency: string): number => {
+      const defaultRates: Record<string, number> = {
+        'EUR': 1.10,   // 1 EUR = 1.10 USD
+        'GBP': 1.27,   // 1 GBP = 1.27 USD  
+        'CAD': 0.73,   // 1 CAD = 0.73 USD
+        'AUD': 0.65,   // 1 AUD = 0.65 USD
+        'SGD': 0.75,   // 1 SGD = 0.75 USD
+        'HKD': 0.13,   // 1 HKD = 0.13 USD
+        'INR': 0.012,  // 1 INR = 0.012 USD
+        'CNY': 0.14,   // 1 CNY = 0.14 USD
+      };
+      return defaultRates[currency] || 1;
+    };
+    
+    // Helper function to generate seat range key
+    const getSeatRangeKey = (pp: PricePoint) => {
+      const min = pp.minQuantity || 1;
+      const max = pp.maxQuantity;
+      if (!max) {
+        return `${min}+`;
+      } else if (min === max) {
+        return `${min}`;
+      } else {
+        return `${min}-${max}`;
+      }
+    };
+    
+    // Group by seat range first
+    const groupedData = new Map<string, Map<string, number>>();
+    const allCurrencies = new Set<string>();
+    
+    // Include USD and selected comparison currencies
+    const currenciesToShow = ['USD', ...selectedComparisonCurrencies];
+    
+    filteredByValidity
+      .filter(pp => currenciesToShow.includes(pp.currencyCode))
+      .filter(pp => (pp.pricingTier || 'Standard') === selectedComparisonTier)
+      .forEach(pp => {
+        const seatRangeKey = getSeatRangeKey(pp);
+        
+        if (!groupedData.has(seatRangeKey)) {
+          groupedData.set(seatRangeKey, new Map());
+        }
+        
+        // Calculate USD equivalent
+        let usdEquivalent = pp.amount;
+        if (pp.currencyCode !== 'USD') {
+          // Use exchange rate from data, or default rates for common currencies
+          const exchangeRate = pp.exchangeRate || getDefaultExchangeRate(pp.currencyCode);
+          if (exchangeRate) {
+            usdEquivalent = pp.amount * exchangeRate;
+          }
+        }
+        
+        groupedData.get(seatRangeKey)!.set(pp.currencyCode, usdEquivalent);
+        allCurrencies.add(pp.currencyCode);
+      });
+
+    // Convert to chart data
+    const data: any[] = [];
+    const sortedRanges = Array.from(groupedData.keys()).sort((a, b) => {
+      const parseRange = (range: string) => {
+        const match = range.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+      return parseRange(a) - parseRange(b);
+    });
+    
+    sortedRanges.forEach(seatRange => {
+      const currencyMap = groupedData.get(seatRange)!;
+      const dataPoint: any = { seatRange };
+      
+      currenciesToShow.forEach(currency => {
+        dataPoint[currency] = currencyMap.get(currency) || null;
+      });
+      
+      data.push(dataPoint);
+    });
+    
+    return { data, currencies: currenciesToShow };
+  }, [filteredByValidity, selectedComparisonCurrencies, selectedComparisonTier]);
+
   // Chart colors that match your design system
   const chartColors = [
     '#1890ff', // Primary blue
@@ -172,9 +318,26 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     '#fa8c16', // Orange
   ];
 
+  // Darker, contrasting colors for trend lines
+  const lineColors = [
+    '#0050b3', // Darker blue
+    '#389e0d', // Darker green
+    '#d48806', // Darker orange
+    '#a8071a', // Darker red
+    '#531dab', // Darker purple
+    '#08979c', // Darker cyan
+    '#c41d7f', // Darker magenta
+    '#d46b08', // Darker orange variant
+  ];
+
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      // Filter payload to only show bar data (exclude line data)
+      const barData = payload.filter((entry: any) => entry.type === 'rect' || !entry.type);
+      
+      if (barData.length === 0) return null;
+      
       return (
         <div style={{
           backgroundColor: token.colorBgElevated,
@@ -191,7 +354,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
           }}>
             {label} seats
           </Text>
-          {payload.map((entry: any, index: number) => (
+          {barData.map((entry: any, index: number) => (
             <div key={index} style={{ marginTop: 4 }}>
               <Text style={{ 
                 color: entry.color,
@@ -207,13 +370,133 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     return null;
   };
 
+  // Interactive Legend Component - positioned between controls and chart
+  const InteractiveLegend = () => {
+    // Generate legend items based on chart type
+    const getLegendItems = () => {
+      switch (chartType) {
+        case 'volume':
+          // Show all available tiers for selection - use same color logic as chart
+          return availableTiers.map((tier) => ({
+            key: tier,
+            label: tier,
+            color: chartColors[volumeChartData.tiers.indexOf(tier) % chartColors.length],
+            isActive: selectedTier === tier,
+            onClick: () => setSelectedTier(tier)
+          }));
+          
+        case 'calculator':
+          // No legend needed - single tier shown in controls
+          return [];
+          
+        case 'comparison':
+          // Show USD + ALL available comparison currencies - use same color logic as chart
+          const allAvailableCurrencies = ['USD', ...availableComparisonCurrencies];
+          return allAvailableCurrencies.map((currency) => {
+            // Match exact color assignment logic from chart rendering
+            let color;
+            if (currency === 'USD') {
+              color = token.colorPrimary;
+            } else {
+              // Match the exact same index logic as used in chart rendering
+              // comparisonChartData.currencies.indexOf() to match line 814 logic
+              const dataIndex = comparisonChartData.currencies.indexOf(currency);
+              color = chartColors[dataIndex % chartColors.length];
+            }
+            
+            return {
+              key: currency,
+              label: currency,
+              color: color,
+              isActive: currency === 'USD' || selectedComparisonCurrencies.includes(currency),
+              onClick: () => {
+                if (currency === 'USD') return; // USD always active, not clickable
+                
+                if (selectedComparisonCurrencies.includes(currency)) {
+                  // Remove currency
+                  setSelectedComparisonCurrencies(prev => prev.filter(c => c !== currency));
+                } else {
+                  // Add currency
+                  setSelectedComparisonCurrencies(prev => [...prev, currency]);
+                }
+              }
+            };
+          });
+          
+        default:
+          return [];
+      }
+    };
+
+    const legendItems = getLegendItems();
+    
+    if (legendItems.length === 0) return null;
+
+    return (
+      <div style={{
+        marginTop: '-4px'  // Pull legend closer to header divider for balanced spacing
+      }}>
+        {/* Legend - right aligned */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '16px',
+          marginBottom: '12px',  // Reduced from 16px to balance with spacing above
+          fontSize: token.fontSizeSM,
+          fontFamily: token.fontFamily,
+        }}>
+          {legendItems.map((item) => (
+            <div 
+              key={item.key}
+              onClick={item.onClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: item.key === 'USD' && chartType === 'comparison' ? 'default' : 'pointer',
+                opacity: item.isActive ? 1 : 0.5,
+                transition: 'opacity 0.2s ease'
+              }}
+            >
+              {/* Square legend symbol with rounded corners */}
+              <div style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: item.color,
+                borderRadius: '2px',
+                flexShrink: 0,
+                border: item.isActive ? 'none' : `1px solid ${token.colorBorder}`
+              }} />
+              <span style={{
+                color: item.isActive ? token.colorText : token.colorTextSecondary,
+                fontSize: token.fontSizeSM,
+                fontFamily: token.fontFamily,
+                fontWeight: item.isActive ? 500 : 400
+              }}>
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+        
+        {/* Single divider below legend, edge-to-edge */}
+        <div style={{
+          height: '1px',
+          backgroundColor: TAILWIND_COLORS.gray[200],
+          margin: '0 -24px 16px -24px'  // Cancel out Card's 24px body padding
+        }} />
+      </div>
+    );
+  };
+
   // Render chart based on type
   const renderChart = () => {
     switch (chartType) {
       case 'volume':
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart
+            <ComposedChart
               data={volumeChartData.data}
               margin={{
                 top: 20,
@@ -250,10 +533,72 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 }}
                 axisLine={{ stroke: token.colorBorder }}
                 tickLine={{ stroke: token.colorBorder }}
+
+                tickFormatter={(value) => value.toLocaleString()}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              {/* Show only selected tier */}
+              {selectedTier && volumeChartData.tiers.includes(selectedTier) && (
+                <Bar 
+                  key={selectedTier}
+                  dataKey={selectedTier} 
+                  fill={chartColors[volumeChartData.tiers.indexOf(selectedTier) % chartColors.length]}
+                  radius={[2, 2, 0, 0]}
+                  name={selectedTier}
+                  animationDuration={250}
+                />
+              )}
+              {/* Add line overlay when enabled for selected tier only */}
+              {showLineOverlay && selectedTier && volumeChartData.tiers.includes(selectedTier) && (
+                <Line 
+                  key={`line-${selectedTier}`}
+                  type="monotone"
+                  dataKey={selectedTier} 
+                  stroke={lineColors[volumeChartData.tiers.indexOf(selectedTier) % lineColors.length]}
+                  strokeWidth={3}
+                  dot={{ r: 4, strokeWidth: 2, fill: lineColors[volumeChartData.tiers.indexOf(selectedTier) % lineColors.length] }}
+                  connectNulls={false}
+                  legendType="none"
+                  animationDuration={250}
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        );
+      
+      case 'calculator':
+        return (
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+              data={calculatorChartData.data}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 60,
+                bottom: 60,
+              }}
+
+            >
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                stroke={token.colorBorderSecondary}
+                opacity={0.6}
+              />
+              <XAxis 
+                dataKey="seats"
+                type="number"
+                domain={[0, 300]}
+                tick={{ 
+                  fontSize: 11, 
+                  fill: token.colorTextSecondary,
+                  fontFamily: token.fontFamily
+                }}
+                axisLine={{ stroke: token.colorBorder }}
+                tickLine={{ stroke: token.colorBorder }}
                 label={{ 
-                  value: `Amount (${selectedCurrency})`, 
-                  angle: -90, 
-                  position: 'insideLeft',
+                  value: 'Seat Count', 
+                  position: 'insideBottom',
+                  offset: -10,
                   style: { 
                     textAnchor: 'middle',
                     fontSize: 12,
@@ -262,66 +607,232 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                     fontWeight: 500
                   }
                 }}
+              />
+              <YAxis 
+                tick={{ 
+                  fontSize: 11, 
+                  fill: token.colorTextSecondary,
+                  fontFamily: token.fontFamily
+                }}
+                axisLine={{ stroke: token.colorBorder }}
+                tickLine={{ stroke: token.colorBorder }}
                 tickFormatter={(value) => value.toLocaleString()}
               />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend 
-                wrapperStyle={{
-                  fontSize: token.fontSizeSM,
-                  fontFamily: token.fontFamily,
-                  color: token.colorText
+              <Tooltip 
+                content={({ active, payload, label }: any) => {
+                  if (active && payload && payload.length && label) {
+                    const seatCount = label;
+                    
+                    // Find the seat range and cost per seat this quantity falls into
+                    const findSeatRangeInfo = (seats: number, tier: string) => {
+                      const applicablePricePoint = filteredByValidity
+                        .filter(pp => pp.currencyCode === selectedCurrency)
+                        .filter(pp => (pp.pricingTier || 'Standard') === tier)
+                        .find(pp => {
+                          const min = pp.minQuantity || 1;
+                          const max = pp.maxQuantity;
+                          return seats >= min && (max === null || max === undefined || seats <= max);
+                        });
+                      
+                      if (applicablePricePoint) {
+                        const min = applicablePricePoint.minQuantity || 1;
+                        const max = applicablePricePoint.maxQuantity;
+                        const costPerSeat = applicablePricePoint.amount;
+                        
+                        let rangeText;
+                        if (max === null || max === undefined) {
+                          rangeText = `${min}+ seats`;
+                        } else {
+                          rangeText = `${min}-${max} seats`;
+                        }
+                        
+                        // Default to annual billing cycle (most common)
+                        const billingCycleSuffix = ' per year';
+                        
+                        return {
+                          range: `${rangeText}, at ${selectedCurrency} ${costPerSeat.toLocaleString()} per seat${billingCycleSuffix}`,
+                          pricePoint: applicablePricePoint
+                        };
+                      }
+                      return null;
+                    };
+
+                    const filteredPayload = payload.filter((entry: any) => entry.value !== null);
+                    if (filteredPayload.length === 0) return null;
+                    
+                    const entry = filteredPayload[0]; // Since we're showing single tier now
+                    const tierName = entry.dataKey;
+                    const totalCost = entry.value;
+                    const rangeInfo = findSeatRangeInfo(seatCount, tierName);
+                    
+                    return (
+                      <div style={{
+                        backgroundColor: token.colorBgElevated,
+                        border: `1px solid ${token.colorBorder}`,
+                        borderRadius: token.borderRadius,
+                        padding: '12px 16px',
+                        boxShadow: token.boxShadowSecondary,
+                        fontSize: token.fontSizeSM,
+                        minWidth: '250px'
+                      }}>
+                        {/* Tier name - first row with color */}
+                        <Text style={{ 
+                          fontWeight: 600, 
+                          color: entry.color,
+                          fontSize: token.fontSize,
+                          display: 'block',
+                          marginBottom: '8px',
+                          textTransform: 'uppercase'
+                        }}>
+                          {tierName}
+                        </Text>
+                        
+                        {/* Total cost inline with billing cycle */}
+                        <Text style={{ 
+                          fontWeight: 500, 
+                          color: token.colorText,
+                          fontSize: token.fontSizeSM,
+                          display: 'block',
+                          marginBottom: '4px'
+                        }}>
+                          Total cost for {seatCount} seats per year: {selectedCurrency} {totalCost?.toLocaleString()}
+                        </Text>
+                        
+                        {/* Range information with billing cycle */}
+                        {rangeInfo && (
+                          <Text style={{ 
+                            color: token.colorTextSecondary,
+                            fontSize: token.fontSizeSM,
+                            display: 'block'
+                          }}>
+                            Range: {rangeInfo.range}
+                          </Text>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
                 }}
               />
-              {volumeChartData.tiers.map((tier, index) => (
-                <Bar 
-                  key={tier}
-                  dataKey={tier} 
-                  fill={chartColors[index % chartColors.length]}
-                  radius={[2, 2, 0, 0]}
-                  name={tier === 'Standard' ? 'Standard' : tier}
+              {/* Reference line for current seat count */}
+
+              {/* Line for selected tier only */}
+              {selectedCalculatorTier && calculatorChartData.tiers.includes(selectedCalculatorTier) && (
+                <Line 
+                  key={selectedCalculatorTier}
+                  type="monotone"
+                  dataKey={selectedCalculatorTier} 
+                  stroke={chartColors[calculatorChartData.tiers.indexOf(selectedCalculatorTier) % chartColors.length]}
+                  strokeWidth={3}
+                  dot={false}
+                  connectNulls={false}
+                  name={selectedCalculatorTier}
+                  animationDuration={250}
                 />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      
-      case 'calculator':
-        // Placeholder for now - will implement in next step
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <div style={{ 
-              height: '100%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              backgroundColor: token.colorBgContainer,
-              border: `1px solid ${token.colorBorder}`,
-              borderRadius: token.borderRadius
-            }}>
-              <Text style={{ color: token.colorTextSecondary }}>
-                Seat Calculator Chart - Coming Soon
-              </Text>
-            </div>
+              )}
+            </LineChart>
           </ResponsiveContainer>
         );
       
       case 'comparison':
-        // Placeholder for now - will implement in next step
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <div style={{ 
-              height: '100%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              backgroundColor: token.colorBgContainer,
-              border: `1px solid ${token.colorBorder}`,
-              borderRadius: token.borderRadius
-            }}>
-              <Text style={{ color: token.colorTextSecondary }}>
-                Currency Comparison Chart - Coming Soon
-              </Text>
-            </div>
+            <LineChart
+              data={comparisonChartData.data}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 60,
+                bottom: 60,
+              }}
+            >
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                stroke={token.colorBorderSecondary}
+                opacity={0.6}
+              />
+              <XAxis 
+                dataKey="seatRange"
+                tick={{ 
+                  fontSize: 11, 
+                  fill: token.colorTextSecondary,
+                  fontFamily: token.fontFamily
+                }}
+                axisLine={{ stroke: token.colorBorder }}
+                tickLine={{ stroke: token.colorBorder }}
+              />
+              <YAxis 
+                tick={{ 
+                  fontSize: 11, 
+                  fill: token.colorTextSecondary,
+                  fontFamily: token.fontFamily
+                }}
+                axisLine={{ stroke: token.colorBorder }}
+                tickLine={{ stroke: token.colorBorder }}
+                tickFormatter={(value) => `$${value.toLocaleString()}`}
+              />
+              <Tooltip 
+                content={({ active, payload, label }: any) => {
+                  if (active && payload && payload.length && label) {
+                    const filteredPayload = payload.filter((entry: any) => entry.value !== null);
+                    if (filteredPayload.length === 0) return null;
+                    
+                    return (
+                      <div style={{
+                        backgroundColor: token.colorBgElevated,
+                        border: `1px solid ${token.colorBorder}`,
+                        borderRadius: token.borderRadius,
+                        padding: '12px 16px',
+                        boxShadow: token.boxShadowSecondary,
+                        fontSize: token.fontSizeSM,
+                        minWidth: '200px'
+                      }}>
+                        {/* Range header */}
+                        <Text style={{ 
+                          fontWeight: 600, 
+                          color: token.colorText,
+                          fontSize: token.fontSize,
+                          display: 'block',
+                          marginBottom: '8px'
+                        }}>
+                          {label} seats
+                        </Text>
+                        
+                        {/* Currency comparisons */}
+                        {filteredPayload.map((entry: any, index: number) => (
+                          <div key={index} style={{ marginBottom: index === filteredPayload.length - 1 ? 0 : '4px' }}>
+                            <Text style={{ 
+                              color: entry.color,
+                              fontSize: token.fontSizeSM,
+                              fontWeight: 500
+                            }}>
+                              {entry.dataKey}: ${entry.value?.toLocaleString()} USD equivalent
+                            </Text>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+
+              
+              {/* Line for each currency showing USD equivalent */}
+              {comparisonChartData.currencies.map((currency, index) => (
+                <Line 
+                  key={currency}
+                  type="monotone"
+                  dataKey={currency} 
+                  stroke={currency === 'USD' ? token.colorPrimary : chartColors[index % chartColors.length]}
+                  strokeWidth={currency === 'USD' ? 3 : 2}
+                  dot={{ r: 4, strokeWidth: 2 }}
+                  connectNulls={false}
+                  name={currency}
+                  animationDuration={250}
+                />
+              ))}
+            </LineChart>
           </ResponsiveContainer>
         );
       
@@ -362,7 +873,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                     : token.colorBgContainer,
                   border: `1px solid ${chartType === option.value 
                     ? token.colorPrimary 
-                    : TAILWIND_COLORS.gray[300]}`,
+                    : TAILWIND_COLORS.gray[200]}`,
                   borderRadius: token.borderRadius,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
@@ -375,12 +886,12 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 }}
                 onMouseLeave={(e) => {
                   if (chartType !== option.value) {
-                    e.currentTarget.style.borderColor = TAILWIND_COLORS.gray[300];
+                    e.currentTarget.style.borderColor = TAILWIND_COLORS.gray[200];
                     e.currentTarget.style.backgroundColor = token.colorBgContainer;
                   }
                 }}
               >
-                <div style={{ marginBottom: 8 }}>
+                <div style={{ marginBottom: 4 }}>
                   <Text style={{ 
                     fontWeight: 500,
                     fontSize: token.fontSize,
@@ -414,36 +925,57 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             }}>
               <Title level={4} style={{ 
                 margin: 0, 
-                fontSize: token.fontSizeHeading4,
+                fontSize: token.fontSizeHeading3,
                 fontWeight: 500 
               }}>
-                {chartTypeOptions.find(opt => opt.value === chartType)?.label}
+                {chartType === 'volume' 
+                  ? `Price per seat range in ${selectedCurrency}`
+                  : chartType === 'calculator'
+                  ? `Seat Calculator in ${selectedCurrency}`
+                  : chartType === 'comparison'
+                  ? `Currency Comparison (USD Equivalent)`
+                  : chartTypeOptions.find(opt => opt.value === chartType)?.label
+                }
               </Title>
               <ChartControls
                 chartType={chartType}
                 selectedCurrency={selectedCurrency}
                 onCurrencyChange={setSelectedCurrency}
                 availableCurrencies={availableCurrencies}
+                selectedTier={selectedTier}
+                onTierChange={setSelectedTier}
+                availableTiers={availableTiers}
+                selectedCalculatorTier={selectedCalculatorTier}
+                onCalculatorTierChange={setSelectedCalculatorTier}
+                selectedComparisonCurrencies={selectedComparisonCurrencies}
+                onComparisonCurrenciesChange={setSelectedComparisonCurrencies}
+                availableComparisonCurrencies={availableComparisonCurrencies}
+                selectedComparisonTier={selectedComparisonTier}
+                onComparisonTierChange={setSelectedComparisonTier}
+                showLineOverlay={showLineOverlay}
+                onLineOverlayChange={setShowLineOverlay}
                 selectedValidity={selectedValidity}
                 onValidityChange={setSelectedValidity}
                 validityOptions={validityOptions}
-                seatCount={seatCount}
-                onSeatCountChange={setSeatCount}
-                selectedSeatRange={selectedSeatRange}
-                onSeatRangeChange={setSelectedSeatRange}
-                availableSeatRanges={availableSeatRanges}
               />
             </div>
           }
           style={{ 
             backgroundColor: token.colorBgContainer,
-            border: `1px solid ${TAILWIND_COLORS.gray[300]}`,
+            border: `1px solid ${TAILWIND_COLORS.gray[200]}`,
             borderRadius: token.borderRadius,
           }}
           headStyle={{
             padding: '16px 24px'
           }}
+          bodyStyle={{
+            padding: '24px'  // Explicitly control Card body padding
+          }}
         >
+          {/* Interactive Legend with divider - separate row */}
+          <InteractiveLegend />
+          
+          {/* Chart Area */}
           {renderChart()}
         </Card>
       </Space>

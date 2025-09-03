@@ -12,11 +12,15 @@ const createFilterButtonStyles = (primaryColor: string) => `
   }
   
   .custom-filter-button.has-selections {
-    border: 1px solid ${TAILWIND_COLORS.gray[300]} !important;
+    border: 1px solid ${TAILWIND_COLORS.gray[200]} !important;
   }
   
   .custom-filter-button.no-selections {
-    border: 1px dashed ${TAILWIND_COLORS.gray[300]} !important;
+    border: 1px dashed ${TAILWIND_COLORS.gray[200]} !important;
+  }
+  
+  .custom-filter-button.selector-mode {
+    border: 1px solid ${TAILWIND_COLORS.gray[200]} !important;
   }
   
   .custom-filter-button:hover:not(:disabled) {
@@ -95,8 +99,12 @@ interface CustomFilterButtonProps {
   preventDeselection?: boolean;
   
   // Custom display props
-  customDisplayValue?: (value: string | null, multiValue?: string[]) => string;
+  customDisplayValue?: (value: string | null, multiValue?: string[]) => string | { label: string; values: string };
   icon?: React.ReactNode;
+  
+  // Selector behavior (new)
+  useDropdownArrow?: boolean; // Use dropdown arrow instead of plus/X icons
+  noXIcon?: boolean; // Never show X icon, even when selections are made
 }
 
 const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
@@ -115,7 +123,9 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   hideClearButton = false,
   preventDeselection = false,
   customDisplayValue,
-  icon
+  icon,
+  useDropdownArrow = false,
+  noXIcon = false
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -191,7 +201,13 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
   const getButtonText = () => {
     // Use custom display value function if provided
     if (customDisplayValue) {
-      return customDisplayValue(value || null, multiValue);
+      const customResult = customDisplayValue(value || null, multiValue);
+      // If custom function returns an object, use it directly
+      if (typeof customResult === 'object') {
+        return customResult;
+      }
+      // If it returns a string, use it as-is
+      return customResult;
     }
     
     if (multiSelect && multiValue && multiValue.length > 0) {
@@ -528,7 +544,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
       >
         <Button
           size={size}
-          className={`custom-filter-button ${hasSelections ? 'has-selections' : 'no-selections'}`}
+          className={`custom-filter-button ${noXIcon ? 'selector-mode' : (hasSelections ? 'has-selections' : 'no-selections')}`}
           style={{
             height: '28px',
             display: 'flex',
@@ -536,8 +552,11 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
             justifyContent: 'space-between',
           }}
           icon={(() => {
-            if (isValidityFilter) {
-              // Validity filters: use custom icon or ChevronDown, X on right when selected
+            if (noXIcon) {
+              // Pure selector behavior: always show dropdown arrow or custom icon, never X
+              return icon || <ChevronDown size={12} />;
+            } else if (useDropdownArrow || isValidityFilter) {
+              // Selector behavior: use custom icon or ChevronDown, X on right when selected
               return hasSelections && !hideClearButton ? 
                 <X size={12} onClick={(e) => { e.stopPropagation(); handleClear(); }} style={{ cursor: 'pointer' }} /> : 
                 (icon || <ChevronDown size={12} />);
@@ -548,7 +567,7 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
                 <CirclePlus size={12} />;
             }
           })()}
-          iconPosition={isValidityFilter && icon ? "start" : (isValidityFilter ? "end" : "start")}
+          iconPosition={(useDropdownArrow || isValidityFilter || noXIcon) && icon ? "start" : ((useDropdownArrow || isValidityFilter || noXIcon) ? "end" : "start")}
         >
           {(() => {
             const buttonText = getButtonText();

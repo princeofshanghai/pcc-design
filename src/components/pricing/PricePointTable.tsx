@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Table, Typography, theme } from 'antd';
+import { TriangleAlert } from 'lucide-react';
 import type { PricePoint } from '../../utils/types';
 import type { ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatValidityRange, formatColumnTitles } from '../../utils/formatters';
@@ -21,6 +22,7 @@ interface PricePointTableProps {
   columnOrder?: ColumnOrder;
   sortOrder?: string;
   isTaxInclusive?: boolean;
+  showUsdEquivalent?: boolean;
 }
 
 type TableRow = PricePoint | {
@@ -339,29 +341,15 @@ const calculateUsdAmount = (pricePoint: PricePoint, usdPricePoint: PricePoint): 
   return null;
 };
 
+
 /**
- * Formats the USD equivalent with both absolute amount and percentage for display.
- * @param pricePoint - The price point to format.
- * @param usdPricePoint - The USD price point to compare against.
- * @returns A formatted string showing USD amount and percentage.
+ * Formats a relative time for FX rate tooltip.
+ * @returns A relative time string like "Last updated 45m ago".
  */
-const formatUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoint | null): string => {
-  if (!usdPricePoint) return '-';
-  
-  const usdAmount = calculateUsdAmount(pricePoint, usdPricePoint);
-  const percentage = calculateUsdEquivalent(pricePoint, usdPricePoint);
-  
-  if (usdAmount === null || percentage === null) return '-';
-  
-  // Format USD amount with 2 decimal places
-  const formattedAmount = usdAmount.toFixed(2);
-  
-  if (percentage === 100) {
-    return `${formattedAmount} (100%)`;
-  }
-  
-  // Show 1 decimal place for percentage
-  return `${formattedAmount} (${percentage.toFixed(1)}%)`;
+const formatFxUpdateTime = (): string => {
+  // Generate a random time within the last hour (1-59 minutes ago)
+  const minutesAgo = Math.floor(Math.random() * 59) + 1;
+  return `Last updated ${minutesAgo}m ago`;
 };
 
 
@@ -500,6 +488,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   columnOrder = DEFAULT_PRICE_POINT_COLUMNS,
   sortOrder = 'None',
   isTaxInclusive = false,
+  showUsdEquivalent = false,
 }) => {
   const { token } = theme.useToken();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
@@ -547,8 +536,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
 
 
-  // Check if USD Equivalent column should be visible
-  const showUsdEquivalent = visibleColumns.usdEquivalent === true;
+  // USD equivalent inline logic is now handled in the Amount column
 
   // Define all possible columns
   const allColumns: Record<string, any> = {
@@ -615,11 +603,91 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'amount',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
+        
+        const mainAmount = formatAmount(record);
+        
+        // Show USD equivalent inline if enabled and currency is not USD
+        if (showUsdEquivalent && record.currencyCode !== 'USD') {
+          const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
+          const usdAmount = matchingUsdPoint ? calculateUsdAmount(record, matchingUsdPoint) : null;
+          const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
+          
+          if (usdAmount !== null && percentage !== null) {
+            const formattedUsdAmount = usdAmount.toFixed(2);
+            const isLowPercentage = percentage < 50;
+            
+            const popoverContent = (
+              <div style={{ lineHeight: '1.4' }}>
+                <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '14px' }}>
+                  USD Equivalent Calculation
+                </div>
+                <div style={{ marginBottom: '6px', fontSize: '12px' }}>
+                  <strong>Original:</strong> {record.currencyCode} {mainAmount}
+                </div>
+                <div style={{ marginBottom: '6px', fontSize: '12px' }}>
+                  <strong>FX rate:</strong> {record.exchangeRate ? 
+                    `1 USD = ${record.exchangeRate} ${record.currencyCode}` : 
+                    'Approximate rate used'
+                  }
+                </div>
+                <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+                  <strong>Calculation:</strong> {mainAmount} / {record.exchangeRate || 'approx. rate'} = ${formattedUsdAmount}
+                </div>
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: token.colorTextSecondary,
+                  borderTop: `1px solid ${token.colorBorderSecondary}`,
+                  paddingTop: '6px'
+                }}>
+                  {formatFxUpdateTime()}
+                </div>
+                {isLowPercentage && (
+                  <div style={{ 
+                    marginTop: '8px', 
+                    padding: '6px 8px',
+                    backgroundColor: token.colorErrorBg,
+                    borderRadius: '4px',
+                    fontSize: '11px'
+                  }}>
+                    <TriangleAlert size={12} style={{ marginRight: '4px' }} />
+                    This amount is less than 50% compared to USD price
+                  </div>
+                )}
+              </div>
+            );
+            
+            return (
+              <div style={{ 
+                fontVariantNumeric: 'tabular-nums',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>{mainAmount}</span>
+                <InfoPopover content={popoverContent} placement="top">
+                  <span 
+                    style={{ 
+                      color: isLowPercentage ? token.colorError : token.colorTextSecondary,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '2px',
+                      cursor: 'help'
+                    }}
+                  >
+                    ≈ {isLowPercentage && <TriangleAlert size={12} />}${formattedUsdAmount} ({percentage.toFixed(1)}%)
+                  </span>
+                </InfoPopover>
+              </div>
+            );
+          }
+        }
+        
+        // Default: just show the main amount
         return (
           <Text style={{ 
             fontVariantNumeric: 'tabular-nums',
           }}>
-            {formatAmount(record)}
+            {mainAmount}
           </Text>
         );
       },
@@ -844,29 +912,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
               {formatPricingTier(pricingTier)}
             </Text>
           </InfoPopover>
-        );
-      },
-    } : null,
-    usdEquivalent: showUsdEquivalent ? {
-      title: getColumnTitleWithTooltip('USD equivalent', 'How much this amount is worth in USD, relative to the USD price. Calculated hourly.'),
-      key: 'usdEquivalent',
-      render: (_: any, record: any) => {
-        if ('isGroupHeader' in record) return null;
-        
-        // Performance optimization: Only calculate USD equivalents when column is visible
-        const matchingUsdPoint = findMatchingUsdPricePoint(record, allPricePoints);
-        const formattedValue = formatUsdEquivalent(record, matchingUsdPoint);
-        const percentage = matchingUsdPoint ? calculateUsdEquivalent(record, matchingUsdPoint) : null;
-        
-        return (
-          <Text style={{ 
-            color: percentage === null 
-              ? token.colorTextTertiary 
-              : (percentage === 100 ? token.colorTextSecondary : token.colorText),
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            {formattedValue}
-          </Text>
         );
       },
     } : null,

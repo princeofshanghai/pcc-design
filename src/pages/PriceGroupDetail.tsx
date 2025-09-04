@@ -149,6 +149,9 @@ const PriceGroupDetail: React.FC = () => {
     DEFAULT_PRICE_POINT_COLUMNS
   );
 
+  // USD equivalent toggle state for PricePointTable
+  const [showUsdEquivalent, setShowUsdEquivalent] = useState<boolean>(false);
+
 
 
   // Column configuration for PricePointTable - use centralized configuration
@@ -447,6 +450,9 @@ const PriceGroupDetail: React.FC = () => {
                   defaultVisibleColumns: pricePointDefaultVisibility,
                   defaultColumnOrder: DEFAULT_PRICE_POINT_COLUMNS,
                 } : {}),
+                // USD equivalent toggle - always show regardless of product type or view mode  
+                showUsdEquivalent: showUsdEquivalent,
+                setShowUsdEquivalent: setShowUsdEquivalent,
               }}
 
               rightActions={[
@@ -487,6 +493,7 @@ const PriceGroupDetail: React.FC = () => {
                 columnOrder={columnOrder}
                 sortOrder={pricePointSortOrder}
                 isTaxInclusive={isMobileOnlyPriceGroup}
+                showUsdEquivalent={showUsdEquivalent}
               />
             )}
         </Space>

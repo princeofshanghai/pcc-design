@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, Button, Dropdown, theme, Select, Tag } from 'antd';
+import { Badge, Button, Dropdown, theme, Select, Tag, Switch } from 'antd';
 import { Settings, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -31,6 +31,9 @@ interface ViewOptionsProps {
   defaultVisibleColumns?: ColumnVisibility;
   // Default column order for this specific context
   defaultColumnOrder?: ColumnOrder;
+  // USD equivalent toggle props
+  showUsdEquivalent?: boolean;
+  setShowUsdEquivalent?: (show: boolean) => void;
 }
 
 const ViewOptions: React.FC<ViewOptionsProps> = ({
@@ -50,6 +53,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   setColumnOrder: _setColumnOrder,
   defaultVisibleColumns,
   defaultColumnOrder,
+  showUsdEquivalent,
+  setShowUsdEquivalent,
 }) => {
   const { token } = theme.useToken();
   const [isOpen, setIsOpen] = useState(false);
@@ -92,6 +97,10 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       // Reset column order to the provided default
       _setColumnOrder(defaultColumnOrder);
     }
+    if (setShowUsdEquivalent) {
+      // Reset USD equivalent toggle to default (false/unchecked)
+      setShowUsdEquivalent(false);
+    }
     // Don't close dropdown - keep it open so user can see the changes
   };
 
@@ -119,14 +128,16 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     (groupBy && groupBy !== 'None') || 
     (sortOrder && sortOrder !== 'None') ||
     hasColumnChanges ||
-    hasColumnOrderChanges;
+    hasColumnOrderChanges ||
+    (showUsdEquivalent === true);
 
   const showViewMode = viewMode !== undefined;
   const showGroupBy = groupBy !== undefined && setGroupBy && groupByOptions;
   const showSortBy = sortOrder !== undefined && setSortOrder && sortOptions;
   const showColumnOptions = columnOptions !== undefined && visibleColumns !== undefined && setVisibleColumns;
+  const showUsdEquivalentSection = showUsdEquivalent !== undefined && setShowUsdEquivalent;
   
-  const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions;
+  const isDisabled = !showViewMode && !showGroupBy && !showSortBy && !showColumnOptions && !showUsdEquivalentSection;
 
   if (isDisabled) {
     return null;
@@ -304,7 +315,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   // Custom dropdown content combining standalone components
   const dropdownContent = (
     <div style={{ 
-      width: 320, // Fixed width to prevent menu width changes
+      width: 400, // Increased width to prevent text wrapping
       backgroundColor: token.colorBgElevated,
       borderRadius: token.borderRadiusLG,
       boxShadow: token.boxShadowSecondary
@@ -450,7 +461,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         </>
       )}
 
-      {/* Show Columns Section - Standalone (Last Section) */}
+      {/* Show Columns Section */}
       {showColumnOptions && (
         <>
           {/* Divider before Show Columns if there are other sections */}
@@ -461,7 +472,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           <div style={{ 
             padding: '12px 16px',
             backgroundColor: token.colorBgElevated,
-            ...(!showGroupBy && !showSortBy && !viewMode && {
+            ...(!showGroupBy && !showSortBy && !viewMode && !showUsdEquivalentSection && {
               borderTopLeftRadius: token.borderRadiusLG,
               borderTopRightRadius: token.borderRadiusLG
             })
@@ -517,8 +528,53 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
         </>
       )}
 
+      {/* USD Equivalent Section - New Section */}
+      {showUsdEquivalentSection && (
+        <>
+          {/* Divider before USD Equivalent section if there are other sections */}
+          {(showGroupBy || showSortBy || viewMode || showColumnOptions) && (
+            <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
+          )}
+          
+          <div style={{ 
+            padding: '12px 16px',
+            backgroundColor: token.colorBgElevated,
+            ...(!showGroupBy && !showSortBy && !viewMode && !showColumnOptions && {
+              borderTopLeftRadius: token.borderRadiusLG,
+              borderTopRightRadius: token.borderRadiusLG
+            })
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <span style={{
+                fontSize: token.fontSize,
+                fontWeight: 400,
+                color: token.colorTextSecondary,
+                lineHeight: token.lineHeightSM,
+                flex: 1
+              }}>
+                Show USD equivalent for non-USD currencies
+              </span>
+              <Switch
+                checked={showUsdEquivalent || false}
+                onChange={(checked) => {
+                  if (setShowUsdEquivalent) {
+                    setShowUsdEquivalent(checked);
+                  }
+                }}
+                size="small"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Clear All Section - Standalone */}
-      {(showGroupBy || showSortBy || showColumnOptions || viewMode) && (
+      {(showGroupBy || showSortBy || showColumnOptions || viewMode || showUsdEquivalentSection) && (
         <>
           <div style={{ borderTop: `1px solid ${token.colorBorderSecondary}` }} />
           <div style={{ 

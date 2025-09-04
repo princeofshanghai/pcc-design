@@ -135,4 +135,9 @@ a[href*="/sku/"] {
 /* Table cell vertical alignment - top align all cells for better readability */
 .ant-table-tbody > tr > td {
   vertical-align: top !important;
+}
+
+/* Exception: Center align the action column with the caret */
+.ant-table-tbody > tr > td.table-action-column {
+  vertical-align: middle !important;
 } 

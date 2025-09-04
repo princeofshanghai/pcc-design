@@ -35,7 +35,7 @@ const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
     <div style={{ 
       display: 'flex', 
       gap: '8px',
-      width: '288px' // Fixed width to prevent menu width changes
+      width: '100%' // Fill available width
     }}>
       {options.map((option) => {
         const isSelected = value === option.key;

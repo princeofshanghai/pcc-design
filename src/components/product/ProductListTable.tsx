@@ -217,6 +217,7 @@ export const getProductListTableColumns = (
     key: 'actions',
     fixed: 'right' as const,
     width: 48,
+    className: 'table-action-column',
     render: (_: any, _record: Product) => (
       <div style={{
         display: 'flex',

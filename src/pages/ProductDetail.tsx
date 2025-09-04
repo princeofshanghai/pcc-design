@@ -1842,7 +1842,18 @@ const ProductDetail: React.FC = () => {
 
       {/* Translations Drawer */}
       <Drawer
-        title="Product Translations"
+        title={
+          <div>
+            <div style={{ fontSize: token.fontSizeHeading2 }}>Translations</div>
+            <Typography.Text style={{ 
+              fontSize: '13px', 
+              color: token.colorTextSecondary,
+              fontWeight: 'normal'
+            }}>
+              {translations.length} translations
+            </Typography.Text>
+          </div>
+        }
         placement="right"
         width={600}
         onClose={() => setTranslationsDrawerOpen(false)}

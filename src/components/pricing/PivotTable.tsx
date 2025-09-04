@@ -276,7 +276,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
     ];
 
     // Add currency columns with tier sub-columns
-    currencies.forEach(currency => {
+    currencies.forEach((currency, currencyIndex) => {
       const currencyName = currencyNames[currency] || currency;
       
       // First, determine which tiers actually have price points for this currency
@@ -318,31 +318,26 @@ const PivotTable: React.FC<PivotTableProps> = ({
           key: `${currency}-${tier}`,
           width: 100,
           align: 'right' as const,
+          className: `currency-group-${currencyIndex % 2}`,
           render: (_: any, record: PivotTableData) => {
             const pricePoint = record[`${currency}-${tier}`];
             if (!pricePoint) {
               return (
                 <Text style={{ 
                   color: token.colorTextTertiary,
-                  fontSize: '12px'
+                  fontSize: '13px'
                 }}>-</Text>
               );
             }
 
             return (
-              <InfoPopover 
-                content={`${currency} ${formatAmount(pricePoint)} - ${tier} (${pricePoint.status})`}
-                placement="top"
-              >
-                <Text style={{ 
-                  fontVariantNumeric: 'tabular-nums',
-                  fontSize: '12px',
-                  color: pricePoint.status === 'Active' ? token.colorText : token.colorTextSecondary,
-                  cursor: 'help'
-                }}>
-                  {formatAmount(pricePoint)}
-                </Text>
-              </InfoPopover>
+              <Text style={{ 
+                fontVariantNumeric: 'tabular-nums',
+                fontSize: '13px',
+                color: pricePoint.status === 'Active' ? token.colorText : token.colorTextSecondary,
+              }}>
+                {formatAmount(pricePoint)}
+              </Text>
             );
           },
         };
@@ -364,7 +359,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
         ),
         key: currency,
         children: tierColumns,
-        className: 'pivot-currency-column',
+        className: `pivot-currency-column currency-group-${currencyIndex % 2}`,
         align: 'center' as const,
       });
     });
@@ -423,6 +418,28 @@ const PivotTable: React.FC<PivotTableProps> = ({
           width: 200px !important;
           min-width: 200px !important;
           max-width: 200px !important;
+        }
+        
+        /* Alternating currency group backgrounds */
+        .pivot-table .currency-group-0 {
+          background-color: transparent !important;
+        }
+        .pivot-table .currency-group-1 {
+          background-color: rgba(0, 0, 0, 0.025) !important;
+        }
+        
+        /* Thicker left borders between currency groups */
+        .pivot-table .ant-table-thead > tr > th.currency-group-0:first-of-type,
+        .pivot-table .ant-table-tbody > tr > td.currency-group-0:first-of-type,
+        .pivot-table .ant-table-thead > tr > th.currency-group-1:first-of-type,
+        .pivot-table .ant-table-tbody > tr > td.currency-group-1:first-of-type {
+          border-left: 3px solid #d9d9d9 !important;
+        }
+        
+        /* Ensure first currency group doesn't have thick border if it's the leftmost */
+        .pivot-table .ant-table-thead > tr > th:first-child.currency-group-0,
+        .pivot-table .ant-table-tbody > tr > td:first-child.currency-group-0 {
+          border-left: none !important;
         }
       `}</style>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>

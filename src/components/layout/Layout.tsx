@@ -366,7 +366,7 @@ const AppLayout = () => {
 
       breadcrumbItems.push(
         <Breadcrumb.Item key="product">
-          <Link to={productPath} style={{ color: 'var(--ant-color-text)' }}>
+          <Link to={productPath}>
             {productName}
           </Link>
         </Breadcrumb.Item>
@@ -375,6 +375,15 @@ const AppLayout = () => {
     // Note: Product page itself doesn't show product name in breadcrumb - only parent navigation
 
 
+  }
+
+  // Add trailing separator to indicate current page level
+  if (breadcrumbItems.length > 0) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="trailing-separator">
+        <span></span>
+      </Breadcrumb.Item>
+    );
   }
 
   // Handle scroll effect

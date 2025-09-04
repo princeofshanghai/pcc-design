@@ -130,26 +130,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           );
         }
         
-        // Priority order: USD → EUR → CAD → alphabetical
-        const priorities = ['USD', 'EUR', 'CAD'];
-        let displayPrice = null;
-        
-        // Try priority currencies first
-        for (const currency of priorities) {
-          displayPrice = activePricePoints.find((p: any) => p.currencyCode === currency);
-          if (displayPrice) break;
-        }
-        
-        // Fall back to first alphabetically if no priority currency found
-        if (!displayPrice) {
-          const sortedActive = activePricePoints.sort((a: any, b: any) => 
-            a.currencyCode.localeCompare(b.currencyCode)
-          );
-          displayPrice = sortedActive[0];
-        }
-        
-        // Calculate additional active price points (total active - 1 displayed)
-        const additionalActivePricePoints = activePricePoints.length - 1;
+        // Look for USD first
+        const usdPrice = activePricePoints.find((p: any) => p.currencyCode === 'USD');
         
         // Format currency with tabular-nums only for the numeric part
         const formatPriceWithTabularNums = (pricePoint: any) => {
@@ -170,14 +152,26 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           );
         };
         
-        return (
-          <div>
-            {formatPriceWithTabularNums(displayPrice)}
-            {additionalActivePricePoints > 0 && (
-              <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
-            )}
-          </div>
-        );
+        if (usdPrice) {
+          // If USD exists, show USD price with additional count
+          const additionalActivePricePoints = activePricePoints.length - 1;
+          return (
+            <div>
+              {formatPriceWithTabularNums(usdPrice)}
+              {additionalActivePricePoints > 0 && (
+                <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
+              )}
+            </div>
+          );
+        } else {
+          // If no USD, just show count of non-USD price points
+          const count = activePricePoints.length;
+          return (
+            <Text style={{ color: token.colorText }}>
+              {count} non-USD price point{count === 1 ? '' : 's'}
+            </Text>
+          );
+        }
       },
     } : null,
 

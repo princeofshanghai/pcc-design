@@ -16,7 +16,7 @@ const createFilterButtonStyles = (primaryColor: string) => `
   }
   
   .custom-filter-button.no-selections {
-    border: 1px dashed ${TAILWIND_COLORS.gray[200]} !important;
+    border: 1px dashed ${TAILWIND_COLORS.gray[300]} !important;
   }
   
   .custom-filter-button.selector-mode {

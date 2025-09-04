@@ -118,6 +118,9 @@ interface FilterBarProps {
     defaultVisibleColumns?: ColumnVisibility;
     // Default column order for this specific context
     defaultColumnOrder?: ColumnOrder;
+    // USD equivalent toggle options
+    showUsdEquivalent?: boolean;
+    setShowUsdEquivalent?: (show: boolean) => void;
   };
   // Control search bar and view options size
   searchAndViewSize?: 'small' | 'middle' | 'large';
@@ -159,7 +162,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const [provisionalFilters, setProvisionalFilters] = useState<string[]>([]);
   const [moreFiltersDropdownVisible, setMoreFiltersDropdownVisible] = useState(false);
   
-  const shouldRenderViewOptions = viewOptions?.viewMode || viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions;
+  const shouldRenderViewOptions = viewOptions?.viewMode || viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions || viewOptions?.showUsdEquivalent !== undefined;
 
   const activeFilterCount = filters.filter(f => 
     !f.excludeFromClearAll && (f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null)
@@ -460,6 +463,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 setColumnOrder={viewOptions?.setColumnOrder}
                 defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
                 defaultColumnOrder={viewOptions?.defaultColumnOrder}
+                
+                showUsdEquivalent={viewOptions?.showUsdEquivalent}
+                setShowUsdEquivalent={viewOptions?.setShowUsdEquivalent}
                 
                 size={searchAndViewSize}
               />

@@ -351,6 +351,7 @@ const SkuDetail: React.FC = () => {
               <PricePointTable 
                 pricePoints={filteredPricePoints} 
                 groupedPricePoints={groupedPricePointsData}
+                showUsdEquivalent={false}
               />
             </PageSection>
           </Space>

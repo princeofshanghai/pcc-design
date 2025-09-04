@@ -16,8 +16,6 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'currency', label: 'Currency', required: true },
   { key: 'currencyType', label: 'Category', required: false },
   { key: 'amount', label: 'Amount', required: false },
-  { key: 'usdEquivalent', label: 'USD equivalent', required: false },
-
   { key: 'pricingRule', label: 'Rule', required: false },
   { key: 'quantityRange', label: 'Seats', required: false },
   { key: 'priceType', label: 'Type', required: false },
@@ -26,7 +24,7 @@ export const PRICE_POINT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'usdEquivalent', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
+export const DEFAULT_PRICE_POINT_COLUMNS = ['id', 'currency', 'amount', 'currencyType', 'pricingRule', 'quantityRange', 'priceType', 'pricingTier', 'validity', 'status'];
 
 // Sort options for price groups
 export const PRICE_GROUP_SORT_OPTIONS = [

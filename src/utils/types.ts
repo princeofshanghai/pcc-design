@@ -158,4 +158,100 @@ export type Product = {
   confirmationCtaUrl?: string;
   contactUsUrl?: string;
   accountLink?: string;
+};
+
+// GTM Motion types for price editing workflow
+export type GTMMotionStatus = 'Draft' | 'Submitted' | 'Pending approvals' | 'Approved' | 'Pending to prod' | 'Complete';
+
+// Individual GTM item status
+export type GTMItemStatus = 'Draft' | 'Pending approvals' | 'Approved' | 'Ready for deployment';
+
+// GTM item types
+export type GTMItemType = 'Price' | 'Name' | 'Description' | 'New Feature' | 'Archive';
+
+// Approval status for individual approvers
+export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
+
+// Approver teams
+export type ApproverTeam = 'Pricing' | 'Legal' | 'Tax' | 'StratFin' | 'Revenue' | 'Product';
+
+// Individual approval requirement
+export type ApprovalRequirement = {
+  team: ApproverTeam;
+  status: ApprovalStatus;
+  approvedBy?: string;
+  approvedDate?: string; // ISO date string
+  comments?: string;
+};
+
+// Individual GTM item
+export type GTMItem = {
+  id: string;
+  type: GTMItemType;
+  productId: string;
+  productName: string;
+  details: string; // Short description like "New price", "Name change"
+  status: GTMItemStatus;
+  approvalRequirements: ApprovalRequirement[];
+  createdBy: string;
+  createdDate: string; // ISO date string
+  // For price items, include the price change data
+  priceChange?: PriceChange;
+};
+
+export type GTMMotion = {
+  id: string;
+  name: string;
+  description: string;
+  activationDate: string; // ISO date string
+  status: GTMMotionStatus;
+  createdBy: string;
+  createdDate: string; // ISO date string
+  updatedDate?: string; // ISO date string
+  items: GTMItem[];
+};
+
+// Price editing context for step 1 of the editing flow
+export type PriceEditContext = {
+  productId: string;
+  // Context selections - can be new or existing
+  channel: SalesChannel | string; // Allow new channels as string
+  billingCycle: BillingCycle | string; // Allow new billing cycles as string
+  validityPeriod: {
+    validFrom: string; // ISO date string
+    validTo?: string; // ISO date string, optional for ongoing validity
+  };
+  // Existing selections only
+  seatRange: {
+    minQuantity: number;
+    maxQuantity?: number; // undefined = unlimited
+  };
+  pricingTier: string;
+  // Optional LIX experiment
+  lixExperiment?: {
+    key: string;
+    treatment: string;
+  };
+};
+
+// Individual price change tracking
+export type PriceChange = {
+  id: string;
+  productId: string;
+  context: PriceEditContext;
+  currencyChanges: CurrencyPriceChange[];
+  impactType: 'CREATE_NEW_SKU' | 'UPDATE_EXISTING_SKU';
+  targetSkuId?: string; // Present for updates, undefined for new SKU creation
+  createdBy: string;
+  createdDate: string; // ISO date string
+  status: 'Draft' | 'Submitted' | 'Applied';
+};
+
+// Individual currency price change
+export type CurrencyPriceChange = {
+  currencyCode: string;
+  currentAmount: number;
+  newAmount: number;
+  changeAmount: number; // newAmount - currentAmount
+  changePercentage: number; // (changeAmount / currentAmount) * 100
 }; 

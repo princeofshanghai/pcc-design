@@ -1,7 +1,7 @@
 // This file will contain all the mock data for the PCC prototype.
 // It will serve as our single source of truth for products, SKUs, etc. 
 
-import type { Product, Attribute } from './types';
+import type { Product, Attribute, GTMMotion, GTMMotionStatus } from './types';
 // @ts-ignore - PriceGroup type is used in inline object definitions
 import type { PriceGroup } from './types';
 import { TEAM_MEMBERS } from './users';
@@ -3567,3 +3567,281 @@ export const mockProducts: Product[] = [
     }))
   }))
 ];
+
+// Mock GTM Motion data for price editing workflow
+export const mockGTMMotions: GTMMotion[] = [
+  {
+    id: "gtm-motion-001",
+    name: "Q1 2024 Field Pricing Updates",
+    description: "Quarterly price adjustments for field sales channels based on market analysis and competitive positioning",
+    activationDate: "2024-03-01T09:00:00Z",
+    status: "Draft" as GTMMotionStatus,
+    createdBy: "sarah.johnson",
+    createdDate: "2024-01-15T14:30:00Z",
+    updatedDate: "2024-01-18T09:15:00Z",
+    items: [
+      {
+        id: "gtm-item-001-1",
+        type: "Price",
+        productId: "premium-multiseat-1", 
+        productName: "Premium Multiseat",
+        details: "Updated price",
+        status: "Approved",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Approved",
+            approvedBy: "pricing.team",
+            approvedDate: "2024-01-16T10:30:00Z"
+          }
+        ],
+        createdBy: "sarah.johnson",
+        createdDate: "2024-01-15T15:00:00Z"
+      },
+      {
+        id: "gtm-item-001-2",
+        type: "Description",
+        productId: "premium-multiseat-1",
+        productName: "Premium Multiseat", 
+        details: "Updated description",
+        status: "Pending approvals",
+        approvalRequirements: [
+          {
+            team: "Legal",
+            status: "Approved",
+            approvedBy: "legal.team",
+            approvedDate: "2024-01-17T14:20:00Z"
+          },
+          {
+            team: "Tax",
+            status: "Approved", 
+            approvedBy: "tax.team",
+            approvedDate: "2024-01-17T09:15:00Z"
+          },
+          {
+            team: "StratFin",
+            status: "Pending"
+          },
+          {
+            team: "Revenue",
+            status: "Approved",
+            approvedBy: "revenue.team", 
+            approvedDate: "2024-01-18T11:45:00Z"
+          }
+        ],
+        createdBy: "sarah.johnson",
+        createdDate: "2024-01-15T15:30:00Z"
+      }
+    ]
+  },
+  {
+    id: "gtm-motion-002", 
+    name: "Mobile App Pricing Experiment",
+    description: "A/B test for mobile subscription pricing to optimize conversion rates",
+    activationDate: "2024-02-15T12:00:00Z",
+    status: "Pending approvals" as GTMMotionStatus,
+    createdBy: "mike.chen",
+    createdDate: "2024-01-10T11:20:00Z",
+    updatedDate: "2024-01-20T16:45:00Z", 
+    items: [
+      {
+        id: "gtm-item-002-1",
+        type: "Price",
+        productId: "premium-core-1",
+        productName: "Premium Core",
+        details: "New experimental price",
+        status: "Pending approvals",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Pending"
+          }
+        ],
+        createdBy: "mike.chen",
+        createdDate: "2024-01-10T11:30:00Z"
+      },
+      {
+        id: "gtm-item-002-2", 
+        type: "New Feature",
+        productId: "premium-core-1",
+        productName: "Premium Core",
+        details: "A/B test feature toggle",
+        status: "Pending approvals",
+        approvalRequirements: [
+          {
+            team: "Legal",
+            status: "Pending"
+          },
+          {
+            team: "Product",
+            status: "Approved",
+            approvedBy: "product.team",
+            approvedDate: "2024-01-11T16:00:00Z"
+          }
+        ],
+        createdBy: "mike.chen",
+        createdDate: "2024-01-10T12:00:00Z"
+      }
+    ]
+  },
+  {
+    id: "gtm-motion-003",
+    name: "Enterprise Tier Price Restructure", 
+    description: "Major pricing overhaul for enterprise customers with new tier structure and volume discounts",
+    activationDate: "2024-04-01T08:00:00Z",
+    status: "Submitted" as GTMMotionStatus,
+    createdBy: "alex.rodriguez",
+    createdDate: "2023-12-01T09:00:00Z",
+    updatedDate: "2024-01-05T14:30:00Z",
+    items: [
+      {
+        id: "gtm-item-003-1",
+        type: "Price",
+        productId: "premium-enterprise-1",
+        productName: "Premium Enterprise",
+        details: "New tier pricing",
+        status: "Draft",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Pending"
+          },
+          {
+            team: "Revenue",
+            status: "Pending"
+          }
+        ],
+        createdBy: "alex.rodriguez",
+        createdDate: "2023-12-01T10:00:00Z"
+      }
+    ]
+  },
+  {
+    id: "gtm-motion-004",
+    name: "Currency Parity Adjustment",
+    description: "Adjusting European and Canadian pricing to account for exchange rate fluctuations",
+    activationDate: "2024-01-31T10:00:00Z", 
+    status: "Approved" as GTMMotionStatus,
+    createdBy: "emma.thompson",
+    createdDate: "2024-01-08T13:15:00Z",
+    updatedDate: "2024-01-25T11:00:00Z",
+    items: [
+      {
+        id: "gtm-item-004-1",
+        type: "Price",
+        productId: "premium-core-1",
+        productName: "Premium Core",
+        details: "EUR/CAD currency adjustment",
+        status: "Approved",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Approved",
+            approvedBy: "pricing.team",
+            approvedDate: "2024-01-20T09:30:00Z"
+          }
+        ],
+        createdBy: "emma.thompson",
+        createdDate: "2024-01-08T14:00:00Z"
+      }
+    ]
+  },
+  {
+    id: "gtm-motion-005",
+    name: "Holiday Promotion Pricing",
+    description: "Special promotional pricing for year-end holiday campaign",
+    activationDate: "2023-12-01T00:00:00Z",
+    status: "Complete" as GTMMotionStatus,
+    createdBy: "david.kim",
+    createdDate: "2023-11-01T10:30:00Z", 
+    updatedDate: "2024-01-02T09:00:00Z",
+    items: [
+      {
+        id: "gtm-item-005-1",
+        type: "Price",
+        productId: "premium-core-1",
+        productName: "Premium Core",
+        details: "Holiday discount pricing",
+        status: "Ready for deployment",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Approved",
+            approvedBy: "pricing.team",
+            approvedDate: "2023-11-15T11:00:00Z"
+          },
+          {
+            team: "Revenue",
+            status: "Approved", 
+            approvedBy: "revenue.team",
+            approvedDate: "2023-11-18T14:30:00Z"
+          }
+        ],
+        createdBy: "david.kim",
+        createdDate: "2023-11-01T11:00:00Z"
+      },
+      {
+        id: "gtm-item-005-2",
+        type: "Name",
+        productId: "premium-core-1",
+        productName: "Premium Core",
+        details: "Holiday marketing name",
+        status: "Ready for deployment",
+        approvalRequirements: [
+          {
+            team: "Legal",
+            status: "Approved",
+            approvedBy: "legal.team",
+            approvedDate: "2023-11-20T10:15:00Z"
+          }
+        ],
+        createdBy: "david.kim",
+        createdDate: "2023-11-01T11:15:00Z"
+      }
+    ]
+  }
+];
+
+// Utility functions for GTM Motion data
+export const getGTMMotionById = (id: string): GTMMotion | undefined => {
+  return mockGTMMotions.find(motion => motion.id === id);
+};
+
+export const getGTMMotionsByStatus = (status: GTMMotionStatus): GTMMotion[] => {
+  return mockGTMMotions.filter(motion => motion.status === status);
+};
+
+export const createNewGTMMotion = (name: string, description: string, activationDate: string): GTMMotion => {
+  const newId = `gtm-motion-${Date.now()}`;
+  return {
+    id: newId,
+    name,
+    description,
+    activationDate,
+    status: "Draft",
+    createdBy: "current.user", // In real app, this would come from auth context
+    createdDate: new Date().toISOString(),
+    items: [
+      {
+        id: "gtm-item-003-1",
+        type: "Price",
+        productId: "premium-enterprise-1",
+        productName: "Premium Enterprise",
+        details: "New tier pricing",
+        status: "Draft",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Pending"
+          },
+          {
+            team: "Revenue",
+            status: "Pending"
+          }
+        ],
+        createdBy: "alex.rodriguez",
+        createdDate: "2023-12-01T10:00:00Z"
+      }
+    ]
+  };
+};

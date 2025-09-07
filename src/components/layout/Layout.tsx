@@ -103,6 +103,11 @@ const generateMenuStructure = () => {
     },
     // Change Management Section
     {
+      key: 'gtm-motions',
+      label: <Link to="/gtm-motions">GTM Motions</Link>,
+      icon: <SquareSlash size={14} />
+    },
+    {
       key: 'change-requests',
       label: <Link to="/change-requests">Change requests</Link>,
       icon: <SquareSlash size={14} />
@@ -271,7 +276,7 @@ const AppLayout = () => {
   const catalogKeys = ['products', 'offers', 'offer-groups', 'all-products', ...allFolderKeys];
   const logicKeys = ['rulesets', 'calculation-schemes'];
   const integrationsKeys = ['platform-entity-mapping'];
-  const changeManagementKeys = ['change-requests', 'picasso-npi'];
+  const changeManagementKeys = ['gtm-motions', 'change-requests', 'picasso-npi'];
 
   const getCatalogSelectedKeys = () => {
     return selectedKeys.filter(key => catalogKeys.includes(key));
@@ -542,7 +547,7 @@ const AppLayout = () => {
           <Menu 
             mode="inline" 
             selectedKeys={getChangeManagementSelectedKeys()}
-            items={menuItems.slice(6, 8)} // Change Requests, Picasso NPI
+            items={menuItems.slice(6, 9)} // GTM Motions, Change Requests, Picasso NPI
             inlineIndent={0}
             style={{ 
               border: 'none',

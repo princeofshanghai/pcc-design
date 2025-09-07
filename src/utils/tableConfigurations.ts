@@ -240,6 +240,12 @@ export const getFilterPlaceholder = (columnKey: string): string => {
     'type': 'types',
     'region': 'regions',
     'experiment': 'experiments', // Legacy fallback
+    'activationDate': 'activation dates',
+    'createdBy': 'creators',
+    'createdDate': 'creation dates',
+    'priceChanges': 'price changes',
+    'items': 'changes',
+    'product': 'products'
   };
   
   // Check for exact key match first
@@ -268,4 +274,42 @@ export const getFilterPlaceholder = (columnKey: string): string => {
   }
   
   return `All ${pluralized}`;
-}; 
+};
+
+// GTM Motion table configurations
+export const GTM_MOTION_COLUMNS: ColumnConfig[] = [
+  { key: 'id', label: 'Motion ID', required: true },
+  { key: 'name', label: 'Name', required: true },
+  { key: 'product', label: 'Product', required: false },
+  { key: 'status', label: 'Status', required: false },
+  { key: 'activationDate', label: 'Activation date', required: false },
+  { key: 'createdBy', label: 'Created by', required: false },
+  { key: 'createdDate', label: 'Created date', required: false },
+];
+
+export const DEFAULT_GTM_MOTION_COLUMNS = ['id', 'name', 'product', 'activationDate', 'createdBy', 'status'];
+
+// Sort options for GTM motions
+export const GTM_MOTION_SORT_OPTIONS = [
+  'None',
+  'Name (A-Z)',
+  'Name (Z-A)',
+  'Motion ID (A-Z)',
+  'Motion ID (Z-A)',
+  'Status (A-Z)',
+  'Status (Z-A)',
+  'Activation date (Earliest to latest)',
+  'Activation date (Latest to earliest)',
+  'Created date (Earliest to latest)',
+  'Created date (Latest to earliest)',
+  'Created by (A-Z)',
+  'Created by (Z-A)',
+];
+
+// Group by options for GTM motions
+export const GTM_MOTION_GROUP_BY_OPTIONS = [
+  'None',
+  'Status',
+  'Created by',
+  'Activation month',
+]; 

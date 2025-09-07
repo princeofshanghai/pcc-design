@@ -17,6 +17,8 @@ import CalculationSchemesPlaceholder from './pages/CalculationSchemesPlaceholder
 import PicassoNPIPlaceholder from './pages/PicassoNPIPlaceholder';
 import PlatformEntityMappingPlaceholder from './pages/PlatformEntityMappingPlaceholder';
 import AttributeDictionary from './pages/AttributeDictionary';
+import GTMMotionList from './pages/GTMMotionList';
+import GTMMotionDetail from './pages/GTMMotionDetail';
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
                 <Route path="/offer-groups" element={<OfferGroupsPlaceholder />} />
                 <Route path="/rulesets" element={<RulesetsPlaceholder />} />
                 <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
+                <Route path="/gtm-motions" element={<GTMMotionList />} />
+                <Route path="/gtm-motions/:motionId" element={<GTMMotionDetail />} />
                 <Route path="/change-requests" element={<ChangeRequestsList />} />
                 <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
                 <Route path="/platform-entity-mapping" element={<PlatformEntityMappingPlaceholder />} />

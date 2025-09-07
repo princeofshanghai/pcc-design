@@ -95,48 +95,43 @@ export const getSkuTableColumns = (
             <Text style={{ color: token.colorTextSecondary }}>No active price points</Text>
           );
         } else {
-          // Priority order: USD → EUR → CAD → alphabetical
-          const priorities = ['USD', 'EUR', 'CAD'];
-          let displayPrice = null;
+          // Look for USD first
+          const usdPrice = activePricePoints.find((p: any) => p.currencyCode === 'USD');
           
-          // Try priority currencies first
-          for (const currency of priorities) {
-            displayPrice = activePricePoints.find((p: any) => p.currencyCode === currency);
-            if (displayPrice) break;
-          }
-          
-          // Fall back to first alphabetically if no priority currency found
-          if (!displayPrice) {
-            const sortedActive = activePricePoints.sort((a: any, b: any) => 
-              a.currencyCode.localeCompare(b.currencyCode)
+          if (usdPrice) {
+            // If USD exists, show USD price with additional count
+            const additionalActivePricePoints = activePricePoints.length - 1;
+            
+            // Format currency with tabular-nums only for the numeric part
+            const zeroDecimalCurrencies = new Set([
+              'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
+              'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
+            ]);
+            
+            const amount = zeroDecimalCurrencies.has(usdPrice.currencyCode) 
+              ? Math.round(usdPrice.amount) 
+              : usdPrice.amount.toFixed(2);
+            
+            priceDisplay = (
+              <div>
+                <span style={{ fontWeight: 500 }}>
+                  {usdPrice.currencyCode}{' '}
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{amount}</span>
+                </span>
+                {additionalActivePricePoints > 0 && (
+                  <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
+                )}
+              </div>
             );
-            displayPrice = sortedActive[0];
+          } else {
+            // If no USD, show count of non-USD price points
+            const count = activePricePoints.length;
+            priceDisplay = (
+              <Text style={{ color: token.colorText, fontWeight: 500 }}>
+                {count} non-USD price point{count === 1 ? '' : 's'}
+              </Text>
+            );
           }
-          
-          // Calculate additional active price points (total active - 1 displayed)
-          const additionalActivePricePoints = activePricePoints.length - 1;
-          
-          // Format currency with tabular-nums only for the numeric part
-          const zeroDecimalCurrencies = new Set([
-            'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
-            'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
-          ]);
-          
-          const amount = zeroDecimalCurrencies.has(displayPrice.currencyCode) 
-            ? Math.round(displayPrice.amount) 
-            : displayPrice.amount.toFixed(2);
-          
-          priceDisplay = (
-            <div>
-              <span style={{ fontWeight: 500 }}>
-                {displayPrice.currencyCode}{' '}
-                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{amount}</span>
-              </span>
-              {additionalActivePricePoints > 0 && (
-                <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
-              )}
-            </div>
-          );
         }
 
         return (

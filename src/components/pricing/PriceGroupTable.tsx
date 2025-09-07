@@ -167,7 +167,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           // If no USD, just show count of non-USD price points
           const count = activePricePoints.length;
           return (
-            <Text style={{ color: token.colorText }}>
+            <Text style={{ color: token.colorText, fontWeight: 500 }}>
               {count} non-USD price point{count === 1 ? '' : 's'}
             </Text>
           );

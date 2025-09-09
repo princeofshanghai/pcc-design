@@ -37,21 +37,27 @@ The core problem this solves is the current complexity of price updates, where u
 1. **The system must provide a "Update prices" option** in the ProductDetail page dropdown menu that triggers the edit flow
 2. **The system must display a full-screen modal** that provides focused editing experience without competing visual elements
 3. **The system must guide users through a 2-step editing process**: context selection, then price editing with GTM motion integration
-4. **The system must allow users to configure editing context** where channel, billing cycle, and validity period can be new or existing, while seat range and pricing tier must be selected from existing options only
+4. **The system must allow users to configure editing context** with channel, billing cycle, and validity period selection (new or existing combinations)
 5. **The system must support optional LIX experiment configuration** with search/type functionality for existing experiments
-6. **The system must display a comparison table** showing current prices, new price inputs, and calculated differences for all relevant currencies
+6. **The system must display channel-appropriate price editing interfaces**:
+   - **Field channel**: Currency-tabbed matrices showing seat ranges × pricing tiers for each currency
+   - **Desktop/iOS/GPB channels**: Single scrollable comparison table with all currencies
 7. **The system must validate price inputs** with real-time feedback on invalid values
 8. **The system must calculate and display price differences** with clear visual indicators (unchanged, increase, decrease)
-9. **The system must show impact preview** revealing whether changes will update existing SKUs or create new ones (discovery model - only at the end)
+9. **The system must show impact preview** revealing whether changes will update existing price groups or create new ones
 
 ### Business Logic & SKU Management
 
-10. **The system must automatically determine SKU creation vs. update** based on business rules:
-    - New LIX experiment = new price group = new SKU
+10. **The system must automatically determine price group/SKU creation vs. update** based on business rules:
+    - **Channel + Billing Cycle combination** determines price group/SKU identity
     - New channel/billing cycle combination = new price group = new SKU  
-    - Same context as existing = update existing price group/SKU
+    - Existing channel/billing cycle combination = update existing price group/SKU
+    - **Seat ranges and pricing tiers** are price point attributes within the price group (Field channel only)
+    - **LIX experiments** are labels/attributes, not SKU determinants
 11. **The system must handle currency-specific formatting** including zero-decimal currencies (JPY, KRW, etc.)
-12. **The system must preserve pricing tiers and seat ranges** from the selected context
+12. **The system must handle channel-specific pricing complexity**:
+    - **Field channel**: Multiple seat ranges × pricing tiers × currencies
+    - **Desktop/iOS/GPB channels**: Single price point per currency
 13. **The system must validate business rules** such as minimum/maximum price constraints (if applicable)
 
 ### GTM Motion Integration

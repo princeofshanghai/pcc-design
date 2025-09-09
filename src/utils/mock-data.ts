@@ -3842,6 +3842,73 @@ export const createNewGTMMotion = (name: string, description: string, activation
         createdBy: "alex.rodriguez",
         createdDate: "2023-12-01T10:00:00Z"
       }
-    ]
+    ],
+    updatedDate: new Date().toISOString()
   };
+};
+
+// Add price changes to existing GTM Motion
+export const addPriceChangesToGTMMotion = (motionId: string, productId: string, productName: string): boolean => {
+  const motionIndex = mockGTMMotions.findIndex(motion => motion.id === motionId);
+  if (motionIndex === -1) return false;
+
+  const motion = mockGTMMotions[motionIndex];
+  const newItemId = `gtm-item-${Date.now()}-${motion.items.length + 1}`;
+
+  // Add new price change item
+  motion.items.push({
+    id: newItemId,
+    type: "Price",
+    productId: productId,
+    productName: productName,
+    details: "Price changes via editor",
+    status: "Draft",
+    approvalRequirements: [
+      {
+        team: "Pricing",
+        status: "Pending"
+      },
+      {
+        team: "Revenue",
+        status: "Pending"
+      }
+    ],
+    createdBy: "current.user",
+    createdDate: new Date().toISOString()
+  });
+
+  // Update motion metadata
+  motion.updatedDate = new Date().toISOString();
+  
+  return true;
+};
+
+// Create and add new GTM Motion to the list
+export const createAndAddGTMMotion = (name: string, description: string, activationDate: string, productId: string, productName: string): GTMMotion => {
+  const newMotion = createNewGTMMotion(name, description, activationDate);
+  
+  // Replace the default item with actual product item
+  newMotion.items = [{
+    id: `gtm-item-${Date.now()}-1`,
+    type: "Price",
+    productId: productId,
+    productName: productName,
+    details: "Price changes via editor",
+    status: "Draft",
+    approvalRequirements: [
+      {
+        team: "Pricing",
+        status: "Pending"
+      },
+      {
+        team: "Revenue",
+        status: "Pending"
+      }
+    ],
+    createdBy: "current.user",
+    createdDate: new Date().toISOString()
+  }];
+  
+  mockGTMMotions.push(newMotion);
+  return newMotion;
 };

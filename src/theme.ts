@@ -68,7 +68,7 @@ const themeConfig: ThemeConfig = {
       colorTextHeading: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (was rgba(0, 0, 0, 0.92))
     },
     Select: {
-      colorTextPlaceholder: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (was rgba(0, 0, 0, 0.92))
+      colorTextPlaceholder: TAILWIND_COLORS.gray[400], // Tailwind Gray 400 (light gray for placeholders)
     },
     
     Button: {

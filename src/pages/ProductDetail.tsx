@@ -29,6 +29,7 @@ import {
   VerticalSeparator,
   MetricCard,
 } from '../components';
+import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import {
   PRICE_GROUP_COLUMNS,
@@ -215,6 +216,9 @@ const ProductDetail: React.FC = () => {
 
   // Translations drawer state
   const [translationsDrawerOpen, setTranslationsDrawerOpen] = useState(false);
+
+  // Price Editor Modal state
+  const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
 
   // SKU filtering hook
   const {
@@ -1029,19 +1033,7 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleUpdatePrices = () => {
-    Modal.info({
-      title: 'Update Prices',
-      content: (
-        <div>
-          <p>Here you can update pricing for <strong>{product?.name}</strong>.</p>
-          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-            This would open the price management interface where you can modify price groups, price points, and pricing rules.
-          </p>
-        </div>
-      ),
-      okText: 'Got it',
-      width: 400,
-    });
+    setPriceEditorModalOpen(true);
   };
 
   // Main edit dropdown for PageHeader
@@ -1921,6 +1913,15 @@ const ProductDetail: React.FC = () => {
           ))}
         </Space>
       </Drawer>
+
+      {/* Price Editor Modal */}
+      <PriceEditorModal
+        open={priceEditorModalOpen}
+        onClose={() => setPriceEditorModalOpen(false)}
+        productName={product.name}
+        productId={product.id}
+        product={product}
+      />
     </Space>
   );
 };

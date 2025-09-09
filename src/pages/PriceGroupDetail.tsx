@@ -31,7 +31,8 @@ import {
   DEFAULT_PRICE_POINT_COLUMNS,
   getFilterPlaceholder
 } from '../utils/tableConfigurations';
-import { Download, Calendar, Rows2, Table2 } from 'lucide-react';
+import { Download, Calendar, Rows2, Table2, Edit } from 'lucide-react';
+import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 
 const { Title } = Typography;
 
@@ -49,6 +50,9 @@ const PriceGroupDetail: React.FC = () => {
   const [product, setProduct] = useState(mockProducts.find(p => p.id === productId));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
   
   // View mode toggle state - only for Field products
   const [viewMode, setViewMode] = useState(() => {
@@ -222,6 +226,11 @@ const PriceGroupDetail: React.FC = () => {
       </div>
     );
   }
+
+  // Edit prices handler - opens Step 2 directly
+  const handleEditPrices = () => {
+    setEditModalOpen(true);
+  };
 
   // Helper function for clearing filters
 
@@ -661,6 +670,9 @@ const PriceGroupDetail: React.FC = () => {
         channelBillingGroups={channelBillingGroups}
         lixKey={lixKey}
         lixTreatment={lixTreatment}
+        onEdit={handleEditPrices}
+        editButtonText="Edit prices"
+        editButtonIcon={<Edit size={14} />}
         compact
       />
 
@@ -678,6 +690,24 @@ const PriceGroupDetail: React.FC = () => {
           }
           const newSearch = newSearchParams.toString();
           navigate(`/product/${productId}/price-group/${priceGroupId}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+        }}
+      />
+
+      {/* Edit Prices Modal - Unified Component */}
+      <PriceEditorModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        productName={product.name}
+        productId={product.id}
+        product={product}
+        directEditMode={true}
+        prefilledContext={{
+          channel: uniqueChannels[0], // Use first channel
+          billingCycle: uniqueBillingCycles[0], // Use first billing cycle
+          priceGroupAction: 'update',
+          existingPriceGroup: priceGroup,
+          lixKey: lixKey || undefined,
+          lixTreatment: lixTreatment || undefined,
         }}
       />
     </Space>

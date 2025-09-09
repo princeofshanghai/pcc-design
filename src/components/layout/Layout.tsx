@@ -222,6 +222,7 @@ const AppLayout = () => {
     if (pathname === '/rulesets') return ['rulesets'];
     if (pathname === '/calculation-schemes') return ['calculation-schemes'];
     if (pathname === '/platform-entity-mapping') return ['platform-entity-mapping'];
+    if (pathname.startsWith('/gtm-motions')) return ['gtm-motions'];
     if (pathname === '/change-requests') return ['change-requests'];
     if (pathname === '/picasso-npi') return ['picasso-npi'];
     if (pathname === '/attribute-dictionary') return [];
@@ -331,6 +332,22 @@ const AppLayout = () => {
       </Breadcrumb.Item>
     );
     // Note: Folder page itself doesn't show folder name in breadcrumb - only parent navigation
+  }
+
+  // Handle GTM Motion pages
+  if (location.pathname.startsWith('/gtm-motions')) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="gtm-motions">
+        <Link to="/gtm-motions">GTM Motions</Link>
+      </Breadcrumb.Item>
+    );
+    
+    // If on detail page, add specific motion breadcrumb
+    const motionMatch = location.pathname.match(/^\/gtm-motions\/(.+)$/);
+    if (motionMatch) {
+      // This would show the motion name if we had it, but for now just show ID
+      // In a real app, you'd fetch the motion name here or pass it through context
+    }
   }
 
   // Handle attribute dictionary page - no breadcrumb needed

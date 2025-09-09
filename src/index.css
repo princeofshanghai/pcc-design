@@ -140,4 +140,9 @@ a[href*="/sku/"] {
 /* Exception: Center align the action column with the caret */
 .ant-table-tbody > tr > td.table-action-column {
   vertical-align: middle !important;
+}
+
+/* Fix LIX key Select component placeholder color consistency */
+.lix-key-select .ant-select-selection-placeholder {
+  color: var(--placeholder-color) !important;
 } 

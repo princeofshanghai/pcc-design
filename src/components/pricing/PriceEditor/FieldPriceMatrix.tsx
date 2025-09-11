@@ -701,15 +701,6 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       ),
       children: (
       <div style={{ marginTop: '8px' }}>
-        {/* Dynamic context text above table */}
-        <Text style={{ 
-          fontSize: token.fontSizeHeading4,
-          color: token.colorTextSecondary,
-          marginBottom: '12px',
-          display: 'block'
-        }}>
-          Showing {selectedContext.billingCycle.toLowerCase()} prices in {currency}
-        </Text>
         
         <Table
           size="small"

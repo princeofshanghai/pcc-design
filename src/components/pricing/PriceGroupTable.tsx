@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Table, Typography, Dropdown, Button, Modal, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { Ellipsis } from 'lucide-react';
+import { Ellipsis, ChevronRight } from 'lucide-react';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS, DEFAULT_PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
@@ -314,8 +314,36 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
     },
   };
 
-  // Combine base columns with action column
-  const columns: ColumnsType<any> = [...baseColumns, actionColumn];
+  // Chevron column (always visible, fixed to right) - visual indicator for clickability  
+  const chevronColumn = {
+    title: '', // No column title
+    key: 'chevron',
+    fixed: 'right' as const,
+    width: 48,
+    className: 'table-action-column',
+    render: (_: any, record: any) => {
+      if ('isGroupHeader' in record) return null;
+
+      return (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+        }}>
+          <ChevronRight 
+            size={16} 
+            style={{ 
+              color: token.colorTextTertiary,
+            }} 
+          />
+        </div>
+      );
+    },
+  };
+
+  // Combine base columns with action column and chevron column
+  const columns: ColumnsType<any> = [...baseColumns, actionColumn, chevronColumn];
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
@@ -370,7 +398,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   return (
     <div style={{ marginTop: '16px' }}>
       <Table
-        size="small"
+        size="large"
         columns={columns}
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : record.priceGroup.id || Math.random().toString())}

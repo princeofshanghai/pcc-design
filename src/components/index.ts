@@ -36,6 +36,7 @@ export { default as ChartControls } from './pricing/ChartControls';
 export { default as AttributeDisplay } from './attributes/AttributeDisplay';
 export { default as AttributeGroup } from './attributes/AttributeGroup';
 export { default as StatusTag } from './attributes/StatusTag';
+export { default as GTMStatusTag } from './attributes/GTMStatusTag';
 export { default as PricePointStatusTag } from './attributes/PricePointStatusTag';
 export { default as PriceGroupStatusTag } from './attributes/PriceGroupStatusTag';
 export { default as LobTag } from './attributes/LobTag';
@@ -60,12 +61,17 @@ export { default as ViewModeToggle } from './shared/ViewModeToggle';
 export { default as VerticalSeparator } from './shared/VerticalSeparator';
 export { default as MetricCard } from './shared/MetricCard';
 export { default as InfoPopover } from './shared/InfoPopover';
+export { default as ModeSelectorButton } from './shared/ModeSelectorButton';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';
 
 // Activity components
 export { default as ActivityFeedItem } from './activity/ActivityFeedItem';
+
+// GTM components
+export { default as GTMItemsTable } from './gtm/GTMItemsTable';
+export { default as GTMMotionTable } from './gtm/GTMMotionTable';
 
 // Export types that might be imported from components
 export type { SelectOption } from './filters/FilterDropdown';

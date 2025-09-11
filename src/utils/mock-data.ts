@@ -1835,7 +1835,7 @@ if (recruiterLiteProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       origin: "manual",
-      createdBy: TEAM_MEMBERS.TANMAY_KHEMKA.fullName,
+      createdBy: TEAM_MEMBERS.CHARLES_HU.fullName,
       createdDate: "2024-02-15T10:00:00Z"
     },
     {
@@ -3571,12 +3571,12 @@ export const mockProducts: Product[] = [
 // Mock GTM Motion data for price editing workflow
 export const mockGTMMotions: GTMMotion[] = [
   {
-    id: "gtm-motion-001",
+    id: "GTM001",
     name: "Q1 2024 Field Pricing Updates",
     description: "Quarterly price adjustments for field sales channels based on market analysis and competitive positioning",
     activationDate: "2024-03-01T09:00:00Z",
     status: "Draft" as GTMMotionStatus,
-    createdBy: "sarah.johnson",
+    createdBy: "lkanazir",
     createdDate: "2024-01-15T14:30:00Z",
     updatedDate: "2024-01-18T09:15:00Z",
     items: [
@@ -3595,7 +3595,7 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2024-01-16T10:30:00Z"
           }
         ],
-        createdBy: "sarah.johnson",
+        createdBy: "lkanazir",
         createdDate: "2024-01-15T15:00:00Z"
       },
       {
@@ -3629,18 +3629,18 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2024-01-18T11:45:00Z"
           }
         ],
-        createdBy: "sarah.johnson",
+        createdBy: "lkanazir",
         createdDate: "2024-01-15T15:30:00Z"
       }
     ]
   },
   {
-    id: "gtm-motion-002", 
+    id: "GTM002", 
     name: "Mobile App Pricing Experiment",
     description: "A/B test for mobile subscription pricing to optimize conversion rates",
     activationDate: "2024-02-15T12:00:00Z",
-    status: "Pending approvals" as GTMMotionStatus,
-    createdBy: "mike.chen",
+    status: "Review in Progress" as GTMMotionStatus,
+    createdBy: "jbader",
     createdDate: "2024-01-10T11:20:00Z",
     updatedDate: "2024-01-20T16:45:00Z", 
     items: [
@@ -3657,7 +3657,7 @@ export const mockGTMMotions: GTMMotion[] = [
             status: "Pending"
           }
         ],
-        createdBy: "mike.chen",
+        createdBy: "jbader",
         createdDate: "2024-01-10T11:30:00Z"
       },
       {
@@ -3679,18 +3679,18 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2024-01-11T16:00:00Z"
           }
         ],
-        createdBy: "mike.chen",
+        createdBy: "jbader",
         createdDate: "2024-01-10T12:00:00Z"
       }
     ]
   },
   {
-    id: "gtm-motion-003",
+    id: "GTM003",
     name: "Enterprise Tier Price Restructure", 
     description: "Major pricing overhaul for enterprise customers with new tier structure and volume discounts",
     activationDate: "2024-04-01T08:00:00Z",
-    status: "Submitted" as GTMMotionStatus,
-    createdBy: "alex.rodriguez",
+    status: "Scheduled for Activation" as GTMMotionStatus,
+    createdBy: "ahoman",
     createdDate: "2023-12-01T09:00:00Z",
     updatedDate: "2024-01-05T14:30:00Z",
     items: [
@@ -3711,18 +3711,18 @@ export const mockGTMMotions: GTMMotion[] = [
             status: "Pending"
           }
         ],
-        createdBy: "alex.rodriguez",
+        createdBy: "ahoman",
         createdDate: "2023-12-01T10:00:00Z"
       }
     ]
   },
   {
-    id: "gtm-motion-004",
+    id: "GTM004",
     name: "Currency Parity Adjustment",
     description: "Adjusting European and Canadian pricing to account for exchange rate fluctuations",
     activationDate: "2024-01-31T10:00:00Z", 
-    status: "Approved" as GTMMotionStatus,
-    createdBy: "emma.thompson",
+    status: "Completed" as GTMMotionStatus,
+    createdBy: "geso",
     createdDate: "2024-01-08T13:15:00Z",
     updatedDate: "2024-01-25T11:00:00Z",
     items: [
@@ -3741,18 +3741,18 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2024-01-20T09:30:00Z"
           }
         ],
-        createdBy: "emma.thompson",
+        createdBy: "geso",
         createdDate: "2024-01-08T14:00:00Z"
       }
     ]
   },
   {
-    id: "gtm-motion-005",
+    id: "GTM005",
     name: "Holiday Promotion Pricing",
     description: "Special promotional pricing for year-end holiday campaign",
     activationDate: "2023-12-01T00:00:00Z",
-    status: "Complete" as GTMMotionStatus,
-    createdBy: "david.kim",
+    status: "Cancelled" as GTMMotionStatus,
+    createdBy: "chhu",
     createdDate: "2023-11-01T10:30:00Z", 
     updatedDate: "2024-01-02T09:00:00Z",
     items: [
@@ -3777,7 +3777,7 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2023-11-18T14:30:00Z"
           }
         ],
-        createdBy: "david.kim",
+        createdBy: "chhu",
         createdDate: "2023-11-01T11:00:00Z"
       },
       {
@@ -3795,8 +3795,180 @@ export const mockGTMMotions: GTMMotion[] = [
             approvedDate: "2023-11-20T10:15:00Z"
           }
         ],
-        createdBy: "david.kim",
+        createdBy: "chhu",
         createdDate: "2023-11-01T11:15:00Z"
+      }
+    ]
+  },
+  {
+    id: "GTM006",
+    name: "B2B Platform Tier Rollout",
+    description: "New tiered pricing structure for B2B platform with enhanced features and usage-based billing",
+    activationDate: "2024-05-01T10:00:00Z",
+    status: "Submitted" as GTMMotionStatus,
+    createdBy: "lkanazir",
+    createdDate: "2024-02-10T08:30:00Z",
+    updatedDate: "2024-02-12T14:45:00Z",
+    items: [
+      {
+        id: "gtm-item-006-1",
+        type: "Price",
+        productId: "business-platform-pro",
+        productName: "Business Platform Pro",
+        details: "Tier 1: $199/month, Tier 2: $399/month, usage overage: $0.05/unit",
+        status: "Draft",
+        approvalRequirements: [
+          {
+            team: "Product",
+            status: "Pending"
+          },
+          {
+            team: "Pricing",
+            status: "Pending"
+          }
+        ],
+        createdBy: "lkanazir",
+        createdDate: "2024-02-10T08:30:00Z"
+      }
+    ]
+  },
+  {
+    id: "GTM007", 
+    name: "International Market Expansion Pricing",
+    description: "Localized pricing strategy for expansion into APAC markets with currency and purchasing power adjustments",
+    activationDate: "2024-06-15T07:00:00Z",
+    status: "Activating in EI" as GTMMotionStatus,
+    createdBy: "jbader",
+    createdDate: "2024-03-01T10:15:00Z",
+    updatedDate: "2024-03-18T16:20:00Z",
+    items: [
+      {
+        id: "gtm-item-007-1",
+        type: "Price",
+        productId: "premium-enterprise-apac",
+        productName: "Premium Enterprise (APAC)",
+        details: "Singapore: $899 SGD, Japan: ¥89,900, Australia: $799 AUD",
+        status: "Ready for deployment",
+        approvalRequirements: [
+          {
+            team: "Legal",
+            status: "Approved"
+          },
+          {
+            team: "StratFin",
+            status: "Approved"
+          }
+        ],
+        createdBy: "jbader",
+        createdDate: "2024-03-01T10:15:00Z"
+      }
+    ]
+  },
+  {
+    id: "GTM008",
+    name: "Startup Package Discount Program",
+    description: "Special pricing program for qualified startups with 50% discount for first year and graduated pricing thereafter",
+    activationDate: "2024-04-20T12:00:00Z", 
+    status: "Ready for Approvals" as GTMMotionStatus,
+    createdBy: "ahoman",
+    createdDate: "2024-03-05T09:45:00Z",
+    updatedDate: "2024-03-15T11:30:00Z",
+    items: [
+      {
+        id: "gtm-item-008-1",
+        type: "Price",
+        productId: "startup-essentials",
+        productName: "Startup Essentials",
+        details: "Year 1: $49/month (50% off), Year 2: $79/month, Year 3+: $99/month",
+        status: "Pending approvals",
+        approvalRequirements: [
+          {
+            team: "Pricing",
+            status: "Pending"
+          },
+          {
+            team: "StratFin",
+            status: "Pending"
+          },
+          {
+            team: "Legal",
+            status: "Pending"
+          }
+        ],
+        createdBy: "ahoman", 
+        createdDate: "2024-03-05T09:45:00Z"
+      }
+    ]
+  },
+  {
+    id: "GTM009",
+    name: "SMB Growth Plan Restructure",
+    description: "Simplified pricing tiers for small-medium businesses with clearer feature differentiation and annual billing incentives",
+    activationDate: "2024-07-01T08:00:00Z",
+    status: "Approvals Completed" as GTMMotionStatus,
+    createdBy: "geso",
+    createdDate: "2024-04-01T13:20:00Z",
+    updatedDate: "2024-04-15T17:10:00Z",
+    items: [
+      {
+        id: "gtm-item-009-1", 
+        type: "Price",
+        productId: "smb-growth-plan",
+        productName: "SMB Growth Plan",
+        details: "Basic: $79/month, Professional: $149/month, Enterprise: $299/month (15% discount annual)",
+        status: "Approved",
+        approvalRequirements: [
+          {
+            team: "Product",
+            status: "Approved"
+          },
+          {
+            team: "StratFin",
+            status: "Approved"
+          },
+          {
+            team: "Pricing",
+            status: "Approved"
+          }
+        ],
+        createdBy: "geso",
+        createdDate: "2024-04-01T13:20:00Z"
+      }
+    ]
+  },
+  {
+    id: "GTM010",
+    name: "Enterprise Volume Licensing",
+    description: "Large enterprise volume licensing with custom pricing tiers based on user count and multi-year commitments",
+    activationDate: "2024-03-25T09:00:00Z",
+    status: "Activating in Prod" as GTMMotionStatus,
+    createdBy: "chhu",
+    createdDate: "2024-02-20T11:00:00Z", 
+    updatedDate: "2024-03-20T14:25:00Z",
+    items: [
+      {
+        id: "gtm-item-010-1",
+        type: "Price",
+        productId: "enterprise-volume-license",
+        productName: "Enterprise Volume License",
+        details: "500-999 users: $45/user/month, 1000+ users: $35/user/month, 3-year commitment: additional 10% discount",
+        status: "Ready for deployment",
+        approvalRequirements: [
+          {
+            team: "Legal",
+            status: "Approved"
+          },
+          {
+            team: "StratFin", 
+            status: "Approved"
+          },
+          {
+            team: "Revenue",
+            status: "Approved"
+          }
+        ],
+        createdBy: "chhu",
+        createdDate: "2024-02-20T11:00:00Z"
       }
     ]
   }
@@ -3812,7 +3984,16 @@ export const getGTMMotionsByStatus = (status: GTMMotionStatus): GTMMotion[] => {
 };
 
 export const createNewGTMMotion = (name: string, description: string, activationDate: string): GTMMotion => {
-  const newId = `gtm-motion-${Date.now()}`;
+  // Find the highest existing GTM motion number
+  const existingNumbers = mockGTMMotions
+    .map(motion => motion.id)
+    .filter(id => id.startsWith('GTM'))
+    .map(id => parseInt(id.replace('GTM', ''), 10))
+    .filter(num => !isNaN(num));
+  
+  const nextNumber = Math.max(...existingNumbers, 0) + 1;
+  const newId = `GTM${nextNumber.toString().padStart(3, '0')}`;
+  
   return {
     id: newId,
     name,
@@ -3839,7 +4020,7 @@ export const createNewGTMMotion = (name: string, description: string, activation
             status: "Pending"
           }
         ],
-        createdBy: "alex.rodriguez",
+        createdBy: "ahoman",
         createdDate: "2023-12-01T10:00:00Z"
       }
     ],

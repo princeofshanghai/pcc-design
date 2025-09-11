@@ -386,6 +386,15 @@ const AppLayout = () => {
         productPath = location.pathname.substring(0, location.pathname.indexOf('/price-group/'));
       }
 
+      // Check for 'from' parameter to remember which tab to return to
+      const urlParams = new URLSearchParams(location.search);
+      const fromTab = urlParams.get('from');
+      
+      // Add tab parameter if specified
+      if (fromTab && fromTab !== 'overview') {
+        productPath += `?tab=${fromTab}`;
+      }
+
       breadcrumbItems.push(
         <Breadcrumb.Item key="product">
           <Link to={productPath}>
@@ -659,9 +668,9 @@ const AppLayout = () => {
               margin-right: 8px !important;
             }
 
-            /* Level 2 items (folder items within LOBs) - slight indent */
+            /* Level 2 items (folder items within LOBs) - no extra indent */
             .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
-              padding-left: 28px !important;
+              padding-left: 16px !important;
               padding-right: 24px !important;
               margin-left: 8px !important;
               margin-right: 8px !important;

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Typography, Space, theme, Button, Tooltip, Dropdown } from 'antd';
+import { Typography, Space, theme, Button, Dropdown } from 'antd';
 import { Edit, TestTubeDiagonal } from 'lucide-react';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
 import VerticalSeparator from '../shared/VerticalSeparator';
+import InfoPopover from '../shared/InfoPopover';
 import { getChannelIconForPageHeader } from '../../utils/channelIcons';
 import type { SalesChannel, BillingCycle } from '../../utils/types';
 import './PageHeader.css';
@@ -33,6 +34,8 @@ interface PageHeaderProps {
   editDropdown?: () => React.ReactNode; // Custom dropdown content for edit button
   editButtonText?: string; // Custom text for edit button
   editButtonIcon?: React.ReactNode; // Custom icon for edit button
+  editButtonType?: 'default' | 'primary' | 'dashed' | 'link' | 'text'; // Button type for edit button
+  editButtonGhost?: boolean; // Whether edit button should be ghost variant
   // New prop to reduce spacing when followed by tabs
   compact?: boolean;
 }
@@ -84,6 +87,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   editDropdown,
   editButtonText = "Edit",
   editButtonIcon = <Edit size={14} />,
+  editButtonType = "default",
+  editButtonGhost = false,
   compact = false}) => {
   const { token } = theme.useToken();
 
@@ -136,7 +141,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                       >
                         Last updated
                       </Text>
-                      <Tooltip title={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`}>
+                      <InfoPopover content={`${formatDateFullUTC(lastUpdatedAt)} by ${lastUpdatedBy}`} placement="top">
                         <Space align="center" size={6}>
                           <Text style={{ fontSize: '13px' }}>
                             {formatDateShort(lastUpdatedAt)}
@@ -147,7 +152,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                             showTooltip={false}
                           />
                         </Space>
-                      </Tooltip>
+                      </InfoPopover>
                     </Space>
                   )}
                   
@@ -159,7 +164,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                         placement="bottomRight"
                       >
                         <Button 
-                          type="default"
+                          type={editButtonType}
+                          ghost={editButtonGhost}
                           className="page-header-edit-button"
                           icon={editButtonIcon}
                         >
@@ -170,7 +176,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                       </Dropdown>
                     ) : (
                       <Button 
-                        type="default"
+                        type={editButtonType}
+                        ghost={editButtonGhost}
                         className="page-header-edit-button"
                         icon={editButtonIcon}
                         onClick={onEdit}

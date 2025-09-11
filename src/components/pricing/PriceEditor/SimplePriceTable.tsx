@@ -529,13 +529,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           </Space>
         </div>
 
-        {/* Dynamic context text above table */}
-        <Text style={{ 
-          fontSize: token.fontSizeHeading4,
-          color: token.colorTextSecondary
-        }}>
-          Showing {selectedContext.billingCycle.toLowerCase()} prices
-        </Text>
         
         <Table
           size="small"

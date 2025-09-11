@@ -39,7 +39,7 @@ const themeConfig: ThemeConfig = {
     fontSize: 13,
     fontSizeSM: 12, // Small font size - used in chip small variant and other small text
     fontSizeLG: 14,
-    fontSizeHeading1: 22,
+    fontSizeHeading1: 24,
     fontSizeHeading2: 18,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,
@@ -59,7 +59,7 @@ const themeConfig: ThemeConfig = {
   },
   components: {
     Modal: {
-      titleFontSize: 20,
+      titleFontSize: 24,
       titleColor: TAILWIND_COLORS.gray[800], // Tailwind Gray 800 (was #222)
     },
     

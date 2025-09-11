@@ -1035,7 +1035,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
   return (
     <div style={{ marginTop: '16px' }}>
       <Table
-        size="small"
+        size="middle"
         columns={columns}
         dataSource={dataSource}
         rowKey={record => ('isGroupHeader' in record ? record.key : record.id || `${record.currencyCode}-${record.amount}-${record.validFrom || 'no-date'}`)}

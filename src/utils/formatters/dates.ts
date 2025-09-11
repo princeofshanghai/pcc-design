@@ -44,4 +44,31 @@ export const formatFullDate = (dateString: string): string => {
     timeZone: 'UTC',
   };
   return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+export const formatShortDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+export const formatFullDateTimeUTC = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
+  };
+  return date.toLocaleDateString('en-US', options);
 }; 

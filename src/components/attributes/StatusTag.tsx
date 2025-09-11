@@ -1,9 +1,9 @@
 import React from 'react';
-import { theme, Tooltip } from 'antd';
+import { theme } from 'antd';
 import { ArchiveX, CirclePause, CircleCheckBig } from 'lucide-react';
+import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
 export type ProductStatus = 'Active' | 'Inactive' | 'Archived';
-export type ChipVariant = 'default' | 'small';
 
 interface StatusTagProps {
   status?: ProductStatus;
@@ -73,36 +73,25 @@ const StatusTag: React.FC<StatusTagProps> = ({
 
   // If showLabel is false, render just the icon without background
   if (!showLabel) {
-    // For icon-only, we'll use a simple span with the icon wrapped in a tooltip
-    const iconSize = variant === 'small' ? 14 : 16;
+    const iconSize = variant === 'small' ? 12 : 14;
     return (
-      <Tooltip title={description}>
-        <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
-          <Icon size={iconSize} strokeWidth={variant === 'small' ? 2.5 : 2} />
-        </span>
-      </Tooltip>
+      <span style={{ color: colors.textColor, display: 'flex', alignItems: 'center' }}>
+        <Icon size={iconSize} strokeWidth={variant === 'small' ? 2.5 : 2} />
+      </span>
     );
   }
 
   return (
-    <Tooltip title={description}>
-      <span 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: variant === 'small' ? '4px' : '6px',
-          fontSize: '13px',
-          color: token.colorText
-        }}
-      >
-        <Icon 
-          size={variant === 'small' ? 14 : 16} 
-          strokeWidth={variant === 'small' ? 2.5 : 2}
-          color={colors.textColor}
-        />
-        {calculatedStatus}
-      </span>
-    </Tooltip>
+    <BaseChip
+      variant={variant}
+      icon={<Icon />}
+      tooltip={description}
+      backgroundColor={colors.backgroundColor}
+      textColor={colors.textColor}
+      borderColor={colors.borderColor}
+    >
+      {calculatedStatus}
+    </BaseChip>
   );
 };
 

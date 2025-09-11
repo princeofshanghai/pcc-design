@@ -120,12 +120,11 @@ export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'customers', label: 'Customers', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
-  { key: 'lix', label: 'LIX', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'lix', 'status', 'customers'];
+export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'customers', 'status'];
 
 export const SKU_SORT_OPTIONS = [
   'None',
@@ -137,8 +136,6 @@ export const SKU_SORT_OPTIONS = [
   'Channel (Z-A)',
   'Billing Cycle (A-Z)',
   'Billing Cycle (Z-A)',
-  'LIX (A-Z)',
-  'LIX (Z-A)',
   'Status (A-Z)',
   'Status (Z-A)',
 ];
@@ -149,7 +146,6 @@ export const SKU_GROUP_BY_OPTIONS = [
   'Price',
   'Channel',
   'Billing Cycle',
-  'LIX',
   'Status',
 ];
 
@@ -162,7 +158,7 @@ export const PRODUCT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'customers'];
+export const DEFAULT_PRODUCT_COLUMNS = ['id', 'name', 'folder', 'channel', 'customers', 'status'];
 
 // Sort options for products
 export const PRODUCT_SORT_OPTIONS = [
@@ -222,7 +218,6 @@ export const getFilterPlaceholder = (columnKey: string): string => {
   // Special cases for proper pluralization and naming
   const pluralMap: Record<string, string> = {
     'status': 'statuses',
-    'lix': 'LIX', // LIX is already an acronym, don't pluralize
     'currency': 'currencies', 
     'category': 'categories',
     'currencyType': 'categories', // Currency type column shows as "categories" in filters

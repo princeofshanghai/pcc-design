@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Space, Button, Modal, Tooltip, Tag, theme, Tabs } from 'antd';
+import { Typography, Space, Button, Modal, Tag, theme, Tabs } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
@@ -15,7 +15,9 @@ import {
   AttributeDisplay,
   AttributeGroup,
   VerticalSeparator,
-  AnalyticsChart
+  AnalyticsChart,
+  InfoPopover,
+  ModeSelectorButton
 } from '../components';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
 import { getChannelIcon } from '../utils/channelIcons';
@@ -31,7 +33,7 @@ import {
   DEFAULT_PRICE_POINT_COLUMNS,
   getFilterPlaceholder
 } from '../utils/tableConfigurations';
-import { Download, Calendar, Rows2, Table2, Edit } from 'lucide-react';
+import { Download, Calendar, Rows2, Table2 } from 'lucide-react';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 
 const { Title } = Typography;
@@ -53,6 +55,7 @@ const PriceGroupDetail: React.FC = () => {
   
   // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [modalCreationMethod, setModalCreationMethod] = useState<'edit' | 'create' | null>(null);
   
   // View mode toggle state - only for Field products
   const [viewMode, setViewMode] = useState(() => {
@@ -60,6 +63,7 @@ const PriceGroupDetail: React.FC = () => {
     const saved = localStorage.getItem('pricePointViewMode');
     return (saved === 'list' || saved === 'pivot') ? saved : 'list';
   });
+
 
   // Wrapper function that also saves to localStorage
   const handleViewModeChange = (newMode: string) => {
@@ -104,6 +108,17 @@ const PriceGroupDetail: React.FC = () => {
 
   // Debug: Log channel detection for troubleshooting
   console.log('PriceGroupDetail - Detected channels:', uniqueChannels, 'for price group:', priceGroupId);
+
+  // Set channel-specific default view mode when product loads (only if no localStorage preference exists)
+  useEffect(() => {
+    // Only set default if no saved preference exists and we have channel information
+    const saved = localStorage.getItem('pricePointViewMode');
+    if (!saved && uniqueChannels.length > 0) {
+      const isFieldPriceGroup = uniqueChannels.includes('Field');
+      const channelDefault = isFieldPriceGroup ? 'pivot' : 'list';
+      setViewMode(channelDefault);
+    }
+  }, [uniqueChannels]);
 
   // IMPORTANT: All hooks must be called before any conditional returns
   // Price point filtering hook - must always be called even if priceGroup is null
@@ -227,10 +242,33 @@ const PriceGroupDetail: React.FC = () => {
     );
   }
 
-  // Edit prices handler - opens Step 2 directly
-  const handleEditPrices = () => {
-    setEditModalOpen(true);
+  // Options for the mode selector button
+  const modeSelectorOptions = [
+    {
+      key: 'edit',
+      label: 'Edit price group',
+      description: 'Modify currencies and amounts in this price group.'
+    },
+    {
+      key: 'create',
+      label: 'Create price group',
+      description: 'Create new price group for new experiments.'
+    }
+  ];
+
+  // Handler for executing the selected action
+  const handleModeExecute = (selectedKey: string) => {
+    if (selectedKey === 'edit') {
+      console.log('Edit this price group clicked');
+      setModalCreationMethod('edit');
+      setEditModalOpen(true);
+    } else {
+      console.log('Create new price group clicked');
+      setModalCreationMethod('create');
+      setEditModalOpen(true);
+    }
   };
+
 
   // Helper function for clearing filters
 
@@ -597,7 +635,7 @@ const PriceGroupDetail: React.FC = () => {
                 {(lixKey || lixTreatment) ? (
                   <Space size="small" align="center">
                     {lixKey && (
-                      <Tooltip title="LIX Key" mouseEnterDelay={0.5}>
+                      <InfoPopover content="LIX Key" placement="top">
                         <span style={{ 
                           fontSize: token.fontSize,
                           color: token.colorText,
@@ -605,11 +643,11 @@ const PriceGroupDetail: React.FC = () => {
                         }}>
                           {lixKey}
                         </span>
-                      </Tooltip>
+                      </InfoPopover>
                     )}
                     {lixKey && lixTreatment && <span>/</span>}
                     {lixTreatment && (
-                      <Tooltip title="LIX Treatment" mouseEnterDelay={0.5}>
+                      <InfoPopover content="LIX Treatment" placement="top">
                         <span style={{ 
                           fontSize: token.fontSize,
                           color: token.colorText,
@@ -617,7 +655,7 @@ const PriceGroupDetail: React.FC = () => {
                         }}>
                           {lixTreatment}
                         </span>
-                      </Tooltip>
+                      </InfoPopover>
                     )}
                   </Space>
                 ) : (
@@ -667,12 +705,24 @@ const PriceGroupDetail: React.FC = () => {
         title={`Prices for ${product.name}`}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
-        channelBillingGroups={channelBillingGroups}
         lixKey={lixKey}
         lixTreatment={lixTreatment}
-        onEdit={handleEditPrices}
-        editButtonText="Edit prices"
-        editButtonIcon={<Edit size={14} />}
+        actions={
+          <ModeSelectorButton
+            options={modeSelectorOptions}
+            defaultSelected="edit"
+            onExecute={handleModeExecute}
+            buttonProps={{
+              type: "primary",
+              style: {
+                borderColor: '#1677ff',
+                backgroundColor: 'transparent',
+                color: '#1677ff'
+              }
+            }}
+            size="middle"
+          />
+        }
         compact
       />
 
@@ -696,19 +746,23 @@ const PriceGroupDetail: React.FC = () => {
       {/* Edit Prices Modal - Unified Component */}
       <PriceEditorModal
         open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={() => {
+          setEditModalOpen(false);
+          setModalCreationMethod(null);
+        }}
         productName={product.name}
         productId={product.id}
         product={product}
-        directEditMode={true}
-        prefilledContext={{
+        directEditMode={modalCreationMethod === 'edit'} // Direct edit for existing price group edits
+        prefilledContext={modalCreationMethod === 'edit' ? {
           channel: uniqueChannels[0], // Use first channel
           billingCycle: uniqueBillingCycles[0], // Use first billing cycle
           priceGroupAction: 'update',
           existingPriceGroup: priceGroup,
           lixKey: lixKey || undefined,
           lixTreatment: lixTreatment || undefined,
-        }}
+        } : undefined}
+        initialCreationMethod={modalCreationMethod === 'create' ? null : undefined}
       />
     </Space>
   );

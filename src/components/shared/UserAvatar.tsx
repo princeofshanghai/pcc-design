@@ -1,5 +1,6 @@
 import React from 'react';
-import { Avatar, Tooltip } from 'antd';
+import { Avatar } from 'antd';
+import InfoPopover from './InfoPopover';
 import { TEAM_MEMBERS, getFullNameFromLdap, getUserLdap } from '../../utils/users';
 
 interface UserAvatarProps {
@@ -89,8 +90,8 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   }
 
   return (
-    <Tooltip 
-      title={
+    <InfoPopover 
+      content={
         <div>
           <div><strong>{fullName}</strong></div>
           <div style={{ opacity: 0.8 }}>@{ldap}</div>
@@ -99,7 +100,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       placement="top"
     >
       {avatarElement}
-    </Tooltip>
+    </InfoPopover>
   );
 };
 

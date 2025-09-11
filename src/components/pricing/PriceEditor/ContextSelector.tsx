@@ -1,13 +1,12 @@
 import React from 'react';
-import { Form, Select, Space, Typography, theme, Button, Input } from 'antd';
-import { Plus } from 'lucide-react';
+import { Form, Select, Space, theme, Input, Radio } from 'antd';
 
-const { Text } = Typography;
 const { Option, OptGroup } = Select;
 
 interface ContextSelectorProps {
   product: any; // Product data to extract real options from
   onContextChange?: (context: PriceEditingContext) => void;
+  creationMethod?: 'blank' | 'clone' | null; // Creation method for conditional display
 }
 
 interface PriceEditingContext {
@@ -17,11 +16,13 @@ interface PriceEditingContext {
   existingPriceGroup: any | null; // Selected existing price group for updates
   lixKey: string | null;
   lixTreatment: string | null;
+  clonePriceGroup?: any | null; // Selected price group for cloning
 }
 
 const ContextSelector: React.FC<ContextSelectorProps> = ({
   product,
-  onContextChange
+  onContextChange,
+  creationMethod = null
 }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
@@ -32,16 +33,51 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
   const [selectedPriceGroupAction, setSelectedPriceGroupAction] = React.useState<string | null>(null);
   const [selectedExistingPriceGroup, setSelectedExistingPriceGroup] = React.useState<any | null>(null);
   
-  // Progressive disclosure state management
-  const [lixSectionExpanded, setLixSectionExpanded] = React.useState(false);
+  // LIX state management
   const [selectedLixKey, setSelectedLixKey] = React.useState<string | null>(null);
   const [selectedLixTreatment, setSelectedLixTreatment] = React.useState<string | null>(null);
-  const [lixKeySearchValue, setLixKeySearchValue] = React.useState<string>('');
-  const [lixTreatmentSearchValue, setLixTreatmentSearchValue] = React.useState<string>('');
+
+  // Clone mode state management
+  const [selectedClonePriceGroup, setSelectedClonePriceGroup] = React.useState<any | null>(null);
+  const [clonePriceGroupSearch, setClonePriceGroupSearch] = React.useState('');
 
   // All possible channels and billing cycles
   const ALL_CHANNELS = ['Desktop', 'iOS', 'GPB', 'Field'];
   const ALL_BILLING_CYCLES = ['Monthly', 'Annual', 'Quarterly'];
+
+  // Available price groups for cloning (only from current product)
+  const availableClonePriceGroups = React.useMemo(() => {
+    if (!product?.skus || creationMethod !== 'clone') return [];
+    
+    // Get unique price groups from current product
+    const priceGroupMap = new Map();
+    product.skus.forEach((sku: any) => {
+      const pg = sku.priceGroup;
+      if (pg && !priceGroupMap.has(pg.id)) {
+        priceGroupMap.set(pg.id, {
+          ...pg,
+          channel: sku.salesChannel,
+          billingCycle: sku.billingCycle,
+          lix: sku.lix || null
+        });
+      }
+    });
+    
+    return Array.from(priceGroupMap.values());
+  }, [product, creationMethod]);
+
+  // Filtered price groups based on search
+  const filteredClonePriceGroups = React.useMemo(() => {
+    if (!clonePriceGroupSearch.trim()) return availableClonePriceGroups;
+    
+    const search = clonePriceGroupSearch.toLowerCase();
+    return availableClonePriceGroups.filter(pg => 
+      pg.id.toLowerCase().includes(search) ||
+      pg.channel.toLowerCase().includes(search) ||
+      pg.billingCycle.toLowerCase().includes(search) ||
+      (pg.lix?.key && pg.lix.key.toLowerCase().includes(search))
+    );
+  }, [availableClonePriceGroups, clonePriceGroupSearch]);
 
 
   // Categorize channels into existing vs new
@@ -81,94 +117,9 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     };
   }, [product, selectedChannel]);
 
-  // Extract existing price groups for the selected channel + billing cycle combination
-  const existingPriceGroups = React.useMemo(() => {
-    if (!product?.skus || !selectedChannel || !selectedBillingCycle) return [];
-    
-    // Find SKUs that match the selected channel + billing cycle
-    const matchingSkus = product.skus.filter((sku: any) => 
-      sku.salesChannel === selectedChannel && 
-      sku.billingCycle === selectedBillingCycle
-    );
-    
-    // Extract price groups and calculate metadata
-    return matchingSkus.map((sku: any) => {
-      const priceGroup = sku.priceGroup;
-      if (!priceGroup) return null;
-      
-      // Count active price points
-      const activePricePoints = priceGroup.pricePoints?.filter((pp: any) => pp.status === 'Active') || [];
-      const activePriceCount = activePricePoints.length;
-      
-      // Find most recent validFrom date
-      const validDates = priceGroup.pricePoints
-        ?.map((pp: any) => pp.validFrom ? new Date(pp.validFrom) : null)
-        ?.filter((date: Date | null) => date !== null) || [];
-      
-      const mostRecentDate = validDates.length > 0 
-        ? new Date(Math.max(...validDates.map((d: Date) => d.getTime())))
-        : null;
-      
-      const formattedDate = mostRecentDate 
-        ? mostRecentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-        : 'Unknown';
-      
-      return {
-        ...priceGroup,
-        activePriceCount,
-        mostRecentValidDate: formattedDate,
-        sku: sku // Include reference for additional context if needed
-      };
-    }).filter(Boolean); // Remove any null entries
-  }, [product, selectedChannel, selectedBillingCycle]);
 
 
 
-  // Extract LIX data from product SKUs
-  const lixData = React.useMemo(() => {
-    if (!product?.skus) return { keys: [], treatments: {} };
-    
-    const keyTreatmentMap: Record<string, Set<string>> = {};
-    
-    product.skus.forEach((sku: any) => {
-      if (sku.lix?.key && sku.lix?.treatment) {
-        if (!keyTreatmentMap[sku.lix.key]) {
-          keyTreatmentMap[sku.lix.key] = new Set();
-        }
-        keyTreatmentMap[sku.lix.key].add(sku.lix.treatment);
-      }
-    });
-    
-    const keys = Object.keys(keyTreatmentMap);
-    const treatments: Record<string, string[]> = {};
-    
-    Object.entries(keyTreatmentMap).forEach(([key, treatmentSet]) => {
-      treatments[key] = Array.from(treatmentSet);
-    });
-    
-    return { keys, treatments };
-  }, [product]);
-
-  // LIX key options (existing + option to create new)
-  const lixKeyOptions = React.useMemo(() => {
-    return lixData.keys.map(key => ({
-      label: key,
-      value: key,
-      isExisting: true
-    }));
-  }, [lixData.keys]);
-
-  // LIX treatment options for selected key
-  const lixTreatmentOptions = React.useMemo(() => {
-    if (!selectedLixKey) return [];
-    
-    const existingTreatments = lixData.treatments[selectedLixKey] || [];
-    return existingTreatments.map(treatment => ({
-      label: treatment,
-      value: treatment,
-      isExisting: true
-    }));
-  }, [selectedLixKey, lixData.treatments]);
 
   const handleFormChange = () => {
     const context = {
@@ -177,7 +128,8 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
       lixKey: selectedLixKey,
       lixTreatment: selectedLixTreatment,
       priceGroupAction: selectedPriceGroupAction,
-      existingPriceGroup: selectedExistingPriceGroup
+      existingPriceGroup: selectedExistingPriceGroup,
+      clonePriceGroup: selectedClonePriceGroup
     } as PriceEditingContext;
     
     if (onContextChange) {
@@ -198,15 +150,15 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
       priceGroupSelection: undefined
     });
     
-    // Reset progressive disclosure sections
-    setLixSectionExpanded(false);
+    // Reset LIX fields and clone search
     setSelectedLixKey(null);
     setSelectedLixTreatment(null);
-    setLixKeySearchValue('');
-    setLixTreatmentSearchValue('');
+    setSelectedClonePriceGroup(null);
+    setClonePriceGroupSearch('');
     form.setFieldsValue({
       lixKey: undefined,
-      lixTreatment: undefined
+      lixTreatment: undefined,
+      clonePriceGroup: undefined
     });
     
     handleFormChange();
@@ -215,9 +167,16 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
   const handleBillingCycleChange = (value: string) => {
     setSelectedBillingCycle(value);
     
-    // Reset price group selection when billing cycle changes
-    setSelectedPriceGroupAction(null);
-    setSelectedExistingPriceGroup(null);
+    // In creation mode, automatically set action to 'create' since we removed the selection step
+    if (creationMethod === 'blank') {
+      setSelectedPriceGroupAction('create');
+      setSelectedExistingPriceGroup(null);
+    } else {
+      // Reset price group selection when billing cycle changes (for other modes)
+      setSelectedPriceGroupAction(null);
+      setSelectedExistingPriceGroup(null);
+    }
+    
     form.setFieldsValue({ 
       billingCycle: value,
       priceGroupSelection: undefined
@@ -227,52 +186,53 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
   };
 
 
-  // Price group selection handler
-  const handlePriceGroupSelectionChange = (value: string) => {
-    if (value === 'create') {
-      setSelectedPriceGroupAction('create');
+
+
+  // Clone price group selection handler
+  const handleClonePriceGroupChange = (priceGroupId: string) => {
+    const selectedPriceGroup = availableClonePriceGroups.find(pg => pg.id === priceGroupId);
+    
+    if (selectedPriceGroup) {
+      setSelectedClonePriceGroup(selectedPriceGroup);
+      
+      // Pre-fill channel and billing cycle from selected price group
+      setSelectedChannel(selectedPriceGroup.channel);
+      setSelectedBillingCycle(selectedPriceGroup.billingCycle);
+      setSelectedPriceGroupAction('create'); // Always create new when cloning
       setSelectedExistingPriceGroup(null);
-      form.setFieldsValue({ 
-        priceGroupSelection: value 
+      
+      // Update form values
+      form.setFieldsValue({
+        clonePriceGroup: priceGroupId,
+        channel: selectedPriceGroup.channel,
+        billingCycle: selectedPriceGroup.billingCycle
+        // No priceGroupSelection needed in clone mode since we don't show that dropdown
       });
-    } else if (value.startsWith('update-')) {
-      const priceGroupId = value.replace('update-', '');
-      const selectedPriceGroup = existingPriceGroups.find((pg: any) => pg.id === priceGroupId);
-      setSelectedPriceGroupAction('update');
-      setSelectedExistingPriceGroup(selectedPriceGroup);
-      form.setFieldsValue({ 
-        priceGroupSelection: value 
+      
+      // Reset LIX fields (user can add their own)
+      setSelectedLixKey(null);
+      setSelectedLixTreatment(null);
+      form.setFieldsValue({
+        lixKey: undefined,
+        lixTreatment: undefined
       });
+      
+      handleFormChange();
     }
-    handleFormChange();
   };
 
-  // Progressive disclosure handlers
-  const handleAddLixExperiment = () => {
-    setLixSectionExpanded(true);
+  // Handle radio selection for clone price groups
+  const handleRadioClonePriceGroupChange = (e: any) => {
+    handleClonePriceGroupChange(e.target.value);
   };
 
-  const handleLixKeyChange = (value: string) => {
-    setSelectedLixKey(value);
-    setSelectedLixTreatment(null); // Clear treatment when key changes
-    form.setFieldsValue({ lixTreatment: null });
-    setLixKeySearchValue(''); // Clear search value
-    handleFormChange();
-  };
-
-  const handleLixTreatmentChange = (value: string) => {
-    setSelectedLixTreatment(value);
-    setLixTreatmentSearchValue(''); // Clear search value
-    handleFormChange();
-  };
-
-  const handleLixKeySearch = (value: string) => {
-    setLixKeySearchValue(value);
-  };
-
-  const handleLixTreatmentSearch = (value: string) => {
-    setLixTreatmentSearchValue(value);
-  };
+  // Reset clone search when creation method changes
+  React.useEffect(() => {
+    if (creationMethod !== 'clone') {
+      setClonePriceGroupSearch('');
+      setSelectedClonePriceGroup(null);
+    }
+  }, [creationMethod]);
 
   // Trigger context update when key state variables change
   React.useEffect(() => {
@@ -282,30 +242,6 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     }
   }, [selectedChannel, selectedBillingCycle, selectedPriceGroupAction, selectedExistingPriceGroup, selectedLixKey, selectedLixTreatment]);
 
-  // Check if search value for LIX key is new (not in existing options)
-  const isNewLixKey = React.useMemo(() => {
-    if (!lixKeySearchValue.trim()) return false;
-    return !lixData.keys.some(key => 
-      key.toLowerCase() === lixKeySearchValue.toLowerCase()
-    );
-  }, [lixKeySearchValue, lixData.keys]);
-
-  // Check if selected LIX key is new (doesn't exist in product data)
-  const isSelectedLixKeyNew = React.useMemo(() => {
-    if (!selectedLixKey) return false;
-    return !lixData.keys.some(key => 
-      key.toLowerCase() === selectedLixKey.toLowerCase()
-    );
-  }, [selectedLixKey, lixData.keys]);
-
-  // Check if search value for LIX treatment is new (not in existing options)
-  const isNewLixTreatment = React.useMemo(() => {
-    if (!lixTreatmentSearchValue.trim() || !selectedLixKey || isSelectedLixKeyNew) return false;
-    const existingTreatments = lixData.treatments[selectedLixKey] || [];
-    return !existingTreatments.some(treatment => 
-      treatment.toLowerCase() === lixTreatmentSearchValue.toLowerCase()
-    );
-  }, [lixTreatmentSearchValue, selectedLixKey, lixData.treatments, isSelectedLixKeyNew]);
 
   return (
     <div style={{ padding: '24px 0' }}>
@@ -317,18 +253,123 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
         style={{ maxWidth: '800px', margin: '0 auto' }}
       >
 
-          {/* Channel Selection - Always Visible (Full Width) */}
-          <Form.Item
-            name="channel"
-            label="Sales channel"
-            rules={[{ required: true, message: 'Please select a sales channel' }]}
-          >
-            <Select 
-              placeholder="Choose sales channel"
-              size="large"
-              style={{ width: '100%' }}
-              onChange={handleChannelChange}
+          {/* Clone Price Group Selection - Show Only in Clone Mode */}
+          {creationMethod === 'clone' && (
+            <div style={{ marginBottom: '24px' }}>
+              {/* Label */}
+              <div style={{ 
+                marginBottom: '8px', 
+                fontSize: '14px', 
+                fontWeight: '500',
+                color: token.colorText 
+              }}>
+                Choose price group to clone
+              </div>
+              
+              {/* Search Input */}
+              <Input
+                placeholder="Search price groups..."
+                value={clonePriceGroupSearch}
+                onChange={(e) => setClonePriceGroupSearch(e.target.value)}
+                style={{ marginBottom: '16px' }}
+                allowClear
+              />
+              
+              {/* Radio Cards */}
+              <Form.Item
+                name="clonePriceGroup"
+                rules={[{ required: true, message: 'Please select a price group to clone from' }]}
+              >
+                <Radio.Group
+                  value={selectedClonePriceGroup?.id}
+                  onChange={handleRadioClonePriceGroupChange}
+                  style={{ width: '100%' }}
+                >
+                  <div style={{ width: '100%' }}>
+                    {filteredClonePriceGroups.map((priceGroup: any, index: number) => (
+                      <div key={priceGroup.id}>
+                        <div
+                          onClick={() => handleClonePriceGroupChange(priceGroup.id)}
+                          style={{
+                            padding: index === 0 ? '8px 0 20px 0' : index === filteredClonePriceGroups.length - 1 ? '20px 0 8px 0' : '20px 0',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            transition: 'background-color 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = token.colorFillTertiary || token.colorBgTextHover;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                            <Radio value={priceGroup.id} style={{ pointerEvents: 'none' }} />
+                            <div style={{ 
+                              fontSize: token.fontSize, 
+                              color: token.colorText,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              flex: 1
+                            }}>
+                              <span style={{ fontWeight: '500' }}>{priceGroup.id}</span>
+                              <span style={{ color: token.colorTextSecondary }}>
+                                {priceGroup.channel} • {priceGroup.billingCycle}
+                                {priceGroup.lix && ` • ${priceGroup.lix.key} (${priceGroup.lix.treatment})`}
+                              </span>
+                            </div>
+                          </div>
+                          <div style={{ 
+                            fontSize: token.fontSize, 
+                            color: token.colorTextSecondary, 
+                            fontWeight: '500',
+                            marginLeft: '16px'
+                          }}>
+                            {priceGroup.pricePoints?.length || 0} price points
+                          </div>
+                        </div>
+                        {index < filteredClonePriceGroups.length - 1 && (
+                          <div style={{
+                            height: '1px',
+                            backgroundColor: token.colorBorder,
+                            margin: '0'
+                          }} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Radio.Group>
+              </Form.Item>
+              
+              {filteredClonePriceGroups.length === 0 && clonePriceGroupSearch && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '32px', 
+                  color: token.colorTextSecondary 
+                }}>
+                  No price groups found matching "{clonePriceGroupSearch}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Channel Selection - Only show in blank mode */}
+          {creationMethod !== 'clone' && (
+            <Form.Item
+              name="channel"
+              label="Sales channel"
+              rules={[{ required: true, message: 'Please select a sales channel' }]}
             >
+              <Select 
+                placeholder="Choose sales channel"
+                size="large"
+                style={{ width: '100%' }}
+                onChange={handleChannelChange}
+              >
               {channelCategories.existing.length > 0 && (
                 <OptGroup label="Existing">
                   {channelCategories.existing.map(channel => (
@@ -346,12 +387,13 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
                     </Option>
                   ))}
                 </OptGroup>
-              )}
-            </Select>
-          </Form.Item>
+                )}
+              </Select>
+            </Form.Item>
+          )}
 
-          {/* Billing Cycle - Show Only After Channel Selected */}
-          {selectedChannel && (
+          {/* Billing Cycle - Only show in blank mode after channel selected */}
+          {creationMethod !== 'clone' && selectedChannel && (
             <Form.Item
               name="billingCycle"
               label="Billing cycle"
@@ -384,211 +426,45 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
             </Form.Item>
           )}
 
-          {/* Price Group Selection - Show After Channel and Billing Cycle Selected */}
-          {selectedChannel && selectedBillingCycle && (
-            <Form.Item
-              name="priceGroupSelection"
-              label="Select price group"
-              rules={[{ required: true, message: 'Please select a price group option' }]}
-              style={{ marginBottom: '16px' }}
-            >
-              <Select
-                placeholder="Search by ID or choose option"
-                size="large"
-                showSearch
-                allowClear
-                filterOption={(input, option) => {
-                  const searchTerm = input.toLowerCase();
-                  const optionValue = option?.value?.toString().toLowerCase() || '';
-                  
-                  // Only search existing price group IDs (always show create option)
-                  if (optionValue === 'create') return true;
-                  return optionValue.includes(searchTerm);
-                }}
-                onChange={handlePriceGroupSelectionChange}
-                style={{ width: '100%' }}
-              >
-                {/* Always show "Create new" as first option */}
-                <Option value="create">
-                  + New price group
-                </Option>
-                
-                {/* List all existing price groups */}
-                {existingPriceGroups.map((priceGroup: any) => (
-                  <Option 
-                    key={priceGroup.id}
-                    value={`update-${priceGroup.id}`}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <a
-                        href={`/product/${product.id}/price-group/${priceGroup.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ 
-                          color: token.colorPrimary,
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        {priceGroup.id}
-                        <Text style={{ fontSize: '12px' }}>🔗</Text>
-                      </a>
-                      <span style={{ color: token.colorTextSecondary }}>
-                        ({priceGroup.activePriceCount}+ prices, Valid {priceGroup.mostRecentValidDate})
-                      </span>
-                    </div>
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
-
-          {/* Add LIX Experiment Button - Show after price group selection if LIX not expanded */}
-          {selectedChannel && selectedBillingCycle && !lixSectionExpanded && (
-            <div style={{ marginBottom: '16px' }}>
-              <Button 
-                type="link" 
-                icon={<Plus size={14} />}
-                onClick={handleAddLixExperiment}
-                style={{ padding: '0', height: 'auto' }}
-              >
-                Add LIX experiment
-              </Button>
-            </div>
-          )}
-
-          {/* LIX Experiment Section - Show Only When Expanded */}
-          {selectedChannel && selectedBillingCycle && lixSectionExpanded && (
+          {/* LIX Experiment Section - Simple text fields */}
+          {/* Show after channel/billing cycle selection in blank mode, or after clone selection in clone mode */}
+          {((creationMethod === 'blank' && selectedChannel && selectedBillingCycle) || 
+            (creationMethod === 'clone' && selectedClonePriceGroup)) && (
             <div style={{ marginBottom: '16px' }}>
               <Space direction="vertical" style={{ width: '100%' }}>
-                {/* LIX Key Selection */}
+                {/* LIX Key - Simple text input */}
                 <Form.Item
                   name="lixKey"
-                  label="LIX key"
-                    help="Type to add new key"
-                  >
-                    <Select 
-                      placeholder="Select existing or enter new key"
-                      size="large"
-                      allowClear
-                      showSearch
-                      onChange={handleLixKeyChange}
-                      onSearch={handleLixKeySearch}
-                      searchValue={lixKeySearchValue}
-                      style={{ 
-                        width: '100%',
-                        // Force placeholder color to match theme
-                        '--placeholder-color': token.colorTextPlaceholder,
-                      } as React.CSSProperties}
-                      className="lix-key-select"
-                      notFoundContent={
-                        <div style={{ padding: '12px', textAlign: 'center' }}>
-                          <Text style={{ color: token.colorTextTertiary }}>
-                            No lix keys. Type to add new key
-                          </Text>
-                        </div>
-                      }
-                      dropdownRender={(menu) => (
-                        <div>
-                          {menu}
-                          {isNewLixKey && lixKeySearchValue && (
-                            <div
-                              style={{
-                                padding: '8px 12px',
-                                cursor: 'pointer',
-                                borderTop: `1px solid ${token.colorBorder}`,
-                                color: token.colorPrimary,
-                                backgroundColor: token.colorBgTextHover
-                              }}
-                              onClick={() => {
-                                const newValue = lixKeySearchValue.trim();
-                                form.setFieldsValue({ lixKey: newValue });
-                                handleLixKeyChange(newValue);
-                              }}
-                            >
-                              <Plus size={14} style={{ marginRight: '8px' }} />
-                              New LIX key: "{lixKeySearchValue}"
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    >
-                      {lixKeyOptions.map(option => (
-                        <Option key={option.value} value={option.value}>
-                          {String(option.label)}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
+                  label="LIX key (optional)"
+                >
+                  <Input
+                    placeholder="Enter LIX key"
+                    size="large"
+                    allowClear
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedLixKey(value || null);
+                      handleFormChange();
+                    }}
+                  />
+                </Form.Item>
 
-                  {/* LIX Treatment Selection - only show after key is selected */}
-                  {selectedLixKey && (
-                    <Form.Item
-                      name="lixTreatment"
-                      label="LIX treatment"
-                      help="Type to add new treatment"
-                    >
-                      {isSelectedLixKeyNew ? (
-                        /* New LIX Key = Simple text input for treatment */
-                        <Input
-                          placeholder="Enter treatment name"
-                          size="large"
-                          onChange={(e) => handleLixTreatmentChange(e.target.value)}
-                        />
-                      ) : (
-                        /* Existing LIX Key = Dropdown with existing treatments + create new */
-                        <Select 
-                          placeholder="Select existing or enter new treatment"
-                          size="large"
-                          allowClear
-                          showSearch
-                          onChange={handleLixTreatmentChange}
-                          onSearch={handleLixTreatmentSearch}
-                          searchValue={lixTreatmentSearchValue}
-                          notFoundContent={
-                            <div style={{ padding: '12px', textAlign: 'center' }}>
-                              <Text style={{ color: token.colorTextTertiary }}>
-                                No lix treatments. Type to add new treatment
-                              </Text>
-                            </div>
-                          }
-                          dropdownRender={(menu) => (
-                            <div>
-                              {menu}
-                              {isNewLixTreatment && lixTreatmentSearchValue && (
-                                <div
-                                  style={{
-                                    padding: '8px 12px',
-                                    cursor: 'pointer',
-                                    borderTop: `1px solid ${token.colorBorder}`,
-                                    color: token.colorPrimary,
-                                    backgroundColor: token.colorBgTextHover
-                                  }}
-                                  onClick={() => {
-                                    const newValue = lixTreatmentSearchValue.trim();
-                                    form.setFieldsValue({ lixTreatment: newValue });
-                                    handleLixTreatmentChange(newValue);
-                                  }}
-                                >
-                                  <Plus size={14} style={{ marginRight: '8px' }} />
-                                  New LIX treatment: "{lixTreatmentSearchValue}"
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        >
-                          {lixTreatmentOptions.map(option => (
-                            <Option key={option.value} value={option.value}>
-                              {String(option.label)}
-                            </Option>
-                          ))}
-                        </Select>
-                      )}
-                    </Form.Item>
-                  )}
+                {/* LIX Treatment - Simple text input */}
+                <Form.Item
+                  name="lixTreatment"
+                  label="LIX treatment (optional)"
+                >
+                  <Input
+                    placeholder="Enter LIX treatment"
+                    size="large"
+                    allowClear
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedLixTreatment(value || null);
+                      handleFormChange();
+                    }}
+                  />
+                </Form.Item>
               </Space>
             </div>
           )}

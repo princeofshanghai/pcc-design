@@ -1,11 +1,12 @@
 import React from 'react';
-import { Table, Typography, Tooltip, theme } from 'antd';
+import { Table, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { Sku, Status, Product, SalesChannel, BillingCycle, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
 import OverrideIndicator from '../pricing/OverrideIndicator';
+import InfoPopover from '../shared/InfoPopover';
 import { getChannelIcon } from '../../utils/channelIcons';
 import { ChevronRight } from 'lucide-react';
 
@@ -196,13 +197,13 @@ export const getSkuTableColumns = (
         const tooltipTitle = `LIX Key: ${sku.lix.key}\nTreatment: ${sku.lix.treatment}`;
         
         return (
-          <Tooltip title={tooltipTitle} placement="top">
+          <InfoPopover content={tooltipTitle} placement="top">
             <div style={{ cursor: 'pointer' }}>
               <Text>{lixKey}</Text>
               <Text style={{ color: token.colorTextSecondary }}> | </Text>
               <Text style={{ color: token.colorTextSecondary }}>{sku.lix.treatment}</Text>
             </div>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,
@@ -230,7 +231,7 @@ export const getSkuTableColumns = (
         const percentageChange = generateFakePercentageChange(isActive);
         
         return (
-          <Tooltip title="Updated a week ago" placement="top">
+          <InfoPopover content="Updated a week ago" placement="top">
             <div>
               {/* First row: Number + percentage change indicator */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -261,7 +262,7 @@ export const getSkuTableColumns = (
                 {isFieldChannel ? 'contracts' : 'subscriptions'}
               </Typography.Text>
             </div>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,
@@ -280,11 +281,38 @@ export const getSkuTableColumns = (
     ...allVisibleColumnKeys.filter(key => !columnOrder.includes(key))
   ];
   
-  return formatColumnTitles(
+  const baseColumns = formatColumnTitles(
     orderedColumnKeys
       .map(key => allColumnsMap[key])
       .filter(Boolean)
   );
+
+  // Action column (always visible, fixed to right) - visual indicator for clickability
+  const actionColumn = {
+    title: '', // No column title
+    key: 'actions',
+    fixed: 'right' as const,
+    width: 48,
+    className: 'table-action-column',
+    render: (_: any, _record: Sku) => (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+      }}>
+        <ChevronRight 
+          size={16} 
+          style={{ 
+            color: token.colorTextTertiary,
+          }} 
+        />
+      </div>
+    ),
+  };
+
+  // Combine base columns with action column
+  return [...baseColumns, actionColumn];
 };
 
 const SkuListTable: React.FC<SkuListTableProps> = ({ 
@@ -300,7 +328,7 @@ const SkuListTable: React.FC<SkuListTableProps> = ({
   return (
     <div style={{ marginTop: '16px' }}>
       <Table
-        size="small"
+        size="middle"
         columns={columns}
         dataSource={skus}
         rowKey="id"

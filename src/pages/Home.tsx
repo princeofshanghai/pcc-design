@@ -75,6 +75,7 @@ const Home: React.FC = () => {
       ...prev,
       customers: true, // Always show customers column
       folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
+      status: true, // Always show status column
     }));
   }, [currentFolder]);
 
@@ -85,7 +86,7 @@ const Home: React.FC = () => {
     customers: true, // Show customers column by default
     folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
     channel: true,  // Toggleable
-    status: false,  // Hidden by default (status shown inline with product name)
+    status: true,   // Show status column by default
   });
 
   // Column order state for ProductListTable
@@ -254,7 +255,7 @@ const Home: React.FC = () => {
                 name: true,     // Always visible (required)
                 folder: !currentFolder, // Hide folder column when in a specific folder
                 channel: true,  // Toggleable, default visible
-                status: false,  // Hidden by default (status shown inline with product name)
+                status: true,   // Show status column by default
               },
               defaultColumnOrder: DEFAULT_PRODUCT_COLUMNS,
             }}

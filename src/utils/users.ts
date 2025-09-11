@@ -5,23 +5,23 @@ export interface TeamMember {
 
 export const TEAM_MEMBERS = {
   CHARLES_HU: {
-    fullName: 'Charles Hu',
+    fullName: 'charles hu',
     ldap: 'chhu'
   },
   LUXI_KANAZIR: {
-    fullName: 'Luxi Kanazir',
+    fullName: 'luxi kanazir',
     ldap: 'lkanazir'
   },
   ANTHONY_HOMAN: {
-    fullName: 'Anthony Homan',
+    fullName: 'anthony homan',
     ldap: 'ahoman'
   },
-  TANMAY_KHEMKA: {
-    fullName: 'Tanmay Khemka',
-    ldap: 'tkhemka'
+  GEORGE_SO: {
+    fullName: 'george so',
+    ldap: 'geso'
   },
   JORDAN_BADER: {
-    fullName: 'Jordan Bader',
+    fullName: 'jordan bader',
     ldap: 'jbader'
   }
 } as const;

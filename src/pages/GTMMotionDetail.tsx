@@ -1,11 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Typography, Space, Tabs, Tag, theme, Steps, Table, Button } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { Check, X, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Typography, Space, Tabs, theme, Steps, Button, Tag } from 'antd';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockGTMMotions } from '../utils/mock-data';
-import type { GTMMotionStatus, GTMItem, ApprovalRequirement } from '../utils/types';
+import type { GTMMotionStatus } from '../utils/types';
 import { formatFullDate } from '../utils/formatters';
 import {
   PageHeader,
@@ -13,19 +11,23 @@ import {
   AttributeDisplay,
   AttributeGroup,
   CopyableId,
-  InfoPopover,
+  GTMStatusTag,
+  GTMItemsTable,
 } from '../components';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 // Status progression for timeline
 const STATUS_PROGRESSION: GTMMotionStatus[] = [
   'Draft',
-  'Submitted', 
-  'Pending approvals',
-  'Approved',
-  'Pending to prod',
-  'Complete'
+  'Submitted',
+  'Activating in EI',
+  'Ready for Approvals',
+  'Review in Progress',
+  'Approvals Completed', 
+  'Scheduled for Activation',
+  'Activating in Prod',
+  'Completed'
 ];
 
 // Get current step index based on status
@@ -33,193 +35,24 @@ const getCurrentStep = (status: GTMMotionStatus): number => {
   return STATUS_PROGRESSION.indexOf(status);
 };
 
-// Status descriptions for timeline tooltips
+// Status descriptions for the vertical timeline
 const getStatusDescription = (status: GTMMotionStatus): string => {
-  switch (status) {
-    case 'Draft': 
-      return 'Product managers and business stakeholders can collaborate and add/remove items. All fields are editable.';
-    case 'Submitted': 
-      return 'Motion has been submitted for processing. Only name, description, and activation date can be edited. Items are locked.';
-    case 'Pending approvals': 
-      return 'Waiting for required approvals from stakeholders. No changes can be made except to cancel the motion.';
-    case 'Approved': 
-      return 'All approvals completed. Motion is ready for production deployment on the scheduled activation date.';
-    case 'Pending to prod': 
-      return 'Deployment to production is in progress. This process takes up to 24 hours. Motion cannot be cancelled.';
-    case 'Complete': 
-      return 'All changes have been successfully deployed to production. Motion is now historical.';
-    default: 
-      return 'Unknown status';
-  }
+  const descriptions: Record<GTMMotionStatus, string> = {
+    'Draft': 'Add, edit, or remove items. Collaborate with your team before submitting.',
+    'Submitted': 'Motion is in the system. Items are locked, but details can still be updated.',
+    'Activating in EI': 'Changes are being deployed to testing environment. No action needed.',
+    'Ready for Approvals': 'Motion is ready. You can start the approval process when ready.',
+    'Review in Progress': 'Approval requests sent to stakeholders. Motion is locked during review.',
+    'Approvals Completed': 'All approvals complete! Set your activation date (minimum 72 hours).',
+    'Scheduled for Activation': 'Motion is approved and scheduled. Will activate automatically at the scheduled time.',
+    'Activating in Prod': 'Changes are going live now. This process cannot be stopped.',
+    'Completed': 'Success! All changes are now live.',
+    'Cancelled': 'Motion was cancelled. No changes were made. Can be used as a template.',
+  };
+  return descriptions[status];
 };
 
-// Get approval status icon
-const getApprovalIcon = (status: string) => {
-  switch (status) {
-    case 'Approved':
-      return <Check size={14} style={{ color: '#22c55e' }} />;
-    case 'Rejected': 
-      return <X size={14} style={{ color: '#ef4444' }} />;
-    case 'Pending':
-    default:
-      return <Clock size={14} style={{ color: '#f59e0b' }} />;
-  }
-};
 
-// Enhanced GTM Items Table with Approvals
-interface EnhancedGTMItemsTableProps {
-  items: GTMItem[];
-}
-
-const EnhancedGTMItemsTable: React.FC<EnhancedGTMItemsTableProps> = ({ items }) => {
-  const { token } = theme.useToken();
-
-  // Calculate overall approval progress
-  const allApprovers = useMemo(() => {
-    const approverMap = new Map<string, ApprovalRequirement>();
-    
-    items.forEach(item => {
-      item.approvalRequirements.forEach(req => {
-        const existing = approverMap.get(req.team);
-        if (!existing || 
-            (req.status === 'Approved' && existing.status !== 'Approved') ||
-            (req.status === 'Pending' && existing.status === 'Rejected')) {
-          approverMap.set(req.team, req);
-        }
-      });
-    });
-
-    return Array.from(approverMap.values()).sort((a, b) => a.team.localeCompare(b.team));
-  }, [items]);
-
-  const approvedCount = allApprovers.filter(req => req.status === 'Approved').length;
-  const totalCount = allApprovers.length;
-
-  const columns: ColumnsType<GTMItem> = [
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      width: 80,
-      render: (type: string) => (
-        <Tag color="blue" style={{ fontSize: '10px', lineHeight: '18px' }}>
-          {type}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Product', 
-      dataIndex: 'productName',
-      key: 'productName',
-      width: 160,
-      render: (productName: string, record: GTMItem) => (
-        <div>
-          <Link to={`/product/${record.productId}`} onClick={(e) => e.stopPropagation()}>
-            <Text style={{ fontWeight: 500, fontSize: '13px' }}>{productName}</Text>
-          </Link>
-          <br />
-          <Text style={{ color: token.colorTextSecondary, fontSize: '12px' }}>
-            {record.details}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Approval Progress',
-      dataIndex: 'approvalRequirements',
-      key: 'approvalRequirements',
-      render: (requirements: ApprovalRequirement[]) => (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-          {requirements.map((req, index) => (
-            <InfoPopover
-              key={index}
-              content={
-                req.status === 'Approved' && req.approvedBy 
-                  ? `Approved by ${req.approvedBy} on ${formatFullDate(req.approvedDate || '').split(' at ')[0]}`
-                  : `${req.team} approval ${req.status.toLowerCase()}`
-              }
-              placement="top"
-            >
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                cursor: 'help'
-              }}>
-                {getApprovalIcon(req.status)}
-                <Text style={{ fontSize: '12px' }}>{req.team}</Text>
-                {req.status === 'Approved' && req.approvedDate && (
-                  <Text style={{ 
-                    fontSize: '11px', 
-                    color: token.colorTextTertiary,
-                    fontVariantNumeric: 'tabular-nums'
-                  }}>
-                    ({formatFullDate(req.approvedDate).split(' at ')[0].split(', ')[1]})
-                  </Text>
-                )}
-              </div>
-            </InfoPopover>
-          ))}
-        </div>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status', 
-      key: 'status',
-      width: 120,
-      render: (_: string, record: GTMItem) => {
-        const allApproved = record.approvalRequirements.every(req => req.status === 'Approved');
-        const displayStatus = allApproved ? 'Ready' : 'Pending';
-        const displayColor = allApproved ? 'success' : 'warning';
-
-        return (
-          <Tag color={displayColor} style={{ fontSize: '11px' }}>
-            {displayStatus}
-          </Tag>
-        );
-      },
-    },
-  ];
-
-  return (
-    <div>
-      {/* Motion Approval Progress Header */}
-      <div style={{ 
-        marginBottom: '20px',
-        padding: '16px',
-        backgroundColor: token.colorBgLayout,
-        borderRadius: token.borderRadius,
-        border: `1px solid ${token.colorBorder}`
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={{ fontWeight: 500, fontSize: '14px' }}>Motion Approval Progress</Text>
-          <Text style={{ fontWeight: 500, fontSize: '14px' }}>
-            {approvedCount}/{totalCount} teams approved
-          </Text>
-        </div>
-        <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {allApprovers.map((req, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              {getApprovalIcon(req.status)}
-              <Text style={{ fontSize: '12px' }}>{req.team}</Text>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Enhanced Items Table */}
-      <Table
-        size="small"
-        columns={columns}
-        dataSource={items}
-        rowKey="id"
-        pagination={false}
-        showHeader={true}
-      />
-    </div>
-  );
-};
 
 const GTMMotionDetail: React.FC = () => {
   const { token } = theme.useToken();
@@ -249,8 +82,8 @@ const GTMMotionDetail: React.FC = () => {
     switch (motion.status) {
       case 'Draft':
         actions.push(
-          <Button key="edit" type="primary">Edit Motion</Button>,
-          <Button key="submit">Submit for Approval</Button>
+          <Button key="edit" type="default">Edit Motion</Button>,
+          <Button key="submit" type="primary">Submit GTM Motion</Button>
         );
         break;
       case 'Submitted':
@@ -258,14 +91,38 @@ const GTMMotionDetail: React.FC = () => {
           <Button key="edit" type="default">Edit Details</Button>
         );
         break;
-      case 'Pending approvals':
+      case 'Activating in EI':
+        // No actions during EI deployment
+        break;
+      case 'Ready for Approvals':
+        actions.push(
+          <Button key="start-review" type="primary">Start Review</Button>
+        );
+        break;
+      case 'Review in Progress':
         actions.push(
           <Button key="cancel" danger>Cancel Motion</Button>
         );
         break;
-      case 'Approved':
+      case 'Approvals Completed':
         actions.push(
-          <Button key="schedule" type="primary">Schedule Activation</Button>
+          <Button key="set-date" type="primary">Set Activation Date</Button>
+        );
+        break;
+      case 'Scheduled for Activation':
+        actions.push(
+          <Button key="cancel" danger>Cancel Motion</Button>
+        );
+        break;
+      case 'Activating in Prod':
+        // Point of no return - no actions available
+        break;
+      case 'Completed':
+        // Historical - no actions needed
+        break;
+      case 'Cancelled':
+        actions.push(
+          <Button key="clone" type="default">Clone Motion</Button>
         );
         break;
     }
@@ -309,7 +166,84 @@ const GTMMotionDetail: React.FC = () => {
       label: `Items & Approvals (${totalItems})`,
       children: (
         <PageSection title="Items & Approvals" hideDivider={true}>
-          <EnhancedGTMItemsTable items={motion.items} />
+          <GTMItemsTable items={motion.items} />
+        </PageSection>
+      ),
+    },
+    {
+      key: 'activation-progress',
+      label: 'Activation Progress',
+      children: (
+        <PageSection title="" hideDivider={true}>
+          <div style={{ maxWidth: 600 }}>
+            <div
+              className="vertical-timeline"
+              style={{
+                '--timeline-spacing': '32px'
+              } as React.CSSProperties}
+            >
+              <style>
+                {`
+                  .vertical-timeline .ant-steps-vertical .ant-steps-item {
+                    padding-bottom: var(--timeline-spacing) !important;
+                  }
+                  .vertical-timeline .ant-steps-vertical .ant-steps-item:last-child {
+                    padding-bottom: 0 !important;
+                  }
+                `}
+              </style>
+              <Steps
+                direction="vertical"
+                current={currentStep}
+                status={motion.status === 'Cancelled' ? 'error' : 'process'}
+                items={STATUS_PROGRESSION.map((status, index) => {
+                  const isCurrent = index === currentStep;
+                  const isCompleted = index < currentStep;
+                  const isCancelled = motion.status === 'Cancelled';
+                  
+                  return {
+                    title: (
+                      <div style={{ 
+                        fontSize: 14, // 14px as requested
+                        fontWeight: 500,
+                        marginBottom: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8
+                      }}>
+                        {status}
+                        {isCurrent && !isCancelled && (
+                          <Tag 
+                            color="blue"
+                            style={{ 
+                              fontSize: token.fontSizeSM,
+                              lineHeight: 1.2,
+                              padding: '1px 6px'
+                            }}
+                          >
+                            Current
+                          </Tag>
+                        )}
+                      </div>
+                    ),
+                    description: (
+                      <div style={{ 
+                        color: token.colorTextSecondary, 
+                        fontSize: token.fontSize, // 13px from theme
+                        fontWeight: 400, // Regular weight
+                        lineHeight: 1.4
+                      }}>
+                        {getStatusDescription(status)}
+                      </div>
+                    ),
+                    status: isCancelled ? 'error' : 
+                            isCompleted ? 'finish' :
+                            isCurrent ? 'process' : 'wait'
+                  };
+                })}
+              />
+            </div>
+          </div>
         </PageSection>
       ),
     },
@@ -320,46 +254,12 @@ const GTMMotionDetail: React.FC = () => {
       <PageHeader
         entityType="GTM Motion"
         title={motion.name}
-        tagContent={
-          <InfoPopover 
-            content={getStatusDescription(motion.status)}
-            placement="bottom"
-            maxWidth={320}
-          >
-            <Tag 
-              color={motion.status === 'Complete' ? 'success' : 
-                     motion.status === 'Approved' ? 'success' :
-                     motion.status === 'Pending approvals' ? 'warning' :
-                     motion.status === 'Submitted' ? 'processing' :
-                     'default'}
-              style={{ cursor: 'help', fontSize: '12px' }}
-            >
-              {motion.status}
-            </Tag>
-          </InfoPopover>
-        }
+        tagContent={<GTMStatusTag status={motion.status} />}
         rightAlignedId={motion.id}
         actions={renderActions()}
         compact
       />
 
-      {/* Status Timeline */}
-      <div style={{ 
-        padding: '20px 24px', 
-        backgroundColor: token.colorBgContainer,
-        borderRadius: token.borderRadius,
-        border: `1px solid ${token.colorBorder}`,
-        marginBottom: '8px'
-      }}>
-        <Steps
-          current={currentStep}
-          size="small"
-          items={STATUS_PROGRESSION.map((status, index) => ({
-            title: status,
-            description: index === currentStep ? 'Current' : undefined,
-          }))}
-        />
-      </div>
 
       <Tabs
         activeKey={activeTab}

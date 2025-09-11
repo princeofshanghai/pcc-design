@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, theme, Tag, Tooltip } from 'antd';
+import { Table, theme, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -7,6 +7,7 @@ import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
 import SecondaryText from '../shared/SecondaryText';
 import VerticalSeparator from '../shared/VerticalSeparator';
+import InfoPopover from '../shared/InfoPopover';
 import { getChannelIcon } from '../../utils/channelIcons';
 import { formatColumnTitles, toSentenceCase, formatCustomerNumber, generateFakePercentageChange } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
@@ -77,7 +78,6 @@ export const getProductListTableColumns = (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontWeight: 500 }}>{name}</span>
-            <StatusTag status={record.status} showLabel={false} variant="small" />
             {record.isBundle && (
               <Tag>Bundle</Tag>
             )}
@@ -158,7 +158,7 @@ export const getProductListTableColumns = (
         const percentageChange = generateFakePercentageChange(isActive);
         
         return (
-          <Tooltip title="Updated a week ago" placement="top">
+          <InfoPopover content="Updated a week ago" placement="top">
             <div>
               {/* First row: Number + percentage change indicator */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -186,7 +186,7 @@ export const getProductListTableColumns = (
                 {showContracts ? 'contracts' : 'subscriptions'}
               </SecondaryText>
             </div>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     } : null,
@@ -250,7 +250,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
   return (
     <div style={{ marginTop: '16px' }}>
       <Table
-        size="small"
+        size="large"
         columns={columns}
         dataSource={products}
         rowKey="id"

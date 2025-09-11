@@ -70,15 +70,24 @@ const getEarliestValidFrom = (pricePoints: PricePoint[]): number => {
   return Math.min(...validFromDates);
 };
 
-export const usePriceGroupFilters = (initialSkus: Sku[]) => {
+interface InitialState {
+  channelFilters?: SalesChannel[];
+  billingCycleFilter?: string | null;
+  experimentFilter?: string | null;
+  statusFilters?: PriceGroupStatus[];
+  groupBy?: string;
+  sortOrder?: string;
+}
+
+export const usePriceGroupFilters = (initialSkus: Sku[], initialState: InitialState = {}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<SalesChannel | null>(null);
-  const [channelFilters, setChannelFilters] = useState<SalesChannel[]>([]);
-  const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(null);
-  const [experimentFilter, setExperimentFilter] = useState<string | null>(null);
-  const [statusFilters, setStatusFilters] = useState<PriceGroupStatus[]>([]);
-  const [groupBy, setGroupBy] = useState<string>('None');
-  const [sortOrder, setSortOrder] = useState<string>('None');
+  const [channelFilters, setChannelFilters] = useState<SalesChannel[]>(initialState.channelFilters || []);
+  const [billingCycleFilter, setBillingCycleFilter] = useState<string | null>(initialState.billingCycleFilter || null);
+  const [experimentFilter, setExperimentFilter] = useState<string | null>(initialState.experimentFilter || null);
+  const [statusFilters, setStatusFilters] = useState<PriceGroupStatus[]>(initialState.statusFilters || []);
+  const [groupBy, setGroupBy] = useState<string>(initialState.groupBy || 'None');
+  const [sortOrder, setSortOrder] = useState<string>(initialState.sortOrder || 'None');
 
   // Derive unique price groups and their associated SKUs
   const priceGroupMap = useMemo(() => {

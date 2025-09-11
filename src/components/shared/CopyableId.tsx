@@ -1,6 +1,7 @@
 import React from 'react';
-import { message, theme, Tooltip } from 'antd';
+import { message, theme } from 'antd';
 import { Copy, CheckCircle } from 'lucide-react';
+import InfoPopover from './InfoPopover';
 import './CopyableId.css';
 
 interface CopyableIdProps {
@@ -73,7 +74,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
   };
 
   return (
-    <Tooltip title="Click to copy">
+    <InfoPopover content="Click to copy" placement="top">
       <span
         className="copyable-id-container"
         style={{
@@ -107,7 +108,7 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
           }}
         />
       </span>
-    </Tooltip>
+    </InfoPopover>
   );
 };
 

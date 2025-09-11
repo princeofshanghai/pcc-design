@@ -1,5 +1,6 @@
 import React from 'react';
-import { Table, Tooltip, Space, theme } from 'antd';
+import { Table, Space, theme } from 'antd';
+import InfoPopover from '../shared/InfoPopover';
 import { Info } from 'lucide-react';
 import type { Attribute } from '../../utils/types';
 import type { ColumnsType } from 'antd/es/table';
@@ -22,9 +23,9 @@ const AttributeDictionaryTable: React.FC<AttributeDictionaryTableProps> = ({ att
       title: (
         <Space size={4}>
           <span>Domain</span>
-          <Tooltip title="This is the domain owner of the attribute. All other domains will read from the SOT for the values of this attribute">
+          <InfoPopover content="This is the domain owner of the attribute. All other domains will read from the SOT for the values of this attribute" placement="top">
             <Info size={12} strokeWidth={2} style={{ color: token.colorTextTertiary }} />
-          </Tooltip>
+          </InfoPopover>
         </Space>
       ),
       dataIndex: 'domain',

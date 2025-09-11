@@ -1,5 +1,6 @@
 import React from 'react';
-import { theme, Tooltip } from 'antd';
+import { theme } from 'antd';
+import InfoPopover from './InfoPopover';
 
 export type ChipVariant = 'default' | 'small';
 
@@ -105,9 +106,9 @@ const BaseChip: React.FC<BaseChipProps> = ({
 
   if (tooltip) {
     return (
-      <Tooltip title={tooltip}>
+      <InfoPopover content={tooltip} placement="top">
         {chipContent}
-      </Tooltip>
+      </InfoPopover>
     );
   }
 

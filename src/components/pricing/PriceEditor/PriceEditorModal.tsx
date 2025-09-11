@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Space, theme, Typography } from 'antd';
+import { Modal, Button, Space, theme, Typography, Radio } from 'antd';
 import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
 import ContextSelector from './ContextSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
@@ -7,7 +7,7 @@ import SimplePriceTable from './SimplePriceTable';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
 import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 interface PriceEditorModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ interface PriceEditorModalProps {
   product: any; // Full product data for context selection
   directEditMode?: boolean; // Skip Step 1 and go directly to Step 2
   prefilledContext?: any; // Pre-filled context for direct edit mode
+  initialCreationMethod?: 'blank' | 'clone' | null; // Pre-select creation method
 }
 
 const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
@@ -27,12 +28,32 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   product,
   directEditMode = false,
   prefilledContext = null,
+  initialCreationMethod = null,
 }) => {
   const { token } = theme.useToken();
   const [currentStep, setCurrentStep] = useState(directEditMode ? 1 : 0);
   const [selectedContext, setSelectedContext] = useState<any>(directEditMode ? prefilledContext : null);
   const [gtmMotionSelection, setGTMMotionSelection] = useState<GTMMotionSelection | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // New state for creation method - initialize with prop
+  const [creationMethod, setCreationMethod] = useState<'blank' | 'clone' | null>(initialCreationMethod);
+
+  // Reset state when modal opens or initialCreationMethod changes
+  React.useEffect(() => {
+    if (open) {
+      if (directEditMode) {
+        setCurrentStep(1);
+        setSelectedContext(prefilledContext);
+      } else {
+        setCurrentStep(0);
+        setSelectedContext(null);
+        setCreationMethod(initialCreationMethod);
+      }
+      setGTMMotionSelection(null);
+      setIsSaving(false);
+    }
+  }, [open, directEditMode, prefilledContext, initialCreationMethod]);
 
   const handleNext = () => {
     setCurrentStep(prev => Math.min(prev + 1, 2)); // Max step is 2 (0-indexed) - Step 3 total
@@ -50,6 +71,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     } else {
       setCurrentStep(0);
       setSelectedContext(null);
+      setCreationMethod(initialCreationMethod); // Reset to initial creation method
     }
     setGTMMotionSelection(null);
     setIsSaving(false);
@@ -58,6 +80,56 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
 
   const handleGTMMotionSelectionChange = (selection: GTMMotionSelection) => {
     setGTMMotionSelection(selection);
+  };
+
+  // Helper function to get dynamic title based on current flow
+  const getDynamicTitle = (): string => {
+    if (directEditMode) {
+      const priceGroupId = selectedContext?.existingPriceGroup?.id || prefilledContext?.existingPriceGroup?.id;
+      if (priceGroupId) {
+        return `Edit price group ${priceGroupId} in ${productName}`;
+      }
+      return `Edit price group in ${productName}`;
+    } else {
+      return `Create new price group in ${productName}`;
+    }
+  };
+
+  // Helper function to get dynamic subtitle based on current state  
+  const getDynamicSubtitle = (): React.ReactNode => {
+    // For edit mode: always show subtitle if we have context
+    if (directEditMode && selectedContext) {
+      return formatSubtitle(selectedContext);
+    }
+    
+    // For create mode: only show subtitle from Step 2 onwards when we have context
+    if (!directEditMode && currentStep >= 1 && selectedContext) {
+      return formatSubtitle(selectedContext);
+    }
+    
+    return null;
+  };
+
+  // Helper function to format subtitle consistently
+  const formatSubtitle = (context: any): React.ReactNode => {
+    const { channel, billingCycle, lixKey, lixTreatment } = context;
+    
+    if (!channel || !billingCycle) {
+      return null;
+    }
+
+    const parts = [channel, billingCycle];
+    
+    // Add LIX info if both key and treatment exist
+    if (lixTreatment && lixKey) {
+      parts.push(`${lixTreatment} (${lixKey})`);
+    }
+
+    return (
+      <Text style={{ fontSize: '14px', color: token.colorTextSecondary, marginTop: '4px', display: 'block', fontWeight: 400 }}>
+        {parts.join(' • ')}
+      </Text>
+    );
   };
 
   const handleSave = async () => {
@@ -130,14 +202,94 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     );
   };
 
+  const isCreationMethodValid = () => {
+    if (directEditMode) return true; // Skip validation for direct edit
+    
+    // Must select creation method
+    if (!creationMethod) return false;
+    
+    // Must have valid context
+    return isContextValid();
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
         return (
-          <ContextSelector 
-            product={product} 
-            onContextChange={handleContextChange} 
-          />
+          <div style={{ padding: '16px 0' }}>
+            {/* Creation Method Selection */}
+            <div style={{ marginBottom: '32px' }}>
+              <Radio.Group
+                value={creationMethod}
+                onChange={(e) => setCreationMethod(e.target.value)}
+                style={{ width: '100%' }}
+              >
+                <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
+                  {/* Create from blank card */}
+                 <div
+                   onClick={() => setCreationMethod('blank')}
+                   style={{
+                     flex: 1,
+                     padding: '16px',
+                     border: `1px solid ${creationMethod === 'blank' ? token.colorPrimary : token.colorBorder}`,
+                     borderRadius: token.borderRadius,
+                     backgroundColor: creationMethod === 'blank' ? token.colorPrimaryBg : token.colorBgContainer,
+                     cursor: 'pointer',
+                     transition: 'all 0.2s ease',
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '12px'
+                   }}
+                 >
+                   <Radio value="blank" style={{ pointerEvents: 'none' }} />
+                   <div>
+                     <div style={{ fontSize: '16px', fontWeight: '500' }}>
+                       Create from blank
+                     </div>
+                   </div>
+                 </div>
+
+                  {/* Clone from existing card */}
+                  <div
+                    onClick={() => setCreationMethod('clone')}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      border: `1px solid ${creationMethod === 'clone' ? token.colorPrimary : token.colorBorder}`,
+                      borderRadius: token.borderRadius,
+                      backgroundColor: creationMethod === 'clone' ? token.colorPrimaryBg : token.colorBgContainer,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}
+                  >
+                    <Radio value="clone" style={{ pointerEvents: 'none' }} />
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: '500' }}>
+                        Clone from existing
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Radio.Group>
+            </div>
+
+            {/* Context Selection - show when creation method selected */}
+            {creationMethod && (
+              <div>
+                <Title level={4} style={{ marginBottom: '16px' }}>
+                  {creationMethod === 'blank' ? 'Configure new price group' : 'Select source and configure'}
+                </Title>
+                <ContextSelector 
+                  product={product} 
+                  onContextChange={handleContextChange} 
+                  creationMethod={creationMethod}
+                />
+              </div>
+            )}
+          </div>
         );
       case 1:
         if (!selectedContext) {
@@ -195,10 +347,11 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   return (
     <Modal
       title={
-        <div style={{ position: 'relative' }}>
-          <Title level={3} style={{ margin: 0 }}>
-            {directEditMode ? 'Edit prices' : `Update prices for ${productName}`}
-          </Title>
+          <div style={{ position: 'relative' }}>
+            <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
+              {getDynamicTitle()}
+            </Title>
+            {getDynamicSubtitle()}
           {/* Full-width divider */}
           <div 
             style={{
@@ -314,7 +467,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 onClick={handleNext}
                 icon={<ArrowRight size={14} />}
                 size="middle"
-                disabled={currentStep === 0 ? !isContextValid() : false}
+                disabled={currentStep === 0 ? !isCreationMethodValid() : false}
               >
                 Continue
               </Button>

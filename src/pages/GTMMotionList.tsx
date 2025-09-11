@@ -1,10 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Space, Table, Typography, Tag, theme } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { useNavigate } from 'react-router-dom';
+import { Space } from 'antd';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockGTMMotions } from '../utils/mock-data';
-import type { GTMMotion, GTMMotionStatus, ColumnVisibility, ColumnOrder } from '../utils/types';
+import type { GTMMotionStatus, ColumnVisibility, ColumnOrder } from '../utils/types';
 import { 
   GTM_MOTION_COLUMNS, 
   DEFAULT_GTM_MOTION_COLUMNS, 
@@ -12,206 +10,14 @@ import {
   GTM_MOTION_GROUP_BY_OPTIONS,
   getFilterPlaceholder 
 } from '../utils/tableConfigurations';
-import { toSentenceCase, formatFullDate } from '../utils/formatters';
+import { toSentenceCase } from '../utils/formatters';
 import {
   PageHeader,
   FilterBar,
-  CopyableId,
-  InfoPopover,
+  GTMMotionTable,
 } from '../components';
 
-const { Text } = Typography;
 
-// GTM Motion status colors mapping
-const getStatusColor = (status: GTMMotionStatus): string => {
-  switch (status) {
-    case 'Draft': return 'default';           // Gray - still working on it
-    case 'Submitted': return 'processing';    // Blue - in the system
-    case 'Pending approvals': return 'warning';  // Orange - waiting for people
-    case 'Approved': return 'success';        // Green - good to go
-    case 'Pending to prod': return 'purple';  // Purple - technical deployment
-    case 'Complete': return 'success';        // Green - all done
-    default: return 'default';
-  }
-};
-
-// Status descriptions for tooltips
-const getStatusDescription = (status: GTMMotionStatus): string => {
-  switch (status) {
-    case 'Draft': 
-      return 'Product managers and business stakeholders can collaborate and add/remove price changes. All fields are editable.';
-    case 'Submitted': 
-      return 'Motion has been submitted for processing. Only name, description, and activation date can be edited. Price changes are locked.';
-    case 'Pending approvals': 
-      return 'Waiting for required approvals from stakeholders. No changes can be made except to cancel the motion.';
-    case 'Approved': 
-      return 'All approvals completed. Motion is ready for production deployment on the scheduled activation date.';
-    case 'Pending to prod': 
-      return 'Deployment to production is in progress. This process takes up to 24 hours. Motion cannot be cancelled.';
-    case 'Complete': 
-      return 'All price changes have been successfully deployed to production. Motion is now historical.';
-    default: 
-      return 'Unknown status';
-  }
-};
-
-interface GTMMotionTableProps {
-  gtmMotions: GTMMotion[];
-  visibleColumns: ColumnVisibility;
-  columnOrder: ColumnOrder;
-}
-
-const GTMMotionTable: React.FC<GTMMotionTableProps> = ({ 
-  gtmMotions, 
-  visibleColumns, 
-  columnOrder 
-}) => {
-  const { token } = theme.useToken();
-  const navigate = useNavigate();
-
-  const columns: ColumnsType<GTMMotion> = [
-    {
-      title: 'Motion ID',
-      dataIndex: 'id',
-      key: 'id',
-      fixed: 'left',
-      render: (id: string) => (
-        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <CopyableId id={id} variant="default" />
-        </div>
-      ),
-      className: 'table-col-first',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string, record: GTMMotion) => (
-        <div>
-          <Text style={{ fontWeight: 500 }}>{name}</Text>
-          <br />
-          <Text style={{ color: token.colorTextSecondary, fontSize: token.fontSizeSM }}>
-            {record.items.length} change{record.items.length !== 1 ? 's' : ''}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Product',
-      key: 'product',
-      render: (_, record: GTMMotion) => {
-        // Get unique products from the motion items
-        const uniqueProducts = Array.from(
-          new Map(record.items.map(item => [item.productId, item])).values()
-        );
-
-        if (uniqueProducts.length === 0) {
-          return (
-            <Text style={{ color: token.colorTextTertiary, fontSize: token.fontSizeSM }}>
-              No products
-            </Text>
-          );
-        }
-
-        if (uniqueProducts.length === 1) {
-          const product = uniqueProducts[0];
-          return (
-            <div>
-              <Text style={{ fontWeight: 500 }}>{product.productName}</Text>
-              <br />
-              <Text style={{ color: token.colorTextSecondary, fontSize: token.fontSizeSM }}>
-                {product.productId}
-              </Text>
-            </div>
-          );
-        }
-
-        // Multiple products
-        return (
-          <div>
-            <Text style={{ fontWeight: 500 }}>{uniqueProducts[0].productName}</Text>
-            <br />
-            <Text style={{ color: token.colorTextSecondary, fontSize: token.fontSizeSM }}>
-              +{uniqueProducts.length - 1} more product{uniqueProducts.length > 2 ? 's' : ''}
-            </Text>
-          </div>
-        );
-      },
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: GTMMotionStatus) => (
-        <InfoPopover 
-          content={getStatusDescription(status)}
-          placement="top"
-          maxWidth={320}
-        >
-          <Tag color={getStatusColor(status)} style={{ cursor: 'help' }}>
-            {status}
-          </Tag>
-        </InfoPopover>
-      ),
-    },
-    {
-      title: 'Activation Date',
-      dataIndex: 'activationDate',
-      key: 'activationDate',
-      render: (date: string) => (
-        <Text style={{ color: token.colorTextSecondary }}>
-          {formatFullDate(date)}
-        </Text>
-      ),
-    },
-    {
-      title: 'Created By',
-      dataIndex: 'createdBy',
-      key: 'createdBy',
-      render: (createdBy: string) => (
-        <Text>{createdBy}</Text>
-      ),
-    },
-    {
-      title: 'Created Date',
-      dataIndex: 'createdDate',
-      key: 'createdDate',
-      render: (date: string) => (
-        <Text style={{ color: token.colorTextSecondary }}>
-          {formatFullDate(date)}
-        </Text>
-      ),
-    },
-  ];
-
-  // Filter columns based on visibility and reorder them
-  const visibleOrderedColumns = columnOrder
-    .filter(key => visibleColumns[key])
-    .map(key => columns.find(col => col.key === key))
-    .filter((col): col is NonNullable<typeof col> => col !== undefined);
-
-  return (
-    <Table
-      size="small"
-      columns={visibleOrderedColumns}
-      dataSource={gtmMotions}
-      rowKey="id"
-      pagination={{
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} motions`,
-        defaultPageSize: 50,
-        pageSizeOptions: ['25', '50', '100', '200'],
-      }}
-      onRow={(record) => ({
-        onClick: () => {
-          navigate(`/gtm-motions/${record.id}`);
-        },
-        style: { cursor: 'pointer' }
-      })}
-    />
-  );
-};
 
 const GTMMotionList: React.FC = () => {
   const { setFolderName } = useBreadcrumb();

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Modal, Dropdown, theme, Tag, Drawer, Tooltip } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Modal, Dropdown, theme, Tag, Drawer } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Pencil, Check, Rows2, Rows4, Calendar } from 'lucide-react';
+import { Download, Check, Rows2, Rows4, Calendar, Pencil, Plus } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -28,6 +28,7 @@ import {
   GroupHeader,
   VerticalSeparator,
   MetricCard,
+  InfoPopover,
 } from '../components';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
@@ -217,8 +218,24 @@ const ProductDetail: React.FC = () => {
   // Translations drawer state
   const [translationsDrawerOpen, setTranslationsDrawerOpen] = useState(false);
 
-  // Price Editor Modal state
-  const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
+
+  // Helper function to get initial filter state from localStorage
+  const getInitialPriceGroupFilterState = () => {
+    if (!productId) return {};
+    
+    const savedState = localStorage.getItem(`priceGroupFilters_${productId}`);
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (error) {
+        console.warn('Failed to parse saved price group filter state:', error);
+        return {};
+      }
+    }
+    return {};
+  };
+
+  const initialFilterState = getInitialPriceGroupFilterState();
 
   // SKU filtering hook
   const {
@@ -255,7 +272,7 @@ const ProductDetail: React.FC = () => {
     billingCycleOptions: priceGroupBillingCycleOptions,
     experimentOptions: priceGroupExperimentOptions,
     statusOptions: priceGroupStatusOptions,
-  } = usePriceGroupFilters(product?.skus || []);
+  } = usePriceGroupFilters(product?.skus || [], initialFilterState);
 
   // Default column visibility configuration for PriceGroupTable
   const priceGroupDefaultVisibility = useMemo(() => {
@@ -271,18 +288,61 @@ const ProductDetail: React.FC = () => {
     return defaultVisibility;
   }, []);
 
-  // Column visibility state for PriceGroupTable
+  // Column visibility state for PriceGroupTable - initialize with saved state if available
   const [priceGroupVisibleColumns, setPriceGroupVisibleColumns] = useState<ColumnVisibility>(() => {
-    return priceGroupDefaultVisibility;
+    return initialFilterState.visibleColumns || priceGroupDefaultVisibility;
   });
 
-  // Column order state for PriceGroupTable
-  const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>(
-    DEFAULT_PRICE_GROUP_COLUMNS
-  );
+  // Column order state for PriceGroupTable - initialize with saved state if available
+  const [priceGroupColumnOrder, setPriceGroupColumnOrder] = useState<ColumnOrder>(() => {
+    return initialFilterState.columnOrder || DEFAULT_PRICE_GROUP_COLUMNS;
+  });
 
   // Column configuration for PriceGroupTable - use centralized configuration
   const priceGroupColumnOptions: ColumnConfig[] = PRICE_GROUP_COLUMNS;
+
+  // Helper function to get initial price points filter state from localStorage
+  const getInitialPricePointFilterState = () => {
+    if (!productId) return {};
+    
+    const savedState = localStorage.getItem(`pricePointFilters_${productId}`);
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (error) {
+        console.warn('Failed to parse saved price points filter state:', error);
+        return {};
+      }
+    }
+    return {};
+  };
+
+  const initialPricePointFilterState = getInitialPricePointFilterState();
+
+  // Price point view state - initialize with saved values
+  const [pricePointSortOrder, setPricePointSortOrder] = useState(initialPricePointFilterState.pricePointSortOrder || 'None');
+  const [pricePointGroupBy, setPricePointGroupBy] = useState(initialPricePointFilterState.pricePointGroupBy || 'None');
+  const [expandedPricePointGroups, setExpandedPricePointGroups] = useState<string[]>([]);
+
+  // Save price group filter states to localStorage whenever they change
+  useEffect(() => {
+    if (!productId) return;
+    
+    const filterState = {
+      channelFilters: priceGroupChannelFilters,
+      billingCycleFilter: priceGroupBillingCycleFilter,
+      experimentFilter: priceGroupExperimentFilter,
+      statusFilters: priceGroupStatusFilters,
+      groupBy: priceGroupGroupBy,
+      sortOrder: priceGroupSortOrder,
+      visibleColumns: priceGroupVisibleColumns,
+      columnOrder: priceGroupColumnOrder,
+    };
+    
+    localStorage.setItem(`priceGroupFilters_${productId}`, JSON.stringify(filterState));
+  }, [productId, priceGroupChannelFilters, priceGroupBillingCycleFilter, priceGroupExperimentFilter, 
+      priceGroupStatusFilters, priceGroupGroupBy, priceGroupSortOrder, priceGroupVisibleColumns, priceGroupColumnOrder]);
+
 
   // Default column visibility configuration for SkuListTable
   const skuDefaultVisibility = useMemo(() => {
@@ -315,14 +375,14 @@ const ProductDetail: React.FC = () => {
     setPriceGroupStatusFilters([]);
   };
 
-  // Price point view filtering state
+  // Price point view filtering state - initialize with saved values
   const [pricePointSearchQuery, setPricePointSearchQuery] = useState('');
-  const [pricePointValidityFilter, setPricePointValidityFilter] = useState<string>('All periods');
-  const [pricePointCurrencyFilters, setPricePointCurrencyFilters] = useState<string[]>([]);
-  const [pricePointStatusFilter, setPricePointStatusFilter] = useState<string | null>(null);
-  const [pricePointChannelFilters, setPricePointChannelFilters] = useState<SalesChannel[]>([]);
-  const [pricePointBillingCycleFilter, setPricePointBillingCycleFilter] = useState<string | null>(null);
-  const [pricePointLixFilter, setPricePointLixFilter] = useState<string | null>(null);
+  const [pricePointValidityFilter, setPricePointValidityFilter] = useState<string>(initialPricePointFilterState.pricePointValidityFilter || 'All periods');
+  const [pricePointCurrencyFilters, setPricePointCurrencyFilters] = useState<string[]>(initialPricePointFilterState.pricePointCurrencyFilters || []);
+  const [pricePointStatusFilter, setPricePointStatusFilter] = useState<string | null>(initialPricePointFilterState.pricePointStatusFilter || null);
+  const [pricePointChannelFilters, setPricePointChannelFilters] = useState<SalesChannel[]>(initialPricePointFilterState.pricePointChannelFilters || []);
+  const [pricePointBillingCycleFilter, setPricePointBillingCycleFilter] = useState<string | null>(initialPricePointFilterState.pricePointBillingCycleFilter || null);
+  const [pricePointLixFilter, setPricePointLixFilter] = useState<string | null>(initialPricePointFilterState.pricePointLixFilter || null);
 
   // Flatten price points with inferred SKU attributes for price point view
   const allFlattenedPricePoints = useMemo(() => {
@@ -565,10 +625,26 @@ const ProductDetail: React.FC = () => {
     setPricePointLixFilter(null);
   };
 
-  // Price point view state
-  const [pricePointSortOrder, setPricePointSortOrder] = useState('None');
-  const [pricePointGroupBy, setPricePointGroupBy] = useState('None');
-  const [expandedPricePointGroups, setExpandedPricePointGroups] = useState<string[]>([]);
+  // Save price points filter states to localStorage whenever they change
+  useEffect(() => {
+    if (!productId) return;
+    
+    const filterState = {
+      pricePointValidityFilter,
+      pricePointCurrencyFilters,
+      pricePointStatusFilter,
+      pricePointChannelFilters,
+      pricePointBillingCycleFilter,
+      pricePointLixFilter,
+      pricePointSortOrder,
+      pricePointGroupBy,
+    };
+    
+    localStorage.setItem(`pricePointFilters_${productId}`, JSON.stringify(filterState));
+  }, [productId, pricePointValidityFilter, pricePointCurrencyFilters, pricePointStatusFilter, 
+      pricePointChannelFilters, pricePointBillingCycleFilter, pricePointLixFilter, 
+      pricePointSortOrder, pricePointGroupBy]);
+
 
   // Sort price points based on selected sort order
   const sortedFlattenedPricePoints = useMemo(() => {
@@ -815,11 +891,11 @@ const ProductDetail: React.FC = () => {
         if ('isGroupHeader' in record) return null;
         const currencyName = currencyNames[currencyCode];
         return (
-          <Tooltip title={currencyName || currencyCode}>
+          <InfoPopover content={currencyName || currencyCode} placement="top">
             <Typography.Text style={{ fontWeight: 500 }}>
               {currencyCode}
             </Typography.Text>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     },
@@ -887,13 +963,13 @@ const ProductDetail: React.FC = () => {
         const tooltipTitle = `LIX Key: ${lix.key}\nTreatment: ${lix.treatment}`;
         
         return (
-          <Tooltip title={tooltipTitle} placement="top">
+          <InfoPopover content={tooltipTitle} placement="top">
             <div style={{ cursor: 'help' }}>
               <Typography.Text>{lixKey}</Typography.Text>
               <Typography.Text style={{ color: token.colorTextSecondary }}> | </Typography.Text>
               <Typography.Text style={{ color: token.colorTextSecondary }}>{lix.treatment}</Typography.Text>
             </div>
-          </Tooltip>
+          </InfoPopover>
         );
       },
     },
@@ -999,126 +1075,7 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  // Edit product handlers
-  const handleUpdateProductName = () => {
-    Modal.info({
-      title: 'Update Product Name',
-      content: (
-        <div>
-          <p>Here you can update the product name for <strong>{product?.name}</strong>.</p>
-          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-            This would open a form to edit the product's internal name and configuration details.
-          </p>
-        </div>
-      ),
-      okText: 'Got it',
-      width: 400,
-    });
-  };
 
-  const handleUpdateProductDescription = () => {
-    Modal.info({
-      title: 'Update Product Description',
-      content: (
-        <div>
-          <p>Here you can update the product description for <strong>{product?.name}</strong>.</p>
-          <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-            This would open a form to edit the product's internal description and metadata.
-          </p>
-        </div>
-      ),
-      okText: 'Got it',
-      width: 400,
-    });
-  };
-
-  const handleUpdatePrices = () => {
-    setPriceEditorModalOpen(true);
-  };
-
-  // Main edit dropdown for PageHeader
-  const mainEditDropdown = () => {
-    console.log('mainEditDropdown called');
-    return (
-    <div style={{
-      minWidth: '240px',
-      backgroundColor: token.colorBgElevated,
-      borderRadius: token.borderRadius,
-      boxShadow: token.boxShadowSecondary,
-      padding: '8px',
-    }}>
-      {/* Product Section */}
-      <div style={{ 
-        fontWeight: 500, 
-        color: token.colorTextSecondary, 
-        fontSize: '12px',
-        marginTop: '8px',
-        marginBottom: '4px',
-        paddingLeft: '4px'
-      }}>
-        Product
-      </div>
-      <div style={{ marginBottom: '8px' }}>
-        <div 
-          style={{
-            padding: '8px 12px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontSize: '14px',
-            transition: 'background-color 0.2s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          onClick={handleUpdateProductName}
-        >
-          Update product name
-        </div>
-        <div 
-          style={{
-            padding: '8px 12px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontSize: '14px',
-            transition: 'background-color 0.2s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          onClick={handleUpdateProductDescription}
-        >
-          Update product description
-        </div>
-      </div>
-
-      {/* Pricing Section */}
-      <div style={{ 
-        fontWeight: 500, 
-        color: token.colorTextSecondary, 
-        fontSize: '12px',
-        marginTop: '8px',
-        marginBottom: '4px',
-        paddingLeft: '4px'
-      }}>
-        Pricing
-      </div>
-      <div>
-        <div 
-          style={{
-            padding: '8px 12px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontSize: '14px',
-            transition: 'background-color 0.2s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorBgTextHover}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          onClick={handleUpdatePrices}
-        >
-          Update prices
-        </div>
-      </div>
-    </div>
-    );
-  };
 
   // Dropdown menu items for name/description section
   const editMenuItems: MenuProps['items'] = [
@@ -1131,6 +1088,37 @@ const ProductDetail: React.FC = () => {
       key: 'edit-description', 
       label: 'Edit public description',
       onClick: handleEditDescription,
+    },
+  ];
+
+  // Price Editor Modal state
+  const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
+  const [priceEditorCreationMethod, setPriceEditorCreationMethod] = useState<'blank' | 'clone' | null>(null);
+
+  // Dropdown menu handlers for price creation
+  const handleCreateFromBlank = () => {
+    console.log('Create from blank clicked');
+    setPriceEditorCreationMethod('blank');
+    setPriceEditorModalOpen(true);
+  };
+
+  const handleCloneFromExisting = () => {
+    console.log('Clone from existing price group clicked');
+    setPriceEditorCreationMethod('clone');
+    setPriceEditorModalOpen(true);
+  };
+
+  // Dropdown menu items for price creation
+  const priceCreationMenuItems: MenuProps['items'] = [
+    {
+      key: 'create-from-blank',
+      label: 'Create from blank',
+      onClick: handleCreateFromBlank,
+    },
+    {
+      key: 'clone-from-existing',
+      label: 'Clone from existing price group',
+      onClick: handleCloneFromExisting,
     },
   ];
 
@@ -1206,6 +1194,8 @@ const ProductDetail: React.FC = () => {
                 </Button>
                 <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
                   <Button 
+                    type="primary"
+                    ghost
                     icon={<Pencil size={14} />}
                     size="middle"
                     style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -1228,11 +1218,7 @@ const ProductDetail: React.FC = () => {
     // SKUs tab (moved to be second)
     {
       key: 'skus',
-      label: (
-        <span>
-          SKUs <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', height: '16px', lineHeight: '16px', marginLeft: '4px' }}>WIP</Tag>
-        </span>
-      ),
+      label: 'SKUs',
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
 
@@ -1346,6 +1332,18 @@ const ProductDetail: React.FC = () => {
             title="Prices"
             subtitle="A price is a grouping of price points defined by a channel x billing cycle pairing, and can be part of the same LIX experiment."
             hideDivider={true}
+            actions={
+              <Dropdown menu={{ items: priceCreationMenuItems }} trigger={['click']}>
+                <Button
+                  type="primary"
+                  ghost
+                  icon={<Plus size={16} />}
+                  size="middle"
+                >
+                  Create new prices
+                </Button>
+              </Dropdown>
+            }
           >
             <FilterBar
               useCustomFilters={true}
@@ -1807,11 +1805,6 @@ const ProductDetail: React.FC = () => {
         }
         tagContent={<StatusTag status={product.status} />}
         rightAlignedId={product.id}
-        channelBillingGroups={channelBillingGroups}
-        onEdit={() => console.log('Edit clicked')}
-        editDropdown={mainEditDropdown}
-        editButtonText="Edit product.."
-        editButtonIcon={<Pencil size={14} />}
         compact
       />
 
@@ -1917,10 +1910,14 @@ const ProductDetail: React.FC = () => {
       {/* Price Editor Modal */}
       <PriceEditorModal
         open={priceEditorModalOpen}
-        onClose={() => setPriceEditorModalOpen(false)}
+        onClose={() => {
+          setPriceEditorModalOpen(false);
+          setPriceEditorCreationMethod(null);
+        }}
         productName={product.name}
         productId={product.id}
         product={product}
+        initialCreationMethod={priceEditorCreationMethod}
       />
     </Space>
   );

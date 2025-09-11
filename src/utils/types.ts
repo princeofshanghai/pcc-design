@@ -161,7 +161,17 @@ export type Product = {
 };
 
 // GTM Motion types for price editing workflow
-export type GTMMotionStatus = 'Draft' | 'Submitted' | 'Pending approvals' | 'Approved' | 'Pending to prod' | 'Complete';
+export type GTMMotionStatus = 
+  | 'Draft'
+  | 'Submitted'
+  | 'Activating in EI'
+  | 'Ready for Approvals'
+  | 'Review in Progress'
+  | 'Approvals Completed'
+  | 'Scheduled for Activation'
+  | 'Activating in Prod'
+  | 'Completed'
+  | 'Cancelled';
 
 // Individual GTM item status
 export type GTMItemStatus = 'Draft' | 'Pending approvals' | 'Approved' | 'Ready for deployment';

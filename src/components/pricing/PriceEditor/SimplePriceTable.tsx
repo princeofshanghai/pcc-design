@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Input, Typography, theme, Space, DatePicker } from 'antd';
+import { Table, Input, Typography, theme, Space, DatePicker, Select, Button, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
+import { X } from 'lucide-react';
 import InfoPopover from '../../shared/InfoPopover';
 
 const { Text } = Typography;
@@ -151,12 +152,25 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   const [priceInputs, setPriceInputs] = useState<Record<string, string>>({});
   const [undoState, setUndoState] = useState<Record<string, string> | null>(null);
   
+  // All available currencies for the multiselect dropdown
+  const allAvailableCurrencies = [
+    'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'SGD', 'HKD', 'CNY', 'INR',
+    'KRW', 'THB', 'MXN', 'BRL', 'CHF', 'NOK', 'SEK', 'DKK', 'NZD', 'ZAR',
+    'PLN', 'CZK', 'HUF', 'TRY', 'ILS', 'RUB', 'AED', 'SAR', 'QAR', 'KWD',
+    'BHD', 'OMR', 'JOD', 'EGP', 'MAD', 'TND', 'DZD', 'NGN', 'KES', 'GHS',
+    'MUR', 'BWP', 'NAD', 'ZMW', 'UGX', 'TZS', 'RWF', 'ETB', 'CLP', 'PEN',
+    'COP', 'UYU', 'PYG', 'BOB', 'ARS', 'MYR', 'IDR', 'PHP', 'VND', 'TWD'
+  ];
+  
+  // Currency selection state
+  const [selectedCurrencies, setSelectedCurrencies] = useState<string[]>(['USD']); // USD by default
+  
   // Validity date state
   const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs());
   const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
 
   // Extract real data from product for non-Field channels
-  const { currencies, priceData } = useMemo(() => {
+  const { currencies, priceData, existingCurrencies } = useMemo(() => {
     let sourcePriceGroup = null;
     let shouldIncludePriceData = false;
 
@@ -164,27 +178,26 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       // Updating existing price group: use the selected price group's data
       sourcePriceGroup = selectedContext.existingPriceGroup;
       shouldIncludePriceData = true;
+      
+      // Debug logging for troubleshooting
+      console.log('🔍 SimplePriceTable DEBUG - existingPriceGroup:', selectedContext.existingPriceGroup);
+      console.log('🔍 SimplePriceTable DEBUG - pricePoints:', selectedContext.existingPriceGroup?.pricePoints);
     } else if (selectedContext.priceGroupAction === 'create') {
-      // Creating new price group: find ANY existing price group with same channel to extract currency structure
-      const anySimilarChannelSku = product?.skus?.find((sku: any) => sku.salesChannel === selectedContext.channel);
-      if (anySimilarChannelSku?.priceGroup) {
-        sourcePriceGroup = anySimilarChannelSku.priceGroup;
-        shouldIncludePriceData = false; // Structure only, no current prices
-      }
+      // Creating new price group: use user-selected currencies
+      return {
+        currencies: selectedCurrencies,
+        priceData: {},
+        existingCurrencies: []
+      };
     }
 
     if (!sourcePriceGroup?.pricePoints) {
-      // Return all currencies but with no price data for completely new scenarios
-      const allCurrencies = [
-        'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'SGD', 'HKD', 'CNY', 'INR',
-        'KRW', 'THB', 'MXN', 'BRL', 'CHF', 'NOK', 'SEK', 'DKK', 'NZD', 'ZAR',
-        'PLN', 'CZK', 'HUF', 'TRY', 'ILS', 'RUB', 'AED', 'SAR', 'QAR', 'KWD',
-        'BHD', 'OMR', 'JOD', 'EGP', 'MAD', 'TND', 'DZD', 'NGN', 'KES', 'GHS',
-        'MUR', 'BWP', 'NAD', 'ZMW', 'UGX', 'TZS', 'RWF', 'ETB', 'CLP', 'PEN',
-        'COP', 'UYU', 'PYG', 'BOB', 'ARS', 'MYR', 'IDR', 'PHP', 'VND', 'TWD'
-      ];
-      
-      return { currencies: allCurrencies, priceData: {} };
+      // Fallback for edit mode without valid price group
+      return {
+        currencies: selectedCurrencies,
+        priceData: {},
+        existingCurrencies: []
+      };
     }
 
     const pricePoints = sourcePriceGroup.pricePoints;
@@ -195,17 +208,24 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       .filter((time: number) => time > 0)
     );
     
+    console.log('🔍 SimplePriceTable DEBUG - all pricePoints:', pricePoints);
+    console.log('🔍 SimplePriceTable DEBUG - latestValidityDate:', new Date(latestValidityDate));
+    
     const currentPricePoints = pricePoints.filter((pp: any) => {
       const validFrom = pp.validFrom ? new Date(pp.validFrom).getTime() : 0;
       return validFrom === latestValidityDate;
     });
+    
+    console.log('🔍 SimplePriceTable DEBUG - filtered currentPricePoints:', currentPricePoints);
 
     // Extract unique currencies from the price points
     const uniqueCurrencies = [...new Set(currentPricePoints.map((pp: any) => String(pp.currencyCode)))];
     
+    console.log('🔍 SimplePriceTable DEBUG - extracted uniqueCurrencies:', uniqueCurrencies);
+    
     // Sort currencies (prioritize main ones, then alphabetical)
     const currencyOrder = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'SGD', 'HKD', 'CNY', 'INR', 'JPY'];
-    const sortedCurrencies = uniqueCurrencies.sort((a, b) => {
+    const sortedExistingCurrencies = uniqueCurrencies.sort((a, b) => {
       const aStr = a as string;
       const bStr = b as string;
       const aIndex = currencyOrder.indexOf(aStr);
@@ -217,8 +237,15 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       return aStr.localeCompare(bStr);
     });
 
+    // For edit mode: combine existing currencies with selected new ones
+    const combinedCurrencies = [...sortedExistingCurrencies];
+    selectedCurrencies.forEach(currency => {
+      if (!combinedCurrencies.includes(currency)) {
+        combinedCurrencies.push(currency);
+      }
+    });
+
     // Build price data lookup: currency -> price
-    // For non-Field channels, there's typically only one price per currency (no tiers/seat ranges)
     // Only include actual price data if we're updating an existing price group
     const priceDataLookup: Record<string, number> = {};
     
@@ -231,10 +258,11 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     }
 
     return {
-      currencies: sortedCurrencies as string[],
-      priceData: priceDataLookup
+      currencies: combinedCurrencies as string[],
+      priceData: priceDataLookup,
+      existingCurrencies: sortedExistingCurrencies as string[]
     };
-  }, [product, selectedContext.channel, selectedContext.billingCycle, selectedContext.priceGroupAction, selectedContext.existingPriceGroup]);
+  }, [product, selectedContext.channel, selectedContext.billingCycle, selectedContext.priceGroupAction, selectedContext.existingPriceGroup, selectedCurrencies]);
 
   // Extract table data with real pricing information
   const tableData = useMemo((): PriceTableData[] => {
@@ -264,11 +292,40 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     });
   }, [selectedContext, priceInputs, currencies, priceData]);
 
+  // Initialize selectedCurrencies for edit mode
+  React.useEffect(() => {
+    if (selectedContext.priceGroupAction === 'update' && existingCurrencies.length > 0) {
+      // For edit mode, start with existing currencies (only set once to avoid infinite loop)
+      setSelectedCurrencies(prev => {
+        if (prev.length === 1 && prev[0] === 'USD') {
+          // Only update if still in default state
+          return existingCurrencies;
+        }
+        return prev;
+      });
+    }
+  }, [selectedContext.priceGroupAction, existingCurrencies]);
+
   // Check if all prices are new (no current prices exist)
   const allPricesAreNew = useMemo(() => {
     return tableData.every(record => record.currentPrice === null);
   }, [tableData]);
 
+
+  // Currency selection handlers
+  const handleCurrencySelect = (selectedValues: string[]) => {
+    setSelectedCurrencies(selectedValues);
+  };
+
+  const handleCurrencyRemove = (currencyToRemove: string) => {
+    setSelectedCurrencies(prev => prev.filter(currency => currency !== currencyToRemove));
+    // Also remove any price inputs for this currency
+    setPriceInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[currencyToRemove];
+      return newInputs;
+    });
+  };
 
   const handlePriceInputChange = (currency: string, value: string) => {
     setPriceInputs(prev => ({
@@ -399,7 +456,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     },
     // Only include Current Price column if not all prices are new
     ...(allPricesAreNew ? [] : [{
-      title: 'Current Price',
+      title: 'Current',
       dataIndex: 'currentPrice',
       key: 'currentPrice',
       width: 120,
@@ -428,7 +485,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       },
     }]),
     {
-      title: 'New Price',
+      title: 'New',
       dataIndex: 'newPrice',
       key: 'newPrice',
       width: 140,
@@ -495,12 +552,115 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           </Text>
         );
       },
-    }])
+    }]),
+    // Add remove button column - always show but conditionally disable
+    {
+      title: '',
+      key: 'remove',
+      width: 24,
+      fixed: 'right' as const,
+      className: 'remove-action-column',
+      render: (_: any, record: PriceTableData) => {
+        const isExistingCurrency = selectedContext.priceGroupAction === 'update' && 
+                                  existingCurrencies.includes(record.currency);
+        
+        if (isExistingCurrency) {
+          // Disabled button with tooltip for existing currencies
+          return (
+            <Tooltip title="Can't remove existing price points" placement="left">
+              <Button
+                type="text"
+                size="small"
+                icon={<X size={14} />}
+                disabled
+                style={{
+                  color: token.colorTextQuaternary,
+                  border: 'none',
+                  padding: '4px',
+                  height: '24px',
+                  width: '24px',
+                  cursor: 'not-allowed'
+                }}
+              />
+            </Tooltip>
+          );
+        }
+        
+        // Enabled button for new currencies (or all currencies in create mode)
+        return (
+          <Button
+            type="text"
+            size="small"
+            icon={<X size={14} />}
+            onClick={() => handleCurrencyRemove(record.currency)}
+            className="remove-currency-btn"
+            style={{
+              color: token.colorError, // Use danger/error color
+              border: 'none',
+              padding: '4px',
+              height: '24px',
+              width: '24px'
+            }}
+          />
+        );
+      },
+    }
   ];
 
   return (
     <div style={{ marginTop: '8px' }}>
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
+        {/* Currency selection dropdown */}
+        <div style={{ marginBottom: '16px' }}>
+          <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
+            {selectedContext.priceGroupAction === 'create' ? 'Select currencies:' : 'Add currencies:'}
+          </Text>
+          <Select
+            mode="multiple"
+            value={selectedContext.priceGroupAction === 'create' ? selectedCurrencies : selectedCurrencies.filter(c => !existingCurrencies.includes(c))}
+            onChange={(newValues: string[]) => {
+              if (selectedContext.priceGroupAction === 'create') {
+                handleCurrencySelect(newValues);
+              } else {
+                // For edit mode, combine existing with new selections
+                const combinedCurrencies = [...existingCurrencies, ...newValues];
+                handleCurrencySelect([...new Set(combinedCurrencies)]);
+              }
+            }}
+            placeholder="Search and select currencies..."
+            style={{ width: '100%' }}
+            size="middle"
+            showSearch
+            filterOption={(input, option) => 
+              (option?.value as string).toLowerCase().includes(input.toLowerCase())
+            }
+            dropdownStyle={{ maxHeight: '300px' }}
+            dropdownRender={(menu) => (
+              <div>
+                {selectedContext.priceGroupAction === 'update' && (
+                  <div style={{
+                    padding: '8px 12px',
+                    fontSize: token.fontSize,
+                    color: token.colorTextSecondary,
+                    borderBottom: `1px solid ${token.colorBorder}`,
+                    marginBottom: '4px'
+                  }}>
+                    Showing only currencies that do not already exist in this price group.
+                  </div>
+                )}
+                {menu}
+              </div>
+            )}
+            options={allAvailableCurrencies
+              .filter(currency => selectedContext.priceGroupAction === 'create' || !existingCurrencies.includes(currency))
+              .map(currency => ({
+                value: currency,
+                label: currency
+              }))
+            }
+          />
+        </div>
+
         {/* Validity controls */}
         <div style={{ 
           marginBottom: '16px', 
@@ -553,6 +713,38 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         .simple-price-table .ant-input:focus {
           border-color: ${token.colorPrimary};
           box-shadow: 0 0 0 2px ${token.colorPrimary}1a;
+        }
+        
+        /* Ensure last row has bottom border */
+        .simple-price-table .ant-table-tbody > tr:last-child > td {
+          border-bottom: 1px solid ${token.colorBorder} !important;
+        }
+        
+        
+        /* Style the remove action cells */
+        .simple-price-table .ant-table-tbody > tr > td.remove-action-column {
+          padding: 8px 2px !important;
+          text-align: center;
+          border-left: none !important;
+        }
+        
+        /* Remove the right border from the column before the remove action column */
+        .simple-price-table .ant-table-thead > tr > th:nth-last-child(2) {
+          border-right: none !important;
+        }
+        .simple-price-table .ant-table-tbody > tr > td:nth-last-child(2) {
+          border-right: none !important;
+        }
+        
+        /* Also remove left border from remove action header */
+        .simple-price-table .ant-table-thead > tr > th.remove-action-column {
+          border-left: none !important;
+        }
+        
+        /* Remove button hover effects */
+        .simple-price-table .remove-currency-btn:hover {
+          background-color: ${token.colorErrorBg} !important;
+          color: ${token.colorErrorHover} !important;
         }
       `}</style>
     </div>

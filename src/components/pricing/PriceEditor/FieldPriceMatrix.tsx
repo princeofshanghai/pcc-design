@@ -584,9 +584,18 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
         children: [
           // Only include Current price sub-column if not all prices are new
           ...(allPricesAreNew ? [] : [{
-            title: 'Current',
+            title: (
+              <span style={{ 
+                fontSize: '12px',
+                display: 'flex',
+                justifyContent: 'center'
+              }}>
+                Current
+              </span>
+            ),
             key: `${tier}-current`,
             width: 100,
+            align: 'center' as const,
             className: `tier-current ${isZebraStripe ? 'tier-zebra' : ''}`,
             render: (_: any, record: MatrixCellData) => {
               const currentPrice = record.currentPrices[tier];
@@ -611,9 +620,18 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
           }]),
           // New price sub-column
           {
-            title: 'New',
+            title: (
+              <span style={{ 
+                fontSize: '12px',
+                display: 'flex',
+                justifyContent: 'center'
+              }}>
+                New
+              </span>
+            ),
             key: `${tier}-new`,
             width: 100,
+            align: 'center' as const,
             className: `tier-new ${isZebraStripe ? 'tier-zebra' : ''}`,
             render: (_, record: MatrixCellData) => {
               const newPrice = record.newPrices[tier];
@@ -700,7 +718,7 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
         </div>
       ),
       children: (
-      <div style={{ marginTop: '8px' }}>
+      <div>
         
         <Table
           size="small"
@@ -822,6 +840,11 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
         .field-price-matrix .ant-table-tbody > tr:hover > td:not(.tier-zebra) {
           background-color: #ffffff !important;
           filter: brightness(0.98);
+        }
+        
+        /* Ensure last row has bottom border */
+        .field-price-matrix .ant-table-tbody > tr:last-child > td {
+          border-bottom: 1px solid ${token.colorBorder} !important;
         }
       `}</style>
     </div>

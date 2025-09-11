@@ -93,12 +93,19 @@ const PriceGroupDetail: React.FC = () => {
   }, [productId]);
   
   // Find all SKUs that use this price group
-  const skusWithPriceGroup = product?.skus.filter(sku => sku.priceGroup.id === priceGroupId) || [];
+  const skusWithPriceGroup = product?.skus.filter(sku => String(sku.priceGroup.id) === String(priceGroupId)) || [];
   
   console.log('PriceGroupDetail - productId:', productId, 'priceGroupId:', priceGroupId);
-  console.log('Product SKUs:', product?.skus.map(sku => ({ id: sku.id, priceGroupId: sku.priceGroup.id })));
+  console.log('Product SKUs:', product?.skus.map(sku => ({ id: sku.id, priceGroupId: sku.priceGroup.id, priceGroupIdType: typeof sku.priceGroup.id })));
   console.log('Matching SKUs:', skusWithPriceGroup.length);
   console.log('📋 Sales channels in price group:', skusWithPriceGroup.map(sku => sku.salesChannel));
+  
+  // Additional debugging for price group 117005
+  if (String(priceGroupId) === '117005') {
+    console.log('🔍 DEBUG 117005 - URL priceGroupId type:', typeof priceGroupId, 'value:', priceGroupId);
+    console.log('🔍 DEBUG 117005 - Available price group IDs:', product?.skus.map(sku => ({ id: sku.priceGroup.id, type: typeof sku.priceGroup.id })));
+    console.log('🔍 DEBUG 117005 - Price group data from first matching SKU:', skusWithPriceGroup[0]?.priceGroup);
+  }
   
   // Get the price group data from the first SKU (all SKUs with same price group have same price data)
   const priceGroup = skusWithPriceGroup[0]?.priceGroup;

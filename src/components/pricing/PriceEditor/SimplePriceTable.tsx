@@ -168,6 +168,12 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   // Validity date state
   const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs());
   const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
+  
+  // Individual currency validity overrides
+  const [currencyValidityOverrides, setCurrencyValidityOverrides] = useState<Record<string, {
+    startDate: dayjs.Dayjs | null;
+    endDate: dayjs.Dayjs | null;
+  }>>({});
 
   // Extract real data from product for non-Field channels
   const { currencies, priceData, existingCurrencies } = useMemo(() => {
@@ -183,18 +189,18 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       console.log('🔍 SimplePriceTable DEBUG - existingPriceGroup:', selectedContext.existingPriceGroup);
       console.log('🔍 SimplePriceTable DEBUG - pricePoints:', selectedContext.existingPriceGroup?.pricePoints);
     } else if (selectedContext.priceGroupAction === 'create') {
-      // Creating new price group: use user-selected currencies
+      // Creating new price group: use user-selected currencies (newest first)
       return {
-        currencies: selectedCurrencies,
+        currencies: [...selectedCurrencies].reverse(),
         priceData: {},
         existingCurrencies: []
       };
     }
 
     if (!sourcePriceGroup?.pricePoints) {
-      // Fallback for edit mode without valid price group
+      // Fallback for edit mode without valid price group  
       return {
-        currencies: selectedCurrencies,
+        currencies: [...selectedCurrencies].reverse(),
         priceData: {},
         existingCurrencies: []
       };
@@ -237,13 +243,9 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       return aStr.localeCompare(bStr);
     });
 
-    // For edit mode: combine existing currencies with selected new ones
-    const combinedCurrencies = [...sortedExistingCurrencies];
-    selectedCurrencies.forEach(currency => {
-      if (!combinedCurrencies.includes(currency)) {
-        combinedCurrencies.push(currency);
-      }
-    });
+    // For edit mode: combine currencies with new ones first, then existing ones
+    const newCurrencies = selectedCurrencies.filter(currency => !sortedExistingCurrencies.includes(currency));
+    const combinedCurrencies = [...newCurrencies, ...sortedExistingCurrencies];
 
     // Build price data lookup: currency -> price
     // Only include actual price data if we're updating an existing price group
@@ -319,12 +321,126 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
   const handleCurrencyRemove = (currencyToRemove: string) => {
     setSelectedCurrencies(prev => prev.filter(currency => currency !== currencyToRemove));
-    // Also remove any price inputs for this currency
+    // Also remove any price inputs and validity overrides for this currency
     setPriceInputs(prev => {
       const newInputs = { ...prev };
       delete newInputs[currencyToRemove];
       return newInputs;
     });
+    setCurrencyValidityOverrides(prev => {
+      const newOverrides = { ...prev };
+      delete newOverrides[currencyToRemove];
+      return newOverrides;
+    });
+  };
+
+  // Get actual validity dates for existing currencies
+  const getExistingValidityDates = (currency: string): { startDate: dayjs.Dayjs | null; endDate: dayjs.Dayjs | null } | null => {
+    if (selectedContext.priceGroupAction !== 'update' || !selectedContext.existingPriceGroup?.pricePoints) {
+      return null;
+    }
+
+    // Find the price point for this currency with the latest validity date
+    const pricePoints = selectedContext.existingPriceGroup.pricePoints;
+    const currencyPricePoints = pricePoints.filter((pp: any) => String(pp.currencyCode) === currency);
+    
+    if (currencyPricePoints.length === 0) {
+      return null;
+    }
+
+    // Find the latest validity range (same logic as used elsewhere)
+    const latestValidityDate = Math.max(...currencyPricePoints
+      .map((pp: any) => pp.validFrom ? new Date(pp.validFrom).getTime() : 0)
+      .filter((time: number) => time > 0)
+    );
+    
+    const latestPricePoint = currencyPricePoints.find((pp: any) => {
+      const validFrom = pp.validFrom ? new Date(pp.validFrom).getTime() : 0;
+      return validFrom === latestValidityDate;
+    });
+
+    if (!latestPricePoint) {
+      return null;
+    }
+
+    return {
+      startDate: latestPricePoint.validFrom ? dayjs(latestPricePoint.validFrom) : null,
+      endDate: latestPricePoint.validTo ? dayjs(latestPricePoint.validTo) : null
+    };
+  };
+
+  // Check if this currency is creating a new price point (amount changed)
+  const isCreatingNewPricePoint = (currency: string): boolean => {
+    if (selectedContext.priceGroupAction === 'create') {
+      return true; // All currencies are new in create mode
+    }
+    
+    if (!existingCurrencies.includes(currency)) {
+      return true; // New currency = new price point
+    }
+    
+    // Check if amount has changed from current price
+    const currentPrice = priceData[currency];
+    const newPriceInput = priceInputs[currency] || '';
+    const newPriceValue = parseUserInput(newPriceInput);
+    
+    // If no current price or new price, assume it's new
+    if (currentPrice === null || currentPrice === undefined || newPriceValue === null) {
+      return true;
+    }
+    
+    // If amounts differ significantly, it's a new price point
+    return Math.abs(newPriceValue - currentPrice) >= 0.01;
+  };
+
+  // Validity period management
+  const isUsingDefaults = (currency: string): boolean => {
+    // If user has manually overridden, not using defaults
+    if (currencyValidityOverrides[currency]) {
+      return false;
+    }
+    
+    // If creating a new price point (changed amount or new currency), use defaults
+    if (isCreatingNewPricePoint(currency)) {
+      return true;
+    }
+    
+    // If keeping existing price point (unchanged amount), show existing dates
+    return false;
+  };
+
+  const handleValidityPeriodEdit = (currency: string) => {
+    const existingDates = getExistingValidityDates(currency);
+    
+    if (existingDates) {
+      // Initialize with existing dates for editing
+      setCurrencyValidityOverrides(prev => ({
+        ...prev,
+        [currency]: {
+          startDate: existingDates.startDate,
+          endDate: existingDates.endDate
+        }
+      }));
+    } else {
+      // Initialize with global defaults for new currencies
+      setCurrencyValidityOverrides(prev => ({
+        ...prev,
+        [currency]: {
+          startDate: validityStartDate,
+          endDate: validityEndDate
+        }
+      }));
+    }
+  };
+
+  const updateCurrencyValidityDate = (currency: string, field: 'startDate' | 'endDate', value: dayjs.Dayjs | null) => {
+    setCurrencyValidityOverrides(prev => ({
+      ...prev,
+      [currency]: {
+        ...prev[currency],
+        [field]: value
+      }
+    }));
   };
 
   const handlePriceInputChange = (currency: string, value: string) => {
@@ -553,6 +669,90 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         );
       },
     }]),
+    // Validity Period column
+    {
+      title: 'Validity Period',
+      key: 'validityPeriod',
+      width: 140,
+      render: (_: any, record: PriceTableData) => {
+        const currency = record.currency;
+        const isDefaults = isUsingDefaults(currency);
+        const override = currencyValidityOverrides[currency];
+        const existingDates = getExistingValidityDates(currency);
+        
+        if (override) {
+          // Show individual date pickers for user overrides
+          return (
+            <Space size={4} style={{ width: '100%' }}>
+              <DatePicker
+                value={override.startDate}
+                onChange={(date) => updateCurrencyValidityDate(currency, 'startDate', date)}
+                size="small"
+                style={{ width: '70px' }}
+                format="MMM D"
+                placeholder="Start"
+              />
+              <Text style={{ fontSize: '11px', color: token.colorTextTertiary }}>to</Text>
+              <DatePicker
+                value={override.endDate}
+                onChange={(date) => updateCurrencyValidityDate(currency, 'endDate', date)}
+                size="small"
+                style={{ width: '70px' }}
+                format="MMM D"
+                placeholder="ongoing"
+                allowClear
+              />
+            </Space>
+          );
+        } else if (isDefaults) {
+          // Show "Using defaults" for new currencies
+          return (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => handleValidityPeriodEdit(currency)}
+              style={{
+                fontSize: token.fontSize,
+                color: token.colorTextSecondary,
+                padding: 0,
+                height: 'auto',
+                textAlign: 'left'
+              }}
+            >
+              Using defaults
+            </Button>
+          );
+        } else if (existingDates) {
+          // Show actual dates for existing currencies, clickable to edit
+          const startText = existingDates.startDate?.format('MMM D') || 'Not set';
+          const endText = existingDates.endDate?.format('MMM D') || 'ongoing';
+          
+          return (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => handleValidityPeriodEdit(currency)}
+              style={{
+                fontSize: token.fontSize,
+                color: token.colorText,
+                padding: 0,
+                height: 'auto',
+                textAlign: 'left'
+              }}
+            >
+              {startText} - {endText}
+            </Button>
+          );
+        } else {
+          // Fallback - should not happen
+          return (
+            <Text style={{ fontSize: token.fontSize, color: token.colorTextTertiary }}>
+              No dates
+            </Text>
+          );
+        }
+      },
+    },
     // Add remove button column - always show but conditionally disable
     {
       title: '',
@@ -652,6 +852,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
               </div>
             )}
             options={allAvailableCurrencies
+              .sort() // Sort alphabetically A-Z
               .filter(currency => selectedContext.priceGroupAction === 'create' || !existingCurrencies.includes(currency))
               .map(currency => ({
                 value: currency,
@@ -670,7 +871,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         }}>
           <Space align="center" wrap>
             <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500 }}>
-              New prices valid from:
+              Default dates:
             </Text>
             <DatePicker
               value={validityStartDate}

@@ -708,8 +708,8 @@ const PriceGroupDetail: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
-        entityType="Price"
-        title={`Prices for ${product.name}`}
+        entityType="Price group"
+        title={`Price group for ${product.name}`}
         tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
         rightAlignedId={priceGroup.id || ''}
         lixKey={lixKey}

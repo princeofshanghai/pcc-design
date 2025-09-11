@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Check, Rows2, Rows4, Calendar, Pencil, Plus } from 'lucide-react';
+import { Download, Check, Rows2, Rows4, Calendar, Pencil } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -29,6 +29,7 @@ import {
   VerticalSeparator,
   MetricCard,
   InfoPopover,
+  ModeSelectorButton,
 } from '../components';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
@@ -1094,33 +1095,155 @@ const ProductDetail: React.FC = () => {
   // Price Editor Modal state
   const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
   const [priceEditorCreationMethod, setPriceEditorCreationMethod] = useState<'blank' | 'clone' | null>(null);
+  const [selectedPriceGroupForEdit, setSelectedPriceGroupForEdit] = useState<any>(null);
 
-  // Dropdown menu handlers for price creation
-  const handleCreateFromBlank = () => {
-    console.log('Create from blank clicked');
-    setPriceEditorCreationMethod('blank');
-    setPriceEditorModalOpen(true);
-  };
 
-  const handleCloneFromExisting = () => {
-    console.log('Clone from existing price group clicked');
-    setPriceEditorCreationMethod('clone');
-    setPriceEditorModalOpen(true);
-  };
-
-  // Dropdown menu items for price creation
-  const priceCreationMenuItems: MenuProps['items'] = [
+  // Mode selector options for price management
+  const productModeSelectorOptions = [
     {
-      key: 'create-from-blank',
-      label: 'Create from blank',
-      onClick: handleCreateFromBlank,
+      key: 'create',
+      label: 'Create price group',
+      description: 'Create new price group for new experiments.'
     },
     {
-      key: 'clone-from-existing',
-      label: 'Clone from existing price group',
-      onClick: handleCloneFromExisting,
-    },
+      key: 'edit',
+      label: 'Edit price group', 
+      description: 'Choose existing price group to modify.'
+    }
   ];
+
+  // Handle mode selector execution
+  const handleProductModeExecute = (selectedKey: string) => {
+    if (selectedKey === 'create') {
+      // Show creation method selection modal
+      handleShowCreationMethodModal();
+    } else if (selectedKey === 'edit') {
+      // Show price group selection for editing
+      handleSelectPriceGroupForEdit();
+    }
+  };
+
+  // Handle creation method modal
+  const handleShowCreationMethodModal = () => {
+    Modal.confirm({
+      title: 'Create New Price Group',
+      content: (
+        <div style={{ marginTop: '16px' }}>
+          <Typography.Text style={{ marginBottom: '16px', display: 'block' }}>
+            How would you like to create the new price group?
+          </Typography.Text>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input type="radio" name="creationMethod" value="blank" defaultChecked />
+              <div>
+                <div style={{ fontWeight: 500 }}>Create from blank</div>
+                <Typography.Text style={{ fontSize: '12px', color: token.colorTextSecondary }}>
+                  Start with empty price group
+                </Typography.Text>
+              </div>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input type="radio" name="creationMethod" value="clone" />
+              <div>
+                <div style={{ fontWeight: 500 }}>Clone from existing price group</div>
+                <Typography.Text style={{ fontSize: '12px', color: token.colorTextSecondary }}>
+                  Copy structure from existing price group
+                </Typography.Text>
+              </div>
+            </label>
+          </div>
+        </div>
+      ),
+      okText: 'Continue',
+      cancelText: 'Cancel',
+      onOk: () => {
+        const selectedMethod = (document.querySelector('input[name="creationMethod"]:checked') as HTMLInputElement)?.value as 'blank' | 'clone';
+        if (selectedMethod) {
+          setPriceEditorCreationMethod(selectedMethod);
+          setPriceEditorModalOpen(true);
+        }
+      },
+    });
+  };
+
+  // Handle price group selection for edit mode
+  const handleSelectPriceGroupForEdit = () => {
+    const availablePriceGroups = [...new Set(product?.skus.map(sku => sku.priceGroup) || [])];
+    
+    if (availablePriceGroups.length === 0) {
+      Modal.info({
+        title: 'No Price Groups Available',
+        content: 'This product has no price groups to edit.',
+        okText: 'Got it',
+      });
+      return;
+    }
+
+    // Show modal with price group selection
+    Modal.confirm({
+      title: 'Select Price Group to Edit',
+      content: (
+        <div style={{ marginTop: '16px' }}>
+          <Typography.Text style={{ marginBottom: '8px', display: 'block' }}>
+            Choose which price group you want to edit:
+          </Typography.Text>
+          <select 
+            id="priceGroupSelect"
+            style={{ 
+              width: '100%', 
+              padding: '8px', 
+              fontSize: '13px',
+              border: `1px solid ${token.colorBorder}`,
+              borderRadius: '4px'
+            }}
+            defaultValue={availablePriceGroups[0]?.id}
+          >
+            {availablePriceGroups.map(priceGroup => (
+              <option key={priceGroup.id} value={priceGroup.id}>
+                {priceGroup.id} - {priceGroup.name || 'Unnamed Price Group'}
+              </option>
+            ))}
+          </select>
+        </div>
+      ),
+      okText: 'Edit Price Group',
+      cancelText: 'Cancel',
+      onOk: () => {
+        const select = document.getElementById('priceGroupSelect') as HTMLSelectElement;
+        const selectedPriceGroupId = select?.value;
+        
+        if (selectedPriceGroupId) {
+          // Find the selected price group and associated SKUs
+          const selectedPriceGroup = availablePriceGroups.find(pg => String(pg.id) === selectedPriceGroupId);
+          const skusWithSelectedPriceGroup = product?.skus.filter(sku => String(sku.priceGroup.id) === selectedPriceGroupId) || [];
+          
+          if (selectedPriceGroup && skusWithSelectedPriceGroup.length > 0) {
+            // Extract channels and billing cycles for the selected price group
+            const uniqueChannels = [...new Set(skusWithSelectedPriceGroup.map(sku => sku.salesChannel))];
+            const uniqueBillingCycles = [...new Set(skusWithSelectedPriceGroup.map(sku => sku.billingCycle))];
+            
+            // Get LIX information from first SKU
+            const firstSku = skusWithSelectedPriceGroup[0];
+            const lixKey = firstSku?.lix?.key;
+            const lixTreatment = firstSku?.lix?.treatment;
+            
+            // Set up state for editing selected price group
+            const priceGroupEditData = {
+              priceGroup: selectedPriceGroup,
+              channels: uniqueChannels,
+              billingCycles: uniqueBillingCycles,
+              lixKey: lixKey || undefined,
+              lixTreatment: lixTreatment || undefined,
+            };
+            
+            setSelectedPriceGroupForEdit(priceGroupEditData);
+            setPriceEditorCreationMethod(null); // null indicates direct edit mode
+            setPriceEditorModalOpen(true);
+          }
+        }
+      },
+    });
+  };
 
 
 
@@ -1322,27 +1445,31 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // Prices tab
+    // Pricing tab
     {
       key: 'pricing',
-      label: 'Prices',
+      label: 'Pricing',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title="Prices"
+            title="Price Groups"
             subtitle="A price is a grouping of price points defined by a channel x billing cycle pairing, and can be part of the same LIX experiment."
             hideDivider={true}
             actions={
-              <Dropdown menu={{ items: priceCreationMenuItems }} trigger={['click']}>
-                <Button
-                  type="primary"
-                  ghost
-                  icon={<Plus size={16} />}
-                  size="middle"
-                >
-                  Create new prices
-                </Button>
-              </Dropdown>
+              <ModeSelectorButton
+                options={productModeSelectorOptions}
+                defaultSelected="create"
+                onExecute={handleProductModeExecute}
+                buttonProps={{
+                  type: "primary",
+                  style: {
+                    borderColor: '#1677ff',
+                    backgroundColor: 'transparent',
+                    color: '#1677ff'
+                  }
+                }}
+                size="middle"
+              />
             }
           >
             <FilterBar
@@ -1913,10 +2040,20 @@ const ProductDetail: React.FC = () => {
         onClose={() => {
           setPriceEditorModalOpen(false);
           setPriceEditorCreationMethod(null);
+          setSelectedPriceGroupForEdit(null);
         }}
         productName={product.name}
         productId={product.id}
         product={product}
+        directEditMode={selectedPriceGroupForEdit !== null} // Direct edit when editing selected price group
+        prefilledContext={selectedPriceGroupForEdit ? {
+          channel: selectedPriceGroupForEdit.channels[0],
+          billingCycle: selectedPriceGroupForEdit.billingCycles[0],
+          priceGroupAction: 'update',
+          existingPriceGroup: selectedPriceGroupForEdit.priceGroup,
+          lixKey: selectedPriceGroupForEdit.lixKey,
+          lixTreatment: selectedPriceGroupForEdit.lixTreatment,
+        } : undefined}
         initialCreationMethod={priceEditorCreationMethod}
       />
     </Space>

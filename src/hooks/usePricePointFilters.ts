@@ -1,13 +1,12 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type { PricePoint } from '../utils/types';
 import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
 import { categorizePricePoints, toSentenceCase, formatValidityRange } from '../utils/formatters';
 import { generateDynamicOptionsWithCounts } from '../utils/filterUtils';
 import { getCurrencyRegion } from '../utils/regionUtils';
 
 
-export const usePricePointFilters = (initialPricePoints: PricePoint[], channels?: string[]) => {
+export const usePricePointFilters = (initialPricePoints: PricePoint[], _channels?: string[]) => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState<string | null>(null);

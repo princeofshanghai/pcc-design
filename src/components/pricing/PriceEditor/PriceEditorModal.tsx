@@ -146,10 +146,11 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       // Field channel change detection
       Object.entries(priceInputs).forEach(([currency, seatRangeData]: [string, any]) => {
         Object.entries(seatRangeData).forEach(([seatRange, tierData]: [string, any]) => {
-          Object.entries(tierData).forEach(([tier, newPriceInput]: [string, string]) => {
-            if (!newPriceInput || newPriceInput.trim() === '') return;
+          Object.entries(tierData).forEach(([tier, newPriceInput]) => {
+            const priceInput = newPriceInput as string;
+            if (!priceInput || priceInput.trim() === '') return;
             
-            const newPriceValue = parseFloat(newPriceInput.replace(/,/g, ''));
+            const newPriceValue = parseFloat(priceInput.replace(/,/g, ''));
             if (isNaN(newPriceValue) || newPriceValue < 0) return;
             
             const currentPrice = currentPrices[currency]?.[seatRange]?.[tier] || null;
@@ -177,10 +178,11 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       });
     } else {
       // Non-field channel change detection
-      Object.entries(priceInputs).forEach(([currency, newPriceInput]: [string, string]) => {
-        if (!newPriceInput || newPriceInput.trim() === '') return;
+      Object.entries(priceInputs).forEach(([currency, newPriceInput]) => {
+        const priceInput = newPriceInput as string;
+        if (!priceInput || priceInput.trim() === '') return;
         
-        const newPriceValue = parseFloat(newPriceInput.replace(/,/g, ''));
+        const newPriceValue = parseFloat(priceInput.replace(/,/g, ''));
         if (isNaN(newPriceValue) || newPriceValue < 0) return;
         
         const currentPrice = currentPrices[currency] || null;

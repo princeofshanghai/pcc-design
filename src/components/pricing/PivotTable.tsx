@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { Table, Typography, theme, Space } from 'antd';
+import { Table, Typography, theme } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import type { PricePoint } from '../../utils/types';
-import { formatColumnTitles, formatValidityRange } from '../../utils/formatters';
+import { formatColumnTitles } from '../../utils/formatters';
 import InfoPopover from '../shared/InfoPopover';
 import type { ColumnsType } from 'antd/es/table';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface PivotTableProps {
   pricePoints: PricePoint[];
@@ -243,7 +243,7 @@ interface PivotTableData {
 
 const PivotTable: React.FC<PivotTableProps> = ({ 
   pricePoints,
-  selectedValidityDate,
+  selectedValidityDate: _selectedValidityDate,
   showUsdEquivalent = false,
 }) => {
   const { token } = theme.useToken();

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Table, Input, Typography, theme, Space, DatePicker, Select, Button, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import { X } from 'lucide-react';
+import { X, Pencil } from 'lucide-react';
 import InfoPopover from '../../shared/InfoPopover';
 
 const { Text } = Typography;
@@ -18,6 +18,13 @@ interface SimplePriceTableProps {
   };
   product: any;
   onPriceChange?: (currency: string, newPrice: string | null) => void;
+  onGetCurrentState?: React.Ref<{
+    getCurrentState: () => {
+      priceInputs: Record<string, string>;
+      priceData: Record<string, number>;
+      validityDates: { startDate: any; endDate: any };
+    };
+  }>;
 }
 
 interface PriceTableData {
@@ -146,7 +153,8 @@ const parseUserInput = (value: string): number | null => {
 const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   selectedContext,
   product,
-  onPriceChange
+  onPriceChange,
+  onGetCurrentState
 }) => {
   const { token } = theme.useToken();
   const [priceInputs, setPriceInputs] = useState<Record<string, string>>({});
@@ -166,7 +174,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   const [selectedCurrencies, setSelectedCurrencies] = useState<string[]>(['USD']); // USD by default
   
   // Validity date state
-  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs());
+  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs().add(7, 'day'));
   const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
   
   // Individual currency validity overrides
@@ -208,18 +216,19 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
     const pricePoints = sourcePriceGroup.pricePoints;
 
-    // Find the latest validity range
-    const latestValidityDate = Math.max(...pricePoints
-      .map((pp: any) => pp.validFrom ? new Date(pp.validFrom).getTime() : 0)
-      .filter((time: number) => time > 0)
-    );
-    
+    // Filter price points that are active today (matches "Active today" filter logic)
+    const today = new Date();
     console.log('🔍 SimplePriceTable DEBUG - all pricePoints:', pricePoints);
-    console.log('🔍 SimplePriceTable DEBUG - latestValidityDate:', new Date(latestValidityDate));
+    console.log('🔍 SimplePriceTable DEBUG - filtering for active today:', today);
     
     const currentPricePoints = pricePoints.filter((pp: any) => {
-      const validFrom = pp.validFrom ? new Date(pp.validFrom).getTime() : 0;
-      return validFrom === latestValidityDate;
+      const validFrom = pp.validFrom ? new Date(pp.validFrom) : new Date('1900-01-01');
+      const validTo = pp.validTo ? new Date(pp.validTo) : null;
+      
+      // Price point is active today if:
+      // 1. It started before or on today
+      // 2. It hasn't expired yet (no end date) OR it expires after today
+      return validFrom <= today && (validTo === null || validTo >= today);
     });
     
     console.log('🔍 SimplePriceTable DEBUG - filtered currentPricePoints:', currentPricePoints);
@@ -307,6 +316,15 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       });
     }
   }, [selectedContext.priceGroupAction, existingCurrencies]);
+
+  // Expose method to get current state when needed (called by parent on demand)
+  React.useImperativeHandle(onGetCurrentState, () => ({
+    getCurrentState: () => ({
+      priceInputs,
+      priceData,
+      validityDates: { startDate: validityStartDate, endDate: validityEndDate }
+    })
+  }), [priceInputs, priceData, validityStartDate, validityEndDate]);
 
   // Check if all prices are new (no current prices exist)
   const allPricesAreNew = useMemo(() => {
@@ -410,19 +428,14 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   };
 
   const handleValidityPeriodEdit = (currency: string) => {
-    const existingDates = getExistingValidityDates(currency);
+    const isDefaults = isUsingDefaults(currency);
     
-    if (existingDates) {
-      // Initialize with existing dates for editing
-      setCurrencyValidityOverrides(prev => ({
-        ...prev,
-        [currency]: {
-          startDate: existingDates.startDate,
-          endDate: existingDates.endDate
-        }
-      }));
-    } else {
-      // Initialize with global defaults for new currencies
+    if (isDefaults) {
+      // For currencies showing "using defaults", always initialize with current global defaults
+      console.log('🔍 Edit with current global defaults for', currency, ':', {
+        startDate: validityStartDate,
+        endDate: validityEndDate
+      });
       setCurrencyValidityOverrides(prev => ({
         ...prev,
         [currency]: {
@@ -430,7 +443,27 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           endDate: validityEndDate
         }
       }));
+    } else {
+      // For currencies with existing custom dates, use those existing dates
+      const existingDates = getExistingValidityDates(currency);
+      console.log('🔍 Edit existing custom dates for', currency, ':', existingDates);
+      setCurrencyValidityOverrides(prev => ({
+        ...prev,
+        [currency]: {
+          startDate: existingDates?.startDate || validityStartDate,
+          endDate: existingDates?.endDate || validityEndDate
+        }
+      }));
     }
+  };
+
+  const handleValidityPeriodCancel = (currency: string) => {
+    // Remove the override to revert back to defaults
+    setCurrencyValidityOverrides(prev => {
+      const newOverrides = { ...prev };
+      delete newOverrides[currency];
+      return newOverrides;
+    });
   };
 
   const updateCurrencyValidityDate = (currency: string, field: 'startDate' | 'endDate', value: dayjs.Dayjs | null) => {
@@ -551,12 +584,21 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   };
 
   // Define columns dynamically based on whether all prices are new
+  // Date validation helper
+  const validateDateRange = (startDate: dayjs.Dayjs | null, endDate: dayjs.Dayjs | null): string | null => {
+    if (!startDate || !endDate) return null;
+    if (endDate.isBefore(startDate)) {
+      return 'End date cannot be before start date';
+    }
+    return null;
+  };
+
   const columns: ColumnsType<PriceTableData> = [
     {
       title: 'Currency',
       dataIndex: 'currency',
       key: 'currency',
-      width: 100,
+      width: 70,
       fixed: 'left',
       className: 'table-col-first',
       render: (currency: string, record: PriceTableData) => (
@@ -575,7 +617,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       title: 'Current',
       dataIndex: 'currentPrice',
       key: 'currentPrice',
-      width: 120,
+      width: 90,
       render: (price: number | null, record: PriceTableData) => {
         if (price === null) {
           return (
@@ -604,7 +646,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       title: 'New',
       dataIndex: 'newPrice',
       key: 'newPrice',
-      width: 140,
+      width: 100,
       render: (value: string, record: PriceTableData) => {
         // Check if the new value differs from current price
         const newPriceValue = parseUserInput(value);
@@ -633,7 +675,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       title: 'Change',
       dataIndex: 'calculatedChange',
       key: 'change',
-      width: 120,
+      width: 100,
       render: (change: { amount: number; percentage: number } | null, _record: PriceTableData) => {
         if (!change || Math.abs(change.amount) < 0.01) {
           return (
@@ -669,11 +711,11 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         );
       },
     }]),
-    // Validity Period column
+    // Validity column
     {
-      title: 'Validity Period',
+      title: 'Validity',
       key: 'validityPeriod',
-      width: 140,
+      width: 200,
       render: (_: any, record: PriceTableData) => {
         const currency = record.currency;
         const isDefaults = isUsingDefaults(currency);
@@ -682,50 +724,92 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         
         if (override) {
           // Show individual date pickers for user overrides
+          const validationError = validateDateRange(override.startDate, override.endDate);
+          const hasError = !!validationError;
+          
           return (
-            <Space size={4} style={{ width: '100%' }}>
-              <DatePicker
-                value={override.startDate}
-                onChange={(date) => updateCurrencyValidityDate(currency, 'startDate', date)}
-                size="small"
-                style={{ width: '70px' }}
-                format="MMM D"
-                placeholder="Start"
-              />
-              <Text style={{ fontSize: '11px', color: token.colorTextTertiary }}>to</Text>
-              <DatePicker
-                value={override.endDate}
-                onChange={(date) => updateCurrencyValidityDate(currency, 'endDate', date)}
-                size="small"
-                style={{ width: '70px' }}
-                format="MMM D"
-                placeholder="ongoing"
-                allowClear
-              />
-            </Space>
+            <div style={{ width: '100%' }}>
+              <Space size={4} style={{ width: '100%' }}>
+                <DatePicker
+                  value={override.startDate}
+                  onChange={(date) => updateCurrencyValidityDate(currency, 'startDate', date)}
+                  size="small"
+                  format="MMM D, YYYY"
+                  placeholder="Start"
+                  status={hasError ? "error" : undefined}
+                />
+                <Text style={{ fontSize: '11px', color: token.colorTextTertiary }}>to</Text>
+                <DatePicker
+                  value={override.endDate}
+                  onChange={(date) => updateCurrencyValidityDate(currency, 'endDate', date)}
+                  size="small"
+                  format="MMM D, YYYY"
+                  placeholder="present"
+                  allowClear
+                  status={hasError ? "error" : undefined}
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<X size={12} />}
+                  onClick={() => handleValidityPeriodCancel(currency)}
+                  style={{
+                    color: token.colorTextTertiary,
+                    padding: '2px',
+                    height: '20px',
+                    width: '20px',
+                    minWidth: '20px'
+                  }}
+                  title="Cancel and use default dates"
+                />
+              </Space>
+              {hasError && (
+                <Text style={{ 
+                  color: token.colorError, 
+                  fontSize: token.fontSizeSM,
+                  display: 'block',
+                  marginTop: '2px'
+                }}>
+                  {validationError}
+                </Text>
+              )}
+            </div>
           );
         } else if (isDefaults) {
-          // Show "Using defaults" for new currencies
+          // Show actual default dates with pencil icon
+          const startText = validityStartDate?.format('MMM D, YYYY') || 'Not set';
+          const endText = validityEndDate?.format('MMM D, YYYY') || 'present';
+          
           return (
-            <Button
-              type="link"
-              size="small"
+            <div
               onClick={() => handleValidityPeriodEdit(currency)}
               style={{
-                fontSize: token.fontSize,
-                color: token.colorTextSecondary,
-                padding: 0,
-                height: 'auto',
-                textAlign: 'left'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                padding: '2px 0'
               }}
             >
-              Using defaults
-            </Button>
+              <Text style={{
+                fontSize: token.fontSize,
+                color: token.colorTextTertiary
+              }}>
+                {startText} - {endText}
+              </Text>
+              <Pencil 
+                size={12} 
+                style={{ 
+                  color: token.colorPrimary,
+                  flexShrink: 0
+                }} 
+              />
+            </div>
           );
         } else if (existingDates) {
           // Show actual dates for existing currencies, clickable to edit
-          const startText = existingDates.startDate?.format('MMM D') || 'Not set';
-          const endText = existingDates.endDate?.format('MMM D') || 'ongoing';
+          const startText = existingDates.startDate?.format('MMM D, YYYY') || 'Not set';
+          const endText = existingDates.endDate?.format('MMM D, YYYY') || 'present';
           
           return (
             <Button
@@ -810,6 +894,54 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   return (
     <div style={{ marginTop: '8px' }}>
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
+        {/* Validity controls */}
+        <div style={{ marginBottom: '16px' }}>
+          <Text style={{ 
+            fontSize: '13px', 
+            color: token.colorText, 
+            fontWeight: 500,
+            display: 'block',
+            marginBottom: '8px'
+          }}>
+            New prices valid from:
+          </Text>
+          <Space align="center" wrap>
+            <DatePicker
+              value={validityStartDate}
+              onChange={setValidityStartDate}
+              size="middle"
+              format="MMM D, YYYY"
+              status={validateDateRange(validityStartDate, validityEndDate) ? "error" : undefined}
+            />
+            <Text style={{ fontSize: '13px', color: token.colorText }}>to:</Text>
+            <DatePicker
+              value={validityEndDate}
+              onChange={setValidityEndDate}
+              placeholder="Present"
+              size="middle"
+              format="MMM D, YYYY"
+              status={validateDateRange(validityStartDate, validityEndDate) ? "error" : undefined}
+            />
+          </Space>
+          {validateDateRange(validityStartDate, validityEndDate) && (
+            <Text style={{ 
+              color: token.colorError, 
+              fontSize: token.fontSizeSM,
+              display: 'block',
+              marginTop: '4px'
+            }}>
+              {validateDateRange(validityStartDate, validityEndDate)}
+            </Text>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div style={{ 
+          height: '1px', 
+          backgroundColor: token.colorBorder, 
+          margin: '16px 0' 
+        }} />
+
         {/* Currency selection dropdown */}
         <div style={{ marginBottom: '16px' }}>
           <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
@@ -862,34 +994,15 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           />
         </div>
 
-        {/* Validity controls */}
-        <div style={{ 
-          marginBottom: '16px', 
-          padding: '12px', 
-          background: token.colorFillAlter,
-          borderRadius: '6px'
+        {/* Explanatory text for Current column */}
+        <Text style={{ 
+          fontSize: token.fontSize,
+          color: token.colorTextSecondary,
+          display: 'block',
+          marginBottom: '12px'
         }}>
-          <Space align="center" wrap>
-            <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500 }}>
-              Default dates:
-            </Text>
-            <DatePicker
-              value={validityStartDate}
-              onChange={setValidityStartDate}
-              size="small"
-              style={{ width: '120px' }}
-            />
-            <Text style={{ fontSize: '13px', color: token.colorText }}>to:</Text>
-            <DatePicker
-              value={validityEndDate}
-              onChange={setValidityEndDate}
-              placeholder="Ongoing"
-              size="small"
-              style={{ width: '120px' }}
-            />
-          </Space>
-        </div>
-
+          Current column shows prices active today - these are what you're changing from.
+        </Text>
         
         <Table
           size="small"

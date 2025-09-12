@@ -275,51 +275,12 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
     };
   };
 
-  // Action column (always visible, fixed to right)
+  // Combined action column (3-dot menu + chevron in single column)
   const actionColumn = {
     title: '', // No column title
     key: 'actions',
     fixed: 'right' as const,
-    width: 48,
-    render: (_: any, record: any) => {
-      if ('isGroupHeader' in record) return null;
-
-      return (
-        <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <Dropdown menu={createRowMenu(record)} trigger={['click']} placement="bottomRight">
-            <Button 
-              icon={<Ellipsis size={16} />} 
-              size="small"
-              type="text"
-              style={{ 
-                border: 'none',
-                background: 'transparent',
-                padding: '4px',
-                height: '24px',
-                width: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f5f5f5';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-              }}
-            />
-          </Dropdown>
-        </div>
-      );
-    },
-  };
-
-  // Chevron column (always visible, fixed to right) - visual indicator for clickability  
-  const chevronColumn = {
-    title: '', // No column title
-    key: 'chevron',
-    fixed: 'right' as const,
-    width: 48,
+    width: 64,
     className: 'table-action-column',
     render: (_: any, record: any) => {
       if ('isGroupHeader' in record) return null;
@@ -329,8 +290,47 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: '12px', // Small gap between 3-dot menu and chevron
           height: '100%',
         }}>
+          {/* 3-dot menu */}
+          <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <Dropdown menu={createRowMenu(record)} trigger={['click']} placement="bottomRight">
+              <Button 
+                size="small"
+                type="text"
+                style={{ 
+                  border: 'none',
+                  background: 'transparent',
+                  padding: '0',
+                  height: '24px',
+                  width: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: '1'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f5f5f5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  width: '100%'
+                }}>
+                  <Ellipsis size={16} />
+                </div>
+              </Button>
+            </Dropdown>
+          </div>
+          
+          {/* Chevron */}
           <ChevronRight 
             size={16} 
             style={{ 
@@ -342,8 +342,8 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
     },
   };
 
-  // Combine base columns with action column and chevron column
-  const columns: ColumnsType<any> = [...baseColumns, actionColumn, chevronColumn];
+  // Combine base columns with single action column (contains both 3-dot menu and chevron)
+  const columns: ColumnsType<any> = [...baseColumns, actionColumn];
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 

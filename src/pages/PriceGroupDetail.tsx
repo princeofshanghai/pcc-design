@@ -62,7 +62,7 @@ const PriceGroupDetail: React.FC = () => {
   const [viewMode, setViewMode] = useState(() => {
     // Load from localStorage on initial mount
     const saved = localStorage.getItem('pricePointViewMode');
-    return (saved === 'list' || saved === 'pivot') ? saved : 'list';
+    return (saved === 'list' || saved === 'pivot') ? saved : 'pivot';
   });
 
 

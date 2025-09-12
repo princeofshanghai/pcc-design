@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
 import ContextSelector from './ContextSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
+import PriceChangesSummary from './PriceChangesSummary';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
 import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
 
@@ -38,6 +39,14 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   
   // New state for creation method - initialize with prop
   const [creationMethod, setCreationMethod] = useState<'blank' | 'clone' | null>(initialCreationMethod);
+  
+  // State to track price changes for the review step
+  const [priceChanges, setPriceChanges] = useState<any[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+  
+  // Refs to access current state from child components
+  const fieldPriceRef = React.useRef<any>(null);
+  const simplePriceRef = React.useRef<any>(null);
 
   // Reset state when modal opens or initialCreationMethod changes
   React.useEffect(() => {
@@ -52,11 +61,55 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       }
       setGTMMotionSelection(null);
       setIsSaving(false);
+      setPriceChanges([]);
+      setHasChanges(false);
     }
   }, [open, directEditMode, prefilledContext, initialCreationMethod]);
 
   const handleNext = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 2)); // Max step is 2 (0-indexed) - Step 3 total
+    // If moving from step 1 (price editing) to step 2 (review), capture changes
+    if (currentStep === 1) {
+      captureAndDetectChanges();
+    }
+    setCurrentStep(prev => Math.min(prev + 1, 3)); // Max step is 3 (0-indexed) - Step 4 total
+  };
+
+  const captureAndDetectChanges = () => {
+    if (!selectedContext) return;
+
+    const isFieldChannel = selectedContext.channel?.toLowerCase() === 'field';
+    let currentState = null;
+
+    try {
+      // Get current state from the appropriate ref
+      if (isFieldChannel && fieldPriceRef.current) {
+        currentState = fieldPriceRef.current.getCurrentState();
+      } else if (!isFieldChannel && simplePriceRef.current) {
+        currentState = simplePriceRef.current.getCurrentState();
+      }
+
+      if (!currentState) {
+        console.warn('Could not get current state from pricing components');
+        setPriceChanges([]);
+        setHasChanges(false);
+        return;
+      }
+
+      const changes = detectPriceChanges(
+        isFieldChannel,
+        currentState.priceInputs,
+        currentState.priceData,
+        currentState.validityDates
+      );
+
+      console.log('🔍 Detected changes:', changes);
+      setPriceChanges(changes);
+      setHasChanges(changes.length > 0);
+    } catch (error) {
+      console.error('Error capturing changes:', error);
+      setPriceChanges([]);
+      setHasChanges(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -75,11 +128,112 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     }
     setGTMMotionSelection(null);
     setIsSaving(false);
+    setPriceChanges([]);
+    setHasChanges(false);
     onClose();
   };
 
   const handleGTMMotionSelectionChange = (selection: GTMMotionSelection) => {
     setGTMMotionSelection(selection);
+  };
+
+
+  // Helper function to detect and format price changes
+  const detectPriceChanges = (isFieldChannel: boolean, priceInputs: any, currentPrices: any, validityInfo: any) => {
+    const changes: any[] = [];
+    
+    if (isFieldChannel) {
+      // Field channel change detection
+      Object.entries(priceInputs).forEach(([currency, seatRangeData]: [string, any]) => {
+        Object.entries(seatRangeData).forEach(([seatRange, tierData]: [string, any]) => {
+          Object.entries(tierData).forEach(([tier, newPriceInput]: [string, string]) => {
+            if (!newPriceInput || newPriceInput.trim() === '') return;
+            
+            const newPriceValue = parseFloat(newPriceInput.replace(/,/g, ''));
+            if (isNaN(newPriceValue) || newPriceValue < 0) return;
+            
+            const currentPrice = currentPrices[currency]?.[seatRange]?.[tier] || null;
+            const hasChanged = currentPrice === null || Math.abs(newPriceValue - currentPrice) >= 0.01;
+            
+            if (hasChanged) {
+              const change = currentPrice !== null ? {
+                amount: newPriceValue - currentPrice,
+                percentage: currentPrice === 0 ? 0 : ((newPriceValue - currentPrice) / currentPrice) * 100
+              } : { amount: newPriceValue, percentage: 100 };
+              
+              changes.push({
+                currency,
+                currencyName: getCurrencyName(currency),
+                seatRange,
+                tier: tier === 'NULL_TIER' ? 'Base' : tier,
+                currentPrice,
+                newPrice: newPriceValue,
+                change,
+                validity: formatValidity(validityInfo)
+              });
+            }
+          });
+        });
+      });
+    } else {
+      // Non-field channel change detection
+      Object.entries(priceInputs).forEach(([currency, newPriceInput]: [string, string]) => {
+        if (!newPriceInput || newPriceInput.trim() === '') return;
+        
+        const newPriceValue = parseFloat(newPriceInput.replace(/,/g, ''));
+        if (isNaN(newPriceValue) || newPriceValue < 0) return;
+        
+        const currentPrice = currentPrices[currency] || null;
+        const hasChanged = currentPrice === null || Math.abs(newPriceValue - currentPrice) >= 0.01;
+        
+        if (hasChanged) {
+          const change = currentPrice !== null ? {
+            amount: newPriceValue - currentPrice,
+            percentage: currentPrice === 0 ? 0 : ((newPriceValue - currentPrice) / currentPrice) * 100
+          } : { amount: newPriceValue, percentage: 100 };
+          
+          changes.push({
+            currency,
+            currencyName: getCurrencyName(currency),
+            currentPrice,
+            newPrice: newPriceValue,
+            change,
+            validity: formatValidity(validityInfo)
+          });
+        }
+      });
+    }
+    
+    return changes;
+  };
+
+  // Helper function to get currency display name
+  const getCurrencyName = (currencyCode: string): string => {
+    const currencyNames: Record<string, string> = {
+      'USD': 'US Dollar',
+      'EUR': 'Euro',
+      'GBP': 'British Pound',
+      'JPY': 'Japanese Yen',
+      'CAD': 'Canadian Dollar',
+      'AUD': 'Australian Dollar',
+      'SGD': 'Singapore Dollar',
+      'HKD': 'Hong Kong Dollar',
+      'CNY': 'Chinese Yuan',
+      'INR': 'Indian Rupee',
+    };
+    return currencyNames[currencyCode] || currencyCode;
+  };
+
+  // Helper function to format validity information
+  const formatValidity = (validityInfo: any): string => {
+    if (!validityInfo) return 'Using defaults';
+    
+    const { startDate, endDate } = validityInfo;
+    if (!startDate) return 'Using defaults';
+    
+    const startText = startDate.format('MMM D, YYYY');
+    const endText = endDate ? endDate.format('MMM D, YYYY') : 'present';
+    return `${startText} - ${endText}`;
   };
 
   // Helper function to get dynamic title based on current flow
@@ -317,6 +471,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                   // Handle price changes for Field channel
                   console.log('Field price change:', { currency, seatRange, tier, newPrice });
                 }}
+                onGetCurrentState={fieldPriceRef}
               />
             ) : (
               <SimplePriceTable 
@@ -326,11 +481,24 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                   // Handle price changes for Desktop/iOS/GPB channels
                   console.log('Simple price change:', { currency, newPrice });
                 }}
+                onGetCurrentState={simplePriceRef}
               />
             )}
           </div>
         );
       case 2:
+        // Review changes step
+        return (
+          <div style={{ padding: '16px 0' }}>
+            <PriceChangesSummary
+              productName={productName}
+              isFieldChannel={selectedContext?.channel?.toLowerCase() === 'field'}
+              changes={priceChanges}
+              hasChanges={hasChanges}
+            />
+          </div>
+        );
+      case 3:
         return (
           <div style={{ padding: '16px 0' }}>
             <GTMMotionSelector 
@@ -436,7 +604,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
           }}>
             {directEditMode ? 
               (currentStep === 1 ? 'Step 1 of 2' : 'Step 2 of 2') :
-              `Step ${currentStep + 1} of 3`
+              `Step ${currentStep + 1} of 4`
             }
           </div>
           
@@ -461,13 +629,16 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             ) : null}
             
             {/* Continue/Save button logic */}
-            {currentStep < 2 ? (
+            {currentStep < 3 ? (
               <Button 
                 type="primary"
                 onClick={handleNext}
                 icon={<ArrowRight size={14} />}
                 size="middle"
-                disabled={currentStep === 0 ? !isCreationMethodValid() : false}
+                disabled={
+                  currentStep === 0 ? !isCreationMethodValid() :
+                  currentStep === 2 ? !hasChanges : false
+                }
               >
                 Continue
               </Button>

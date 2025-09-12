@@ -163,7 +163,8 @@ const Home: React.FC = () => {
       name: true,     // Always visible (required)
       folder: !currentFolder, // Hide folder column when in a specific folder
       channel: true,  // Toggleable, default visible
-      status: false,  // Hidden by default (status shown inline with product name)
+      status: true,   // Show status column by default
+      customers: true, // Show customers column by default
     };
     setVisibleColumns(resetColumns);
     // Reset column order to default order

@@ -17,6 +17,13 @@ interface FieldPriceMatrixProps {
   };
   product: any;
   onPriceChange?: (currency: string, seatRange: string, pricingTier: string, newPrice: string | null) => void;
+  onGetCurrentState?: React.Ref<{
+    getCurrentState: () => {
+      priceInputs: Record<string, Record<string, Record<string, string>>>;
+      priceData: Record<string, Record<string, Record<string, number>>>;
+      validityDates: { startDate: any; endDate: any };
+    };
+  }>;
 }
 
 interface MatrixCellData {
@@ -80,7 +87,8 @@ const parseUserInput = (value: string): number | null => {
 const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
   selectedContext,
   product,
-  onPriceChange
+  onPriceChange,
+  onGetCurrentState
 }) => {
   const { token } = theme.useToken();
   const [priceInputs, setPriceInputs] = useState<Record<string, Record<string, Record<string, string>>>>({});
@@ -88,7 +96,7 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
   const [undoState, setUndoState] = useState<Record<string, Record<string, Record<string, string>>> | null>(null);
   
   // Validity date state
-  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs());
+  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs().add(7, 'day'));
   const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
 
   // Extract real data from product for Field channel
@@ -115,15 +123,16 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
 
     const pricePoints = sourcePriceGroup.pricePoints;
 
-    // Find the latest validity range (assume it's the one without validTo or the latest validFrom)
-    const latestValidityDate = Math.max(...pricePoints
-      .map((pp: any) => pp.validFrom ? new Date(pp.validFrom).getTime() : 0)
-      .filter((time: number) => time > 0)
-    );
-    
+    // Filter price points that are active today (matches "Active today" filter logic)
+    const today = new Date();
     const currentPricePoints = pricePoints.filter((pp: any) => {
-      const validFrom = pp.validFrom ? new Date(pp.validFrom).getTime() : 0;
-      return validFrom === latestValidityDate;
+      const validFrom = pp.validFrom ? new Date(pp.validFrom) : new Date('1900-01-01');
+      const validTo = pp.validTo ? new Date(pp.validTo) : null;
+      
+      // Price point is active today if:
+      // 1. It started before or on today
+      // 2. It hasn't expired yet (no end date) OR it expires after today
+      return validFrom <= today && (validTo === null || validTo >= today);
     });
 
     // Extract unique currencies
@@ -255,6 +264,15 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       setActiveTabKey(currencies[0]);
     }
   }, [currencies, activeTabKey]);
+
+  // Expose method to get current state when needed (called by parent on demand)
+  React.useImperativeHandle(onGetCurrentState, () => ({
+    getCurrentState: () => ({
+      priceInputs,
+      priceData,
+      validityDates: { startDate: validityStartDate, endDate: validityEndDate }
+    })
+  }), [priceInputs, priceData, validityStartDate, validityEndDate]);
 
   // Handle keyboard shortcuts (like Ctrl+Z for undo)
   React.useEffect(() => {
@@ -719,6 +737,15 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       ),
       children: (
       <div>
+        {/* Explanatory text for Current column */}
+        <Text style={{ 
+          fontSize: token.fontSize,
+          color: token.colorTextSecondary,
+          display: 'block',
+          marginBottom: '12px'
+        }}>
+          Current column shows prices active today - these are what you're changing from.
+        </Text>
         
         <Table
           size="small"
@@ -740,32 +767,40 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
     <div style={{ marginTop: '8px' }}>
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
         {/* Validity controls */}
-        <div style={{ 
-          marginBottom: '16px', 
-          padding: '12px', 
-          background: token.colorFillAlter,
-          borderRadius: '6px'
-        }}>
+        <div style={{ marginBottom: '16px' }}>
+          <Text style={{ 
+            fontSize: '13px', 
+            color: token.colorText, 
+            fontWeight: 500,
+            display: 'block',
+            marginBottom: '8px'
+          }}>
+            New prices valid from:
+          </Text>
           <Space align="center" wrap>
-            <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500 }}>
-              New prices valid from:
-            </Text>
             <DatePicker
               value={validityStartDate}
               onChange={setValidityStartDate}
-              size="small"
-              style={{ width: '120px' }}
+              size="middle"
+              format="MMM D, YYYY"
             />
             <Text style={{ fontSize: '13px', color: token.colorText }}>to:</Text>
             <DatePicker
               value={validityEndDate}
               onChange={setValidityEndDate}
-              placeholder="Ongoing"
-              size="small"
-              style={{ width: '120px' }}
+              placeholder="Present"
+              size="middle"
+              format="MMM D, YYYY"
             />
           </Space>
         </div>
+
+        {/* Divider */}
+        <div style={{ 
+          height: '1px', 
+          backgroundColor: token.colorBorder, 
+          margin: '16px 0' 
+        }} />
 
         <Tabs 
           items={tabItems}

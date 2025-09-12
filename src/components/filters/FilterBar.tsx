@@ -10,6 +10,51 @@ import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/ty
 import { toSentenceCase } from '../../utils/formatters/text';
 import { getColumnLabel } from '../../utils/tableConfigurations';
 
+// Utility function to determine if a filter should be shown based on available options
+const shouldShowFilter = (filter: FilterConfig): boolean => {
+  // Always show custom components (like ValiditySelector)
+  if (filter.customComponent) {
+    return true;
+  }
+  
+  // Count real selectable options (exclude "All", catch-all options, etc.)
+  const getRealOptionsCount = (options: SelectOption[]): number => {
+    let count = 0;
+    
+    for (const option of options) {
+      if ('options' in option) {
+        // Option group - count all child options
+        count += option.options.length;
+      } else {
+        // Simple option - exclude common catch-all patterns
+        const label = option.label.toLowerCase();
+        const value = option.value.toLowerCase();
+        
+        // Skip "All" options and similar catch-all patterns
+        if (
+          label.startsWith('all ') || 
+          value.startsWith('all') ||
+          label === 'all' ||
+          value === 'all' ||
+          label === 'any' ||
+          value === 'any'
+        ) {
+          continue;
+        }
+        
+        count++;
+      }
+    }
+    
+    return count;
+  };
+  
+  const realOptionsCount = getRealOptionsCount(filter.options);
+  
+  // Show filter only if there are 2 or more real options to choose from
+  return realOptionsCount > 1;
+};
+
 // Create CSS for More filters button and dropdown items to match inline filters
 const createMoreFiltersButtonStyles = (primaryColor: string, primaryBg: string) => `
   .more-filters-button {
@@ -83,6 +128,9 @@ export interface FilterConfig {
   // Custom display props
   customDisplayValue?: (value: string | null, multiValue?: string[]) => string;
   icon?: React.ReactNode;
+  
+  // Custom component (alternative to standard filter button)
+  customComponent?: React.ReactNode;
 }
 
 interface FilterBarProps {
@@ -164,17 +212,21 @@ const FilterBar: React.FC<FilterBarProps> = ({
   
   const shouldRenderViewOptions = viewOptions?.viewMode || viewOptions?.groupBy || viewOptions?.sortOrder || viewOptions?.columnOptions || viewOptions?.showUsdEquivalent !== undefined;
 
-  const activeFilterCount = filters.filter(f => 
+  // Filter out single-option filters first (auto-hide filters with only 1 selectable option)
+  // This improves UX by reducing clutter when filters aren't useful
+  const usefulFilters = filters.filter(shouldShowFilter);
+  
+  // Count active filters only among visible (useful) filters
+  const activeFilterCount = usefulFilters.filter(f => 
     !f.excludeFromClearAll && (f.multiSelect ? (f.multiValue?.length ?? 0) > 0 : f.value != null)
   ).length;
 
-  // Separate primary and secondary filters
-  const hasProgressiveDisclosure = filters.some(f => f.primary === false);
+  const hasProgressiveDisclosure = usefulFilters.some(f => f.primary === false);
   const primaryFilters = hasProgressiveDisclosure ? 
-    filters.filter(f => f.primary !== false) : 
-    filters; // If no progressive disclosure, all are primary
+    usefulFilters.filter(f => f.primary !== false) : 
+    usefulFilters; // If no progressive disclosure, all are primary
   const secondaryFilters = hasProgressiveDisclosure ? 
-    filters.filter(f => f.primary === false) : 
+    usefulFilters.filter(f => f.primary === false) : 
     [];
 
   // Get currently active inline filters (primary + provisional secondary)
@@ -243,7 +295,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
     // If has value, keep it (it's now committed)
   };
 
-  const hasFilters = filters.length > 0;
+  const hasFilters = usefulFilters.length > 0;
 
   // Component to render filters inline
   const renderFilters = (filtersToRender = activeInlineFilters) => (
@@ -259,7 +311,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
                key={`${filter.placeholder}-${index}`}
                size={8}>
           <div data-filter-placeholder={filter.placeholder}>
-            {useCustomFilters ? (
+            {filter.customComponent ? (
+              filter.customComponent
+            ) : useCustomFilters ? (
               <CustomFilterButton
                 placeholder={toSentenceCase(filter.placeholder)}
                 options={filter.options}

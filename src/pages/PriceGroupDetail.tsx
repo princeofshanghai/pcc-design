@@ -19,7 +19,8 @@ import {
   InfoPopover,
   ModeSelectorButton
 } from '../components';
-import { getDefaultColumnVisibility, getAvailableGroupByOptions, getDefaultValidityFilter } from '../utils/channelConfigurations';
+import ValiditySelector from '../components/shared/ValiditySelector';
+import { getDefaultColumnVisibility, getAvailableGroupByOptions } from '../utils/channelConfigurations';
 import { getChannelIcon } from '../utils/channelIcons';
 import { getBillingModelIcon } from '../utils/billingModelIcons';
 
@@ -33,7 +34,7 @@ import {
   DEFAULT_PRICE_POINT_COLUMNS,
   getFilterPlaceholder
 } from '../utils/tableConfigurations';
-import { Download, Calendar, Rows2, Table2 } from 'lucide-react';
+import { Download, Rows2, Table2 } from 'lucide-react';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 
 const { Title } = Typography;
@@ -140,13 +141,15 @@ const PriceGroupDetail: React.FC = () => {
     setSeatFilters,
     tierFilters,
     setTierFilters,
-    validityFilter,
-    setValidityFilter,
+    validityMode,
+    setValidityMode,
+    customValidityDate,
+    setCustomValidityDate,
+    selectedValidityDate,
     currencyOptions,
     statusOptions,
     seatOptions,
     tierOptions,
-    validityOptions,
     sortOrder: pricePointSortOrder,
     setSortOrder: setPricePointSortOrder,
     groupBy: pricePointGroupBy,
@@ -390,37 +393,22 @@ const PriceGroupDetail: React.FC = () => {
               filters={[
                 {
                   placeholder: getFilterPlaceholder('validity'),
-                  options: validityOptions,
+                  customComponent: (
+                    <ValiditySelector
+                      validityMode={validityMode}
+                      onValidityModeChange={setValidityMode}
+                      customValidityDate={customValidityDate}
+                      onCustomValidityDateChange={setCustomValidityDate}
+                    />
+                  ),
+                  // Required for TypeScript interface compatibility but not used with customComponent
+                  options: [],
                   multiSelect: false,
-                  value: validityFilter,
-                  onChange: (value: string | null) => {
-                    if (value) {
-                      setValidityFilter(value);
-                    } else {
-                      // Reset to channel-specific default when cleared
-                      const channelDefault = getDefaultValidityFilter(uniqueChannels);
-                      if (channelDefault === 'most-recent') {
-                        const newestPeriod = validityOptions.find(opt => opt.value !== 'All periods')?.value;
-                        setValidityFilter(newestPeriod || 'All periods');
-                      } else {
-                        setValidityFilter('All periods');
-                      }
-                    }
-                  },
-                  disableSearch: true,
-                  // View selector behavior - validity is not a filter, it's a view mode
-                  excludeFromClearAll: true,
-                  hideClearButton: true,
-                  preventDeselection: true,
-                  // Custom display: show "All" instead of "All periods" on button
-                  customDisplayValue: (value) => {
-                    return value === 'All periods' ? 'All' : value || 'All';
-                  },
-                  // Add Calendar icon
-                  icon: <Calendar size={12} />,
-                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
                   multiValue: [],
                   onMultiChange: () => {},
+                  excludeFromClearAll: true, // Don't clear the validity selector when "Clear All" is clicked
                 },
                 {
                   placeholder: getFilterPlaceholder('currency'),
@@ -478,8 +466,8 @@ const PriceGroupDetail: React.FC = () => {
                     value: viewMode,
                     setter: handleViewModeChange,
                     options: [
-                      { key: 'list', label: 'List view', icon: <Rows2 size={20} /> },
-                      { key: 'pivot', label: 'Pivot view', icon: <Table2 size={20} /> }
+                      { key: 'pivot', label: 'Pivot view', icon: <Table2 size={20} /> },
+                      { key: 'list', label: 'List view', icon: <Rows2 size={20} /> }
                     ],
                     storageKey: 'pricePointViewMode'
                   }
@@ -537,7 +525,8 @@ const PriceGroupDetail: React.FC = () => {
             {viewMode === 'pivot' && uniqueChannels.includes('Field') ? (
               <PivotTable 
                 pricePoints={filteredPricePoints}
-                validityFilter={validityFilter}
+                selectedValidityDate={selectedValidityDate}
+                showUsdEquivalent={showUsdEquivalent}
               />
             ) : (
               <PricePointTable 
@@ -561,7 +550,7 @@ const PriceGroupDetail: React.FC = () => {
         <Space direction="vertical" size={24} style={{ width: '100%' }}>
           <AnalyticsChart 
             pricePoints={priceGroup?.pricePoints || []}
-            validityOptions={validityOptions}
+            validityOptions={[]}
           />
         </Space>
       ),

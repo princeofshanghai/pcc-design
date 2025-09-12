@@ -1453,8 +1453,6 @@ const ProductDetail: React.FC = () => {
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
             title="Price Groups"
-            subtitle="A price is a grouping of price points defined by a channel x billing cycle pairing, and can be part of the same LIX experiment."
-            hideDivider={true}
             actions={
               <ModeSelectorButton
                 options={productModeSelectorOptions}

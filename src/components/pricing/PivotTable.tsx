@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Table, Typography, theme, Space } from 'antd';
+import { TriangleAlert } from 'lucide-react';
 import type { PricePoint } from '../../utils/types';
 import { formatColumnTitles, formatValidityRange } from '../../utils/formatters';
 import InfoPopover from '../shared/InfoPopover';
@@ -9,7 +10,8 @@ const { Text, Title } = Typography;
 
 interface PivotTableProps {
   pricePoints: PricePoint[];
-  validityFilter?: string | null;
+  selectedValidityDate?: Date;
+  showUsdEquivalent?: boolean;
 }
 
 /**
@@ -97,6 +99,141 @@ const getSeatRangeDisplay = (seatRangeKey: string): string => {
   return `${num} seat${num === 1 ? '' : 's'}`;
 };
 
+/**
+ * Calculates the USD equivalent percentage for a given price point.
+ * @param pricePoint The price point to calculate for.
+ * @param usdPricePoint The matching USD price point.
+ * @returns The percentage as a number, or null if calculation not possible.
+ */
+const calculateUsdEquivalent = (pricePoint: PricePoint, usdPricePoint: PricePoint): number | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return 100; // USD always shows 100%
+  }
+  
+  if (!usdPricePoint || usdPricePoint.currencyCode !== 'USD') {
+    return null;
+  }
+
+  // If exchange rate is available, use it for precise calculation
+  if (pricePoint.exchangeRate) {
+    const usdAmount = pricePoint.amount / pricePoint.exchangeRate;
+    return (usdAmount / usdPricePoint.amount) * 100;
+  }
+
+  // Fallback: use default exchange rates for common currencies
+  const defaultExchangeRates: Record<string, number> = {
+    'EUR': 0.92,     // 1 USD = 0.92 EUR
+    'GBP': 0.79,     // 1 USD = 0.79 GBP
+    'CAD': 1.36,     // 1 USD = 1.36 CAD
+    'AUD': 1.53,     // 1 USD = 1.53 AUD
+    'JPY': 149.50,   // 1 USD = 149.50 JPY
+    'CHF': 0.91,     // 1 USD = 0.91 CHF
+    'CNY': 7.24,     // 1 USD = 7.24 CNY
+    'HKD': 7.82,     // 1 USD = 7.82 HKD
+    'INR': 83.28,    // 1 USD = 83.28 INR
+    'SGD': 1.35,     // 1 USD = 1.35 SGD
+  };
+
+  const exchangeRate = defaultExchangeRates[pricePoint.currencyCode];
+  if (!exchangeRate) return null;
+
+  const usdAmount = pricePoint.amount / exchangeRate;
+  return (usdAmount / usdPricePoint.amount) * 100;
+};
+
+/**
+ * Finds a matching USD price point for the given price point.
+ * Matching is based on quantity ranges and pricing tier.
+ * @param pricePoint The price point to find a USD match for.
+ * @param allPricePoints All available price points to search through.
+ * @returns The matching USD price point, or null if not found.
+ */
+const findMatchingUsdPricePoint = (pricePoint: PricePoint, allPricePoints: PricePoint[]): PricePoint | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return pricePoint; // USD price point matches itself
+  }
+
+  // Find all USD price points
+  const usdPricePoints = allPricePoints.filter(point => point.currencyCode === 'USD');
+  
+  if (usdPricePoints.length === 0) {
+    return null;
+  }
+
+  // Try to find exact match by quantity range and pricing tier
+  const exactMatch = usdPricePoints.find(usdPoint => 
+    usdPoint.minQuantity === pricePoint.minQuantity &&
+    usdPoint.maxQuantity === pricePoint.maxQuantity &&
+    (usdPoint.pricingTier || 'NULL_TIER') === (pricePoint.pricingTier || 'NULL_TIER')
+  );
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  // Fallback: find closest match by quantity range (same pricing tier)
+  const sameTierUsdPoints = usdPricePoints.filter(usdPoint => 
+    (usdPoint.pricingTier || 'NULL_TIER') === (pricePoint.pricingTier || 'NULL_TIER')
+  );
+
+  if (sameTierUsdPoints.length > 0) {
+    return sameTierUsdPoints[0]; // Return first match with same tier
+  }
+
+  // Last resort: return any USD price point
+  return usdPricePoints[0];
+};
+
+/**
+ * Calculates the USD amount for a given price point.
+ * @param pricePoint The price point to calculate for.
+ * @param usdPricePoint The matching USD price point.
+ * @returns The USD amount as a number, or null if calculation not possible.
+ */
+const calculateUsdAmount = (pricePoint: PricePoint, usdPricePoint: PricePoint): number | null => {
+  if (pricePoint.currencyCode === 'USD') {
+    return pricePoint.amount; // USD shows its own amount
+  }
+  
+  if (!usdPricePoint || usdPricePoint.currencyCode !== 'USD') {
+    return null;
+  }
+
+  // If exchange rate is available, use it for precise calculation
+  if (pricePoint.exchangeRate) {
+    return pricePoint.amount / pricePoint.exchangeRate;
+  }
+
+  // Fallback: use default exchange rates for common currencies
+  const defaultExchangeRates: Record<string, number> = {
+    'EUR': 0.92,     // 1 USD = 0.92 EUR
+    'GBP': 0.79,     // 1 USD = 0.79 GBP
+    'CAD': 1.36,     // 1 USD = 1.36 CAD
+    'AUD': 1.53,     // 1 USD = 1.53 AUD
+    'JPY': 149.50,   // 1 USD = 149.50 JPY
+    'CHF': 0.91,     // 1 USD = 0.91 CHF
+    'CNY': 7.24,     // 1 USD = 7.24 CNY
+    'HKD': 7.82,     // 1 USD = 7.82 HKD
+    'INR': 83.28,    // 1 USD = 83.28 INR
+    'SGD': 1.35,     // 1 USD = 1.35 SGD
+  };
+
+  const exchangeRate = defaultExchangeRates[pricePoint.currencyCode];
+  if (!exchangeRate) return null;
+
+  return pricePoint.amount / exchangeRate;
+};
+
+/**
+ * Formats a fake FX update time for display.
+ * @returns A relative time string like "Last updated 45m ago".
+ */
+const formatFxUpdateTime = (): string => {
+  // Generate a random time within the last hour (1-59 minutes ago)
+  const minutesAgo = Math.floor(Math.random() * 59) + 1;
+  return `Last updated ${minutesAgo}m ago`;
+};
+
 interface PivotTableData {
   seatRangeKey: string;
   seatRangeDisplay: string;
@@ -106,50 +243,12 @@ interface PivotTableData {
 
 const PivotTable: React.FC<PivotTableProps> = ({ 
   pricePoints,
-  validityFilter,
+  selectedValidityDate,
+  showUsdEquivalent = false,
 }) => {
   const { token } = theme.useToken();
 
-  // Group price points by validity period when "All periods" is selected
-  const validityGroupedData = useMemo(() => {
-    if (validityFilter !== 'All periods') {
-      // Single period - return as single group
-      return [{
-        validityPeriod: validityFilter || 'Current',
-        pricePoints: pricePoints
-      }];
-    }
-
-    // Multiple periods - group by validity period
-    const groups: Record<string, PricePoint[]> = {};
-    pricePoints.forEach(pp => {
-      const period = formatValidityRange(pp.validFrom, pp.validTo);
-      if (!groups[period]) {
-        groups[period] = [];
-      }
-      groups[period].push(pp);
-    });
-
-    // Convert to array and sort by period (newest first)
-    return Object.entries(groups)
-      .map(([period, points]) => ({ validityPeriod: period, pricePoints: points }))
-      .sort((a, b) => {
-        // Sort by validity period - newest first
-        // "Present" should come first, then dates in descending order
-        if (a.validityPeriod === 'Present') return -1;
-        if (b.validityPeriod === 'Present') return 1;
-        
-        // Parse dates and sort newest first
-        const parseDate = (period: string) => {
-          const match = period.match(/(\w+ \d+, \d+)/);
-          return match ? new Date(match[1]) : new Date(0);
-        };
-        
-        return parseDate(b.validityPeriod).getTime() - parseDate(a.validityPeriod).getTime();
-      });
-  }, [pricePoints, validityFilter]);
-
-  // Transform price points into pivot structure for a single validity period
+  // Transform price points into pivot structure
   const createPivotData = (periodPricePoints: PricePoint[]) => {
     // Get all unique currencies and tiers from this period's price points
     const currencies = [...new Set(periodPricePoints.map(p => p.currencyCode))];
@@ -252,6 +351,12 @@ const PivotTable: React.FC<PivotTableProps> = ({
     return { pivotRows, currencies, tiers };
   };
 
+  // Since price points are already filtered by validity date in usePricePointFilters,
+  // we can directly process them without additional validity grouping
+  const pivotData = useMemo(() => {
+    return createPivotData(pricePoints);
+  }, [pricePoints]);
+
   // Create columns for a single pivot table
   const createColumns = (currencies: string[], tiers: string[]): ColumnsType<PivotTableData> => {
     
@@ -317,7 +422,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
           dataIndex: `${currency}-${tier}`,
           key: `${currency}-${tier}`,
           width: 100,
-          align: 'right' as const,
+          align: 'center' as const,
           className: `currency-group-${currencyIndex % 2}`,
           render: (_: any, record: PivotTableData) => {
             const pricePoint = record[`${currency}-${tier}`];
@@ -330,13 +435,99 @@ const PivotTable: React.FC<PivotTableProps> = ({
               );
             }
 
+            const mainAmount = formatAmount(pricePoint);
+
+            // Show USD equivalent inline if enabled and currency is not USD
+            if (showUsdEquivalent && pricePoint.currencyCode !== 'USD') {
+              const matchingUsdPoint = findMatchingUsdPricePoint(pricePoint, pricePoints);
+              const usdAmount = matchingUsdPoint ? calculateUsdAmount(pricePoint, matchingUsdPoint) : null;
+              const percentage = matchingUsdPoint ? calculateUsdEquivalent(pricePoint, matchingUsdPoint) : null;
+              
+              if (usdAmount !== null && percentage !== null) {
+                const formattedUsdAmount = usdAmount.toFixed(2);
+                const isLowPercentage = percentage < 50;
+                
+                const popoverContent = (
+                  <div style={{ lineHeight: '1.4' }}>
+                    <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '14px' }}>
+                      USD Equivalent Calculation
+                    </div>
+                    <div style={{ marginBottom: '6px', fontSize: '12px' }}>
+                      <strong>Original:</strong> {pricePoint.currencyCode} {mainAmount}
+                    </div>
+                    <div style={{ marginBottom: '6px', fontSize: '12px' }}>
+                      <strong>FX rate:</strong> {pricePoint.exchangeRate ? 
+                        `1 USD = ${pricePoint.exchangeRate} ${pricePoint.currencyCode}` : 
+                        'Approximate rate used'
+                      }
+                    </div>
+                    <div style={{ marginBottom: '8px', fontSize: '12px' }}>
+                      <strong>Calculation:</strong> {mainAmount} / {pricePoint.exchangeRate || 'approx. rate'} = ${formattedUsdAmount}
+                    </div>
+                    <div style={{ 
+                      fontSize: '11px', 
+                      color: token.colorTextSecondary,
+                      borderTop: `1px solid ${token.colorBorderSecondary}`,
+                      paddingTop: '6px'
+                    }}>
+                      {formatFxUpdateTime()}
+                    </div>
+                    {isLowPercentage && (
+                      <div style={{ 
+                        marginTop: '8px', 
+                        padding: '6px 8px',
+                        backgroundColor: token.colorErrorBg,
+                        borderRadius: '4px',
+                        fontSize: '11px'
+                      }}>
+                        <TriangleAlert size={12} style={{ marginRight: '4px' }} />
+                        This amount is less than 50% compared to USD price
+                      </div>
+                    )}
+                  </div>
+                );
+                
+                return (
+                  <div style={{ 
+                    fontVariantNumeric: 'tabular-nums',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}>
+                    <Text style={{ 
+                      fontSize: '13px',
+                      color: pricePoint.status === 'Active' ? token.colorText : token.colorTextSecondary,
+                    }}>
+                      {mainAmount}
+                    </Text>
+                    <InfoPopover content={popoverContent} placement="top">
+                      <Text 
+                        style={{ 
+                          color: isLowPercentage ? token.colorError : token.colorTextSecondary,
+                          fontSize: '11px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          cursor: 'help',
+                          lineHeight: 1
+                        }}
+                      >
+                        ≈ {isLowPercentage && <TriangleAlert size={10} />}${formattedUsdAmount} ({percentage.toFixed(1)}%)
+                      </Text>
+                    </InfoPopover>
+                  </div>
+                );
+              }
+            }
+
+            // Default: just show the main amount
             return (
               <Text style={{ 
                 fontVariantNumeric: 'tabular-nums',
                 fontSize: '13px',
                 color: pricePoint.status === 'Active' ? token.colorText : token.colorTextSecondary,
               }}>
-                {formatAmount(pricePoint)}
+                {mainAmount}
               </Text>
             );
           },
@@ -367,40 +558,8 @@ const PivotTable: React.FC<PivotTableProps> = ({
     return formatColumnTitles(cols);
   };
 
-  // Render single table for a validity period
-  const renderPivotTable = (periodData: { validityPeriod: string; pricePoints: PricePoint[] }, index: number) => {
-    const pivotData = createPivotData(periodData.pricePoints);
-    const columns = createColumns(pivotData.currencies, pivotData.tiers);
-    
-    return (
-      <div key={`period-${index}`}>
-        {validityFilter === 'All periods' && (
-          <Title 
-            level={3} 
-            style={{ 
-              fontSize: token.fontSizeHeading3,
-              marginBottom: '16px',
-              marginTop: index === 0 ? '16px' : '32px',
-              fontWeight: 500,
-            }}
-          >
-            {periodData.validityPeriod}
-          </Title>
-        )}
-        <Table
-          size="middle"
-          columns={columns}
-          dataSource={pivotData.pivotRows}
-          rowKey={(record) => `${periodData.validityPeriod}-${record.seatRangeKey}-${record.tier}`}
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          bordered
-          className="pivot-table"
-          tableLayout="fixed"
-        />
-      </div>
-    );
-  };
+  // Create columns for the pivot table
+  const columns = createColumns(pivotData.currencies, pivotData.tiers);
 
   return (
     <div style={{ marginTop: '16px' }}>
@@ -442,9 +601,17 @@ const PivotTable: React.FC<PivotTableProps> = ({
           border-left: none !important;
         }
       `}</style>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {validityGroupedData.map((periodData, index) => renderPivotTable(periodData, index))}
-      </Space>
+      <Table
+        size="middle"
+        columns={columns}
+        dataSource={pivotData.pivotRows}
+        rowKey={(record) => `${record.seatRangeKey}-${record.tier}`}
+        pagination={false}
+        scroll={{ x: 'max-content' }}
+        bordered
+        className="pivot-table"
+        tableLayout="fixed"
+      />
     </div>
   );
 };

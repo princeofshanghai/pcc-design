@@ -313,16 +313,10 @@ const AppLayout = () => {
   const getChangeManagementSelectedKeys = () => selectedKeys.filter(key => changeManagementKeys.includes(key));
 
   // Find the current menu item based on the path
-  const currentMenuItem = location.pathname === '/' ? { key: 'products', label: 'Products', path: '/' } : null;
+  // Note: We don't show breadcrumbs for root pages (they have no parent to navigate back to)
+  const currentMenuItem = null; // No breadcrumb for root pages
 
   const breadcrumbItems = [];
-  if (currentMenuItem) {
-    breadcrumbItems.push(
-      <Breadcrumb.Item key={currentMenuItem.key}>
-        <Link to={currentMenuItem.path}>{currentMenuItem.label}</Link>
-      </Breadcrumb.Item>
-    );
-  }
 
   // Handle folder pages - add breadcrumb for folder pages
   if (location.pathname.startsWith('/folder/') && folderName) {
@@ -334,20 +328,18 @@ const AppLayout = () => {
     // Note: Folder page itself doesn't show folder name in breadcrumb - only parent navigation
   }
 
-  // Handle GTM Motion pages
-  if (location.pathname.startsWith('/gtm-motions')) {
+  // Handle GTM Motion detail pages (not the root list page)
+  const motionMatch = location.pathname.match(/^\/gtm-motions\/(.+)$/);
+  if (motionMatch) {
+    // Add GTM Motions root breadcrumb for child pages only
     breadcrumbItems.push(
       <Breadcrumb.Item key="gtm-motions">
         <Link to="/gtm-motions">GTM Motions</Link>
       </Breadcrumb.Item>
     );
     
-    // If on detail page, add specific motion breadcrumb
-    const motionMatch = location.pathname.match(/^\/gtm-motions\/(.+)$/);
-    if (motionMatch) {
-      // This would show the motion name if we had it, but for now just show ID
-      // In a real app, you'd fetch the motion name here or pass it through context
-    }
+    // This would show the motion name if we had it, but for now just show ID
+    // In a real app, you'd fetch the motion name here or pass it through context
   }
 
   // Handle attribute dictionary page - no breadcrumb needed

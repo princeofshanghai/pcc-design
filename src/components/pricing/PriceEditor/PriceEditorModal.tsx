@@ -527,7 +527,6 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               productName={productName}
               isFieldChannel={selectedContext?.channel?.toLowerCase() === 'field'}
               changes={priceChanges}
-              hasChanges={hasChanges}
               priceGroupAction={selectedContext?.priceGroupAction || 'create'}
             />
           </div>

@@ -725,6 +725,7 @@ const PriceGroupDetail: React.FC = () => {
       <Tabs
         activeKey={currentTab}
         items={tabItems}
+        size="large"
         onChange={(key) => {
           // Update URL when tab changes
           const newSearchParams = new URLSearchParams(location.search);

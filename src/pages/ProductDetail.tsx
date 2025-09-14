@@ -1257,12 +1257,11 @@ const ProductDetail: React.FC = () => {
                 <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
                   <Button 
                     type="primary"
-                    ghost
                     icon={<Pencil size={14} />}
                     size="middle"
                     style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                   >
-                    Edit...
+                    Edit name and description
                   </Button>
                 </Dropdown>
               </Space>
@@ -1295,7 +1294,6 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
             }
-            hideDivider={true}
         >
           <FilterBar
             useCustomFilters={true}
@@ -1877,6 +1875,7 @@ const ProductDetail: React.FC = () => {
       <Tabs
         activeKey={currentTab}
         items={tabItems}
+        size="large"
         onChange={(key) => {
           // Update URL when tab changes
           const newSearchParams = new URLSearchParams(location.search);

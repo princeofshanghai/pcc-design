@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Space, Table, Card, theme, Popover, Collapse } from 'antd';
+import { Typography, Space, Table, theme, Popover, Collapse } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -35,7 +35,6 @@ interface PriceChangesSummaryProps {
   productName: string;
   isFieldChannel: boolean;
   changes: PriceChange[] | FieldPriceChange[];
-  hasChanges: boolean;
   priceGroupAction: 'create' | 'update';
 }
 
@@ -58,7 +57,6 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
   productName,
   isFieldChannel,
   changes,
-  hasChanges,
   priceGroupAction
 }) => {
   const { token } = theme.useToken();

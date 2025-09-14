@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Space, theme, Typography, Radio } from 'antd';
-import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, FileText, Copy } from 'lucide-react';
 import ContextSelector from './ContextSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
@@ -44,6 +44,13 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   const [priceChanges, setPriceChanges] = useState<any[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   
+  // Real-time tracking of changes in Step 1 (price editing)
+  const [hasRealTimeChanges, setHasRealTimeChanges] = useState(false);
+  
+  // State persistence for Step 2 <-> Step 3 navigation
+  const [savedSimplePriceInputs, setSavedSimplePriceInputs] = useState<Record<string, string>>({});
+  const [savedFieldPriceInputs, setSavedFieldPriceInputs] = useState<Record<string, Record<string, Record<string, string>>>>({});
+  
   // Refs to access current state from child components
   const fieldPriceRef = React.useRef<any>(null);
   const simplePriceRef = React.useRef<any>(null);
@@ -63,6 +70,9 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       setIsSaving(false);
       setPriceChanges([]);
       setHasChanges(false);
+      setHasRealTimeChanges(false);
+      setSavedSimplePriceInputs({}); // Clear saved price inputs on modal open
+      setSavedFieldPriceInputs({});
     }
   }, [open, directEditMode, prefilledContext, initialCreationMethod]);
 
@@ -105,6 +115,13 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       console.log('🔍 Detected changes:', changes);
       setPriceChanges(changes);
       setHasChanges(changes.length > 0);
+      
+      // Save price inputs for Step 2 <-> Step 3 persistence
+      if (isFieldChannel) {
+        setSavedFieldPriceInputs(currentState.priceInputs || {});
+      } else {
+        setSavedSimplePriceInputs(currentState.priceInputs || {});
+      }
     } catch (error) {
       console.error('Error capturing changes:', error);
       setPriceChanges([]);
@@ -113,7 +130,15 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   };
 
   const handlePrevious = () => {
-    setCurrentStep(prev => Math.max(prev - 1, directEditMode ? 1 : 0)); // Min step depends on mode
+    const newStep = Math.max(currentStep - 1, directEditMode ? 1 : 0);
+    
+    // Clear saved price inputs when going back to Step 0 (context selection)
+    if (newStep === 0) {
+      setSavedSimplePriceInputs({});
+      setSavedFieldPriceInputs({});
+    }
+    
+    setCurrentStep(newStep);
   };
 
   const handleClose = () => {
@@ -130,6 +155,9 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     setIsSaving(false);
     setPriceChanges([]);
     setHasChanges(false);
+    setHasRealTimeChanges(false);
+    setSavedSimplePriceInputs({}); // Clear saved price inputs
+    setSavedFieldPriceInputs({});
     onClose();
   };
 
@@ -278,7 +306,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     
     // Add LIX info if both key and treatment exist
     if (lixTreatment && lixKey) {
-      parts.push(`${lixTreatment} (${lixKey})`);
+      parts.push(`${lixKey} (${lixTreatment})`);
     }
 
     return (
@@ -374,7 +402,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         return (
           <div style={{ padding: '16px 0' }}>
             {/* Creation Method Selection */}
-            <div style={{ marginBottom: '32px' }}>
+            <div style={{ marginBottom: '32px', maxWidth: '640px', margin: '0 auto' }}>
               <Radio.Group
                 value={creationMethod}
                 onChange={(e) => setCreationMethod(e.target.value)}
@@ -386,22 +414,21 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                    onClick={() => setCreationMethod('blank')}
                    style={{
                      flex: 1,
-                     padding: '16px',
+                     padding: '24px 16px',
                      border: `1px solid ${creationMethod === 'blank' ? token.colorPrimary : token.colorBorder}`,
                      borderRadius: token.borderRadius,
                      backgroundColor: creationMethod === 'blank' ? token.colorPrimaryBg : token.colorBgContainer,
                      cursor: 'pointer',
                      transition: 'all 0.2s ease',
                      display: 'flex',
+                     flexDirection: 'column',
                      alignItems: 'center',
                      gap: '12px'
                    }}
                  >
-                   <Radio value="blank" style={{ pointerEvents: 'none' }} />
-                   <div>
-                     <div style={{ fontSize: '16px', fontWeight: '500' }}>
-                       Create from blank
-                     </div>
+                   <FileText size={20} style={{ color: token.colorText }} />
+                   <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
+                     Create from blank
                    </div>
                  </div>
 
@@ -410,22 +437,21 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                     onClick={() => setCreationMethod('clone')}
                     style={{
                       flex: 1,
-                      padding: '16px',
+                      padding: '24px 16px',
                       border: `1px solid ${creationMethod === 'clone' ? token.colorPrimary : token.colorBorder}`,
                       borderRadius: token.borderRadius,
                       backgroundColor: creationMethod === 'clone' ? token.colorPrimaryBg : token.colorBgContainer,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       gap: '12px'
                     }}
                   >
-                    <Radio value="clone" style={{ pointerEvents: 'none' }} />
-                    <div>
-                      <div style={{ fontSize: '16px', fontWeight: '500' }}>
-                        Clone from existing
-                      </div>
+                    <Copy size={20} style={{ color: token.colorText }} />
+                    <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
+                      Clone from existing
                     </div>
                   </div>
                 </div>
@@ -434,14 +460,15 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
 
             {/* Context Selection - show when creation method selected */}
             {creationMethod && (
-              <div>
-                <Title level={4} style={{ marginBottom: '16px' }}>
-                  {creationMethod === 'blank' ? 'Configure new price group' : 'Select source and configure'}
+              <div style={{ maxWidth: '640px', margin: '0 auto', marginTop: '32px' }}>
+                <Title level={3} style={{ marginBottom: '16px' }}>
+                  {creationMethod === 'blank' ? 'Configure new price group' : 'Choose price group to clone'}
                 </Title>
                 <ContextSelector 
                   product={product} 
                   onContextChange={handleContextChange} 
                   creationMethod={creationMethod}
+                  prefilledContext={!directEditMode ? prefilledContext : null}
                 />
               </div>
             )}
@@ -469,20 +496,24 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               <FieldPriceMatrix 
                 selectedContext={selectedContext}
                 product={product}
+                initialPriceInputs={savedFieldPriceInputs}
                 onPriceChange={(currency, seatRange, tier, newPrice) => {
                   // Handle price changes for Field channel
                   console.log('Field price change:', { currency, seatRange, tier, newPrice });
                 }}
+                onHasChanges={setHasRealTimeChanges}
                 onGetCurrentState={fieldPriceRef}
               />
             ) : (
               <SimplePriceTable 
                 selectedContext={selectedContext}
                 product={product}
+                initialPriceInputs={savedSimplePriceInputs}
                 onPriceChange={(currency, newPrice) => {
                   // Handle price changes for Desktop/iOS/GPB channels
                   console.log('Simple price change:', { currency, newPrice });
                 }}
+                onHasChanges={setHasRealTimeChanges}
                 onGetCurrentState={simplePriceRef}
               />
             )}
@@ -497,6 +528,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               isFieldChannel={selectedContext?.channel?.toLowerCase() === 'field'}
               changes={priceChanges}
               hasChanges={hasChanges}
+              priceGroupAction={selectedContext?.priceGroupAction || 'create'}
             />
           </div>
         );
@@ -639,6 +671,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 size="middle"
                 disabled={
                   currentStep === 0 ? !isCreationMethodValid() :
+                  currentStep === 1 ? !hasRealTimeChanges :
                   currentStep === 2 ? !hasChanges : false
                 }
               >

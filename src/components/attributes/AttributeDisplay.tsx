@@ -26,7 +26,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   }
 
   const labelContent = (
-    <Text style={{ fontSize: '13px', letterSpacing: '0.1px', color: token.colorTextSecondary, display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <Text style={{ fontSize: token.fontSize, letterSpacing: '0.1px', color: token.colorTextSecondary, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {toSentenceCase(label)}
       {tooltip && (
         <InfoPopover content={tooltip} />
@@ -40,7 +40,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
         <Col span={4}>{labelContent}</Col>
         <Col span={20}>
           <div style={{ 
-            fontSize: '13px',
+            fontSize: token.fontSize,
             maxWidth: '600px', // Limit width to encourage earlier wrapping
             wordWrap: 'break-word', // Ensure long words break properly
             overflowWrap: 'break-word' // Modern CSS property for better word breaking
@@ -55,7 +55,7 @@ const AttributeDisplay: React.FC<AttributeDisplayProps> = ({
   return ( // Vertical layout
     <div style={{ marginBottom: '8px' }}>
       {labelContent}
-      <div style={{ marginTop: '2px', fontSize: '13px' }}>
+      <div style={{ marginTop: '2px', fontSize: token.fontSize }}>
         {children}
       </div>
     </div>

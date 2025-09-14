@@ -256,8 +256,8 @@ const PriceGroupDetail: React.FC = () => {
   const modeSelectorOptions = [
     {
       key: 'edit',
-      label: 'Edit price group',
-      description: 'Modify currencies and amounts in this price group.'
+      label: 'Edit price points',
+      description: 'Edit price points in this price group'
     },
     {
       key: 'create',
@@ -269,7 +269,7 @@ const PriceGroupDetail: React.FC = () => {
   // Handler for executing the selected action
   const handleModeExecute = (selectedKey: string) => {
     if (selectedKey === 'edit') {
-      console.log('Edit this price group clicked');
+      console.log('Edit price points clicked');
       setModalCreationMethod('edit');
       setEditModalOpen(true);
     } else {

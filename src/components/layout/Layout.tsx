@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
-import { User, PanelLeft, Box, SquareSlash } from 'lucide-react';
+import { User, PanelLeft, Box, SquareSlash, Folder } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -69,7 +69,8 @@ const generateMenuStructure = () => {
             label: formatGroupHeader(lob),
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
-              label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>
+              label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>,
+              icon: <Folder size={14} />
             }))
           }))
       ]
@@ -322,7 +323,7 @@ const AppLayout = () => {
   if (location.pathname.startsWith('/folder/') && folderName) {
     breadcrumbItems.push(
       <Breadcrumb.Item key="catalog">
-        <Link to="/">Products</Link>
+        <Link to="/">All products</Link>
       </Breadcrumb.Item>
     );
     // Note: Folder page itself doesn't show folder name in breadcrumb - only parent navigation
@@ -349,7 +350,7 @@ const AppLayout = () => {
     if (!currentMenuItem) {
       breadcrumbItems.push(
         <Breadcrumb.Item key="home">
-          <Link to="/">Products</Link>
+          <Link to="/">All products</Link>
         </Breadcrumb.Item>
       );
     }
@@ -359,7 +360,10 @@ const AppLayout = () => {
       breadcrumbItems.push(
         <Breadcrumb.Item key="folder">
           <Link to={`/folder/${folderName.toLowerCase().replace(/\s+/g, '-')}`}>
-            {folderName}
+            <Space size={4}>
+              <Folder size={12} style={{ color: token.colorTextSecondary }} />
+              {folderName}
+            </Space>
           </Link>
         </Breadcrumb.Item>
       );
@@ -813,6 +817,17 @@ const AppLayout = () => {
             .ant-breadcrumb a {
               font-size: 12px !important;
               font-weight: 500 !important;
+            }
+            
+            /* Fix folder icon alignment in breadcrumbs */
+            .ant-breadcrumb .ant-breadcrumb-link a .ant-space {
+              display: flex !important;
+              align-items: center !important;
+            }
+            
+            .ant-breadcrumb .ant-breadcrumb-link a .ant-space-item:first-child {
+              display: flex !important;
+              align-items: center !important;
             }
           `}
         </style>

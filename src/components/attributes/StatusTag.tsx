@@ -1,6 +1,6 @@
 import React from 'react';
 import { theme } from 'antd';
-import { ArchiveX, CirclePause, CircleCheckBig } from 'lucide-react';
+import { ArchiveX, CirclePause, Check } from 'lucide-react';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
 
 export type ProductStatus = 'Active' | 'Inactive' | 'Archived';
@@ -17,7 +17,7 @@ interface StatusTagProps {
 
 const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: string; antColorType: 'success' | 'warning' | 'default' }> = {
   Active: {
-    icon: CircleCheckBig,
+    icon: Check,
     description: 'Product is actively being sold',
     antColorType: 'success',
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, Space, theme, Input, Radio } from 'antd';
+import { Form, Select, theme, Input } from 'antd';
 
 const { Option, OptGroup } = Select;
 
@@ -7,6 +7,7 @@ interface ContextSelectorProps {
   product: any; // Product data to extract real options from
   onContextChange?: (context: PriceEditingContext) => void;
   creationMethod?: 'blank' | 'clone' | null; // Creation method for conditional display
+  prefilledContext?: any; // Pre-filled context data
 }
 
 interface PriceEditingContext {
@@ -22,7 +23,8 @@ interface PriceEditingContext {
 const ContextSelector: React.FC<ContextSelectorProps> = ({
   product,
   onContextChange,
-  creationMethod = null
+  creationMethod = null,
+  prefilledContext = null
 }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
@@ -39,7 +41,6 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
 
   // Clone mode state management
   const [selectedClonePriceGroup, setSelectedClonePriceGroup] = React.useState<any | null>(null);
-  const [clonePriceGroupSearch, setClonePriceGroupSearch] = React.useState('');
 
   // All possible channels and billing cycles
   const ALL_CHANNELS = ['Desktop', 'iOS', 'GPB', 'Field'];
@@ -66,18 +67,6 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     return Array.from(priceGroupMap.values());
   }, [product, creationMethod]);
 
-  // Filtered price groups based on search
-  const filteredClonePriceGroups = React.useMemo(() => {
-    if (!clonePriceGroupSearch.trim()) return availableClonePriceGroups;
-    
-    const search = clonePriceGroupSearch.toLowerCase();
-    return availableClonePriceGroups.filter(pg => 
-      pg.id.toLowerCase().includes(search) ||
-      pg.channel.toLowerCase().includes(search) ||
-      pg.billingCycle.toLowerCase().includes(search) ||
-      (pg.lix?.key && pg.lix.key.toLowerCase().includes(search))
-    );
-  }, [availableClonePriceGroups, clonePriceGroupSearch]);
 
 
   // Categorize channels into existing vs new
@@ -150,11 +139,10 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
       priceGroupSelection: undefined
     });
     
-    // Reset LIX fields and clone search
+    // Reset LIX fields and clone selection
     setSelectedLixKey(null);
     setSelectedLixTreatment(null);
     setSelectedClonePriceGroup(null);
-    setClonePriceGroupSearch('');
     form.setFieldsValue({
       lixKey: undefined,
       lixTreatment: undefined,
@@ -221,15 +209,41 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     }
   };
 
-  // Handle radio selection for clone price groups
-  const handleRadioClonePriceGroupChange = (e: any) => {
-    handleClonePriceGroupChange(e.target.value);
-  };
 
-  // Reset clone search when creation method changes
+  // Initialize form with prefilledContext if provided
+  React.useEffect(() => {
+    if (prefilledContext) {
+      if (prefilledContext.channel) {
+        setSelectedChannel(prefilledContext.channel);
+      }
+      if (prefilledContext.billingCycle) {
+        setSelectedBillingCycle(prefilledContext.billingCycle);
+      }
+      if (prefilledContext.lixKey) {
+        setSelectedLixKey(prefilledContext.lixKey);
+      }
+      if (prefilledContext.lixTreatment) {
+        setSelectedLixTreatment(prefilledContext.lixTreatment);
+      }
+      if (prefilledContext.clonePriceGroup) {
+        setSelectedClonePriceGroup(prefilledContext.clonePriceGroup);
+        setSelectedPriceGroupAction('create'); // Always create when cloning
+      }
+      
+      // Set form field values
+      form.setFieldsValue({
+        channel: prefilledContext.channel,
+        billingCycle: prefilledContext.billingCycle,
+        lixKey: prefilledContext.lixKey,
+        lixTreatment: prefilledContext.lixTreatment,
+        clonePriceGroup: prefilledContext.clonePriceGroup?.id,
+      });
+    }
+  }, [prefilledContext, form]);
+
+  // Reset clone selection when creation method changes
   React.useEffect(() => {
     if (creationMethod !== 'clone') {
-      setClonePriceGroupSearch('');
       setSelectedClonePriceGroup(null);
     }
   }, [creationMethod]);
@@ -255,117 +269,105 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
 
           {/* Clone Price Group Selection - Show Only in Clone Mode */}
           {creationMethod === 'clone' && (
-            <div style={{ marginBottom: '24px' }}>
-              {/* Label */}
-              <div style={{ 
-                marginBottom: '8px', 
-                fontSize: '14px', 
-                fontWeight: '500',
-                color: token.colorText 
-              }}>
-                Choose price group to clone
-              </div>
-              
-              {/* Search Input */}
-              <Input
+            <Form.Item
+              name="clonePriceGroup"
+              label="Price group"
+              rules={[{ required: true, message: 'Please select a price group to clone from' }]}
+            >
+              <Select
                 placeholder="Search price groups..."
-                value={clonePriceGroupSearch}
-                onChange={(e) => setClonePriceGroupSearch(e.target.value)}
-                style={{ marginBottom: '16px' }}
-                allowClear
-              />
-              
-              {/* Radio Cards */}
-              <Form.Item
-                name="clonePriceGroup"
-                rules={[{ required: true, message: 'Please select a price group to clone from' }]}
-              >
-                <Radio.Group
-                  value={selectedClonePriceGroup?.id}
-                  onChange={handleRadioClonePriceGroupChange}
-                  style={{ width: '100%' }}
-                >
-                  <div style={{ width: '100%' }}>
-                    {filteredClonePriceGroups.map((priceGroup: any, index: number) => (
-                      <div key={priceGroup.id}>
-                        <div
-                          onClick={() => handleClonePriceGroupChange(priceGroup.id)}
-                          style={{
-                            padding: index === 0 ? '8px 0 20px 0' : index === filteredClonePriceGroups.length - 1 ? '20px 0 8px 0' : '20px 0',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            transition: 'background-color 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = token.colorFillTertiary || token.colorBgTextHover;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                            <Radio value={priceGroup.id} style={{ pointerEvents: 'none' }} />
-                            <div style={{ 
-                              fontSize: token.fontSize, 
-                              color: token.colorText,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              flex: 1
-                            }}>
-                              <span style={{ fontWeight: '500' }}>{priceGroup.id}</span>
-                              <span style={{ color: token.colorTextSecondary }}>
-                                {priceGroup.channel} • {priceGroup.billingCycle}
-                                {priceGroup.lix && ` • ${priceGroup.lix.key} (${priceGroup.lix.treatment})`}
-                              </span>
-                            </div>
-                          </div>
-                          <div style={{ 
-                            fontSize: token.fontSize, 
-                            color: token.colorTextSecondary, 
-                            fontWeight: '500',
-                            marginLeft: '16px'
-                          }}>
-                            {priceGroup.pricePoints?.length || 0} price points
-                          </div>
-                        </div>
-                        {index < filteredClonePriceGroups.length - 1 && (
-                          <div style={{
-                            height: '1px',
-                            backgroundColor: token.colorBorder,
-                            margin: '0'
-                          }} />
-                        )}
+                size="large"
+                style={{ width: '100%' }}
+                showSearch
+                filterOption={(input, option) => {
+                  const priceGroup = availableClonePriceGroups.find(pg => pg.id === option?.value);
+                  if (!priceGroup) return false;
+                  
+                  // Search in ID, channel, billing cycle, LIX key, and LIX treatment
+                  const searchFields = [
+                    priceGroup.id,
+                    priceGroup.channel,
+                    priceGroup.billingCycle,
+                    priceGroup.lix?.key,
+                    priceGroup.lix?.treatment
+                  ].filter(Boolean).join(' ').toLowerCase();
+                  
+                  return searchFields.includes(input.toLowerCase());
+                }}
+                onChange={handleClonePriceGroupChange}
+                optionRender={(option) => {
+                  const priceGroup = availableClonePriceGroups.find(pg => pg.id === option.value);
+                  if (!priceGroup) return null;
+                  
+                  return (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '4px',
+                      padding: '8px 0'
+                    }}>
+                      {/* Row 1: Price info (left) and ID (right) */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <span style={{ 
+                          fontSize: token.fontSize, 
+                          color: token.colorText,
+                          fontWeight: '500'
+                        }}>
+                          {(() => {
+                            const usdPricePoint = priceGroup.pricePoints?.find((pp: any) => pp.currency === 'USD');
+                            const totalPricePoints = priceGroup.pricePoints?.length || 0;
+                            
+                            if (usdPricePoint && totalPricePoints > 1) {
+                              return `USD ${usdPricePoint.price} + ${totalPricePoints - 1} more`;
+                            } else if (usdPricePoint) {
+                              return `USD ${usdPricePoint.price}`;
+                            } else {
+                              return `${totalPricePoints} non-USD price points`;
+                            }
+                          })()}
+                        </span>
+                        <span style={{ 
+                          fontSize: token.fontSize, 
+                          color: token.colorText,
+                          fontWeight: '500'
+                        }}>
+                          ID: {priceGroup.id}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                </Radio.Group>
-              </Form.Item>
-              
-              {filteredClonePriceGroups.length === 0 && clonePriceGroupSearch && (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '32px', 
-                  color: token.colorTextSecondary 
-                }}>
-                  No price groups found matching "{clonePriceGroupSearch}"
-                </div>
-              )}
-            </div>
+                      
+                      {/* Row 2: Channel, Cycle, LIX info */}
+                      <div style={{ 
+                        fontSize: token.fontSize, 
+                        color: token.colorTextSecondary 
+                      }}>
+                        {[
+                          priceGroup.channel,
+                          priceGroup.billingCycle,
+                          priceGroup.lix && `${priceGroup.lix.key} (${priceGroup.lix.treatment})`
+                        ].filter(Boolean).join(', ')}
+                      </div>
+                    </div>
+                  );
+                }}
+              >
+                {availableClonePriceGroups.map((priceGroup: any) => (
+                  <Option key={priceGroup.id} value={priceGroup.id}>
+                    {priceGroup.id}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
           )}
 
           {/* Channel Selection - Only show in blank mode */}
           {creationMethod !== 'clone' && (
             <Form.Item
               name="channel"
-              label="Sales channel"
-              rules={[{ required: true, message: 'Please select a sales channel' }]}
+              label="Channel"
+              rules={[{ required: true, message: 'Please select a channel' }]}
             >
               <Select 
-                placeholder="Choose sales channel"
+                placeholder="Choose channel"
                 size="large"
                 style={{ width: '100%' }}
                 onChange={handleChannelChange}
@@ -430,43 +432,41 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
           {/* Show after channel/billing cycle selection in blank mode, or after clone selection in clone mode */}
           {((creationMethod === 'blank' && selectedChannel && selectedBillingCycle) || 
             (creationMethod === 'clone' && selectedClonePriceGroup)) && (
-            <div style={{ marginBottom: '16px' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                {/* LIX Key - Simple text input */}
-                <Form.Item
-                  name="lixKey"
-                  label="LIX key (optional)"
-                >
-                  <Input
-                    placeholder="Enter LIX key"
-                    size="large"
-                    allowClear
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSelectedLixKey(value || null);
-                      handleFormChange();
-                    }}
-                  />
-                </Form.Item>
+            <>
+              {/* LIX Key - Simple text input */}
+              <Form.Item
+                name="lixKey"
+                label="LIX key (optional)"
+              >
+                <Input
+                  placeholder="Enter LIX key"
+                  size="large"
+                  allowClear
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedLixKey(value || null);
+                    handleFormChange();
+                  }}
+                />
+              </Form.Item>
 
-                {/* LIX Treatment - Simple text input */}
-                <Form.Item
-                  name="lixTreatment"
-                  label="LIX treatment (optional)"
-                >
-                  <Input
-                    placeholder="Enter LIX treatment"
-                    size="large"
-                    allowClear
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSelectedLixTreatment(value || null);
-                      handleFormChange();
-                    }}
-                  />
-                </Form.Item>
-              </Space>
-            </div>
+              {/* LIX Treatment - Simple text input */}
+              <Form.Item
+                name="lixTreatment"
+                label="LIX treatment (optional)"
+              >
+                <Input
+                  placeholder="Enter LIX treatment"
+                  size="large"
+                  allowClear
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedLixTreatment(value || null);
+                    handleFormChange();
+                  }}
+                />
+              </Form.Item>
+            </>
           )}
 
 

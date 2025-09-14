@@ -550,6 +550,8 @@ const CustomFilterButton: React.FC<CustomFilterButtonProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            fontSize: token.fontSizeSM,
+            fontWeight: token.fontWeightStrong,
           }}
           icon={(() => {
             if (noXIcon) {

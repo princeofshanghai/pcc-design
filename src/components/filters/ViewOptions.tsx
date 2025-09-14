@@ -619,6 +619,8 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
           justifyContent: 'center',
           padding: '0 12px',
           gap: '6px',
+          fontSize: token.fontSizeSM,
+          fontWeight: token.fontWeightStrong,
         }}
       >
         <Badge dot={isViewActive || false} size="small">

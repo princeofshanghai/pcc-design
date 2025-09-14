@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space } from 'antd';
+import { Folder } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockProducts } from '../utils/mock-data';
@@ -181,6 +182,10 @@ const Home: React.FC = () => {
       <div style={{ marginBottom: 16 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <PageHeader
+            {...(currentFolder && {
+              entityType: "Folder",
+              entityIcon: <Folder size={12} />
+            })}
             title={pageTitle}
             subtitle={pageSubtitle}
           />

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Input, Typography, theme, Space, DatePicker, Select, Button, Tooltip } from 'antd';
+import { Table, Input, Typography, theme, Space, DatePicker, Select, Button, Tooltip, Popover } from 'antd';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import { X, Pencil } from 'lucide-react';
+import { X, Pencil, TriangleAlert } from 'lucide-react';
 import InfoPopover from '../../shared/InfoPopover';
 
 const { Text } = Typography;
@@ -15,9 +15,12 @@ interface SimplePriceTableProps {
     existingPriceGroup: any | null; // Selected existing price group for updates
     lixKey?: string;
     lixTreatment?: string;
+    clonePriceGroup?: any | null; // Selected price group for cloning
   };
   product: any;
+  initialPriceInputs?: Record<string, string>; // For state persistence between Step 2 <-> Step 3
   onPriceChange?: (currency: string, newPrice: string | null) => void;
+  onHasChanges?: (hasChanges: boolean) => void; // Real-time change detection
   onGetCurrentState?: React.Ref<{
     getCurrentState: () => {
       priceInputs: Record<string, string>;
@@ -153,11 +156,13 @@ const parseUserInput = (value: string): number | null => {
 const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   selectedContext,
   product,
+  initialPriceInputs,
   onPriceChange,
+  onHasChanges,
   onGetCurrentState
 }) => {
   const { token } = theme.useToken();
-  const [priceInputs, setPriceInputs] = useState<Record<string, string>>({});
+  const [priceInputs, setPriceInputs] = useState<Record<string, string>>(initialPriceInputs || {});
   const [undoState, setUndoState] = useState<Record<string, string> | null>(null);
   
   // All available currencies for the multiselect dropdown
@@ -197,18 +202,30 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       console.log('🔍 SimplePriceTable DEBUG - existingPriceGroup:', selectedContext.existingPriceGroup);
       console.log('🔍 SimplePriceTable DEBUG - pricePoints:', selectedContext.existingPriceGroup?.pricePoints);
     } else if (selectedContext.priceGroupAction === 'create') {
-      // Creating new price group: use user-selected currencies (newest first)
+      // Creating new price group: use user-selected currencies with USD-first + alphabetical sorting
+      const sortedSelectedCurrencies = [...selectedCurrencies].sort((a, b) => {
+        if (a === 'USD') return -1;      // USD always first
+        if (b === 'USD') return 1;       // USD always first
+        return a.localeCompare(b);       // Everything else A-Z
+      });
+      
       return {
-        currencies: [...selectedCurrencies].reverse(),
+        currencies: sortedSelectedCurrencies,
         priceData: {},
         existingCurrencies: []
       };
     }
 
     if (!sourcePriceGroup?.pricePoints) {
-      // Fallback for edit mode without valid price group  
+      // Fallback for edit mode without valid price group - use USD-first + alphabetical sorting
+      const sortedFallbackCurrencies = [...selectedCurrencies].sort((a, b) => {
+        if (a === 'USD') return -1;      // USD always first
+        if (b === 'USD') return 1;       // USD always first
+        return a.localeCompare(b);       // Everything else A-Z
+      });
+      
       return {
-        currencies: [...selectedCurrencies].reverse(),
+        currencies: sortedFallbackCurrencies,
         priceData: {},
         existingCurrencies: []
       };
@@ -238,23 +255,27 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     
     console.log('🔍 SimplePriceTable DEBUG - extracted uniqueCurrencies:', uniqueCurrencies);
     
-    // Sort currencies (prioritize main ones, then alphabetical)
-    const currencyOrder = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'SGD', 'HKD', 'CNY', 'INR', 'JPY'];
+    // For edit mode: separate new and existing currencies, sort each group, then combine
+    const newCurrencies = selectedCurrencies.filter(currency => !uniqueCurrencies.includes(currency));
+    
+    // Sort new currencies (USD first, then A-Z)
+    const sortedNewCurrencies = newCurrencies.sort((a, b) => {
+      if (a === 'USD') return -1;      // USD always first
+      if (b === 'USD') return 1;       // USD always first
+      return a.localeCompare(b);       // Everything else A-Z
+    });
+    
+    // Sort existing currencies (USD first, then A-Z) 
     const sortedExistingCurrencies = uniqueCurrencies.sort((a, b) => {
       const aStr = a as string;
       const bStr = b as string;
-      const aIndex = currencyOrder.indexOf(aStr);
-      const bIndex = currencyOrder.indexOf(bStr);
-      
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      if (aIndex !== -1) return -1;
-      if (bIndex !== -1) return 1;
-      return aStr.localeCompare(bStr);
+      if (aStr === 'USD') return -1;      // USD always first
+      if (bStr === 'USD') return 1;       // USD always first
+      return aStr.localeCompare(bStr);    // Everything else A-Z
     });
-
-    // For edit mode: combine currencies with new ones first, then existing ones
-    const newCurrencies = selectedCurrencies.filter(currency => !sortedExistingCurrencies.includes(currency));
-    const combinedCurrencies = [...newCurrencies, ...sortedExistingCurrencies];
+    
+    // Combine: new currencies first, then existing currencies
+    const finalSortedCurrencies = [...sortedNewCurrencies, ...sortedExistingCurrencies];
 
     // Build price data lookup: currency -> price
     // Only include actual price data if we're updating an existing price group
@@ -269,7 +290,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     }
 
     return {
-      currencies: combinedCurrencies as string[],
+      currencies: finalSortedCurrencies as string[],
       priceData: priceDataLookup,
       existingCurrencies: sortedExistingCurrencies as string[]
     };
@@ -303,6 +324,34 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     });
   }, [selectedContext, priceInputs, currencies, priceData]);
 
+  // Real-time change detection
+  React.useEffect(() => {
+    if (!onHasChanges) return;
+
+    let hasAnyChanges = false;
+
+    // Check if any price input differs from current price
+    currencies.forEach(currency => {
+      const currentPrice = selectedContext.priceGroupAction === 'update' ? priceData[currency] : null;
+      const newPriceInput = priceInputs[currency] || '';
+      const newPriceValue = parseUserInput(newPriceInput);
+
+      // For create mode, any non-empty input is a change
+      if (selectedContext.priceGroupAction === 'create' && newPriceValue !== null) {
+        hasAnyChanges = true;
+      }
+      
+      // For update mode, check if values differ significantly
+      if (selectedContext.priceGroupAction === 'update' && 
+          currentPrice !== null && newPriceValue !== null && 
+          Math.abs(newPriceValue - currentPrice) >= 0.01) {
+        hasAnyChanges = true;
+      }
+    });
+
+    onHasChanges(hasAnyChanges);
+  }, [priceInputs, currencies, priceData, selectedContext.priceGroupAction, onHasChanges]);
+
   // Initialize selectedCurrencies for edit mode
   React.useEffect(() => {
     if (selectedContext.priceGroupAction === 'update' && existingCurrencies.length > 0) {
@@ -316,6 +365,22 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       });
     }
   }, [selectedContext.priceGroupAction, existingCurrencies]);
+
+  // Initialize selectedCurrencies for clone mode
+  React.useEffect(() => {
+    if (selectedContext.priceGroupAction === 'create' && selectedContext.clonePriceGroup?.pricePoints) {
+      // For clone mode, extract currencies from the cloned price group (sorting will be applied in useMemo)
+      const cloneCurrencies = [...new Set(selectedContext.clonePriceGroup.pricePoints.map((pp: any) => String(pp.currency || pp.currencyCode)))].filter(Boolean) as string[];
+      
+      setSelectedCurrencies(prev => {
+        if (prev.length === 1 && prev[0] === 'USD' && cloneCurrencies.length > 0) {
+          // Only update if still in default state and we have clone currencies
+          return cloneCurrencies;
+        }
+        return prev;
+      });
+    }
+  }, [selectedContext.priceGroupAction, selectedContext.clonePriceGroup]);
 
   // Expose method to get current state when needed (called by parent on demand)
   React.useImperativeHandle(onGetCurrentState, () => ({
@@ -387,28 +452,31 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     };
   };
 
-  // Check if this currency is creating a new price point (amount changed)
-  const isCreatingNewPricePoint = (currency: string): boolean => {
+
+  // Check if this currency has actual price changes
+  const hasActualPriceChanges = (currency: string): boolean => {
     if (selectedContext.priceGroupAction === 'create') {
-      return true; // All currencies are new in create mode
+      const newPriceInput = priceInputs[currency] || '';
+      const newPriceValue = parseUserInput(newPriceInput);
+      return newPriceValue !== null; // Any non-empty input in create mode is a change
     }
     
-    if (!existingCurrencies.includes(currency)) {
-      return true; // New currency = new price point
-    }
-    
-    // Check if amount has changed from current price
+    // For update mode, check if current price differs from new input
     const currentPrice = priceData[currency];
     const newPriceInput = priceInputs[currency] || '';
     const newPriceValue = parseUserInput(newPriceInput);
     
-    // If no current price or new price, assume it's new
-    if (currentPrice === null || currentPrice === undefined || newPriceValue === null) {
-      return true;
+    if (!existingCurrencies.includes(currency)) {
+      // New currency = has changes if there's any input
+      return newPriceValue !== null;
     }
     
-    // If amounts differ significantly, it's a new price point
-    return Math.abs(newPriceValue - currentPrice) >= 0.01;
+    // Existing currency = has changes if values differ significantly
+    if (currentPrice !== null && newPriceValue !== null) {
+      return Math.abs(newPriceValue - currentPrice) >= 0.01;
+    }
+    
+    return false;
   };
 
   // Validity period management
@@ -418,13 +486,13 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       return false;
     }
     
-    // If creating a new price point (changed amount or new currency), use defaults
-    if (isCreatingNewPricePoint(currency)) {
+    // New currencies should always use global defaults (even without input yet)
+    if (!existingCurrencies.includes(currency)) {
       return true;
     }
     
-    // If keeping existing price point (unchanged amount), show existing dates
-    return false;
+    // Existing currencies only use defaults if they have actual price changes
+    return hasActualPriceChanges(currency);
   };
 
   const handleValidityPeriodEdit = (currency: string) => {
@@ -635,7 +703,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           <Text style={{ 
             fontVariantNumeric: 'tabular-nums',
             fontSize: '13px',
-            color: token.colorText // Use normal text color for better readability
+            color: token.colorTextSecondary
           }}>
             {formatCurrencyAmount(price, record.currency)}
           </Text>
@@ -697,17 +765,28 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
         const sign = isIncrease ? '+' : '-';
         const percentage = Math.abs(change.percentage);
+        const isLargeChange = percentage > 10;
 
         return (
-          <Text style={{ 
-            color,
-            fontSize: '13px',
-            fontVariantNumeric: 'tabular-nums',
-            fontWeight: 500,
-            textAlign: 'left' // Left align change indicators
-          }}>
-            {sign}{percentage.toFixed(1)}% {/* Remove arrows and amount, just show percentage */}
-          </Text>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {isLargeChange && (
+              <Popover 
+                content="New price is more than 10% of current"
+                placement="top"
+              >
+                <TriangleAlert size={12} color={token.colorWarning} />
+              </Popover>
+            )}
+            <Text style={{ 
+              color,
+              fontSize: '13px',
+              fontVariantNumeric: 'tabular-nums',
+              fontWeight: 500,
+              textAlign: 'left' // Left align change indicators
+            }}>
+              {sign}{percentage.toFixed(1)}% {/* Remove arrows and amount, just show percentage */}
+            </Text>
+          </div>
         );
       },
     }]),
@@ -776,7 +855,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             </div>
           );
         } else if (isDefaults) {
-          // Show actual default dates with pencil icon
+          // Show actual default dates with pencil icon (for new currencies and existing currencies with changes)
           const startText = validityStartDate?.format('MMM D, YYYY') || 'Not set';
           const endText = validityEndDate?.format('MMM D, YYYY') || 'present';
           
@@ -807,26 +886,40 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             </div>
           );
         } else if (existingDates) {
-          // Show actual dates for existing currencies, clickable to edit
+          // Show actual dates for existing currencies
           const startText = existingDates.startDate?.format('MMM D, YYYY') || 'Not set';
           const endText = existingDates.endDate?.format('MMM D, YYYY') || 'present';
+          const hasChanges = hasActualPriceChanges(currency);
           
-          return (
-            <Button
-              type="link"
-              size="small"
-              onClick={() => handleValidityPeriodEdit(currency)}
-              style={{
+          if (hasChanges) {
+            // Currency has changes - show clickable dates that can be edited
+            return (
+              <Button
+                type="link"
+                size="small"
+                onClick={() => handleValidityPeriodEdit(currency)}
+                style={{
+                  fontSize: token.fontSize,
+                  color: token.colorText,
+                  padding: 0,
+                  height: 'auto',
+                  textAlign: 'left'
+                }}
+              >
+                {startText} - {endText}
+              </Button>
+            );
+          } else {
+            // Currency unchanged - show grayed out, non-editable dates
+            return (
+              <Text style={{
                 fontSize: token.fontSize,
-                color: token.colorText,
-                padding: 0,
-                height: 'auto',
-                textAlign: 'left'
-              }}
-            >
-              {startText} - {endText}
-            </Button>
-          );
+                color: token.colorTextTertiary
+              }}>
+                {startText} - {endText}
+              </Text>
+            );
+          }
         } else {
           // Fallback - should not happen
           return (
@@ -904,6 +997,14 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             marginBottom: '8px'
           }}>
             New prices valid from:
+          </Text>
+          <Text style={{ 
+            fontSize: '12px', 
+            color: token.colorTextSecondary,
+            display: 'block',
+            marginBottom: '8px'
+          }}>
+            Only applies to currencies where you enter new amounts
           </Text>
           <Space align="center" wrap>
             <DatePicker

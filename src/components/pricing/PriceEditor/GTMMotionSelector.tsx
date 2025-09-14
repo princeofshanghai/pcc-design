@@ -3,7 +3,7 @@ import { Form, Select, Input, DatePicker, Radio, Space, Typography, theme, Card 
 import dayjs from 'dayjs';
 import { mockGTMMotions } from '../../../utils/mock-data';
 import type { GTMMotion } from '../../../utils/types';
-import { Calendar, FileText } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -104,13 +104,9 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
     <div style={{ padding: '24px 0' }}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <div>
-          <Title level={4} style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={20} />
-            Save Price Changes
+          <Title level={4} style={{ margin: '0 0 8px 0' }}>
+            Choose GTM motion to add changes to
           </Title>
-          <Text style={{ color: token.colorTextSecondary, fontSize: '14px' }}>
-            Choose where to save your price changes. You can add to existing Draft GTM Motions or create a new one.
-          </Text>
         </div>
 
         <Radio.Group 
@@ -140,12 +136,13 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
                     value={selectedMotionId}
                     onChange={handleExistingMotionChange}
                     showSearch
+                    optionLabelProp="label"
                     filterOption={(input, option) =>
-                      option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                      option?.label?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
                     }
                   >
                     {sortedMotions.map(motion => (
-                      <Option key={motion.id} value={motion.id}>
+                      <Option key={motion.id} value={motion.id} label={motion.name}>
                         <div style={{ 
                           display: 'flex', 
                           justifyContent: 'space-between', 

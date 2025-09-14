@@ -13,6 +13,7 @@ const { Title, Text } = Typography;
 
 interface PageHeaderProps {
   entityType?: string;
+  entityIcon?: React.ReactNode; // New prop for entity icon
   title?: React.ReactNode;
   rightAlignedId?: string; // ID that appears inline with entity type
   channels?: SalesChannel[]; // Legacy prop for channels (backward compatibility)
@@ -70,6 +71,7 @@ const formatDateFullUTC = (date: Date): string => {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
   entityType,
+  entityIcon,
   title, 
   rightAlignedId,
   channels = [],
@@ -98,12 +100,25 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="page-header-grid">
         {/* Main Content Area */}
         <div className="page-header-content page-header-content--no-back">
-          {/* Top row: Entity Type only */}
+          {/* Top row: Entity Type with optional icon */}
           {entityType && (
             <div className="page-header-top-row">
-              <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
-                {entityType}
-              </Text>
+              <Space size={4} align="center">
+                {entityIcon && (
+                  <span style={{ color: token.colorTextSecondary }}>
+                    {entityIcon}
+                  </span>
+                )}
+                <Text style={{ 
+                  fontSize: '12px', 
+                  color: token.colorTextSecondary,
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                  letterSpacing: '0.5px'
+                }}>
+                  {entityType}
+                </Text>
+              </Space>
             </div>
           )}
           

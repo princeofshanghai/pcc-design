@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Input, Typography, theme, Tabs, Space, Tag, DatePicker } from 'antd';
+import { Table, Input, Typography, theme, Tabs, Space, Tag, DatePicker, Popover } from 'antd';
+import { TriangleAlert } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
 import InfoPopover from '../../shared/InfoPopover';
@@ -14,9 +15,12 @@ interface FieldPriceMatrixProps {
     existingPriceGroup: any | null; // Selected existing price group for updates
     lixKey?: string;
     lixTreatment?: string;
+    clonePriceGroup?: any | null; // Selected price group for cloning
   };
   product: any;
+  initialPriceInputs?: Record<string, Record<string, Record<string, string>>>; // For state persistence between Step 2 <-> Step 3
   onPriceChange?: (currency: string, seatRange: string, pricingTier: string, newPrice: string | null) => void;
+  onHasChanges?: (hasChanges: boolean) => void; // Real-time change detection
   onGetCurrentState?: React.Ref<{
     getCurrentState: () => {
       priceInputs: Record<string, Record<string, Record<string, string>>>;
@@ -87,11 +91,13 @@ const parseUserInput = (value: string): number | null => {
 const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
   selectedContext,
   product,
+  initialPriceInputs,
   onPriceChange,
+  onHasChanges,
   onGetCurrentState
 }) => {
   const { token } = theme.useToken();
-  const [priceInputs, setPriceInputs] = useState<Record<string, Record<string, Record<string, string>>>>({});
+  const [priceInputs, setPriceInputs] = useState<Record<string, Record<string, Record<string, string>>>>(initialPriceInputs || {});
   const [activeTabKey, setActiveTabKey] = useState<string>('');
   const [undoState, setUndoState] = useState<Record<string, Record<string, Record<string, string>>> | null>(null);
   
@@ -109,11 +115,17 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       sourcePriceGroup = selectedContext.existingPriceGroup;
       shouldIncludePriceData = true;
     } else if (selectedContext.priceGroupAction === 'create') {
-      // Creating new price group: find ANY existing Field price group to extract structure
-      const anyFieldSku = product?.skus?.find((sku: any) => sku.salesChannel === 'Field');
-      if (anyFieldSku?.priceGroup) {
-        sourcePriceGroup = anyFieldSku.priceGroup;
+      if (selectedContext.clonePriceGroup) {
+        // Cloning existing price group: use the selected price group for structure
+        sourcePriceGroup = selectedContext.clonePriceGroup;
         shouldIncludePriceData = false; // Structure only, no current prices
+      } else {
+        // Creating new price group: find ANY existing Field price group to extract structure
+        const anyFieldSku = product?.skus?.find((sku: any) => sku.salesChannel === 'Field');
+        if (anyFieldSku?.priceGroup) {
+          sourcePriceGroup = anyFieldSku.priceGroup;
+          shouldIncludePriceData = false; // Structure only, no current prices
+        }
       }
     }
 
@@ -257,6 +269,46 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       )
     );
   }, [currencies, seatRanges, pricingTiers, priceData]);
+
+  // Real-time change detection
+  React.useEffect(() => {
+    if (!onHasChanges) return;
+
+    let hasAnyChanges = false;
+
+    // Check all currencies, seat ranges, and tiers for changes
+    currencies.forEach(currency => {
+      // Get available tiers for the current currency (only those with data)
+      const availableTiers = pricingTiers.filter(tier => {
+        return seatRanges.some(seatRange => {
+          return priceData[currency]?.[seatRange.key]?.[tier] !== undefined;
+        });
+      });
+
+      seatRanges.forEach(seatRange => {
+        availableTiers.forEach(tier => {
+          const currentPrice = selectedContext.priceGroupAction === 'update' ? 
+            priceData[currency]?.[seatRange.key]?.[tier] : null;
+          const newPriceInput = priceInputs[currency]?.[seatRange.key]?.[tier] || '';
+          const newPriceValue = parseUserInput(newPriceInput);
+
+          // For create mode, any non-empty input is a change
+          if (selectedContext.priceGroupAction === 'create' && newPriceValue !== null) {
+            hasAnyChanges = true;
+          }
+
+          // For update mode, check if values differ significantly (same logic as border warning)
+          if (selectedContext.priceGroupAction === 'update' &&
+              currentPrice !== null && newPriceValue !== null && 
+              Math.abs(newPriceValue - currentPrice) >= 0.01) {
+            hasAnyChanges = true;
+          }
+        });
+      });
+    });
+
+    onHasChanges(hasAnyChanges);
+  }, [priceInputs, currencies, seatRanges, pricingTiers, priceData, selectedContext.priceGroupAction, onHasChanges]);
 
   // Set initial active tab when currencies are loaded
   React.useEffect(() => {
@@ -627,7 +679,7 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
                   style={{
                     fontSize: token.fontSizeSM,
                     fontVariantNumeric: 'tabular-nums',
-                    color: currentPrice !== null ? token.colorText : token.colorTextTertiary, // Use normal color for better readability
+                    color: currentPrice !== null ? token.colorTextSecondary : token.colorTextTertiary,
                     backgroundColor: token.colorBgContainer,
                     width: '90px',
                     cursor: 'not-allowed'
@@ -685,14 +737,27 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
                     fontSize: '10px',
                     fontVariantNumeric: 'tabular-nums',
                     textAlign: 'left', // Left align with input
-                    fontWeight: 500
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}>
                     {change && Math.abs(change.amount) >= 0.01 ? (
-                      <span style={{
-                        color: change.amount > 0 ? token.colorSuccess : token.colorError
-                      }}>
-                        {change.percentage >= 0 ? '+' : ''}{change.percentage.toFixed(1)}% {/* Remove arrows */}
-                      </span>
+                      <>
+                        {Math.abs(change.percentage) > 10 && (
+                          <Popover 
+                            content="New price is more than 10% of current"
+                            placement="top"
+                          >
+                            <TriangleAlert size={10} color={token.colorWarning} />
+                          </Popover>
+                        )}
+                        <span style={{
+                          color: change.amount > 0 ? token.colorSuccess : token.colorError
+                        }}>
+                          {change.percentage >= 0 ? '+' : ''}{change.percentage.toFixed(1)}% {/* Remove arrows */}
+                        </span>
+                      </>
                     ) : null}
                   </div>
                 </div>

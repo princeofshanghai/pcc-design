@@ -77,6 +77,7 @@ const createMoreFiltersButtonStyles = (primaryColor: string, primaryBg: string) 
     cursor: pointer;
     border-radius: 6px;
     font-size: 13px;
+    font-weight: 500;
     color: ${primaryColor};
     display: flex;
     align-items: center;
@@ -434,6 +435,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             size="middle"
             icon={<ListFilter size={14} />}
             className="more-filters-button"
+            style={{ fontSize: token.fontSizeSM, fontWeight: token.fontWeightStrong }}
           >
             More filters
           </Button>
@@ -447,6 +449,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
           style={{ 
             padding: '0 16px',
             color: token.colorPrimary,
+            fontSize: token.fontSizeSM,
+            fontWeight: token.fontWeightStrong,
           }}
         >
           Clear All

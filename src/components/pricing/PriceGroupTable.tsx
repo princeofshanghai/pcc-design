@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Typography, Dropdown, Button, Modal, theme } from 'antd';
+import { Table, Typography, Dropdown, Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Ellipsis, ChevronRight } from 'lucide-react';
+import PriceEditorModal from './PriceEditor/PriceEditorModal';
 import type { PriceGroup, Sku, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import { toSentenceCase, formatColumnTitles } from '../../utils/formatters';
 import { PRICE_GROUP_COLUMNS, DEFAULT_PRICE_GROUP_COLUMNS } from '../../utils/tableConfigurations';
@@ -21,6 +22,8 @@ interface PriceGroupTableProps {
   priceGroups: Array<{ priceGroup: PriceGroup; skus: Sku[] }>;
   groupedPriceGroups?: Record<string, Array<{ priceGroup: PriceGroup; skus: Sku[] }>> | null;
   productId: string;
+  productName?: string; // Add product name for Price Editor Modal
+  product?: any; // Add full product data for Price Editor Modal
   visibleColumns?: ColumnVisibility;
   columnOrder?: ColumnOrder;
   currentTab?: string; // Add current tab to remember where we came from
@@ -43,12 +46,19 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
   priceGroups, 
   groupedPriceGroups, 
   productId,
+  productName = '',
+  product,
   visibleColumns = {},
   columnOrder = DEFAULT_PRICE_GROUP_COLUMNS,
   currentTab = 'pricing', // Default to pricing since that's where this table is typically used
 }) => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
+
+  // Price Editor Modal state
+  const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
+  const [selectedPriceGroupForEdit, setSelectedPriceGroupForEdit] = useState<any>(null);
+  const [priceEditorMode, setPriceEditorMode] = useState<'edit' | 'clone'>('edit');
 
   // Create a helper to get column label from centralized config
   const getColumnLabel = (key: string): string => {
@@ -202,8 +212,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           <InfoPopover content={tooltipContent} placement="topLeft">
             <div style={{ cursor: 'pointer' }}>
               <Text>{lixKey}</Text>
-              <Text style={{ color: token.colorTextSecondary }}> | </Text>
-              <Text style={{ color: token.colorTextSecondary }}>{skuWithLix.lix.treatment}</Text>
+              <Text style={{ color: token.colorTextSecondary }}> ({skuWithLix.lix.treatment})</Text>
             </div>
           </InfoPopover>
         );
@@ -239,6 +248,58 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       .filter(Boolean)
   );
 
+  // Helper function to handle edit price points
+  const handleEditPricePoints = (record: any) => {
+    // Extract channels and billing cycles for the selected price group
+    const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
+    const uniqueBillingCycles = [...new Set(record.skus.map((sku: Sku) => sku.billingCycle))];
+    
+    // Get LIX information from first SKU
+    const firstSku = record.skus[0];
+    const lixKey = firstSku?.lix?.key;
+    const lixTreatment = firstSku?.lix?.treatment;
+    
+    // Set up state for editing selected price group
+    const priceGroupEditData = {
+      priceGroup: record.priceGroup,
+      channels: uniqueChannels,
+      billingCycles: uniqueBillingCycles,
+      lixKey: lixKey || undefined,
+      lixTreatment: lixTreatment || undefined,
+    };
+    
+    setSelectedPriceGroupForEdit(priceGroupEditData);
+    setPriceEditorMode('edit');
+    setPriceEditorModalOpen(true);
+  };
+
+  // Helper function to handle clone price group
+  const handleClonePriceGroup = (record: any) => {
+    // Extract channels and billing cycles for the selected price group
+    const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
+    const uniqueBillingCycles = [...new Set(record.skus.map((sku: Sku) => sku.billingCycle))];
+    
+    // Get LIX information from first SKU
+    const firstSku = record.skus[0];
+    const lixKey = firstSku?.lix?.key;
+    const lixTreatment = firstSku?.lix?.treatment;
+    
+    // Set up state for cloning - will start at Step 1 with clone pre-selected
+    const priceGroupCloneData = {
+      // Pre-fill context defaults from source price group (user can modify in Step 1)
+      channel: uniqueChannels[0],
+      billingCycle: uniqueBillingCycles[0], 
+      lixKey: lixKey || undefined,
+      lixTreatment: lixTreatment || undefined,
+      // Set the price group to clone from
+      clonePriceGroup: record.priceGroup,
+    };
+    
+    setSelectedPriceGroupForEdit(priceGroupCloneData);
+    setPriceEditorMode('clone');
+    setPriceEditorModalOpen(true);
+  };
+
   // Create overflow menu for each row
   const createRowMenu = (record: any) => {
     if ('isGroupHeader' in record) return { items: [] };
@@ -246,30 +307,14 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
     return {
       items: [
         {
-          key: 'view',
-          label: 'View price',
-          onClick: () => {
-            navigate(`/product/${productId}/price-group/${record.priceGroup.id}?from=${currentTab}`);
-          },
+          key: 'edit',
+          label: 'Edit price points in price group',
+          onClick: () => handleEditPricePoints(record),
         },
         {
           key: 'clone',
-          label: 'Clone price',
-          onClick: () => {
-            Modal.info({
-              title: 'Clone Price',
-              content: (
-                <div>
-                  <p>This would create a copy of price group <strong>{record.priceGroup.id}</strong>.</p>
-                  <p style={{ marginTop: 8, fontSize: '13px', color: token.colorTextSecondary }}>
-                    You would be able to modify the cloned price group with different settings.
-                  </p>
-                </div>
-              ),
-              okText: 'Got it',
-              width: 400,
-            });
-          },
+          label: 'Clone price group to create new one',
+          onClick: () => handleClonePriceGroup(record),
         },
       ],
     };
@@ -441,6 +486,40 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
           },
         }}
       />
+
+      {/* Price Editor Modal */}
+      {product && (
+        <PriceEditorModal
+          open={priceEditorModalOpen}
+          onClose={() => {
+            setPriceEditorModalOpen(false);
+            setSelectedPriceGroupForEdit(null);
+          }}
+          productName={productName}
+          productId={productId}
+          product={product}
+          directEditMode={priceEditorMode === 'edit'} // Edit: skip Step 1, Clone: start at Step 1
+          initialCreationMethod={priceEditorMode === 'clone' ? 'clone' : null} // Pre-select clone method
+          prefilledContext={selectedPriceGroupForEdit ? (
+            priceEditorMode === 'edit' ? {
+              // Edit mode: full context for Step 2
+              channel: selectedPriceGroupForEdit.channels[0],
+              billingCycle: selectedPriceGroupForEdit.billingCycles[0],
+              priceGroupAction: 'update',
+              existingPriceGroup: selectedPriceGroupForEdit.priceGroup,
+              lixKey: selectedPriceGroupForEdit.lixKey,
+              lixTreatment: selectedPriceGroupForEdit.lixTreatment,
+            } : {
+              // Clone mode: pre-fill defaults for Step 1 (user can modify)
+              channel: selectedPriceGroupForEdit.channel,
+              billingCycle: selectedPriceGroupForEdit.billingCycle,
+              lixKey: selectedPriceGroupForEdit.lixKey,
+              lixTreatment: selectedPriceGroupForEdit.lixTreatment,
+              clonePriceGroup: selectedPriceGroupForEdit.clonePriceGroup,
+            }
+          ) : undefined}
+        />
+      )}
     </div>
   );
 };

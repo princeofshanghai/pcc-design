@@ -40,7 +40,7 @@ const themeConfig: ThemeConfig = {
     fontSizeSM: 13, // Small font size - used in chip small variant and other small text
     fontSizeLG: 14,
     fontSizeHeading1: 28,
-    fontSizeHeading2: 18,
+    fontSizeHeading2: 20,
     fontSizeHeading3: 16,
     fontSizeHeading4: 14,
     lineHeight: 1.5715,

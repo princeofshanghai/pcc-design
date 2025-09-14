@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dropdown, theme } from 'antd';
 import type { MenuProps, ButtonProps } from 'antd';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Pencil, Plus } from 'lucide-react';
 
 export interface ModeSelectorOption {
   key: string;
@@ -46,6 +46,18 @@ const ModeSelectorButton: React.FC<ModeSelectorButtonProps> = ({
   const selectedOption = options.find(option => option.key === selectedKey);
   const buttonText = selectedOption?.label || options[0]?.label || 'Select';
 
+  // Get the appropriate icon based on selected key
+  const getButtonIcon = () => {
+    switch (selectedKey) {
+      case 'edit':
+        return <Pencil size={14} />;
+      case 'create':
+        return <Plus size={14} />;
+      default:
+        return null;
+    }
+  };
+
   // Build dropdown menu items
   const menuItems: MenuProps['items'] = options.map(option => ({
     key: option.key,
@@ -86,7 +98,10 @@ const ModeSelectorButton: React.FC<ModeSelectorButtonProps> = ({
       size={size}
       disabled={disabled}
     >
-      {buttonText}
+      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {getButtonIcon()}
+        {buttonText}
+      </span>
     </Dropdown.Button>
   );
 };

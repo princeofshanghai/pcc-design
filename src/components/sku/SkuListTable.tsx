@@ -156,7 +156,7 @@ export const getSkuTableColumns = (
                   gap: '4px'
                 }}
               >
-                Price {sku.priceGroup.id}
+                Price group {sku.priceGroup.id}
                 <ChevronRight size={12} />
               </Typography.Link>
             </div>

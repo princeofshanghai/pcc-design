@@ -549,7 +549,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         if ('isGroupHeader' in record) return null;
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.id || ''} variant="default" />
+            <CopyableId id={record.id || ''} variant="table" />
           </div>
         );
       },

@@ -878,7 +878,7 @@ const ProductDetail: React.FC = () => {
         if ('isGroupHeader' in record) return null;
         return (
           <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <CopyableId id={record.pricePoint.id || ''} variant="default" />
+            <CopyableId id={record.pricePoint.id || ''} variant="table" />
           </div>
         );
       },

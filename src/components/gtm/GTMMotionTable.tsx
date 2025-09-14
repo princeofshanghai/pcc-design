@@ -62,7 +62,7 @@ const GTMMotionTable: React.FC<GTMMotionTableProps> = ({
       fixed: 'left',
       render: (id: string) => (
         <div onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <CopyableId id={id} variant="default" />
+          <CopyableId id={id} variant="table" />
         </div>
       ),
       className: 'table-col-first',

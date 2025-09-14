@@ -6,7 +6,7 @@ import './CopyableId.css';
 
 interface CopyableIdProps {
   id: string;
-  variant?: 'default' | 'prominent';
+  variant?: 'default' | 'prominent' | 'table';
   muted?: boolean;
   withBackground?: boolean; // New prop for PageHeader background styling
 }
@@ -60,6 +60,15 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
         fontSize: token.fontSize,
         color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
+        fontVariantNumeric: 'tabular-nums',
+      };
+    }
+    
+    if (variant === 'table') {
+      return {
+        fontFamily: token.fontFamily, // Use main font family instead of code font
+        fontSize: token.fontSizeSM, // 13px for tables
+        color: muted ? mutedColor : token.colorTextSecondary,
         fontVariantNumeric: 'tabular-nums',
       };
     }

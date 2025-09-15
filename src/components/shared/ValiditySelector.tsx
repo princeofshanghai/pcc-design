@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Popover, Radio, DatePicker, Space, theme } from 'antd';
 import { Calendar } from 'lucide-react';
 import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 interface ValiditySelectorProps {
   validityMode: 'current' | 'custom';
@@ -23,7 +24,15 @@ const ValiditySelector: React.FC<ValiditySelectorProps> = ({
     <Space direction="vertical" size="middle" style={{ width: 200 }}>
       <Radio.Group 
         value={validityMode} 
-        onChange={(e) => onValidityModeChange(e.target.value)}
+        onChange={(e) => {
+          const newMode = e.target.value;
+          onValidityModeChange(newMode);
+          
+          // Auto-populate with today's date when switching to 'custom' if no date is set
+          if (newMode === 'custom' && !customValidityDate) {
+            onCustomValidityDateChange(dayjs());
+          }
+        }}
       >
         <Space direction="vertical">
           <Radio value="current">Today</Radio>

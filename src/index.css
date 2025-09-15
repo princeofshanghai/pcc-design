@@ -129,7 +129,7 @@ a[href*="/sku/"] {
 
 /* Table header styling - font size matches fontSize token (14px, color handled by theme.ts) */
 .ant-table-thead > tr > th {
-  font-size: 13px !important;
+  font-size: 14px !important;
 }
 
 /* Table cell vertical alignment - top align all cells for better readability */

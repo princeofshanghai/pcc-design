@@ -33,6 +33,8 @@ import {
   BillingCycleTag,
   BillingModelTag,
 } from '../components';
+import ValiditySelector from '../components/shared/ValiditySelector';
+import type { Dayjs } from 'dayjs';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
 import {
@@ -47,7 +49,6 @@ import {
   FLATTENED_PRICE_POINT_SORT_OPTIONS,
   FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
   getFilterPlaceholder} from '../utils/tableConfigurations';
-import { getDefaultValidityFilter } from '../utils/channelConfigurations';
 
 const { Title } = Typography;
 
@@ -378,12 +379,24 @@ const ProductDetail: React.FC = () => {
 
   // Price point view filtering state - initialize with saved values
   const [pricePointSearchQuery, setPricePointSearchQuery] = useState('');
-  const [pricePointValidityFilter, setPricePointValidityFilter] = useState<string>(initialPricePointFilterState.pricePointValidityFilter || 'All periods');
   const [pricePointCurrencyFilters, setPricePointCurrencyFilters] = useState<string[]>(initialPricePointFilterState.pricePointCurrencyFilters || []);
   const [pricePointStatusFilter, setPricePointStatusFilter] = useState<string | null>(initialPricePointFilterState.pricePointStatusFilter || null);
   const [pricePointChannelFilters, setPricePointChannelFilters] = useState<SalesChannel[]>(initialPricePointFilterState.pricePointChannelFilters || []);
   const [pricePointBillingCycleFilter, setPricePointBillingCycleFilter] = useState<string | null>(initialPricePointFilterState.pricePointBillingCycleFilter || null);
   const [pricePointLixFilter, setPricePointLixFilter] = useState<string | null>(initialPricePointFilterState.pricePointLixFilter || null);
+
+  // Validity filtering state - matching PriceGroupDetail.tsx logic
+  const [validityMode, setValidityMode] = useState<'current' | 'custom'>(initialPricePointFilterState.validityMode || 'current');
+  const [customValidityDate, setCustomValidityDate] = useState<Dayjs | null>(initialPricePointFilterState.customValidityDate || null);
+  
+  // Compute the selected date for filtering
+  const selectedValidityDate = useMemo(() => {
+    if (validityMode === 'current') {
+      return new Date(); // Today
+    } else {
+      return customValidityDate ? customValidityDate.toDate() : new Date();
+    }
+  }, [validityMode, customValidityDate]);
 
   // Flatten price points with inferred SKU attributes for price point view
   const allFlattenedPricePoints = useMemo(() => {
@@ -408,13 +421,20 @@ const ProductDetail: React.FC = () => {
     if (priceViewMode !== 'pricePoints') return [];
     
     return allFlattenedPricePoints.filter(item => {
-      // Validity filter - filter by validity period using formatValidityRange
-      if (pricePointValidityFilter !== 'All periods') {
-        const itemValidityPeriod = formatValidityRange(item.pricePoint.validFrom, item.pricePoint.validTo);
-        
-        if (itemValidityPeriod !== pricePointValidityFilter) {
-          return false;
-        }
+      // Validity filter - check if price point is active on selectedValidityDate
+      const validFrom = item.pricePoint.validFrom ? new Date(item.pricePoint.validFrom) : null;
+      const validTo = item.pricePoint.validTo ? new Date(item.pricePoint.validTo) : null;
+      
+      // If no validity dates, include the price point
+      if (!validFrom && !validTo) return true;
+      
+      // Check if price point is active on the selected date
+      const isActiveOnDate = 
+        (!validFrom || selectedValidityDate >= validFrom) &&
+        (!validTo || selectedValidityDate <= validTo);
+      
+      if (!isActiveOnDate) {
+        return false;
       }
 
       // Search filter (currency, price point ID, or LIX key/treatment)
@@ -463,7 +483,7 @@ const ProductDetail: React.FC = () => {
   }, [
     priceViewMode,
     allFlattenedPricePoints,
-    pricePointValidityFilter,
+    selectedValidityDate,
     pricePointSearchQuery,
     pricePointCurrencyFilters,
     pricePointStatusFilter,
@@ -476,7 +496,6 @@ const ProductDetail: React.FC = () => {
   const pricePointFilterOptions = useMemo(() => {
     if (priceViewMode !== 'pricePoints' || allFlattenedPricePoints.length === 0) {
       return {
-        validityOptions: [{ label: 'All periods', value: 'All periods' }],
         currencyOptions: [],
         statusOptions: [],
         channelOptions: [],
@@ -487,68 +506,6 @@ const ProductDetail: React.FC = () => {
 
     // Extract price points for counting
     const pricePoints = allFlattenedPricePoints.map(item => item.pricePoint);
-
-    // Generate validity options using the same logic as usePricePointFilters
-    const validityGroups: Record<string, typeof pricePoints> = {};
-    
-    pricePoints.forEach(point => {
-      const validityKey = formatValidityRange(point.validFrom, point.validTo);
-      if (!validityGroups[validityKey]) {
-        validityGroups[validityKey] = [];
-      }
-      validityGroups[validityKey].push(point);
-    });
-
-    // Helper function to extract dates and compare periods (same as usePricePointFilters)
-    const extractDates = (period: string) => {
-      if (period === 'Present') return { startDate: new Date(), endDate: null, isPresent: true };
-      
-      const match = period.match(/^(.+?) - (.+)$/);
-      if (match) {
-        const startDate = new Date(match[1]);
-        const endDate = match[2] === 'present' ? null : new Date(match[2]);
-        return { startDate, endDate, isPresent: match[2] === 'present' };
-      }
-      return { startDate: new Date(0), endDate: new Date(0), isPresent: false };
-    };
-
-    // Sort validity periods: newest to oldest, with present end dates first for same start dates
-    const sortedValidityPeriods = Object.keys(validityGroups).sort((a, b) => {
-      const datesA = extractDates(a);
-      const datesB = extractDates(b);
-      
-      // First, compare by start date (newest first)
-      const startDiff = datesB.startDate.getTime() - datesA.startDate.getTime();
-      
-      if (startDiff !== 0) {
-        return startDiff;
-      }
-      
-      // If same start date, "present" end dates come first
-      if (datesA.isPresent && !datesB.isPresent) return -1;
-      if (!datesA.isPresent && datesB.isPresent) return 1;
-      
-      // If both have specific end dates, newer end date comes first
-      if (datesA.endDate && datesB.endDate) {
-        return datesB.endDate.getTime() - datesA.endDate.getTime();
-      }
-      
-      return 0;
-    });
-
-    // Create options array with individual validity periods first, then All periods at the end
-    const validityOptions = [
-      ...sortedValidityPeriods.map((period, index) => ({
-        label: `${period} (${validityGroups[period].length})`,
-        value: period,
-        isLatest: index === 0 // First item is the latest
-      })),
-      // Add "All periods" at the end with total count
-      {
-        label: `All periods (${pricePoints.length})`,
-        value: 'All periods'
-      }
-    ];
 
     // Currency options with counts
     const currencyCounts = pricePoints.reduce((acc, point) => {
@@ -608,7 +565,6 @@ const ProductDetail: React.FC = () => {
     }));
 
     return {
-      validityOptions,
       currencyOptions,
       statusOptions, 
       channelOptions,
@@ -631,7 +587,8 @@ const ProductDetail: React.FC = () => {
     if (!productId) return;
     
     const filterState = {
-      pricePointValidityFilter,
+      validityMode,
+      customValidityDate,
       pricePointCurrencyFilters,
       pricePointStatusFilter,
       pricePointChannelFilters,
@@ -642,7 +599,7 @@ const ProductDetail: React.FC = () => {
     };
     
     localStorage.setItem(`pricePointFilters_${productId}`, JSON.stringify(filterState));
-  }, [productId, pricePointValidityFilter, pricePointCurrencyFilters, pricePointStatusFilter, 
+  }, [productId, validityMode, customValidityDate, pricePointCurrencyFilters, pricePointStatusFilter, 
       pricePointChannelFilters, pricePointBillingCycleFilter, pricePointLixFilter, 
       pricePointSortOrder, pricePointGroupBy]);
 
@@ -870,7 +827,7 @@ const ProductDetail: React.FC = () => {
   // Define columns for flattened price points table
   const flattenedPricePointColumns: ColumnsType<FlattenedPricePointTableRow> = [
     {
-      title: 'Price Point ID', 
+      title: 'Price point ID', 
       dataIndex: ['pricePoint', 'id'],
       key: 'pricePointId',
       fixed: 'left',
@@ -916,7 +873,7 @@ const ProductDetail: React.FC = () => {
       },
     },
     {
-      title: 'Channels',
+      title: 'Channel',
       dataIndex: 'channels',
       key: 'channels',
       render: (channels: SalesChannel[], record: FlattenedPricePointTableRow) => {
@@ -931,7 +888,7 @@ const ProductDetail: React.FC = () => {
       },
     },
     {
-      title: 'Billing Cycles',
+      title: 'Billing cycle',
       dataIndex: 'billingCycles',
       key: 'billingCycles',
       render: (billingCycles: BillingCycle[], record: FlattenedPricePointTableRow) => {
@@ -957,16 +914,11 @@ const ProductDetail: React.FC = () => {
         
         const lixKey = lix.key;
         
-        const tooltipTitle = `LIX Key: ${lix.key}\nTreatment: ${lix.treatment}`;
-        
         return (
-          <InfoPopover content={tooltipTitle} placement="top">
-            <div style={{ cursor: 'help' }}>
-              <Typography.Text>{lixKey}</Typography.Text>
-              <Typography.Text style={{ color: token.colorTextSecondary }}> | </Typography.Text>
-              <Typography.Text style={{ color: token.colorTextSecondary }}>{lix.treatment}</Typography.Text>
-            </div>
-          </InfoPopover>
+          <div>
+            <Typography.Text>{lixKey}</Typography.Text>
+            <Typography.Text style={{ color: token.colorTextSecondary }}> ({lix.treatment})</Typography.Text>
+          </div>
         );
       },
     },
@@ -1385,7 +1337,7 @@ const ProductDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
           <PageSection 
-            title="Price Groups"
+            title={priceViewMode === 'pricePoints' ? 'Price points' : 'Price groups'}
             actions={
               <ModeSelectorButton
                 options={productModeSelectorOptions}
@@ -1417,38 +1369,22 @@ const ProductDetail: React.FC = () => {
               filters={priceViewMode === 'pricePoints' ? [
                 {
                   placeholder: getFilterPlaceholder('validity'),
-                  options: pricePointFilterOptions.validityOptions,
+                  customComponent: (
+                    <ValiditySelector
+                      validityMode={validityMode}
+                      onValidityModeChange={setValidityMode}
+                      customValidityDate={customValidityDate}
+                      onCustomValidityDateChange={setCustomValidityDate}
+                    />
+                  ),
+                  // Required for TypeScript interface compatibility but not used with customComponent
+                  options: [],
                   multiSelect: false,
-                  value: pricePointValidityFilter,
-                  onChange: (value: string | null) => {
-                    if (value) {
-                      setPricePointValidityFilter(value);
-                    } else {
-                      // Reset to channel-specific default when cleared
-                      const uniqueChannels = [...new Set(allFlattenedPricePoints.flatMap(item => item.channels))];
-                      const channelDefault = getDefaultValidityFilter(uniqueChannels);
-                      if (channelDefault === 'most-recent') {
-                        const newestPeriod = pricePointFilterOptions.validityOptions.find(opt => opt.value !== 'All periods')?.value;
-                        setPricePointValidityFilter(newestPeriod || 'All periods');
-                      } else {
-                        setPricePointValidityFilter('All periods');
-                      }
-                    }
-                  },
-                  disableSearch: true,
-                  // View selector behavior - validity is not a filter, it's a view mode
-                  excludeFromClearAll: true,
-                  hideClearButton: true,
-                  preventDeselection: true,
-                  // Custom display: show "All" instead of "All periods" on button
-                  customDisplayValue: (value) => {
-                    return value === 'All periods' ? 'All' : value || 'All';
-                  },
-                  // Add Calendar icon
-                  icon: <Calendar size={12} />,
-                  // Required for TypeScript interface compatibility
+                  value: null,
+                  onChange: () => {},
                   multiValue: [],
                   onMultiChange: () => {},
+                  excludeFromClearAll: true, // Don't clear the validity selector when "Clear All" is clicked
                 },
                 {
                   placeholder: getFilterPlaceholder('currency'),
@@ -1540,8 +1476,8 @@ const ProductDetail: React.FC = () => {
                   value: priceViewMode,
                   setter: handlePriceViewModeChange,
                   options: [
-                    { key: 'price', label: 'View by price', icon: <Rows2 size={20} /> },
-                    { key: 'pricePoints', label: 'View by price points', icon: <Rows4 size={20} /> }
+                    { key: 'price', label: 'View by price group', icon: <Rows2 size={20} /> },
+                    { key: 'pricePoints', label: 'View by price point', icon: <Rows4 size={20} /> }
                   ],
                   storageKey: 'priceViewMode'
                 },
@@ -1604,14 +1540,46 @@ const ProductDetail: React.FC = () => {
             />
             {priceViewMode === 'pricePoints' ? (
               <div style={{ marginTop: '16px' }}>
+                <style>
+                  {`
+                    .price-point-expired-row td {
+                      color: ${token.colorTextTertiary} !important;
+                    }
+                  `}
+                </style>
                 <Table
-                  size="small"
+                  size="middle"
                   columns={flattenedPricePointColumns}
                   dataSource={flattenedPricePointDataSource}
                   rowKey={record => ('isGroupHeader' in record ? record.key : `${record.priceGroupId}-${record.pricePoint.id}`)}
                   pagination={false}
                   scroll={{ x: 'max-content' }}
-                  rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
+                  rowClassName={(record) => {
+                    if ('isGroupHeader' in record) return 'ant-table-row-group-header';
+                    
+                    // Check if price point is expired - prioritize date calculation over status field
+                    const isExpired = (() => {
+                      // If explicitly marked as expired, it's expired
+                      if (record.pricePoint.status === 'Expired') return true;
+                      
+                      // Calculate expiration based on validity dates
+                      const now = new Date();
+                      const validFrom = record.pricePoint.validFrom ? new Date(record.pricePoint.validFrom) : null;
+                      const validTo = record.pricePoint.validTo ? new Date(record.pricePoint.validTo) : null;
+                      
+                      // If no validity dates, trust the status field
+                      if (!validFrom && !validTo) return false;
+                      
+                      // If validTo exists and current time is after validTo, it's expired
+                      if (validTo && now > validTo) return true;
+                      
+                      // If validFrom exists and current time is before validFrom, it's not yet active (but not expired)
+                      // Don't treat future price points as expired
+                      return false;
+                    })();
+                    
+                    return isExpired ? 'price-point-expired-row' : '';
+                  }}
                   components={{
                     body: {
                       row: (props: any) => {
@@ -1668,10 +1636,10 @@ const ProductDetail: React.FC = () => {
                 <CopyableId id={product.id} />
               </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Status">
-                <StatusTag status={product.status} showIcon={false} />
+                <StatusTag status={product.status} variant="small" showIcon={false} />
               </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelTag billingModel={product.billingModel} showIcon={false} />
+                <BillingModelTag billingModel={product.billingModel} variant="small" showIcon={false} />
               </AttributeDisplay>
               <AttributeDisplay 
                 layout="horizontal" 
@@ -1680,7 +1648,7 @@ const ProductDetail: React.FC = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
                   {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel) => (
-                    <ChannelTag key={channel} channel={channel} showIcon={false} />
+                    <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
                   ))}
                 </div>
               </AttributeDisplay>
@@ -1961,7 +1929,7 @@ const ProductDetail: React.FC = () => {
 
       {/* Edit Price Group Selection Modal */}
       <Modal
-        title="Select price group"
+        title={`Select price group in ${product.name}`}
         open={editPriceGroupModalOpen}
         onCancel={() => {
           setEditPriceGroupModalOpen(false);
@@ -1999,28 +1967,51 @@ const ProductDetail: React.FC = () => {
               const firstSku = associatedSkus[0];
               
               return (
-                <div style={{ padding: '4px 0' }}>
-                  {/* First row: ID and name */}
-                  <div style={{ fontWeight: 500, marginBottom: '2px' }}>
-                    {priceGroup.id}{priceGroup.name ? ` - ${priceGroup.name}` : ''}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '4px',
+                  padding: '8px 0'
+                }}>
+                  {/* Row 1: Price info (left) and ID (right) */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <span style={{ 
+                      fontSize: token.fontSize, 
+                      color: token.colorText,
+                      fontWeight: '500'
+                    }}>
+                      {(() => {
+                        const usdPricePoint = priceGroup.pricePoints?.find((pp: any) => pp.currency === 'USD' || pp.currencyCode === 'USD');
+                        const totalPricePoints = priceGroup.pricePoints?.length || 0;
+                        
+                        if (usdPricePoint && totalPricePoints > 1) {
+                          return `USD ${usdPricePoint.amount || usdPricePoint.price} + ${totalPricePoints - 1} more`;
+                        } else if (usdPricePoint) {
+                          return `USD ${usdPricePoint.amount || usdPricePoint.price}`;
+                        } else {
+                          return `${totalPricePoints} non-USD price points`;
+                        }
+                      })()}
+                    </span>
+                    <span style={{ 
+                      fontSize: token.fontSize, 
+                      color: token.colorText,
+                      fontWeight: '500'
+                    }}>
+                      ID: {priceGroup.id}
+                    </span>
                   </div>
-                  {/* Second row: channel, billing cycle, LIX info */}
+                  
+                  {/* Row 2: Channel, Cycle, LIX info */}
                   <div style={{ 
-                    fontSize: '12px', 
-                    color: token.colorTextSecondary,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
+                    fontSize: token.fontSize, 
+                    color: token.colorTextSecondary 
                   }}>
-                    <span>{uniqueChannels.join(', ')}</span>
-                    <span>•</span>
-                    <span>{uniqueBillingCycles.join(', ')}</span>
-                    {firstSku?.lix && (
-                      <>
-                        <span>•</span>
-                        <span>{firstSku.lix.key} ({firstSku.lix.treatment})</span>
-                      </>
-                    )}
+                    {[
+                      uniqueChannels.join(', '),
+                      uniqueBillingCycles.join(', '),
+                      firstSku?.lix && `${firstSku.lix.key} (${firstSku.lix.treatment})`
+                    ].filter(Boolean).join(', ')}
                   </div>
                 </div>
               );

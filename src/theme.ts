@@ -81,7 +81,7 @@ const themeConfig: ThemeConfig = {
     
     Table: {
       headerBg: TAILWIND_COLORS.gray[50], // Tailwind Gray 50 (was #fafafa)
-      headerColor: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (primary text color)
+      headerColor: TAILWIND_COLORS.gray[500], // Tailwind Gray 900 (primary text color)
       borderColor: TAILWIND_COLORS.gray[200], // Tailwind Gray 200 (table row borders)
       borderRadius: 0, // No rounded corners on tables
     },

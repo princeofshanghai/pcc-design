@@ -415,7 +415,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
         
         return {
           title: (
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: 'center', fontSize: token.fontSizeSM }}>
               {tierDisplay}
             </div>
           ),
@@ -541,7 +541,7 @@ const PivotTable: React.FC<PivotTableProps> = ({
             <InfoPopover content={currencyName} placement="top">
               <Text style={{ 
                 fontWeight: 600,
-                fontSize: '13px'
+                fontSize: token.fontSize
               }}>
                 {currency}
               </Text>
@@ -599,6 +599,11 @@ const PivotTable: React.FC<PivotTableProps> = ({
         .pivot-table .ant-table-thead > tr > th:first-child.currency-group-0,
         .pivot-table .ant-table-tbody > tr > td:first-child.currency-group-0 {
           border-left: none !important;
+        }
+        
+        /* Ensure last row has bottom border */
+        .pivot-table .ant-table-tbody > tr:last-child > td {
+          border-bottom: 1px solid ${token.colorBorder} !important;
         }
       `}</style>
       <Table

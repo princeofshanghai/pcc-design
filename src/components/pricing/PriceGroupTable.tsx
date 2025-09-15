@@ -13,7 +13,6 @@ import CopyableId from '../shared/CopyableId';
 import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
 import ChannelTag from '../attributes/ChannelTag';
 import BillingCycleTag from '../attributes/BillingCycleTag';
-import InfoPopover from '../shared/InfoPopover';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -200,20 +199,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         
         const lixKey = skuWithLix.lix.key;
         
-        const tooltipContent = (
-          <div>
-            <div><strong>LIX Key:</strong> {skuWithLix.lix.key}</div>
-            <div><strong>Treatment:</strong> {skuWithLix.lix.treatment}</div>
-          </div>
-        );
-        
         return (
-          <InfoPopover content={tooltipContent} placement="topLeft">
-            <div style={{ cursor: 'pointer' }}>
-              <Text>{lixKey}</Text>
-              <Text style={{ color: token.colorTextSecondary }}> ({skuWithLix.lix.treatment})</Text>
-            </div>
-          </InfoPopover>
+          <div>
+            <Text>{lixKey}</Text>
+            <Text style={{ color: token.colorTextSecondary }}> ({skuWithLix.lix.treatment})</Text>
+          </div>
         );
       },
     } : null,

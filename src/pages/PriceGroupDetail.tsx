@@ -464,8 +464,8 @@ const PriceGroupDetail: React.FC = () => {
                     value: viewMode,
                     setter: handleViewModeChange,
                     options: [
-                      { key: 'pivot', label: 'Pivot view', icon: <Table2 size={20} /> },
-                      { key: 'list', label: 'List view', icon: <Rows2 size={20} /> }
+                      { key: 'pivot', label: 'View by matrix', icon: <Table2 size={20} /> },
+                      { key: 'list', label: 'View by list', icon: <Rows2 size={20} /> }
                     ],
                     storageKey: 'pricePointViewMode'
                   }
@@ -547,7 +547,8 @@ const PriceGroupDetail: React.FC = () => {
       children: (
         <Space direction="vertical" size={24} style={{ width: '100%' }}>
           <AnalyticsChart 
-            pricePoints={priceGroup?.pricePoints || []}
+            pricePoints={filteredPricePoints}
+            selectedValidityDate={selectedValidityDate}
             validityOptions={[]}
           />
         </Space>
@@ -564,10 +565,10 @@ const PriceGroupDetail: React.FC = () => {
               <AttributeDisplay layout="horizontal" label="Configuration">
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                   {uniqueChannels.map((channel) => (
-                    <ChannelTag key={channel} channel={channel} showIcon={false} />
+                    <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
                   ))}
                   {uniqueBillingCycles.map((cycle) => (
-                    <BillingCycleTag key={cycle} billingCycle={cycle} showIcon={false} />
+                    <BillingCycleTag key={cycle} billingCycle={cycle} variant="small" showIcon={false} />
                   ))}
                 </div>
               </AttributeDisplay>

@@ -312,18 +312,18 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
 
   const showSortDirectionToggle = currentSortField !== 'None' && transformedSortOptions.directions.has(currentSortField);
 
-  // Count active changes and generate tooltip content
+  // Count active changes and generate tooltip content (excluding view mode since it's shown in button)
   const getActiveChanges = useMemo(() => {
     const changes: string[] = [];
     
     // Group by change
     if (groupBy && groupBy !== 'None') {
-      changes.push(`• Group by: ${formatGroupHeader(groupBy)}`);
+      changes.push(`• Group by: ${toSentenceCase(groupBy)}`);
     }
     
     // Sort by change  
     if (sortOrder && sortOrder !== 'None') {
-      changes.push(`• Sort by: ${formatGroupHeader(sortOrder)}`);
+      changes.push(`• Sort by: ${toSentenceCase(sortOrder)}`);
     }
     
     // Column visibility changes
@@ -432,7 +432,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
               >
                 {sortedGroupByOptions.map(option => (
                   <Select.Option key={option} value={option}>
-                    {formatGroupHeader(option)}
+                    {toSentenceCase(option)}
                   </Select.Option>
                 ))}
               </Select>
@@ -484,7 +484,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
                 >
                   {transformedSortOptions.fields.map(field => (
                     <Select.Option key={field} value={field}>
-                      {formatGroupHeader(field)}
+                      {toSentenceCase(field)}
                     </Select.Option>
                   ))}
                 </Select>
@@ -670,6 +670,47 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     </div>
   ) : null;
 
+  // Get current view mode label
+  const currentViewLabel = useMemo(() => {
+    if (viewMode && viewMode.options) {
+      const currentOption = viewMode.options.find(option => option.key === viewMode.value);
+      let label = currentOption?.label || '';
+      // Remove "View " prefix if it exists to avoid duplication in button
+      if (label.startsWith('View ')) {
+        label = label.substring(5);
+      }
+      return label;
+    }
+    return '';
+  }, [viewMode]);
+
+  // Calculate non-view-mode changes for the count
+  const nonViewModeChangeCount = useMemo(() => {
+    let count = 0;
+    
+    // Group by change
+    if (groupBy && groupBy !== 'None') {
+      count++;
+    }
+    
+    // Sort by change  
+    if (sortOrder && sortOrder !== 'None') {
+      count++;
+    }
+    
+    // Column visibility changes
+    if (hasColumnChanges) {
+      count++;
+    }
+    
+    // USD equivalent change
+    if (showUsdEquivalent === true) {
+      count++;
+    }
+    
+    return count;
+  }, [groupBy, sortOrder, hasColumnChanges, showUsdEquivalent]);
+
   const buttonContent = (
     <Button 
       size={size}
@@ -687,8 +728,11 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       <Settings size={14} />
       <span>
         <span style={{ color: token.colorText }}>{toSentenceCase('View')}</span>
-        {activeChangeCount > 0 && (
-          <span style={{ color: token.colorPrimary }}> ({activeChangeCount})</span>
+        {currentViewLabel && (
+          <span style={{ color: token.colorPrimary }}> {currentViewLabel.toLowerCase()}</span>
+        )}
+        {nonViewModeChangeCount > 0 && (
+          <span style={{ color: token.colorPrimary }}> ({nonViewModeChangeCount})</span>
         )}
       </span>
     </Button>

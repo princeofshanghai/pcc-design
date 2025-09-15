@@ -4000,7 +4000,7 @@ export const createNewGTMMotion = (name: string, description: string, activation
     description,
     activationDate,
     status: "Draft",
-    createdBy: "current.user", // In real app, this would come from auth context
+    createdBy: "chhu", // In real app, this would come from auth context
     createdDate: new Date().toISOString(),
     items: [
       {
@@ -4054,7 +4054,7 @@ export const addPriceChangesToGTMMotion = (motionId: string, productId: string, 
         status: "Pending"
       }
     ],
-    createdBy: "current.user",
+    createdBy: "chhu",
     createdDate: new Date().toISOString()
   });
 
@@ -4086,7 +4086,7 @@ export const createAndAddGTMMotion = (name: string, description: string, activat
         status: "Pending"
       }
     ],
-    createdBy: "current.user",
+    createdBy: "chhu",
     createdDate: new Date().toISOString()
   }];
   

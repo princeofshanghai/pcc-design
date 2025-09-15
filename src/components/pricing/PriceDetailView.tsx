@@ -29,7 +29,7 @@ const PriceDetailView: React.FC<PriceDetailViewProps> = ({ sku, product }) => {
   const priceTitle = (
     <Space align="center" size="small">
       <span>Price Group</span>
-      {price.status && <StatusTag status={price.status} />}
+      {price.status && <StatusTag status={price.status} showIcon={false} />}
     </Space>
   );
 

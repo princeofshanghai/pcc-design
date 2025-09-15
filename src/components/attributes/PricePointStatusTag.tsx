@@ -11,6 +11,7 @@ interface PricePointStatusTagProps {
   pricePoint?: PricePoint;
   variant?: ChipVariant;
   showLabel?: boolean;
+  showIcon?: boolean;
 }
 
 
@@ -64,7 +65,8 @@ const PricePointStatusTag: React.FC<PricePointStatusTagProps> = ({
   status, 
   pricePoint, 
   variant = 'default',
-  showLabel = true 
+  showLabel = true,
+  showIcon = true
 }) => {
   const { token } = theme.useToken();
   
@@ -106,7 +108,7 @@ const PricePointStatusTag: React.FC<PricePointStatusTagProps> = ({
   return (
     <BaseChip
       variant={variant}
-      icon={<Icon />}
+      icon={showIcon ? <Icon /> : undefined}
       tooltip={description}
       backgroundColor={colors.backgroundColor}
       textColor={colors.textColor}

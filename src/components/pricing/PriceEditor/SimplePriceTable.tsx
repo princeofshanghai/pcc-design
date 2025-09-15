@@ -990,7 +990,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         {/* Validity controls */}
         <div style={{ marginBottom: '16px' }}>
           <Text style={{ 
-            fontSize: '13px', 
+            fontSize: token.fontSizeHeading3, 
             color: token.colorText, 
             fontWeight: 500,
             display: 'block',
@@ -999,7 +999,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             New prices valid from:
           </Text>
           <Text style={{ 
-            fontSize: '12px', 
+            fontSize: token.fontSize, 
             color: token.colorTextSecondary,
             display: 'block',
             marginBottom: '8px'
@@ -1045,7 +1045,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
         {/* Currency selection dropdown */}
         <div style={{ marginBottom: '16px' }}>
-          <Text style={{ fontSize: '13px', color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
+          <Text style={{ fontSize: token.fontSizeHeading3, color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
             {selectedContext.priceGroupAction === 'create' ? 'Select currencies:' : 'Add currencies:'}
           </Text>
           <Select

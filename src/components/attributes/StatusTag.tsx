@@ -9,6 +9,7 @@ interface StatusTagProps {
   status?: ProductStatus;
   variant?: ChipVariant;
   showLabel?: boolean;
+  showIcon?: boolean;
 }
 
 
@@ -36,7 +37,8 @@ const statusConfig: Record<ProductStatus, { icon: React.FC<any>; description: st
 const StatusTag: React.FC<StatusTagProps> = ({ 
   status, 
   variant = 'default',
-  showLabel = true 
+  showLabel = true,
+  showIcon = true
 }) => {
   const { token } = theme.useToken();
   
@@ -84,7 +86,7 @@ const StatusTag: React.FC<StatusTagProps> = ({
   return (
     <BaseChip
       variant={variant}
-      icon={<Icon />}
+      icon={showIcon ? <Icon /> : undefined}
       tooltip={description}
       backgroundColor={colors.backgroundColor}
       textColor={colors.textColor}

@@ -834,7 +834,7 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
         {/* Validity controls */}
         <div style={{ marginBottom: '16px' }}>
           <Text style={{ 
-            fontSize: '13px', 
+            fontSize: token.fontSizeHeading3, 
             color: token.colorText, 
             fontWeight: 500,
             display: 'block',

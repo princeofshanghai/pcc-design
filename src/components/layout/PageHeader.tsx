@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Space, theme, Button, Dropdown } from 'antd';
-import { Edit, TestTubeDiagonal } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import CopyableId from '../shared/CopyableId';
 import UserAvatar from '../shared/UserAvatar';
 import VerticalSeparator from '../shared/VerticalSeparator';
@@ -262,12 +262,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 {lixKey && lixTreatment && (
                   <>
                     {(channelBillingGroups || channels.length > 0 || validityText) && <VerticalSeparator />}
-                    <Space size={6} align="center">
-                      <TestTubeDiagonal size={16} style={{ color: '#ff7a00' }} />
-                      <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
-                        {lixKey} ({lixTreatment})
-                      </Text>
-                    </Space>
+                    <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
+                      LIX: {lixKey} ({lixTreatment})
+                    </Text>
                   </>
                 )}
               </div>

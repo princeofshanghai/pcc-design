@@ -14,15 +14,13 @@ import {
   FilterBar,
   AttributeDisplay,
   AttributeGroup,
-  VerticalSeparator,
   AnalyticsChart,
-  InfoPopover,
-  ModeSelectorButton
+  ModeSelectorButton,
+  ChannelTag,
+  BillingCycleTag
 } from '../components';
 import ValiditySelector from '../components/shared/ValiditySelector';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions } from '../utils/channelConfigurations';
-import { getChannelIcon } from '../utils/channelIcons';
-import { getBillingModelIcon } from '../utils/billingModelIcons';
 
 
 import PricePointTable from '../components/pricing/PricePointTable';
@@ -564,26 +562,14 @@ const PriceGroupDetail: React.FC = () => {
           <PageSection title={toSentenceCase('General')}>
             <AttributeGroup>
               <AttributeDisplay layout="horizontal" label="Configuration">
-                <Space size={4}>
-                  {product?.billingModel && (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      {getBillingModelIcon(product.billingModel)}
-                      {product.billingModel}
-                    </span>
-                  )}
-                  {uniqueChannels.map((channel, index) => (
-                    <React.Fragment key={channel}>
-                      {index > 0 && <VerticalSeparator />}
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                        {getChannelIcon(channel)}
-                        {channel}
-                      </span>
-                    </React.Fragment>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {uniqueChannels.map((channel) => (
+                    <ChannelTag key={channel} channel={channel} showIcon={false} />
                   ))}
-                  <Typography.Text>
-                    {uniqueBillingCycles.join(', ')}
-                  </Typography.Text>
-                </Space>
+                  {uniqueBillingCycles.map((cycle) => (
+                    <BillingCycleTag key={cycle} billingCycle={cycle} showIcon={false} />
+                  ))}
+                </div>
               </AttributeDisplay>
               
               {appInfo.length > 0 && (
@@ -627,33 +613,14 @@ const PriceGroupDetail: React.FC = () => {
                 </span>
               </AttributeDisplay>
 
-              <AttributeDisplay layout="horizontal" label="Experiment">
+              <AttributeDisplay layout="horizontal" label="LIX experiment">
                 {(lixKey || lixTreatment) ? (
-                  <Space size="small" align="center">
-                    {lixKey && (
-                      <InfoPopover content="LIX Key" placement="top">
-                        <span style={{ 
-                          fontSize: token.fontSize,
-                          color: token.colorText,
-                          cursor: 'default'
-                        }}>
-                          {lixKey}
-                        </span>
-                      </InfoPopover>
-                    )}
-                    {lixKey && lixTreatment && <span>/</span>}
-                    {lixTreatment && (
-                      <InfoPopover content="LIX Treatment" placement="top">
-                        <span style={{ 
-                          fontSize: token.fontSize,
-                          color: token.colorText,
-                          cursor: 'default'
-                        }}>
-                          {lixTreatment}
-                        </span>
-                      </InfoPopover>
-                    )}
-                  </Space>
+                  <span style={{ 
+                    fontSize: token.fontSize,
+                    color: token.colorText
+                  }}>
+                    {lixKey} ({lixTreatment})
+                  </span>
                 ) : (
                   <span style={{ color: token.colorTextTertiary }}>None</span>
                 )}
@@ -699,7 +666,17 @@ const PriceGroupDetail: React.FC = () => {
       <PageHeader
         entityType="Price group"
         title={`Price group for ${product.name}`}
-        tagContent={<PriceGroupStatusTag priceGroup={priceGroup} />}
+        tagContent={
+          <Space size={8} wrap>
+            <PriceGroupStatusTag priceGroup={priceGroup} variant="small" showIcon={false} />
+            {uniqueChannels.map((channel) => (
+              <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
+            ))}
+            {uniqueBillingCycles.map((cycle) => (
+              <BillingCycleTag key={cycle} billingCycle={cycle} variant="small" showIcon={false} />
+            ))}
+          </Space>
+        }
         rightAlignedId={priceGroup.id || ''}
         lixKey={lixKey}
         lixTreatment={lixTreatment}
@@ -725,7 +702,7 @@ const PriceGroupDetail: React.FC = () => {
       <Tabs
         activeKey={currentTab}
         items={tabItems}
-        size="large"
+        size="middle"
         onChange={(key) => {
           // Update URL when tab changes
           const newSearchParams = new URLSearchParams(location.search);

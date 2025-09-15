@@ -921,7 +921,7 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       key: 'status',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return <PricePointStatusTag pricePoint={record} variant="small" />;
+        return <PricePointStatusTag pricePoint={record} variant="small" showIcon={false} />;
       },
     } : null,
     validity: visibleColumns.validity === true ? {
@@ -1034,6 +1034,19 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
 
   return (
     <div style={{ marginTop: '16px' }}>
+      <style>
+        {`
+          .price-point-expired-row td {
+            color: ${token.colorTextTertiary} !important;
+          }
+          .price-point-expired-row .ant-typography {
+            color: ${token.colorTextTertiary} !important;
+          }
+          .price-point-expired-row span {
+            color: ${token.colorTextTertiary} !important;
+          }
+        `}
+      </style>
       <Table
         size="middle"
         columns={columns}
@@ -1041,7 +1054,31 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
         rowKey={record => ('isGroupHeader' in record ? record.key : record.id || `${record.currencyCode}-${record.amount}-${record.validFrom || 'no-date'}`)}
         pagination={false}
         scroll={{ x: 'max-content' }}
-        rowClassName={(record) => ('isGroupHeader' in record ? 'ant-table-row-group-header' : '')}
+        rowClassName={(record) => {
+          if ('isGroupHeader' in record) return 'ant-table-row-group-header';
+          
+          // Check if price point is expired
+          const isExpired = record.status === 'Expired' || (() => {
+            // Calculate status if not explicitly set
+            const now = new Date();
+            const validFrom = record.validFrom ? new Date(record.validFrom) : null;
+            const validTo = record.validTo ? new Date(record.validTo) : null;
+            
+            // If no validFrom date, consider it active
+            if (!validFrom) return false;
+            
+            // If current time is before validFrom, it's not yet active (treat as expired)
+            if (now < validFrom) return true;
+            
+            // If no validTo date, it's active indefinitely
+            if (!validTo) return false;
+            
+            // If current time is after validTo, it's expired
+            return now > validTo;
+          })();
+          
+          return isExpired ? 'price-point-expired-row' : '';
+        }}
         components={{
           body: {
             row: (props: any) => {

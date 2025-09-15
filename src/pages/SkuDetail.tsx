@@ -15,12 +15,13 @@ import {
   AttributeGroup,
   OverrideIndicator,
   OverrideComparison,
-  FilterBar
+  FilterBar,
+  ChannelTag,
+  BillingCycleTag
 } from '../components';
 import PricePointTable from '../components/pricing/PricePointTable';
 import CopyableId from '../components/shared/CopyableId';
 import { AlertCircle } from 'lucide-react';
-import { getChannelIcon } from '../utils/channelIcons';
 
 const { Title } = Typography;
 
@@ -135,7 +136,7 @@ const SkuDetail: React.FC = () => {
               </AttributeDisplay>
               
               <AttributeDisplay label="Status" layout="horizontal">
-                <StatusTag status={sku.status} variant="small" />
+                <StatusTag status={sku.status} variant="small" showIcon={false} />
               </AttributeDisplay>
             </AttributeGroup>
           </PageSection>
@@ -144,14 +145,11 @@ const SkuDetail: React.FC = () => {
           <PageSection title={toSentenceCase("Configuration")}>
             <AttributeGroup>
               <AttributeDisplay label="Sales Channel" layout="horizontal">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {getChannelIcon(sku.salesChannel)}
-                  <span>{sku.salesChannel}</span>
-                </div>
+                <ChannelTag channel={sku.salesChannel} showIcon={false} />
               </AttributeDisplay>
               
               <AttributeDisplay label="Billing Cycle" layout="horizontal">
-                {sku.billingCycle}
+                <BillingCycleTag billingCycle={sku.billingCycle} showIcon={false} />
               </AttributeDisplay>
               
               <AttributeDisplay label="Revenue Recognition" layout="horizontal">
@@ -270,7 +268,7 @@ const SkuDetail: React.FC = () => {
                 
                 {priceGroup.status && (
                   <AttributeDisplay label="Status" layout="horizontal">
-                    <StatusTag status={priceGroup.status} variant="small" />
+                    <StatusTag status={priceGroup.status} variant="small" showIcon={false} />
                   </AttributeDisplay>
                 )}
                 
@@ -434,7 +432,7 @@ const SkuDetail: React.FC = () => {
       <PageHeader
         entityType="SKU"
         title={sku.id}
-        tagContent={<StatusTag status={sku.status} />}
+        tagContent={<StatusTag status={sku.status} showIcon={false} />}
         rightAlignedId={sku.id}
         channels={[sku.salesChannel]}
         billingCycles={[sku.billingCycle]}

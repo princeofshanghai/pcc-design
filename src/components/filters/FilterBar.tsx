@@ -467,7 +467,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <SearchBar
               placeholder={toSentenceCase(search.placeholder)}
               onChange={search.onChange}
-              style={{ ...search.style, width: '320px' }}
+              style={{ ...search.style, width: '480px' }}
               size={searchAndViewSize}
             />
           )}

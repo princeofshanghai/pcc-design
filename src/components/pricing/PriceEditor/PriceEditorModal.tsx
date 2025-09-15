@@ -6,6 +6,7 @@ import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
 import PriceChangesSummary from './PriceChangesSummary';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
+import { ChannelTag, BillingCycleTag } from '../../index';
 import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
 
 const { Title, Text } = Typography;
@@ -269,14 +270,68 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   // Helper function to get dynamic title based on current flow
   const getDynamicTitle = (): string => {
     if (directEditMode) {
-      const priceGroupId = selectedContext?.existingPriceGroup?.id || prefilledContext?.existingPriceGroup?.id;
-      if (priceGroupId) {
-        return `Edit price group ${priceGroupId} in ${productName}`;
-      }
-      return `Edit price group in ${productName}`;
+      return `Edit price points in price group for ${productName}`;
     } else {
       return `Create new price group in ${productName}`;
     }
+  };
+
+  // Helper function to get title content with inline tags
+  const getTitleWithTags = (): React.ReactNode => {
+    const title = getDynamicTitle();
+    
+    // Get context for tags - show live updates in all steps when we have context
+    let context = null;
+    if (directEditMode && selectedContext) {
+      context = selectedContext;
+    } else if (!directEditMode && selectedContext) {
+      // Show tags in all steps (including Step 1) when we have any context
+      context = selectedContext;
+    }
+
+    // Build tags array based on what's available (partial selections allowed)
+    const tags = [];
+    if (context?.channel) {
+      tags.push(
+        <ChannelTag 
+          key="channel"
+          channel={context.channel} 
+          variant="small" 
+          showIcon={false} 
+        />
+      );
+    }
+    if (context?.billingCycle) {
+      tags.push(
+        <BillingCycleTag 
+          key="billingCycle"
+          billingCycle={context.billingCycle} 
+          variant="small" 
+          showIcon={false} 
+        />
+      );
+    }
+
+    // If no tags to show, show just the title
+    if (tags.length === 0) {
+      return (
+        <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
+          {title}
+        </Title>
+      );
+    }
+
+    // Show title with available tags
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
+          {title}
+        </Title>
+        <Space size={8}>
+          {tags}
+        </Space>
+      </div>
+    );
   };
 
   // Helper function to get dynamic subtitle based on current state  
@@ -286,32 +341,26 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       return formatSubtitle(selectedContext);
     }
     
-    // For create mode: only show subtitle from Step 2 onwards when we have context
-    if (!directEditMode && currentStep >= 1 && selectedContext) {
+    // For create mode: show subtitle in all steps when we have context (including Step 1)
+    if (!directEditMode && selectedContext) {
       return formatSubtitle(selectedContext);
     }
     
     return null;
   };
 
-  // Helper function to format subtitle consistently
+  // Helper function to format subtitle consistently - now only handles LIX
   const formatSubtitle = (context: any): React.ReactNode => {
-    const { channel, billingCycle, lixKey, lixTreatment } = context;
+    const { lixKey, lixTreatment } = context;
     
-    if (!channel || !billingCycle) {
+    // Only show LIX info if both key and treatment exist
+    if (!lixKey || !lixTreatment) {
       return null;
-    }
-
-    const parts = [channel, billingCycle];
-    
-    // Add LIX info if both key and treatment exist
-    if (lixTreatment && lixKey) {
-      parts.push(`${lixKey} (${lixTreatment})`);
     }
 
     return (
       <Text style={{ fontSize: '14px', color: token.colorTextSecondary, marginTop: '4px', display: 'block', fontWeight: 400 }}>
-        {parts.join(' • ')}
+        LIX: {lixKey} ({lixTreatment})
       </Text>
     );
   };
@@ -549,9 +598,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     <Modal
       title={
           <div style={{ position: 'relative' }}>
-            <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
-              {getDynamicTitle()}
-            </Title>
+            {getTitleWithTags()}
             {getDynamicSubtitle()}
           {/* Full-width divider */}
           <div 

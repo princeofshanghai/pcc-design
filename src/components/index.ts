@@ -42,6 +42,9 @@ export { default as PriceGroupStatusTag } from './attributes/PriceGroupStatusTag
 export { default as LobTag } from './attributes/LobTag';
 export { default as FolderTag } from './attributes/FolderTag';
 export { default as CountTag } from './attributes/CountTag';
+export { default as ChannelTag } from './attributes/ChannelTag';
+export { default as BillingCycleTag } from './attributes/BillingCycleTag';
+export { default as BillingModelTag } from './attributes/BillingModelTag';
 // FolderTabs component removed - no longer used with new navigation
 export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';
 

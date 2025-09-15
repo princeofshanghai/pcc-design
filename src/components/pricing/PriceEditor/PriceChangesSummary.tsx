@@ -116,7 +116,10 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* Main heading */}
         <div>
-          <Title level={3} style={{ marginBottom: '24px' }}>
+          <Title level={3} style={{ 
+            marginBottom: '24px',
+            fontSize: token.fontSizeHeading2 
+          }}>
             Review changes
           </Title>
         </div>
@@ -385,7 +388,10 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* Main heading */}
         <div>
-          <Title level={3} style={{ marginBottom: '24px' }}>
+          <Title level={3} style={{ 
+            marginBottom: '24px',
+            fontSize: token.fontSizeHeading2 
+          }}>
             Review changes
           </Title>
         </div>
@@ -430,7 +436,7 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
         <style>{`
           .price-changes-summary-table .ant-table-thead > tr > th {
             background-color: ${token.colorFillAlter};
-            color: ${token.colorTextSecondary};
+            color: ${token.colorText};
             font-weight: 500;
             font-size: ${token.fontSizeSM}px;
           }

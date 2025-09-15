@@ -5,9 +5,10 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { Sku, Status, Product, SalesChannel, BillingCycle, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
+import ChannelTag from '../attributes/ChannelTag';
+import BillingCycleTag from '../attributes/BillingCycleTag';
 import OverrideIndicator from '../pricing/OverrideIndicator';
 import InfoPopover from '../shared/InfoPopover';
-import { getChannelIcon } from '../../utils/channelIcons';
 import { ChevronRight } from 'lucide-react';
 
 import type { ColumnsType } from 'antd/es/table';
@@ -120,7 +121,10 @@ export const getSkuTableColumns = (
                   <span style={{ fontVariantNumeric: 'tabular-nums' }}>{amount}</span>
                 </span>
                 {additionalActivePricePoints > 0 && (
-                  <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
+                  <span style={{ 
+                    color: token.colorTextSecondary,
+                    fontSize: token.fontSizeSM 
+                  }}> +{additionalActivePricePoints} more</span>
                 )}
               </div>
             );
@@ -150,7 +154,7 @@ export const getSkuTableColumns = (
                   navigate(`/product/${product.id}/price-group/${sku.priceGroup.id}`);
                 }}
                 style={{ 
-                  fontSize: '12px',
+                  fontSize: token.fontSizeSM,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px'
@@ -170,17 +174,14 @@ export const getSkuTableColumns = (
       dataIndex: 'salesChannel',
       key: 'channel',
       render: (channel: SalesChannel) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {getChannelIcon(channel)}
-          <Typography.Text>{channel}</Typography.Text>
-        </div>
+        <ChannelTag channel={channel} variant="small" showIcon={false} />
       ),
     } : null,
     billingCycle: visibleColumns.billingCycle === true ? {
       title: getColumnLabel('billingCycle'),
       dataIndex: 'billingCycle',
       key: 'billingCycle',
-      render: (billingCycle: BillingCycle) => <Typography.Text>{billingCycle}</Typography.Text>,
+      render: (billingCycle: BillingCycle) => <BillingCycleTag billingCycle={billingCycle} variant="small" showIcon={false} />,
     } : null,
     lix: visibleColumns.lix === true ? {
       title: getColumnLabel('lix'),
@@ -212,7 +213,7 @@ export const getSkuTableColumns = (
       dataIndex: 'status',
       key: 'status',
       // Status is important, keep visible on all screens
-      render: (status: Status) => <StatusTag status={status} variant="small" />, 
+      render: (status: Status) => <StatusTag status={status} variant="small" showIcon={false} />, 
     } : null,
 
     customers: visibleColumns.customers === true ? {

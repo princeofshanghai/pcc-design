@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import CopyableId from '../shared/CopyableId';
-import VerticalSeparator from '../shared/VerticalSeparator';
-import { getChannelIcon } from '../../utils/channelIcons';
+import ChannelTag from '../attributes/ChannelTag';
 import './ProductListItem.css';
 
 const { Title, Text } = Typography;
@@ -48,24 +47,18 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
           <Title level={4} style={{ margin: 0, fontWeight: 500, textDecoration: isHovered ? 'underline' : 'none' }}>
             {product.name}
           </Title>
-          <StatusTag status={product.status} showLabel={false} />
+          <StatusTag status={product.status} showLabel={false} showIcon={false} />
         </Space>
         <div onClick={(e) => e.stopPropagation()}>
                       <CopyableId id={product.id} />
         </div>
 
-        {/* Show channel pills */}
+        {/* Show channel chips */}
         {uniqueChannels.length > 0 && (
           <div style={{ marginTop: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-              {uniqueChannels.map((channel, index) => (
-                <React.Fragment key={channel}>
-                  {index > 0 && <VerticalSeparator />}
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    {getChannelIcon(channel)}
-                    {channel}
-                  </span>
-                </React.Fragment>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+              {uniqueChannels.map((channel) => (
+                <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
               ))}
             </div>
           </div>

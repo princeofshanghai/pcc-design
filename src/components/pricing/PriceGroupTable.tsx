@@ -11,9 +11,9 @@ import { getColumnTitleWithTooltip } from '../../utils/tableHelpers';
 import GroupHeader from '../shared/GroupHeader';
 import CopyableId from '../shared/CopyableId';
 import PriceGroupStatusTag from '../attributes/PriceGroupStatusTag';
-import VerticalSeparator from '../shared/VerticalSeparator';
+import ChannelTag from '../attributes/ChannelTag';
+import BillingCycleTag from '../attributes/BillingCycleTag';
 import InfoPopover from '../shared/InfoPopover';
-import { getChannelIcon } from '../../utils/channelIcons';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Text } = Typography;
@@ -95,15 +95,9 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         // Get all unique channels from SKUs using this price group
         const uniqueChannels = [...new Set(record.skus.map((sku: Sku) => sku.salesChannel))];
         return (
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-            {uniqueChannels.map((channel: any, index: number) => (
-              <React.Fragment key={channel}>
-                {index > 0 && <VerticalSeparator />}
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  {getChannelIcon(channel)}
-                  {channel}
-                </span>
-              </React.Fragment>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+            {uniqueChannels.map((channel: any) => (
+              <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
             ))}
           </div>
         );
@@ -118,9 +112,11 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
         // Get all unique billing cycles from SKUs using this price group
         const uniqueBillingCycles = [...new Set(record.skus.map((sku: Sku) => sku.billingCycle))];
         return (
-          <Typography.Text>
-            {uniqueBillingCycles.join(', ')}
-          </Typography.Text>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+            {uniqueBillingCycles.map((cycle: any) => (
+              <BillingCycleTag key={cycle} billingCycle={cycle} variant="small" showIcon={false} />
+            ))}
+          </div>
         );
       },
     } : null,
@@ -169,7 +165,10 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
             <div>
               {formatPriceWithTabularNums(usdPrice)}
               {additionalActivePricePoints > 0 && (
-                <span style={{ color: token.colorTextSecondary }}> +{additionalActivePricePoints} more</span>
+                <span style={{ 
+                  color: token.colorTextSecondary,
+                  fontSize: token.fontSizeSM 
+                }}> +{additionalActivePricePoints} more</span>
               )}
             </div>
           );
@@ -224,7 +223,7 @@ const PriceGroupTable: React.FC<PriceGroupTableProps> = ({
       key: 'status',
       render: (_: any, record: any) => {
         if ('isGroupHeader' in record) return null;
-        return <PriceGroupStatusTag priceGroup={record.priceGroup} variant="small" />;
+        return <PriceGroupStatusTag priceGroup={record.priceGroup} variant="small" showIcon={false} />;
       },
     } : null,
   };

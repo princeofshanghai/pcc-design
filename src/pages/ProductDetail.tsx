@@ -26,10 +26,12 @@ import {
   CopyableId,
   PricePointStatusTag,
   GroupHeader,
-  VerticalSeparator,
   MetricCard,
   InfoPopover,
   ModeSelectorButton,
+  ChannelTag,
+  BillingCycleTag,
+  BillingModelTag,
 } from '../components';
 import PriceEditorModal from '../components/pricing/PriceEditor/PriceEditorModal';
 import { toSentenceCase, formatValidityRange } from '../utils/formatters';
@@ -46,8 +48,6 @@ import {
   FLATTENED_PRICE_POINT_GROUP_BY_OPTIONS,
   getFilterPlaceholder} from '../utils/tableConfigurations';
 import { getDefaultValidityFilter } from '../utils/channelConfigurations';
-import { getChannelIcon } from '../utils/channelIcons';
-import { getBillingModelIcon } from '../utils/billingModelIcons';
 
 const { Title } = Typography;
 
@@ -922,15 +922,9 @@ const ProductDetail: React.FC = () => {
       render: (channels: SalesChannel[], record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-            {channels.map((channel, index) => (
-              <React.Fragment key={channel}>
-                {index > 0 && <VerticalSeparator />}
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  {getChannelIcon(channel)}
-                  {channel}
-                </span>
-              </React.Fragment>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+            {channels.map((channel) => (
+              <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
             ))}
           </div>
         );
@@ -943,9 +937,11 @@ const ProductDetail: React.FC = () => {
       render: (billingCycles: BillingCycle[], record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
         return (
-          <Typography.Text>
-            {billingCycles.join(', ')}
-          </Typography.Text>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+            {billingCycles.map((cycle) => (
+              <BillingCycleTag key={cycle} billingCycle={cycle} variant="small" showIcon={false} />
+            ))}
+          </div>
         );
       },
     },
@@ -994,7 +990,7 @@ const ProductDetail: React.FC = () => {
       key: 'status',
       render: (_: any, record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
-        return <PricePointStatusTag pricePoint={record.pricePoint} variant="small" />;
+        return <PricePointStatusTag pricePoint={record.pricePoint} variant="small" showIcon={false} />;
       },
     },
   ];
@@ -1672,28 +1668,19 @@ const ProductDetail: React.FC = () => {
                 <CopyableId id={product.id} />
               </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Status">
-                <StatusTag status={product.status} />
+                <StatusTag status={product.status} showIcon={false} />
               </AttributeDisplay>
               <AttributeDisplay layout="horizontal" label="Billing Model">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {getBillingModelIcon(product.billingModel)}
-                  <span>{product.billingModel}</span>
-                </div>
+                <BillingModelTag billingModel={product.billingModel} showIcon={false} />
               </AttributeDisplay>
               <AttributeDisplay 
                 layout="horizontal" 
                 label="Supported sales channels" 
                 tooltip="Product contains SKUs sold in these channels"
               >
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                  {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel, index) => (
-                    <React.Fragment key={channel}>
-                      {index > 0 && <VerticalSeparator />}
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                        {getChannelIcon(channel)}
-                        {channel}
-                      </span>
-                    </React.Fragment>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                  {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel) => (
+                    <ChannelTag key={channel} channel={channel} showIcon={false} />
                   ))}
                 </div>
               </AttributeDisplay>
@@ -1867,7 +1854,7 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
         }
-        tagContent={<StatusTag status={product.status} variant="small" />}
+        tagContent={<StatusTag status={product.status} variant="small" showIcon={false} />}
         rightAlignedId={product.id}
         compact
       />
@@ -1875,7 +1862,7 @@ const ProductDetail: React.FC = () => {
       <Tabs
         activeKey={currentTab}
         items={tabItems}
-        size="large"
+        size="middle"
         onChange={(key) => {
           // Update URL when tab changes
           const newSearchParams = new URLSearchParams(location.search);

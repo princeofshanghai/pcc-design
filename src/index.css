@@ -127,7 +127,7 @@ a[href*="/sku/"] {
   margin-top: 0 !important;
 }
 
-/* Table header styling - font size (color now handled by theme.ts) */
+/* Table header styling - font size matches fontSize token (14px, color handled by theme.ts) */
 .ant-table-thead > tr > th {
   font-size: 13px !important;
 }

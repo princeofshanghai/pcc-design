@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Popover, Radio, DatePicker, Space } from 'antd';
+import { Button, Popover, Radio, DatePicker, Space, theme } from 'antd';
 import { Calendar } from 'lucide-react';
 import type { Dayjs } from 'dayjs';
 
@@ -16,6 +16,7 @@ const ValiditySelector: React.FC<ValiditySelectorProps> = ({
   customValidityDate,
   onCustomValidityDateChange,
 }) => {
+  const { token } = theme.useToken();
   const [open, setOpen] = useState(false);
   
   const content = (
@@ -61,7 +62,11 @@ const ValiditySelector: React.FC<ValiditySelectorProps> = ({
     >
       <Button 
         icon={<Calendar size={12} />} 
-        style={{ minWidth: 140 }}
+        style={{ 
+          minWidth: 140,
+          fontSize: token.fontSizeSM,
+          fontWeight: token.fontWeightStrong,
+        }}
         size="middle"
       >
         {displayText}

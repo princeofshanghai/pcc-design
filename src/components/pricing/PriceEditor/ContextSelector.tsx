@@ -126,10 +126,10 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     }
   };
 
-  const handleChannelChange = (value: string) => {
-    setSelectedChannel(value);
+  const handleChannelChange = (value: string | null | undefined) => {
+    setSelectedChannel(value || null);
     
-    // Reset billing cycle and all dependent fields when channel changes
+    // Reset billing cycle and all dependent fields when channel changes (or is cleared)
     setSelectedBillingCycle(null);
     setSelectedPriceGroupAction(null);
     setSelectedExistingPriceGroup(null);
@@ -152,13 +152,19 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     handleFormChange();
   };
 
-  const handleBillingCycleChange = (value: string) => {
-    setSelectedBillingCycle(value);
+  const handleBillingCycleChange = (value: string | null | undefined) => {
+    setSelectedBillingCycle(value || null);
     
     // In creation mode, automatically set action to 'create' since we removed the selection step
+    // But only if we have a value, otherwise reset
     if (creationMethod === 'blank') {
-      setSelectedPriceGroupAction('create');
-      setSelectedExistingPriceGroup(null);
+      if (value) {
+        setSelectedPriceGroupAction('create');
+        setSelectedExistingPriceGroup(null);
+      } else {
+        setSelectedPriceGroupAction(null);
+        setSelectedExistingPriceGroup(null);
+      }
     } else {
       // Reset price group selection when billing cycle changes (for other modes)
       setSelectedPriceGroupAction(null);
@@ -177,7 +183,29 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
 
 
   // Clone price group selection handler
-  const handleClonePriceGroupChange = (priceGroupId: string) => {
+  const handleClonePriceGroupChange = (priceGroupId: string | null | undefined) => {
+    if (!priceGroupId) {
+      // Handle clearing - reset all selections
+      setSelectedClonePriceGroup(null);
+      setSelectedChannel(null);
+      setSelectedBillingCycle(null);
+      setSelectedPriceGroupAction(null);
+      setSelectedExistingPriceGroup(null);
+      setSelectedLixKey(null);
+      setSelectedLixTreatment(null);
+      
+      form.setFieldsValue({
+        clonePriceGroup: undefined,
+        channel: undefined,
+        billingCycle: undefined,
+        lixKey: undefined,
+        lixTreatment: undefined
+      });
+      
+      handleFormChange();
+      return;
+    }
+    
     const selectedPriceGroup = availableClonePriceGroups.find(pg => pg.id === priceGroupId);
     
     if (selectedPriceGroup) {
@@ -279,6 +307,7 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
                 size="large"
                 style={{ width: '100%' }}
                 showSearch
+                allowClear
                 filterOption={(input, option) => {
                   const priceGroup = availableClonePriceGroups.find(pg => pg.id === option?.value);
                   if (!priceGroup) return false;
@@ -370,6 +399,7 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
                 placeholder="Choose channel"
                 size="large"
                 style={{ width: '100%' }}
+                allowClear
                 onChange={handleChannelChange}
               >
               {channelCategories.existing.length > 0 && (
@@ -404,6 +434,7 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
               <Select 
                 placeholder="Choose billing cycle"
                 size="large"
+                allowClear
                 onChange={handleBillingCycleChange}
               >
                 {billingCycleCategories.existing.length > 0 && (

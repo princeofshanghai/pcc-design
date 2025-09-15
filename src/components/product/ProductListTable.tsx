@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
+import ChannelTag from '../attributes/ChannelTag';
 import CopyableId from '../shared/CopyableId';
 import SecondaryText from '../shared/SecondaryText';
-import VerticalSeparator from '../shared/VerticalSeparator';
 import InfoPopover from '../shared/InfoPopover';
-import { getChannelIcon } from '../../utils/channelIcons';
 import { formatColumnTitles, toSentenceCase, formatCustomerNumber, generateFakePercentageChange } from '../../utils/formatters';
 import { PRODUCT_COLUMNS, DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import type { ColumnsType } from 'antd/es/table';
@@ -112,15 +111,9 @@ export const getProductListTableColumns = (
         if (!record.skus || record.skus.length === 0) return null;
         const uniqueChannels = [...new Set(record.skus.map(sku => sku.salesChannel))];
         return (
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-            {uniqueChannels.map((channel, index) => (
-              <React.Fragment key={channel}>
-                {index > 0 && <VerticalSeparator />}
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  {getChannelIcon(channel)}
-                  {channel}
-                </span>
-              </React.Fragment>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+            {uniqueChannels.map((channel) => (
+              <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
             ))}
           </div>
         );
@@ -132,7 +125,7 @@ export const getProductListTableColumns = (
       dataIndex: 'status',
       key: 'status',
       // Status is important, keep visible on all screens
-      render: (status: Product['status']) => <StatusTag status={status} variant="small" />,
+      render: (status: Product['status']) => <StatusTag status={status} variant="small" showIcon={false} />,
     } : null,
 
     customers: visibleColumns.customers === true ? {

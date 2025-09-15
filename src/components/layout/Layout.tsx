@@ -804,18 +804,18 @@ const AppLayout = () => {
           {`
             /* Custom breadcrumb styling to match design requirements */
             .ant-breadcrumb {
-              font-size: 12px !important;
+              font-size: 13px !important;
               font-weight: 500 !important;
             }
             
             .ant-breadcrumb .ant-breadcrumb-link,
             .ant-breadcrumb .ant-breadcrumb-separator {
-              font-size: 12px !important;
+              font-size: 13px !important;
               font-weight: 500 !important;
             }
             
             .ant-breadcrumb a {
-              font-size: 12px !important;
+              font-size: 13px !important;
               font-weight: 500 !important;
             }
             

@@ -75,17 +75,21 @@ const themeConfig: ThemeConfig = {
       colorBorder: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (default button borders)
       borderColorDisabled: TAILWIND_COLORS.gray[300], // Tailwind Gray 300 (disabled button borders)
       controlHeight: 28, // Custom height for all button sizes (default middle size will be 28px)
+      fontSize: 13, // Global button font size (matches fontSizeSM)
+      fontWeight: 500, // Global button font weight (matches fontWeightStrong)
     },
     
     Table: {
       headerBg: TAILWIND_COLORS.gray[50], // Tailwind Gray 50 (was #fafafa)
-      headerColor: TAILWIND_COLORS.gray[500], // Tailwind Gray 500 (secondary text color)
+      headerColor: TAILWIND_COLORS.gray[900], // Tailwind Gray 900 (primary text color)
       borderColor: TAILWIND_COLORS.gray[200], // Tailwind Gray 200 (table row borders)
       borderRadius: 0, // No rounded corners on tables
     },
     
     Tabs: {
-      titleFontSize: 13,
+      // Remove titleFontSize override to allow proper size differentiation
+      // Small: 14px, Middle: 14px, Large: 16px (Ant Design defaults)
+      titleFontSizeLG: 16, // Large tabs font size
       // Set font weight for tab labels (both normal and active states)
       fontWeightStrong: 500,
       // Border beneath tabs - using consistent gray-200 token
@@ -103,7 +107,6 @@ const themeConfig: ThemeConfig = {
     },
     
     Breadcrumb: {
-      fontSize: 12, // Use fontSizeSM value (12px)
       linkColor: '#1677ff', // Primary blue color for breadcrumb links
       linkHoverColor: '#4096ff', // Slightly lighter blue for hover state
       itemColor: '#1677ff', // Text color of breadcrumb items

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, Button, Dropdown, theme, Select, Tag, Switch } from 'antd';
+import { Button, Dropdown, theme, Select, Tag, Switch, Popover } from 'antd';
 import { Settings, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
@@ -312,6 +312,62 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
 
   const showSortDirectionToggle = currentSortField !== 'None' && transformedSortOptions.directions.has(currentSortField);
 
+  // Count active changes and generate tooltip content
+  const getActiveChanges = useMemo(() => {
+    const changes: string[] = [];
+    
+    // Group by change
+    if (groupBy && groupBy !== 'None') {
+      changes.push(`• Group by: ${formatGroupHeader(groupBy)}`);
+    }
+    
+    // Sort by change  
+    if (sortOrder && sortOrder !== 'None') {
+      changes.push(`• Sort by: ${formatGroupHeader(sortOrder)}`);
+    }
+    
+    // Column visibility changes
+    if (hasColumnChanges && columnOptions && visibleColumns) {
+      const hiddenCount = columnOptions
+        .filter(col => !col.required) // Only count non-required columns
+        .filter(col => {
+          const contextualDefault = defaultVisibleColumns ? 
+            (defaultVisibleColumns[col.key] ?? true) : 
+            true;
+          const currentVisibility = visibleColumns[col.key] ?? true;
+          return !currentVisibility && contextualDefault; // Hidden columns that should be visible by default
+        }).length;
+      
+      if (hiddenCount > 0) {
+        changes.push(`• Hidden columns: ${hiddenCount}`);
+      }
+      
+      // Also check for columns shown that should be hidden by default
+      const shownCount = columnOptions
+        .filter(col => !col.required)
+        .filter(col => {
+          const contextualDefault = defaultVisibleColumns ? 
+            (defaultVisibleColumns[col.key] ?? true) : 
+            true;
+          const currentVisibility = visibleColumns[col.key] ?? true;
+          return currentVisibility && !contextualDefault; // Shown columns that should be hidden by default
+        }).length;
+      
+      if (shownCount > 0) {
+        changes.push(`• Additional columns: ${shownCount}`);
+      }
+    }
+    
+    // USD equivalent change
+    if (showUsdEquivalent === true) {
+      changes.push(`• USD equivalent: On`);
+    }
+    
+    return changes;
+  }, [groupBy, sortOrder, hasColumnChanges, hasColumnOrderChanges, showUsdEquivalent, columnOptions, visibleColumns, defaultVisibleColumns]);
+
+  const activeChangeCount = getActiveChanges.length;
+
   // Custom dropdown content combining standalone components
   const dropdownContent = (
     <div style={{ 
@@ -602,6 +658,42 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     </div>
   );
 
+  // Create tooltip content for active changes
+  const tooltipContent = getActiveChanges.length > 0 ? (
+    <div style={{ 
+      maxWidth: '300px',
+      whiteSpace: 'pre-line',
+      fontSize: token.fontSizeSM,
+      lineHeight: '1.4'
+    }}>
+      {getActiveChanges.join('\n')}
+    </div>
+  ) : null;
+
+  const buttonContent = (
+    <Button 
+      size={size}
+      style={{
+        height: '28px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 12px',
+        gap: '6px',
+        fontSize: token.fontSizeSM,
+        fontWeight: token.fontWeightStrong,
+      }}
+    >
+      <Settings size={14} />
+      <span>
+        <span style={{ color: token.colorText }}>{toSentenceCase('View')}</span>
+        {activeChangeCount > 0 && (
+          <span style={{ color: token.colorPrimary }}> ({activeChangeCount})</span>
+        )}
+      </span>
+    </Button>
+  );
+
   return (
     <Dropdown 
       open={isOpen}
@@ -610,24 +702,19 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       trigger={['click']}
       disabled={isDisabled}
     >
-      <Button 
-        size={size}
-        style={{
-          height: '28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0 12px',
-          gap: '6px',
-          fontSize: token.fontSizeSM,
-          fontWeight: token.fontWeightStrong,
-        }}
-      >
-        <Badge dot={isViewActive || false} size="small">
-          <Settings size={14} />
-        </Badge>
-        <span>{toSentenceCase('View')}</span>
-      </Button>
+      {tooltipContent ? (
+        <Popover 
+          content={tooltipContent}
+          placement="top"
+          mouseEnterDelay={0.5}
+          overlayStyle={{ maxWidth: '320px' }}
+          trigger={['hover']}
+        >
+          {buttonContent}
+        </Popover>
+      ) : (
+        buttonContent
+      )}
     </Dropdown>
   );
 };

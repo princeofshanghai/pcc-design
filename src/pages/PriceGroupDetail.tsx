@@ -548,7 +548,6 @@ const PriceGroupDetail: React.FC = () => {
         <Space direction="vertical" size={24} style={{ width: '100%' }}>
           <AnalyticsChart 
             pricePoints={filteredPricePoints}
-            selectedValidityDate={selectedValidityDate}
             validityOptions={[]}
           />
         </Space>

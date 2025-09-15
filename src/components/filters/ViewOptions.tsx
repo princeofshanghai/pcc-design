@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Dropdown, theme, Select, Tag, Switch, Popover } from 'antd';
 import { Settings, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
-import { toSentenceCase, formatGroupHeader } from '../../utils/formatters';
+import { toSentenceCase } from '../../utils/formatters';
 import type { ColumnConfig, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import type { ViewModeConfig } from './FilterBar';
 import { CUSTOM_COLORS } from '../../theme';
@@ -366,7 +366,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     return changes;
   }, [groupBy, sortOrder, hasColumnChanges, hasColumnOrderChanges, showUsdEquivalent, columnOptions, visibleColumns, defaultVisibleColumns]);
 
-  const activeChangeCount = getActiveChanges.length;
+  // const activeChangeCount = getActiveChanges.length;
 
   // Custom dropdown content combining standalone components
   const dropdownContent = (

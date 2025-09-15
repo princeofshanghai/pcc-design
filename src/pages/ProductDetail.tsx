@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
 // Note: Only import each icon once from lucide-react, and do not import icons from other libraries or use inline SVGs.
-import { Download, Check, Rows2, Rows4, Calendar, Pencil } from 'lucide-react';
+import { Download, Check, Rows2, Rows4, Pencil } from 'lucide-react';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductWithPricing } from '../utils/demoDataLoader';
 import PriceGroupTable from '../components/pricing/PriceGroupTable';
@@ -1985,9 +1985,9 @@ const ProductDetail: React.FC = () => {
                         const totalPricePoints = priceGroup.pricePoints?.length || 0;
                         
                         if (usdPricePoint && totalPricePoints > 1) {
-                          return `USD ${usdPricePoint.amount || usdPricePoint.price} + ${totalPricePoints - 1} more`;
+                          return `USD ${usdPricePoint.amount} + ${totalPricePoints - 1} more`;
                         } else if (usdPricePoint) {
-                          return `USD ${usdPricePoint.amount || usdPricePoint.price}`;
+                          return `USD ${usdPricePoint.amount}`;
                         } else {
                           return `${totalPricePoints} non-USD price points`;
                         }

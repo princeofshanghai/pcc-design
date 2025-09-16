@@ -18,7 +18,7 @@ interface ViewOptionsProps {
   sortOrder?: string;
   setSortOrder?: (value: string) => void;
   sortOptions?: string[];
-  // Default sort order for this specific context
+  // Default sort order for this specific context (defaults to 'None' if not provided)
   defaultSortOrder?: string;
   isGroupingDisabled?: boolean;
   size?: 'small' | 'middle' | 'large';
@@ -33,8 +33,6 @@ interface ViewOptionsProps {
   defaultVisibleColumns?: ColumnVisibility;
   // Default column order for this specific context
   defaultColumnOrder?: ColumnOrder;
-  // Default sort order for this specific context (defaults to 'None' if not provided)
-  defaultSortOrder?: string;
   // USD equivalent toggle props
   showUsdEquivalent?: boolean;
   setShowUsdEquivalent?: (show: boolean) => void;

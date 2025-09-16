@@ -3601,8 +3601,17 @@ export const mockGTMMotions: GTMMotion[] = [
           id: "pc-001-1",
           productId: "premium-multiseat-1",
           context: {
+            productId: "premium-multiseat-1",
             channel: "Field",
             billingCycle: "Monthly",
+            validityPeriod: {
+              validFrom: "2024-03-01T00:00:00Z"
+            },
+            seatRange: {
+              minQuantity: 1,
+              maxQuantity: 100
+            },
+            pricingTier: "Standard",
             priceGroupAction: "update",
             selectedPriceGroup: {
               id: "pg-premium-multiseat-field-monthly-001",
@@ -3613,17 +3622,23 @@ export const mockGTMMotions: GTMMotion[] = [
             {
               currencyCode: "USD",
               currentAmount: 59.99,
-              newAmount: 64.99
+              newAmount: 64.99,
+              changeAmount: 5.00,
+              changePercentage: 8.33
             },
             {
               currencyCode: "EUR", 
               currentAmount: 54.99,
-              newAmount: 59.99
+              newAmount: 59.99,
+              changeAmount: 5.00,
+              changePercentage: 9.09
             },
             {
               currencyCode: "GBP",
               currentAmount: 49.99,
-              newAmount: 54.99
+              newAmount: 54.99,
+              changeAmount: 5.00,
+              changePercentage: 10.00
             }
           ],
           impactType: "UPDATE_EXISTING_SKU",
@@ -3700,21 +3715,34 @@ export const mockGTMMotions: GTMMotion[] = [
           id: "pc-002-1",
           productId: "premium-core-1",
           context: {
+            productId: "premium-core-1",
             channel: "Desktop",
             billingCycle: "Annual",
+            validityPeriod: {
+              validFrom: "2024-02-01T00:00:00Z"
+            },
+            seatRange: {
+              minQuantity: 1,
+              maxQuantity: 50
+            },
+            pricingTier: "Standard",
             priceGroupAction: "create",
-            selectedPriceGroup: null
+            selectedPriceGroup: undefined
           },
           currencyChanges: [
             {
               currencyCode: "USD",
               currentAmount: 0,
-              newAmount: 299.99
+              newAmount: 299.99,
+              changeAmount: 299.99,
+              changePercentage: 100
             },
             {
               currencyCode: "EUR", 
               currentAmount: 0,
-              newAmount: 279.99
+              newAmount: 279.99,
+              changeAmount: 279.99,
+              changePercentage: 100
             }
           ],
           impactType: "CREATE_NEW_SKU",
@@ -4111,11 +4139,20 @@ export const addPriceChangesToGTMMotion = (
   const newItemId = `gtm-item-${Date.now()}-${motion.items.length + 1}`;
   
   // Create priceChange object from the actual changes
-  const currencyChanges = priceChanges.map(change => ({
-    currencyCode: change.currency,
-    currentAmount: change.currentPrice || 0,
-    newAmount: change.newPrice
-  }));
+  const currencyChanges = priceChanges.map(change => {
+    const currentAmount = change.currentPrice || 0;
+    const newAmount = change.newPrice;
+    const changeAmount = newAmount - currentAmount;
+    const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
+    
+    return {
+      currencyCode: change.currency,
+      currentAmount: currentAmount,
+      newAmount: newAmount,
+      changeAmount: changeAmount,
+      changePercentage: changePercentage
+    };
+  });
 
   // Add new price change item
   motion.items.push({
@@ -4141,8 +4178,17 @@ export const addPriceChangesToGTMMotion = (
       id: `pc-${Date.now()}`,
       productId: productId,
       context: {
+        productId: productId,
         channel: selectedContext.channel,
         billingCycle: selectedContext.billingCycle,
+        validityPeriod: {
+          validFrom: new Date().toISOString()
+        },
+        seatRange: {
+          minQuantity: 1,
+          maxQuantity: 100
+        },
+        pricingTier: "Standard",
         priceGroupAction: selectedContext.priceGroupAction || 'update',
         selectedPriceGroup: selectedContext.selectedPriceGroup || selectedContext.existingPriceGroup
       },
@@ -4174,11 +4220,20 @@ export const createAndAddGTMMotion = (
   const newMotion = createNewGTMMotion(name, description, activationDate);
   
   // Create priceChange object from the actual changes
-  const currencyChanges = priceChanges.map(change => ({
-    currencyCode: change.currency,
-    currentAmount: change.currentPrice || 0,
-    newAmount: change.newPrice
-  }));
+  const currencyChanges = priceChanges.map(change => {
+    const currentAmount = change.currentPrice || 0;
+    const newAmount = change.newPrice;
+    const changeAmount = newAmount - currentAmount;
+    const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
+    
+    return {
+      currencyCode: change.currency,
+      currentAmount: currentAmount,
+      newAmount: newAmount,
+      changeAmount: changeAmount,
+      changePercentage: changePercentage
+    };
+  });
   
   // Replace the default item with actual product item
   newMotion.items = [{
@@ -4204,8 +4259,17 @@ export const createAndAddGTMMotion = (
       id: `pc-${Date.now()}`,
       productId: productId,
       context: {
+        productId: productId,
         channel: selectedContext.channel,
         billingCycle: selectedContext.billingCycle,
+        validityPeriod: {
+          validFrom: new Date().toISOString()
+        },
+        seatRange: {
+          minQuantity: 1,
+          maxQuantity: 100
+        },
+        pricingTier: "Standard",
         priceGroupAction: selectedContext.priceGroupAction || 'update',
         selectedPriceGroup: selectedContext.selectedPriceGroup || selectedContext.existingPriceGroup
       },

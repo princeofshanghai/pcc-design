@@ -73,7 +73,6 @@ const GTMMotionDetail: React.FC = () => {
   }
 
   const currentStep = getCurrentStep(motion.status);
-  const totalItems = motion.items.length;
 
   // Status-based action buttons  
   const renderActions = () => {

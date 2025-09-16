@@ -248,6 +248,12 @@ export type PriceEditContext = {
     key: string;
     treatment: string;
   };
+  // Added for GTM workflow
+  selectedPriceGroup?: {
+    id: string;
+    name: string;
+  };
+  priceGroupAction?: 'create' | 'update';
 };
 
 // Individual price change tracking

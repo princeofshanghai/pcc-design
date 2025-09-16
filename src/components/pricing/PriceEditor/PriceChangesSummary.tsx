@@ -36,6 +36,7 @@ interface PriceChangesSummaryProps {
   isFieldChannel: boolean;
   changes: PriceChange[] | FieldPriceChange[];
   priceGroupAction: 'create' | 'update';
+  hideTitle?: boolean;
 }
 
 /**
@@ -57,7 +58,8 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
   productName,
   isFieldChannel,
   changes,
-  priceGroupAction
+  priceGroupAction,
+  hideTitle = false
 }) => {
   const { token } = theme.useToken();
 
@@ -115,14 +117,16 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
     return (
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* Main heading */}
-        <div>
-          <Title level={3} style={{ 
-            marginBottom: '24px',
-            fontSize: token.fontSizeHeading2 
-          }}>
-            Review changes
-          </Title>
-        </div>
+        {!hideTitle && (
+          <div>
+            <Title level={3} style={{ 
+              marginBottom: '24px',
+              fontSize: token.fontSizeHeading2 
+            }}>
+              Review changes
+            </Title>
+          </div>
+        )}
 
         {/* Summary section */}
         <div>
@@ -161,7 +165,7 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
                 label: (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Text style={{ fontWeight: 500, fontSize: token.fontSize }}>
-                      {currency} ({totalChanges} changes)
+                      {currency} ({totalChanges} change{totalChanges !== 1 ? 's' : ''})
                     </Text>
                     <Text style={{ fontSize: token.fontSize, color: token.colorTextSecondary, fontWeight: 'normal' }}>
                       {group.validity}
@@ -174,7 +178,7 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: token.colorWarning }}>
                           <TriangleAlert size={14} />
                           <Text style={{ fontSize: token.fontSize, color: token.colorWarning, fontWeight: 'normal' }}>
-                            {largeChangeCount} large changes
+                            {largeChangeCount} large change{largeChangeCount !== 1 ? 's' : ''}
                           </Text>
                         </div>
                       </Popover>
@@ -209,7 +213,7 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: token.colorWarning }}>
                                     <TriangleAlert size={12} />
                                     <Text style={{ fontSize: token.fontSize, color: token.colorWarning, fontWeight: 'normal' }}>
-                                      {tierLargeCount} large changes
+                                      {tierLargeCount} large change{tierLargeCount !== 1 ? 's' : ''}
                                     </Text>
                                   </div>
                                 </Popover>
@@ -362,15 +366,29 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
         dataIndex: 'change',
         key: 'change',
         width: 100,
-        render: (change: { amount: number; percentage: number }) => (
-          <Text style={{ 
-            color: change.amount > 0 ? token.colorSuccess : token.colorError,
-            fontSize: token.fontSize,
-            fontWeight: 400
-          }}>
-            {change.amount > 0 ? '+' : ''}{change.percentage.toFixed(1)}%
-          </Text>
-        ),
+        render: (change: { amount: number; percentage: number }) => {
+          const isLargeChange = Math.abs(change.percentage) > 10;
+          
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {isLargeChange && (
+                <Popover 
+                  content="New price is more than 10% of current"
+                  placement="top"
+                >
+                  <TriangleAlert size={12} color={token.colorWarning} />
+                </Popover>
+              )}
+              <Text style={{ 
+                color: change.amount > 0 ? token.colorSuccess : token.colorError,
+                fontSize: token.fontSize,
+                fontWeight: 400
+              }}>
+                {change.amount > 0 ? '+' : ''}{change.percentage.toFixed(1)}%
+              </Text>
+            </div>
+          );
+        },
       }] : []),
       {
         title: 'Validity',
@@ -387,14 +405,16 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
     return (
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* Main heading */}
-        <div>
-          <Title level={3} style={{ 
-            marginBottom: '24px',
-            fontSize: token.fontSizeHeading2 
-          }}>
-            Review changes
-          </Title>
-        </div>
+        {!hideTitle && (
+          <div>
+            <Title level={3} style={{ 
+              marginBottom: '24px',
+              fontSize: token.fontSizeHeading2 
+            }}>
+              Review changes
+            </Title>
+          </div>
+        )}
 
         {/* Summary section */}
         <div>

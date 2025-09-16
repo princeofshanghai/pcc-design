@@ -167,6 +167,8 @@ interface FilterBarProps {
     defaultVisibleColumns?: ColumnVisibility;
     // Default column order for this specific context
     defaultColumnOrder?: ColumnOrder;
+    // Default sort order for this specific context
+    defaultSortOrder?: string;
     // USD equivalent toggle options
     showUsdEquivalent?: boolean;
     setShowUsdEquivalent?: (show: boolean) => void;
@@ -521,6 +523,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 setColumnOrder={viewOptions?.setColumnOrder}
                 defaultVisibleColumns={viewOptions?.defaultVisibleColumns}
                 defaultColumnOrder={viewOptions?.defaultColumnOrder}
+                defaultSortOrder={viewOptions?.defaultSortOrder}
                 
                 showUsdEquivalent={viewOptions?.showUsdEquivalent}
                 setShowUsdEquivalent={viewOptions?.setShowUsdEquivalent}

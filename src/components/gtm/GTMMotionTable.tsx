@@ -3,12 +3,13 @@ import { Table, Typography, theme } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import type { GTMMotion, ColumnVisibility, ColumnOrder } from '../../utils/types';
-import { formatFullDate, formatShortDate, formatFullDateTimeUTC } from '../../utils/formatters';
+import type { GTMMotion, ColumnVisibility, ColumnOrder, GTMItemType } from '../../utils/types';
+import { formatFullDate, formatShortDate, formatFullDateTimeUTC, toSentenceCase } from '../../utils/formatters';
 import { TEAM_MEMBERS } from '../../utils/users';
 import CopyableId from '../shared/CopyableId';
 import InfoPopover from '../shared/InfoPopover';
 import GTMStatusTag from '../attributes/GTMStatusTag';
+import GTMItemTypeTag from '../attributes/GTMItemTypeTag';
 
 const { Text } = Typography;
 
@@ -82,34 +83,28 @@ const GTMMotionTable: React.FC<GTMMotionTableProps> = ({
       ),
     },
     {
-      title: 'Product',
-      key: 'product',
+      title: 'Types',
+      key: 'types',
       render: (_, record: GTMMotion) => {
-        // Get unique products from the motion items
-        const uniqueProducts = Array.from(
-          new Map(record.items.map(item => [item.productId, item])).values()
-        );
+        // Get unique item types from the motion items
+        const uniqueTypes = Array.from(
+          new Set(record.items.map(item => item.type))
+        ) as GTMItemType[];
 
-        if (uniqueProducts.length === 0) {
+        if (uniqueTypes.length === 0) {
           return (
             <Text style={{ color: token.colorTextTertiary, fontSize: token.fontSizeSM }}>
-              No products
+              No types
             </Text>
           );
         }
 
-        if (uniqueProducts.length === 1) {
-          const product = uniqueProducts[0];
-          return (
-            <Text>{product.productName}</Text>
-          );
-        }
-
-        // Multiple products
+        // Display types inline with small spacing
         return (
-          <div>
-            <Text>{uniqueProducts[0].productName}</Text>
-            <span style={{ color: token.colorTextSecondary }}> +{uniqueProducts.length - 1} more</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {uniqueTypes.map((type) => (
+              <GTMItemTypeTag key={type} itemType={type} variant="small" />
+            ))}
           </div>
         );
       },
@@ -123,7 +118,7 @@ const GTMMotionTable: React.FC<GTMMotionTableProps> = ({
       ),
     },
     {
-      title: 'Activation Date',
+      title: toSentenceCase('Activation Date'),
       dataIndex: 'activationDate',
       key: 'activationDate',
       render: (date: string) => (
@@ -133,7 +128,7 @@ const GTMMotionTable: React.FC<GTMMotionTableProps> = ({
       ),
     },
     {
-      title: 'Created By',
+      title: toSentenceCase('Created By'),
       dataIndex: 'createdBy',
       key: 'createdBy',
       render: (createdBy: string, record: GTMMotion) => (

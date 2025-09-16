@@ -8,6 +8,7 @@ interface PageSectionProps {
   subtitle?: string;
   actions?: React.ReactNode;
   inlineContent?: React.ReactNode; // Content that appears inline with the title
+  belowTitleContent?: React.ReactNode; // Content that appears below title but above divider
   children: React.ReactNode;
   hideDivider?: boolean;
 }
@@ -17,6 +18,7 @@ const PageSection: React.FC<PageSectionProps> = ({
   subtitle,
   actions,
   inlineContent,
+  belowTitleContent,
   children,
   hideDivider = false,
 }) => {
@@ -53,6 +55,13 @@ const PageSection: React.FC<PageSectionProps> = ({
         </div>
         {actions && <div>{actions}</div>}
       </div>
+      
+      {/* Content below title but above divider */}
+      {belowTitleContent && (
+        <div style={{ marginBottom: '16px' }}>
+          {belowTitleContent}
+        </div>
+      )}
       
       {/* Divider line below section header - conditionally rendered */}
       {!hideDivider && (

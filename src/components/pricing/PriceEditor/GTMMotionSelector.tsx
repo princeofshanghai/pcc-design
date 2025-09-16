@@ -32,6 +32,7 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
   const [form] = Form.useForm();
   const [selectionMode, setSelectionMode] = useState<'existing' | 'new'>('existing');
   const [selectedMotionId, setSelectedMotionId] = useState<string | null>(null);
+  const [activationMode, setActivationMode] = useState<'asap' | 'scheduled'>('asap');
 
   // Filter GTM motions to only show Draft status (fully editable)
   const editableMotions = mockGTMMotions.filter(motion => 
@@ -48,6 +49,7 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
     const mode = e.target.value;
     setSelectionMode(mode);
     setSelectedMotionId(null);
+    setActivationMode('asap'); // Reset to ASAP when switching modes
     form.resetFields();
     
     if (onSelectionChange) {
@@ -71,14 +73,28 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
     if (selectionMode === 'new') {
       const values = form.getFieldsValue();
       
-      if (values.name && values.description && values.activationDate) {
+      // For ASAP mode, only name and description are required
+      // For scheduled mode, activation date is also required
+      const hasRequiredFields = values.name && values.description && 
+        (activationMode === 'asap' || (activationMode === 'scheduled' && values.activationDate));
+      
+      if (hasRequiredFields) {
         if (onSelectionChange) {
+          // Generate activation date based on mode
+          let activationDate;
+          if (activationMode === 'asap') {
+            // Set to 7 days from now as minimum for ASAP mode
+            activationDate = dayjs().add(7, 'day').toISOString();
+          } else {
+            activationDate = values.activationDate.toISOString();
+          }
+          
           onSelectionChange({
             mode: 'new',
             newMotion: {
               name: values.name,
               description: values.description,
-              activationDate: values.activationDate.toISOString()
+              activationDate
             }
           });
         }
@@ -110,6 +126,15 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
           }}>
             Choose GTM motion to add changes to
           </Title>
+          <Text style={{ 
+            color: token.colorTextSecondary, 
+            fontSize: token.fontSize,
+            display: 'block',
+            marginBottom: '24px',
+            maxWidth: '720px'
+          }}>
+            GTM motions represent product configuration changes tied to a business initiative. Use the same motion for changes that should activate together, or create separate motions for different timing.
+          </Text>
         </div>
 
         <Radio.Group 
@@ -241,22 +266,98 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
                     </Form.Item>
 
                     <Form.Item
-                      name="activationDate"
                       label="Activation date"
-                      rules={[
-                        { required: true, message: 'Please select an activation date' }
-                      ]}
+                      style={{ marginBottom: '16px' }}
                     >
-                      <DatePicker 
-                        size="large"
-                        style={{ width: '200px' }}
-                        placeholder="Select date"
-                        disabledDate={(current) => {
-                          // Disable dates before today
-                          return current && current < dayjs().startOf('day');
+                      <Radio.Group 
+                        value={activationMode} 
+                        onChange={(e) => {
+                          setActivationMode(e.target.value);
+                          // Clear activation date when switching to ASAP
+                          if (e.target.value === 'asap') {
+                            form.setFieldsValue({ activationDate: undefined });
+                          }
+                          handleFormChange();
                         }}
-                      />
+                      >
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                          <Card 
+                            size="small"
+                            style={{ 
+                              borderRadius: token.borderRadiusLG,
+                              border: activationMode === 'asap' ? `2px solid ${token.colorPrimary}` : `1px solid ${token.colorBorder}`,
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => {
+                              setActivationMode('asap');
+                              form.setFieldsValue({ activationDate: undefined });
+                              handleFormChange();
+                            }}
+                          >
+                            <Radio value="asap">
+                              <div>
+                                <div style={{ fontWeight: 500 }}>Activate as soon as possible</div>
+                                <div style={{ 
+                                  color: token.colorTextSecondary, 
+                                  fontSize: token.fontSizeSM,
+                                  fontWeight: 'normal'
+                                }}>
+                                  After approvals complete
+                                </div>
+                              </div>
+                            </Radio>
+                          </Card>
+                          
+                          <Card 
+                            size="small"
+                            style={{ 
+                              borderRadius: token.borderRadiusLG,
+                              border: activationMode === 'scheduled' ? `2px solid ${token.colorPrimary}` : `1px solid ${token.colorBorder}`,
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => {
+                              setActivationMode('scheduled');
+                              handleFormChange();
+                            }}
+                          >
+                            <Radio value="scheduled">
+                              <div style={{ fontWeight: 500 }}>Schedule for specific date</div>
+                            </Radio>
+                          </Card>
+                        </Space>
+                      </Radio.Group>
                     </Form.Item>
+
+                    {activationMode === 'scheduled' && (
+                      <Form.Item
+                        name="activationDate"
+                        label="Activation date"
+                        rules={[
+                          { required: true, message: 'Please select an activation date' }
+                        ]}
+                        style={{ marginLeft: '24px' }}
+                      >
+                        <DatePicker 
+                          size="large"
+                          style={{ width: '200px' }}
+                          placeholder="Select date"
+                          disabledDate={(current) => {
+                            // Disable dates before 7 days from now and after 9 months from now
+                            const minDate = dayjs().add(7, 'day').startOf('day');
+                            const maxDate = dayjs().add(9, 'month').endOf('day');
+                            return current && (current < minDate || current > maxDate);
+                          }}
+                          onChange={handleFormChange}
+                        />
+                        <div style={{ 
+                          color: token.colorTextSecondary, 
+                          fontSize: token.fontSizeSM,
+                          marginTop: '4px'
+                        }}>
+                          Minimum 7 days from today, maximum 9 months in advance
+                        </div>
+                      </Form.Item>
+                    )}
                   </Form>
                 </div>
               )}

@@ -105,7 +105,7 @@ const generateMenuStructure = () => {
     // Change Management Section
     {
       key: 'gtm-motions',
-      label: <Link to="/gtm-motions">GTM Motions</Link>,
+      label: <Link to="/gtm-motions">GTM motions</Link>,
       icon: <SquareSlash size={14} />
     },
     {

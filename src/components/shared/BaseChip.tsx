@@ -13,6 +13,7 @@ interface BaseChipProps {
   backgroundColor?: string;
   textColor?: string;
   borderColor?: string;
+  style?: React.CSSProperties;
 }
 
 const BaseChip: React.FC<BaseChipProps> = ({
@@ -24,6 +25,7 @@ const BaseChip: React.FC<BaseChipProps> = ({
   backgroundColor,
   textColor,
   borderColor,
+  style,
 }) => {
   const { token } = theme.useToken();
 
@@ -71,6 +73,7 @@ const BaseChip: React.FC<BaseChipProps> = ({
         width: 'fit-content',
         opacity: muted ? 0.7 : 1,
         boxSizing: 'border-box',
+        ...style, // Merge custom styles
       }}
     >
       {icon && (

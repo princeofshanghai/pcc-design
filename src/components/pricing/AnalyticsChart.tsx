@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space, Typography, theme, Card } from 'antd';
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Line, LineChart } from 'recharts';
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Line, LineChart, Legend } from 'recharts';
 import type { PricePoint } from '../../utils/types';
-import { formatValidityRange } from '../../utils/formatters';
 import ChartControls from './ChartControls';
 import { TAILWIND_COLORS } from '../../theme';
 
@@ -20,6 +19,43 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   validityOptions,
 }) => {
   const { token } = theme.useToken();
+  
+  // Custom legend content with square rounded borders styling
+  const renderCustomLegend = (props: any) => {
+    const { payload } = props;
+    if (!payload || !payload.length) return null;
+    
+    return (
+      <ul style={{ 
+        listStyle: 'none', 
+        padding: 0, 
+        margin: 0, 
+        display: 'flex', 
+        justifyContent: 'center', 
+        gap: '16px',
+        marginTop: '16px'
+      }}>
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{
+              width: '12px',
+              height: '12px',
+              backgroundColor: entry.color,
+              borderRadius: '2px',
+              flexShrink: 0
+            }} />
+            <span style={{ 
+              fontSize: token.fontSizeSM, 
+              color: token.colorText,
+              fontWeight: 500 
+            }}>
+              {entry.value}
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
   
   // Chart type selection
   const [chartType, setChartType] = useState<ChartType>('volume');
@@ -73,13 +109,8 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
 
 
 
-  // Filter price points based on validity
-  const filteredByValidity = useMemo(() => {
-    return pricePoints.filter(pp => {
-      const period = formatValidityRange(pp.validFrom, pp.validTo);
-      return period === selectedValidity;
-    });
-  }, [pricePoints, selectedValidity]);
+  // Use all price points directly (already filtered for "active today" by parent)
+  const filteredByValidity = pricePoints;
 
   // Get available tiers for the selected currency
   const availableTiers = useMemo(() => {
@@ -370,125 +401,6 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     return null;
   };
 
-  // Interactive Legend Component - positioned between controls and chart
-  const InteractiveLegend = () => {
-    // Generate legend items based on chart type
-    const getLegendItems = () => {
-      switch (chartType) {
-        case 'volume':
-          // Show all available tiers for selection - use same color logic as chart
-          return availableTiers.map((tier) => ({
-            key: tier,
-            label: tier,
-            color: chartColors[volumeChartData.tiers.indexOf(tier) % chartColors.length],
-            isActive: selectedTier === tier,
-            onClick: () => setSelectedTier(tier)
-          }));
-          
-        case 'calculator':
-          // No legend needed - single tier shown in controls
-          return [];
-          
-        case 'comparison':
-          // Show USD + ALL available comparison currencies - use same color logic as chart
-          const allAvailableCurrencies = ['USD', ...availableComparisonCurrencies];
-          return allAvailableCurrencies.map((currency) => {
-            // Match exact color assignment logic from chart rendering
-            let color;
-            if (currency === 'USD') {
-              color = token.colorPrimary;
-            } else {
-              // Match the exact same index logic as used in chart rendering
-              // comparisonChartData.currencies.indexOf() to match line 814 logic
-              const dataIndex = comparisonChartData.currencies.indexOf(currency);
-              color = chartColors[dataIndex % chartColors.length];
-            }
-            
-            return {
-              key: currency,
-              label: currency,
-              color: color,
-              isActive: currency === 'USD' || selectedComparisonCurrencies.includes(currency),
-              onClick: () => {
-                if (currency === 'USD') return; // USD always active, not clickable
-                
-                if (selectedComparisonCurrencies.includes(currency)) {
-                  // Remove currency
-                  setSelectedComparisonCurrencies(prev => prev.filter(c => c !== currency));
-                } else {
-                  // Add currency
-                  setSelectedComparisonCurrencies(prev => [...prev, currency]);
-                }
-              }
-            };
-          });
-          
-        default:
-          return [];
-      }
-    };
-
-    const legendItems = getLegendItems();
-    
-    if (legendItems.length === 0) return null;
-
-    return (
-      <div style={{
-        marginTop: '-4px'  // Pull legend closer to header divider for balanced spacing
-      }}>
-        {/* Legend - right aligned */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          gap: '16px',
-          marginBottom: '12px',  // Reduced from 16px to balance with spacing above
-          fontSize: token.fontSizeSM,
-          fontFamily: token.fontFamily,
-        }}>
-          {legendItems.map((item) => (
-            <div 
-              key={item.key}
-              onClick={item.onClick}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: item.key === 'USD' && chartType === 'comparison' ? 'default' : 'pointer',
-                opacity: item.isActive ? 1 : 0.5,
-                transition: 'opacity 0.2s ease'
-              }}
-            >
-              {/* Square legend symbol with rounded corners */}
-              <div style={{
-                width: '12px',
-                height: '12px',
-                backgroundColor: item.color,
-                borderRadius: '2px',
-                flexShrink: 0,
-                border: item.isActive ? 'none' : `1px solid ${token.colorBorder}`
-              }} />
-              <span style={{
-                color: item.isActive ? token.colorText : token.colorTextSecondary,
-                fontSize: token.fontSizeSM,
-                fontFamily: token.fontFamily,
-                fontWeight: item.isActive ? 500 : 400
-              }}>
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </div>
-        
-        {/* Single divider below legend, edge-to-edge */}
-        <div style={{
-          height: '1px',
-          backgroundColor: TAILWIND_COLORS.gray[200],
-          margin: '0 -24px 16px -24px'  // Cancel out Card's 24px body padding
-        }} />
-      </div>
-    );
-  };
 
   // Render chart based on type
   const renderChart = () => {
@@ -537,6 +449,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 tickFormatter={(value) => value.toLocaleString()}
               />
               <Tooltip content={<CustomTooltip />} />
+              <Legend content={renderCustomLegend} />
               {/* Show only selected tier */}
               {selectedTier && volumeChartData.tiers.includes(selectedTier) && (
                 <Bar 
@@ -714,6 +627,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                   return null;
                 }}
               />
+              <Legend content={renderCustomLegend} />
               {/* Reference line for current seat count */}
 
               {/* Line for selected tier only */}
@@ -816,7 +730,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                   return null;
                 }}
               />
-
+              <Legend content={renderCustomLegend} />
               
               {/* Line for each currency showing USD equivalent */}
               {comparisonChartData.currencies.map((currency, index) => (
@@ -972,9 +886,6 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             padding: '24px'  // Explicitly control Card body padding
           }}
         >
-          {/* Interactive Legend with divider - separate row */}
-          <InteractiveLegend />
-          
           {/* Chart Area */}
           {renderChart()}
         </Card>

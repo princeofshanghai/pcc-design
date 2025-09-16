@@ -4,7 +4,7 @@ import { Typography, Space, Tabs, theme, Steps, Button, Tag } from 'antd';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockGTMMotions } from '../utils/mock-data';
 import type { GTMMotionStatus } from '../utils/types';
-import { formatFullDate } from '../utils/formatters';
+import { formatFullDate, toSentenceCase } from '../utils/formatters';
 import {
   PageHeader,
   PageSection,
@@ -82,13 +82,13 @@ const GTMMotionDetail: React.FC = () => {
     switch (motion.status) {
       case 'Draft':
         actions.push(
-          <Button key="edit" type="default">Edit Motion</Button>,
-          <Button key="submit" type="primary">Submit GTM Motion</Button>
+          <Button key="edit" type="default">{toSentenceCase('Edit Motion')}</Button>,
+          <Button key="submit" type="primary">{toSentenceCase('Submit GTM Motion')}</Button>
         );
         break;
       case 'Submitted':
         actions.push(
-          <Button key="edit" type="default">Edit Details</Button>
+          <Button key="edit" type="default">{toSentenceCase('Edit Details')}</Button>
         );
         break;
       case 'Activating in EI':
@@ -96,22 +96,22 @@ const GTMMotionDetail: React.FC = () => {
         break;
       case 'Ready for Approvals':
         actions.push(
-          <Button key="start-review" type="primary">Start Review</Button>
+          <Button key="start-review" type="primary">{toSentenceCase('Start Review')}</Button>
         );
         break;
       case 'Review in Progress':
         actions.push(
-          <Button key="cancel" danger>Cancel Motion</Button>
+          <Button key="cancel" danger>{toSentenceCase('Cancel Motion')}</Button>
         );
         break;
       case 'Approvals Completed':
         actions.push(
-          <Button key="set-date" type="primary">Set Activation Date</Button>
+          <Button key="set-date" type="primary">{toSentenceCase('Set Activation Date')}</Button>
         );
         break;
       case 'Scheduled for Activation':
         actions.push(
-          <Button key="cancel" danger>Cancel Motion</Button>
+          <Button key="cancel" danger>{toSentenceCase('Cancel Motion')}</Button>
         );
         break;
       case 'Activating in Prod':
@@ -122,7 +122,7 @@ const GTMMotionDetail: React.FC = () => {
         break;
       case 'Cancelled':
         actions.push(
-          <Button key="clone" type="default">Clone Motion</Button>
+          <Button key="clone" type="default">{toSentenceCase('Clone Motion')}</Button>
         );
         break;
     }
@@ -135,7 +135,74 @@ const GTMMotionDetail: React.FC = () => {
       key: 'overview',
       label: 'Overview',
       children: (
-        <PageSection title="Summary" hideDivider={true}>
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          <PageSection 
+            title="Approvals"
+            inlineContent={
+              // Progress bar and count - calculate approval progress
+              (() => {
+                const allApprovers = motion.items.reduce((acc, item) => {
+                  const approverMap = new Map(acc.map(req => [req.team, req]));
+                  
+                  item.approvalRequirements.forEach(req => {
+                    const existing = approverMap.get(req.team);
+                    if (!existing || 
+                        (req.status === 'Approved' && existing.status !== 'Approved') ||
+                        (req.status === 'Pending' && existing.status === 'Rejected')) {
+                      approverMap.set(req.team, req);
+                    }
+                  });
+                  
+                  return Array.from(approverMap.values());
+                }, [] as any[]).sort((a: any, b: any) => a.team.localeCompare(b.team));
+
+                const approvedCount = allApprovers.filter((req: any) => req.status === 'Approved').length;
+                const totalCount = allApprovers.length;
+
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* Progress Bar */}
+                    <div style={{ 
+                      width: '200px', 
+                      height: '12px', 
+                      backgroundColor: token.colorBgContainer,
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      border: `1px solid ${token.colorBorder}`
+                    }}>
+                      <div 
+                        style={{ 
+                          width: `${totalCount > 0 ? (approvedCount / totalCount) * 100 : 0}%`,
+                          height: '100%',
+                          backgroundColor: token.colorSuccess,
+                          borderRadius: '7px',
+                          transition: 'width 0.3s ease'
+                        }} 
+                      />
+                    </div>
+                    
+                    <Typography.Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary, whiteSpace: 'nowrap' }}>
+                      {approvedCount}/{totalCount} teams approved
+                    </Typography.Text>
+                  </div>
+                );
+              })()
+            }
+          >
+            <GTMItemsTable items={motion.items} renderMode="approvals" motionStatus={motion.status} />
+          </PageSection>
+
+          <PageSection title="GTM items">
+            <GTMItemsTable items={motion.items} renderMode="table" motionStatus={motion.status} />
+          </PageSection>
+        </Space>
+      ),
+    },
+    {
+      key: 'details',
+      label: 'Details',
+      children: (
+        <PageSection title="General">
           <AttributeGroup>
             <AttributeDisplay layout="horizontal" label="Motion ID">
               <CopyableId id={motion.id} />
@@ -162,19 +229,10 @@ const GTMMotionDetail: React.FC = () => {
       ),
     },
     {
-      key: 'items-approvals',
-      label: `Items & Approvals (${totalItems})`,
-      children: (
-        <PageSection title="Items & Approvals" hideDivider={true}>
-          <GTMItemsTable items={motion.items} />
-        </PageSection>
-      ),
-    },
-    {
       key: 'activation-progress',
-      label: 'Activation Progress',
+      label: toSentenceCase('Activation Progress'),
       children: (
-        <PageSection title="" hideDivider={true}>
+        <PageSection title="">
           <div style={{ maxWidth: 600 }}>
             <div
               className="vertical-timeline"
@@ -254,7 +312,7 @@ const GTMMotionDetail: React.FC = () => {
       <PageHeader
         entityType="GTM Motion"
         title={motion.name}
-        tagContent={<GTMStatusTag status={motion.status} />}
+        tagContent={<GTMStatusTag status={motion.status} variant="small" />}
         rightAlignedId={motion.id}
         actions={renderActions()}
         compact

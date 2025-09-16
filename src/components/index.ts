@@ -45,6 +45,8 @@ export { default as CountTag } from './attributes/CountTag';
 export { default as ChannelTag } from './attributes/ChannelTag';
 export { default as BillingCycleTag } from './attributes/BillingCycleTag';
 export { default as BillingModelTag } from './attributes/BillingModelTag';
+export { default as GTMItemTypeTag } from './attributes/GTMItemTypeTag';
+export { default as ApprovalStatusTag } from './attributes/ApprovalStatusTag';
 // FolderTabs component removed - no longer used with new navigation
 export { default as BillingCycleDisplay } from './attributes/BillingCycleDisplay';
 
@@ -75,6 +77,7 @@ export { default as ActivityFeedItem } from './activity/ActivityFeedItem';
 // GTM components
 export { default as GTMItemsTable } from './gtm/GTMItemsTable';
 export { default as GTMMotionTable } from './gtm/GTMMotionTable';
+export { default as GTMItemChangesModal } from './gtm/GTMItemChangesModal';
 
 // Export types that might be imported from components
 export type { SelectOption } from './filters/FilterDropdown';

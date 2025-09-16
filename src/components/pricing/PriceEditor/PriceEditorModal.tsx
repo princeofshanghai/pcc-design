@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Space, theme, Typography, Radio } from 'antd';
 import { ArrowLeft, ArrowRight, Save, FileText, Copy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ContextSelector from './ContextSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
@@ -8,6 +9,7 @@ import PriceChangesSummary from './PriceChangesSummary';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
 import { ChannelTag, BillingCycleTag } from '../../index';
 import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
+import { showSuccessMessage, showErrorMessage } from '../../../utils/messageUtils';
 
 const { Title, Text } = Typography;
 
@@ -33,6 +35,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   initialCreationMethod = null,
 }) => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(directEditMode ? 1 : 0);
   const [selectedContext, setSelectedContext] = useState<any>(directEditMode ? prefilledContext : null);
   const [gtmMotionSelection, setGTMMotionSelection] = useState<GTMMotionSelection | null>(null);
@@ -380,19 +383,24 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      let motionId: string;
+      
       // Actually save to GTM Motion
       if (gtmMotionSelection.mode === 'existing' && gtmMotionSelection.existingMotion) {
         // Add to existing GTM Motion
         const success = addPriceChangesToGTMMotion(
           gtmMotionSelection.existingMotion.id,
           productId,
-          productName
+          productName,
+          priceChanges,
+          selectedContext
         );
         
         if (!success) {
           throw new Error('Failed to add price changes to existing GTM Motion');
         }
         
+        motionId = gtmMotionSelection.existingMotion.id;
         console.log(`✅ Added price changes to existing GTM Motion: ${gtmMotionSelection.existingMotion.name}`);
         
       } else if (gtmMotionSelection.mode === 'new' && gtmMotionSelection.newMotion) {
@@ -402,19 +410,25 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
           gtmMotionSelection.newMotion.description,
           gtmMotionSelection.newMotion.activationDate,
           productId,
-          productName
+          productName,
+          priceChanges,
+          selectedContext
         );
         
+        motionId = newMotion.id;
         console.log(`✅ Created new GTM Motion: ${newMotion.name} (ID: ${newMotion.id})`);
+      } else {
+        throw new Error('Invalid GTM Motion selection');
       }
       
-      // Show success and close modal
-      // TODO: Add success notification (toast)
+      // Show success toast and navigate to GTM motion detail
+      showSuccessMessage('Changes added to GTM motion');
       handleClose();
+      navigate(`/gtm-motions/${motionId}`);
       
     } catch (error) {
       console.error('Failed to save price changes:', error);
-      // TODO: Add error notification
+      showErrorMessage('Failed to save changes. Please try again.');
     } finally {
       setIsSaving(false);
     }

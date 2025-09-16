@@ -2,6 +2,7 @@ import React from 'react';
 import { theme } from 'antd';
 import type { GTMMotionStatus } from '../../utils/types';
 import BaseChip, { type ChipVariant } from '../shared/BaseChip';
+import { toSentenceCase } from '../../utils/formatters';
 
 interface GTMStatusTagProps {
   status: GTMMotionStatus;
@@ -101,7 +102,7 @@ const GTMStatusTag: React.FC<GTMStatusTagProps> = ({
       textColor={colors.textColor}
       borderColor={colors.borderColor}
     >
-      {status}
+      {toSentenceCase(status)}
     </BaseChip>
   );
 };

@@ -21,7 +21,7 @@ export function isCurrencyCode(str: string): boolean {
 }
 
 const ACRONYMS = new Set([
-  'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API', 'EI', 'NPI',
+  'ID', 'URL', 'LOB', 'SKU', 'CTA', 'NAMER', 'EMEA', 'APAC', 'LATAM', 'LIX', 'API', 'EI', 'NPI', 'GTM',
   // Official LOB acronyms
   'LMS', 'LSS', 'LTS',
   // Note: Currency codes are now handled separately via isCurrencyCode function

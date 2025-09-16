@@ -275,14 +275,14 @@ export const getFilterPlaceholder = (columnKey: string): string => {
 export const GTM_MOTION_COLUMNS: ColumnConfig[] = [
   { key: 'id', label: 'Motion ID', required: true },
   { key: 'name', label: 'Name', required: true },
-  { key: 'product', label: 'Product', required: false },
+  { key: 'types', label: 'Types', required: false },
   { key: 'status', label: 'Status', required: false },
   { key: 'activationDate', label: 'Activation date', required: false },
   { key: 'createdBy', label: 'Created by', required: false },
   { key: 'createdDate', label: 'Created date', required: false },
 ];
 
-export const DEFAULT_GTM_MOTION_COLUMNS = ['id', 'name', 'product', 'activationDate', 'createdBy', 'status'];
+export const DEFAULT_GTM_MOTION_COLUMNS = ['id', 'name', 'types', 'activationDate', 'createdBy', 'status'];
 
 // Sort options for GTM motions
 export const GTM_MOTION_SORT_OPTIONS = [

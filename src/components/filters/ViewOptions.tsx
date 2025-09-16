@@ -18,6 +18,8 @@ interface ViewOptionsProps {
   sortOrder?: string;
   setSortOrder?: (value: string) => void;
   sortOptions?: string[];
+  // Default sort order for this specific context
+  defaultSortOrder?: string;
   isGroupingDisabled?: boolean;
   size?: 'small' | 'middle' | 'large';
   // Column visibility props
@@ -31,6 +33,8 @@ interface ViewOptionsProps {
   defaultVisibleColumns?: ColumnVisibility;
   // Default column order for this specific context
   defaultColumnOrder?: ColumnOrder;
+  // Default sort order for this specific context (defaults to 'None' if not provided)
+  defaultSortOrder?: string;
   // USD equivalent toggle props
   showUsdEquivalent?: boolean;
   setShowUsdEquivalent?: (show: boolean) => void;
@@ -53,6 +57,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
   setColumnOrder: _setColumnOrder,
   defaultVisibleColumns,
   defaultColumnOrder,
+  defaultSortOrder = 'None',
   showUsdEquivalent,
   setShowUsdEquivalent,
 }) => {
@@ -69,7 +74,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
       setGroupBy('None');
     }
     if (setSortOrder) {
-      setSortOrder('None');
+      setSortOrder(defaultSortOrder);
     }
     if (setVisibleColumns && columnOptions) {
       // Use contextual default if provided, otherwise fall back to "all visible" default
@@ -126,7 +131,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
 
   const isViewActive = 
     (groupBy && groupBy !== 'None') || 
-    (sortOrder && sortOrder !== 'None') ||
+    (sortOrder && sortOrder !== defaultSortOrder) ||
     hasColumnChanges ||
     hasColumnOrderChanges ||
     (showUsdEquivalent === true);
@@ -322,7 +327,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }
     
     // Sort by change  
-    if (sortOrder && sortOrder !== 'None') {
+    if (sortOrder && sortOrder !== defaultSortOrder) {
       changes.push(`• Sort by: ${toSentenceCase(sortOrder)}`);
     }
     
@@ -694,7 +699,7 @@ const ViewOptions: React.FC<ViewOptionsProps> = ({
     }
     
     // Sort by change  
-    if (sortOrder && sortOrder !== 'None') {
+    if (sortOrder && sortOrder !== defaultSortOrder) {
       count++;
     }
     

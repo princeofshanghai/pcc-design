@@ -3596,15 +3596,52 @@ export const mockGTMMotions: GTMMotion[] = [
           }
         ],
         createdBy: "lkanazir",
-        createdDate: "2024-01-15T15:00:00Z"
+        createdDate: "2024-01-15T15:00:00Z",
+        priceChange: {
+          id: "pc-001-1",
+          productId: "premium-multiseat-1",
+          context: {
+            channel: "Field",
+            billingCycle: "Monthly",
+            priceGroupAction: "update",
+            selectedPriceGroup: {
+              id: "pg-premium-multiseat-field-monthly-001",
+              name: "Premium Multiseat Field Monthly"
+            }
+          },
+          currencyChanges: [
+            {
+              currencyCode: "USD",
+              currentAmount: 59.99,
+              newAmount: 64.99
+            },
+            {
+              currencyCode: "EUR", 
+              currentAmount: 54.99,
+              newAmount: 59.99
+            },
+            {
+              currencyCode: "GBP",
+              currentAmount: 49.99,
+              newAmount: 54.99
+            }
+          ],
+          impactType: "UPDATE_EXISTING_SKU",
+          targetSkuId: "sku-premium-multiseat-field-monthly",
+          createdBy: "lkanazir",
+          createdDate: "2024-01-15T15:00:00Z",
+          status: "Draft"
+        }
       },
       {
         id: "gtm-item-001-2",
-        type: "Description",
+        type: "Product description",
         productId: "premium-multiseat-1",
         productName: "Premium Multiseat", 
-        details: "Updated description",
+        details: "Updated product description",
         status: "Pending approvals",
+        beforeValue: "Scale your business with LinkedIn's premier recruiting solution, designed for teams.",
+        afterValue: "Scale your business with LinkedIn's premier recruiting solution, designed for growing teams and enterprises.",
         approvalRequirements: [
           {
             team: "Legal",
@@ -3658,15 +3695,44 @@ export const mockGTMMotions: GTMMotion[] = [
           }
         ],
         createdBy: "jbader",
-        createdDate: "2024-01-10T11:30:00Z"
+        createdDate: "2024-01-10T11:30:00Z",
+        priceChange: {
+          id: "pc-002-1",
+          productId: "premium-core-1",
+          context: {
+            channel: "Desktop",
+            billingCycle: "Annual",
+            priceGroupAction: "create",
+            selectedPriceGroup: null
+          },
+          currencyChanges: [
+            {
+              currencyCode: "USD",
+              currentAmount: 0,
+              newAmount: 299.99
+            },
+            {
+              currencyCode: "EUR", 
+              currentAmount: 0,
+              newAmount: 279.99
+            }
+          ],
+          impactType: "CREATE_NEW_SKU",
+          targetSkuId: undefined,
+          createdBy: "jbader",
+          createdDate: "2024-01-10T11:30:00Z",
+          status: "Draft"
+        }
       },
       {
         id: "gtm-item-002-2", 
-        type: "New Feature",
+        type: "Feature",
         productId: "premium-core-1",
         productName: "Premium Core",
         details: "A/B test feature toggle",
         status: "Pending approvals",
+        beforeValue: "Advanced search filters (disabled)",
+        afterValue: "Advanced search filters (enabled for 50% of users)",
         approvalRequirements: [
           {
             team: "Legal",
@@ -3782,11 +3848,13 @@ export const mockGTMMotions: GTMMotion[] = [
       },
       {
         id: "gtm-item-005-2",
-        type: "Name",
+        type: "Product name",
         productId: "premium-core-1",
         productName: "Premium Core",
-        details: "Holiday marketing name",
+        details: "Holiday marketing product name",
         status: "Ready for deployment",
+        beforeValue: "Premium Core",
+        afterValue: "Premium Core Holiday Edition",
         approvalRequirements: [
           {
             team: "Legal",
@@ -4029,12 +4097,25 @@ export const createNewGTMMotion = (name: string, description: string, activation
 };
 
 // Add price changes to existing GTM Motion
-export const addPriceChangesToGTMMotion = (motionId: string, productId: string, productName: string): boolean => {
+export const addPriceChangesToGTMMotion = (
+  motionId: string, 
+  productId: string, 
+  productName: string, 
+  priceChanges: any[], 
+  selectedContext: any
+): boolean => {
   const motionIndex = mockGTMMotions.findIndex(motion => motion.id === motionId);
   if (motionIndex === -1) return false;
 
   const motion = mockGTMMotions[motionIndex];
   const newItemId = `gtm-item-${Date.now()}-${motion.items.length + 1}`;
+  
+  // Create priceChange object from the actual changes
+  const currencyChanges = priceChanges.map(change => ({
+    currencyCode: change.currency,
+    currentAmount: change.currentPrice || 0,
+    newAmount: change.newPrice
+  }));
 
   // Add new price change item
   motion.items.push({
@@ -4042,7 +4123,7 @@ export const addPriceChangesToGTMMotion = (motionId: string, productId: string, 
     type: "Price",
     productId: productId,
     productName: productName,
-    details: "Price changes via editor",
+    details: "Updated price",
     status: "Draft",
     approvalRequirements: [
       {
@@ -4055,7 +4136,23 @@ export const addPriceChangesToGTMMotion = (motionId: string, productId: string, 
       }
     ],
     createdBy: "chhu",
-    createdDate: new Date().toISOString()
+    createdDate: new Date().toISOString(),
+    priceChange: {
+      id: `pc-${Date.now()}`,
+      productId: productId,
+      context: {
+        channel: selectedContext.channel,
+        billingCycle: selectedContext.billingCycle,
+        priceGroupAction: selectedContext.priceGroupAction || 'update',
+        selectedPriceGroup: selectedContext.selectedPriceGroup || selectedContext.existingPriceGroup
+      },
+      currencyChanges: currencyChanges,
+      impactType: selectedContext.priceGroupAction === 'create' ? 'CREATE_NEW_SKU' : 'UPDATE_EXISTING_SKU',
+      targetSkuId: selectedContext.priceGroupAction === 'create' ? undefined : `sku-${productId}-${selectedContext.channel?.toLowerCase()}-${selectedContext.billingCycle?.toLowerCase()}`,
+      createdBy: "chhu",
+      createdDate: new Date().toISOString(),
+      status: "Draft"
+    }
   });
 
   // Update motion metadata
@@ -4065,8 +4162,23 @@ export const addPriceChangesToGTMMotion = (motionId: string, productId: string, 
 };
 
 // Create and add new GTM Motion to the list
-export const createAndAddGTMMotion = (name: string, description: string, activationDate: string, productId: string, productName: string): GTMMotion => {
+export const createAndAddGTMMotion = (
+  name: string, 
+  description: string, 
+  activationDate: string, 
+  productId: string, 
+  productName: string,
+  priceChanges: any[], 
+  selectedContext: any
+): GTMMotion => {
   const newMotion = createNewGTMMotion(name, description, activationDate);
+  
+  // Create priceChange object from the actual changes
+  const currencyChanges = priceChanges.map(change => ({
+    currencyCode: change.currency,
+    currentAmount: change.currentPrice || 0,
+    newAmount: change.newPrice
+  }));
   
   // Replace the default item with actual product item
   newMotion.items = [{
@@ -4074,7 +4186,7 @@ export const createAndAddGTMMotion = (name: string, description: string, activat
     type: "Price",
     productId: productId,
     productName: productName,
-    details: "Price changes via editor",
+    details: "Updated price",
     status: "Draft",
     approvalRequirements: [
       {
@@ -4087,7 +4199,23 @@ export const createAndAddGTMMotion = (name: string, description: string, activat
       }
     ],
     createdBy: "chhu",
-    createdDate: new Date().toISOString()
+    createdDate: new Date().toISOString(),
+    priceChange: {
+      id: `pc-${Date.now()}`,
+      productId: productId,
+      context: {
+        channel: selectedContext.channel,
+        billingCycle: selectedContext.billingCycle,
+        priceGroupAction: selectedContext.priceGroupAction || 'update',
+        selectedPriceGroup: selectedContext.selectedPriceGroup || selectedContext.existingPriceGroup
+      },
+      currencyChanges: currencyChanges,
+      impactType: selectedContext.priceGroupAction === 'create' ? 'CREATE_NEW_SKU' : 'UPDATE_EXISTING_SKU',
+      targetSkuId: selectedContext.priceGroupAction === 'create' ? undefined : `sku-${productId}-${selectedContext.channel?.toLowerCase()}-${selectedContext.billingCycle?.toLowerCase()}`,
+      createdBy: "chhu",
+      createdDate: new Date().toISOString(),
+      status: "Draft"
+    }
   }];
   
   mockGTMMotions.push(newMotion);

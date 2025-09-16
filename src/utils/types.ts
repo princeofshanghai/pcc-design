@@ -177,10 +177,13 @@ export type GTMMotionStatus =
 export type GTMItemStatus = 'Draft' | 'Pending approvals' | 'Approved' | 'Ready for deployment';
 
 // GTM item types
-export type GTMItemType = 'Price' | 'Name' | 'Description' | 'New Feature' | 'Archive';
+export type GTMItemType = 'Price' | 'Product name' | 'Product description' | 'Feature' | 'Archive';
 
 // Approval status for individual approvers
 export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
+
+// Extended approval status for UI display (includes pre-request state)
+export type ExtendedApprovalStatus = ApprovalStatus | 'Not requested';
 
 // Approver teams
 export type ApproverTeam = 'Pricing' | 'Legal' | 'Tax' | 'StratFin' | 'Revenue' | 'Product';
@@ -200,13 +203,16 @@ export type GTMItem = {
   type: GTMItemType;
   productId: string;
   productName: string;
-  details: string; // Short description like "New price", "Name change"
+  details: string; // Short description like "New price", "Product name change"
   status: GTMItemStatus;
   approvalRequirements: ApprovalRequirement[];
   createdBy: string;
   createdDate: string; // ISO date string
   // For price items, include the price change data
   priceChange?: PriceChange;
+  // For non-price items, include before/after values
+  beforeValue?: string;
+  afterValue?: string;
 };
 
 export type GTMMotion = {

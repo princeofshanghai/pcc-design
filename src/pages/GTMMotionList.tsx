@@ -34,14 +34,14 @@ const GTMMotionList: React.FC = () => {
   const [createdByFilter, setCreatedByFilter] = useState<string | null>(null);
 
   // Sort and group state
-  const [sortOrder, setSortOrder] = useState('None');
+  const [sortOrder, setSortOrder] = useState('Created date (Latest to earliest)');
   const [groupBy, setGroupBy] = useState('None');
 
   // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
     id: true,
     name: true,
-    product: true,
+    types: true,
     status: true,
     activationDate: true,
     createdBy: true,
@@ -147,12 +147,13 @@ const GTMMotionList: React.FC = () => {
     setSearchQuery('');
     setStatusFilters([]);
     setCreatedByFilter(null);
+    setSortOrder('Created date (Latest to earliest)');
     
     // Reset columns to defaults
     setVisibleColumns({
       id: true,
       name: true,
-      product: true,
+      types: true,
       status: true,
       activationDate: true,
       createdBy: true,
@@ -161,7 +162,7 @@ const GTMMotionList: React.FC = () => {
     setColumnOrder(DEFAULT_GTM_MOTION_COLUMNS);
   };
 
-  const pageTitle = 'GTM Motions';
+  const pageTitle = 'GTM motions';
   const pageSubtitle = `${filteredGTMMotions.length} motion${filteredGTMMotions.length !== 1 ? 's' : ''}`;
 
   return (
@@ -218,13 +219,14 @@ const GTMMotionList: React.FC = () => {
               defaultVisibleColumns: {
                 id: true,
                 name: true,
-                product: true,
+                types: true,
                 status: true,
                 activationDate: true,
                 createdBy: true,
                 createdDate: false,
               },
               defaultColumnOrder: DEFAULT_GTM_MOTION_COLUMNS,
+              defaultSortOrder: 'Created date (Latest to earliest)',
             }}
           />
         </Space>

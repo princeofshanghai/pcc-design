@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Typography, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import type { Sku, Status, Product, SalesChannel, BillingCycle, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import type { Sku, Status, Product, SalesChannel, BillingCycle, CommonTableProps, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import CopyableId from '../shared/CopyableId';
 import StatusTag from '../attributes/StatusTag';
 import ChannelTag from '../attributes/ChannelTag';
@@ -18,11 +18,9 @@ import { SKU_COLUMNS, DEFAULT_SKU_COLUMNS } from '../../utils/tableConfiguration
 
 const { Text } = Typography;
 
-interface SkuListTableProps {
+interface SkuListTableProps extends CommonTableProps {
   skus: Sku[];
   product: Product;
-  visibleColumns?: ColumnVisibility;
-  columnOrder?: ColumnOrder;
   currentTab?: string; // Add current tab to remember where we came from
 }
 
@@ -316,7 +314,7 @@ export const getSkuTableColumns = (
   return [...baseColumns, actionColumn];
 };
 
-const SkuListTable: React.FC<SkuListTableProps> = ({ 
+const SkuListTable: React.FC<SkuListTableProps> = React.memo(({ 
   skus, 
   product, 
   visibleColumns = {},
@@ -345,6 +343,6 @@ const SkuListTable: React.FC<SkuListTableProps> = ({
       />
     </div>
   );
-};
+});
 
 export default SkuListTable; 

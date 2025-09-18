@@ -481,7 +481,7 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
   }
 };
 
-const PricePointTable: React.FC<PricePointTableProps> = ({ 
+const PricePointTable: React.FC<PricePointTableProps> = React.memo(({ 
   pricePoints, 
   groupedPricePoints,
   visibleColumns = {},
@@ -1133,6 +1133,6 @@ const PricePointTable: React.FC<PricePointTableProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default PricePointTable; 

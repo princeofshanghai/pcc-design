@@ -1,5 +1,5 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
-import { User, PanelLeft, Box, SquareSlash, Folder } from 'lucide-react';
+import { User, PanelLeft, Box, Folder, TicketPercent, Calculator, Workflow, Smartphone, ArrowBigRightDash, TableProperties, Rocket } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -50,7 +50,7 @@ const generateMenuStructure = () => {
     {
       key: 'products',
       label: 'Products',
-      icon: <Box size={14} />,
+      icon: <Box size={16} />,
       children: [
         // All Products - shows all products across all folders
         {
@@ -70,7 +70,7 @@ const generateMenuStructure = () => {
             children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
               key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
               label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>,
-              icon: <Folder size={14} />
+              icon: <Folder size={16} />
             }))
           }))
       ]
@@ -78,45 +78,45 @@ const generateMenuStructure = () => {
     {
       key: 'offers',
       label: <Link to="/offers">Offers</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <TicketPercent size={16} />
     },
     {
       key: 'offer-groups',
       label: <Link to="/offer-groups">Offer groups</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <TicketPercent size={16} />
     },
     // Logic Section
     {
       key: 'rulesets',
       label: <Link to="/rulesets">Rulesets</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <Calculator size={16} />
     },
     {
       key: 'calculation-schemes',
       label: <Link to="/calculation-schemes">Calculation schemes</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <Workflow size={16} />
     },
     // Integrations Section  
     {
       key: 'platform-entity-mapping',
       label: <Link to="/platform-entity-mapping">Platform entity mapping</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <Smartphone size={16} />
     },
     // Change Management Section
     {
       key: 'gtm-motions',
       label: <Link to="/gtm-motions">GTM motions</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <Rocket size={16} />
     },
     {
       key: 'change-requests',
       label: <Link to="/change-requests">Change requests</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <ArrowBigRightDash size={16} />
     },
     {
       key: 'picasso-npi',
       label: <Link to="/picasso-npi">Picasso NPI</Link>,
-      icon: <SquareSlash size={14} />
+      icon: <TableProperties size={16} />
     }
   ];
 
@@ -635,7 +635,7 @@ const AppLayout = () => {
 
             .compact-menu .ant-menu-item,
             .compact-menu .ant-menu-submenu-title {
-              font-size: 13px;
+              font-size: ${token.fontSize}px;
               height: 32px !important;
               line-height: 32px !important;
             }
@@ -719,7 +719,7 @@ const AppLayout = () => {
             /* Ensure child folders don't inherit LOB styling */
             .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item,
             .compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item span {
-              font-size: 13px !important;
+              font-size: ${token.fontSize}px !important;
               font-weight: normal !important;
               color: inherit !important;
             }
@@ -776,9 +776,10 @@ const AppLayout = () => {
               color: #1677ff !important;
             }
 
-            /* Default styling for non-selected folder icons */
-            .sidebar-container .ant-menu-item:not(.ant-menu-item-selected) svg {
-              color: #999 !important;
+            /* Default styling for non-selected icons - includes menu items and submenu titles */
+            .sidebar-container .ant-menu-item:not(.ant-menu-item-selected) svg,
+            .sidebar-container .ant-menu-submenu-title:not(.ant-menu-submenu-active):not(.ant-menu-submenu-selected) svg {
+              color: ${token.colorTextSecondary} !important;
             }
 
             /* Hover state for menu items and submenu titles */

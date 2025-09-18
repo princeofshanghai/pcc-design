@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Select, theme, Input } from 'antd';
+import type { PriceEditingContext } from '../../../utils/types';
 
 const { Option, OptGroup } = Select;
 
@@ -10,15 +11,7 @@ interface ContextSelectorProps {
   prefilledContext?: any; // Pre-filled context data
 }
 
-interface PriceEditingContext {
-  channel: string | null;
-  billingCycle: string | null;
-  priceGroupAction: string | null; // 'create' or 'update'
-  existingPriceGroup: any | null; // Selected existing price group for updates
-  lixKey: string | null;
-  lixTreatment: string | null;
-  clonePriceGroup?: any | null; // Selected price group for cloning
-}
+// PriceEditingContext interface now imported from shared types
 
 const ContextSelector: React.FC<ContextSelectorProps> = ({
   product,

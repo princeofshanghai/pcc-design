@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, theme, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
-import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import type { Product, CommonTableProps, ColumnVisibility, ColumnOrder } from '../../utils/types';
 import StatusTag from '../attributes/StatusTag';
 import ChannelTag from '../attributes/ChannelTag';
 import CopyableId from '../shared/CopyableId';
@@ -36,10 +36,8 @@ const formatFolderName = (folderName: string): string => {
 };
 
 
-interface ProductListTableProps {
+interface ProductListTableProps extends CommonTableProps {
   products: Product[];
-  visibleColumns?: ColumnVisibility;
-  columnOrder?: ColumnOrder;
 }
 
 export const getProductListTableColumns = (
@@ -232,7 +230,7 @@ export const getProductListTableColumns = (
   return [...baseColumns, actionColumn];
 };
 
-const ProductListTable: React.FC<ProductListTableProps> = ({ 
+const ProductListTable: React.FC<ProductListTableProps> = React.memo(({ 
   products, 
   visibleColumns = {},
   columnOrder = DEFAULT_PRODUCT_COLUMNS
@@ -256,6 +254,6 @@ const ProductListTable: React.FC<ProductListTableProps> = ({
       />
     </div>
   );
-};
+});
 
 export default ProductListTable; 

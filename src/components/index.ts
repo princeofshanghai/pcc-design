@@ -9,22 +9,16 @@ export { default as DetailSection } from './layout/DetailSection';
 export { default as ScrollToTop } from './layout/ScrollToTop';
 
 // Product components
-export { default as ProductList } from './product/ProductList';
-export { default as ProductListItem } from './product/ProductListItem';
 export { default as ProductListTable } from './product/ProductListTable';
-export { default as GroupedProductList } from './product/GroupedProductList';
 export { default as GroupedProductListTable } from './product/GroupedProductListTable';
 
-// SKU components
-export { default as SkuListItem } from './sku/SkuListItem';
+// SKU components  
 export { default as SkuListTable } from './sku/SkuListTable';
 export { default as GroupedSkuListTable } from './sku/GroupedSkuListTable';
-export { default as DigitalGoodsTable } from './sku/DigitalGoodsTable';
 
 // Pricing components
 export { default as OverrideComparison } from './pricing/OverrideComparison';
 export { default as OverrideIndicator } from './pricing/OverrideIndicator';
-export { default as PriceDetailView } from './pricing/PriceDetailView';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
 export { default as PricePointTable } from './pricing/PricePointTable';
 export { default as PivotTable } from './pricing/PivotTable';

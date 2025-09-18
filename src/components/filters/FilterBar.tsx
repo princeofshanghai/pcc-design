@@ -185,7 +185,7 @@ interface FilterBarProps {
   useCustomFilters?: boolean;
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({
+const FilterBar: React.FC<FilterBarProps> = React.memo(({
   search,
   filters = [],
   onClearAll,
@@ -547,6 +547,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
       )}
     </>
   );
-};
+});
 
 export default FilterBar; 

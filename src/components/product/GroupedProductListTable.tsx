@@ -1,16 +1,14 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { Product, ColumnVisibility, ColumnOrder } from '../../utils/types';
+import type { Product, GroupedTableProps } from '../../utils/types';
 import { getProductListTableColumns } from './ProductListTable';
 import { DEFAULT_PRODUCT_COLUMNS } from '../../utils/tableConfigurations';
 import GroupHeader from '../shared/GroupHeader';
 import type { ColumnsType } from 'antd/es/table';
 
-interface GroupedProductListTableProps {
+interface GroupedProductListTableProps extends GroupedTableProps {
   groupedProducts: Record<string, Product[]>;
-  visibleColumns?: ColumnVisibility;
-  columnOrder?: ColumnOrder;
 }
 
 type TableRow = Product | { 
@@ -21,7 +19,7 @@ type TableRow = Product | {
   groupKey: string;
 };
 
-const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({ 
+const GroupedProductListTable: React.FC<GroupedProductListTableProps> = React.memo(({ 
   groupedProducts, 
   visibleColumns = {},
   columnOrder = DEFAULT_PRODUCT_COLUMNS
@@ -117,6 +115,6 @@ const GroupedProductListTable: React.FC<GroupedProductListTableProps> = ({
       />
     </div>
   );
-};
+});
 
 export default GroupedProductListTable; 

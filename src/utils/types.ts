@@ -43,6 +43,28 @@ export type RefundPolicy = {
   description: string;
 };
 
+// Price editing context interface - used across pricing components
+export interface PriceEditingContext {
+  channel: string | null;
+  billingCycle: string | null;
+  priceGroupAction: string | null; // 'create' or 'update'
+  existingPriceGroup: any | null; // Selected existing price group for updates
+  lixKey?: string | null;
+  lixTreatment?: string | null;
+  clonePriceGroup?: any | null; // Selected price group for cloning
+}
+
+// Common table props interface - used across table components
+export interface CommonTableProps {
+  visibleColumns?: ColumnVisibility;
+  columnOrder?: ColumnOrder;
+}
+
+// Grouped table props interface - used across grouped table components  
+export interface GroupedTableProps extends CommonTableProps {
+  // Additional props for grouped tables can be added here
+}
+
 // Column configuration for table visibility controls
 export type ColumnConfig = {
   key: string;           // Unique identifier for the column

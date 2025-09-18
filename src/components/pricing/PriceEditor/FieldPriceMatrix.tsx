@@ -4,19 +4,12 @@ import { TriangleAlert } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
 import InfoPopover from '../../shared/InfoPopover';
+import type { PriceEditingContext } from '../../../utils/types';
 
 const { Text } = Typography;
 
 interface FieldPriceMatrixProps {
-  selectedContext: {
-    channel: string;
-    billingCycle: string;
-    priceGroupAction: string | null; // 'create' or 'update'
-    existingPriceGroup: any | null; // Selected existing price group for updates
-    lixKey?: string;
-    lixTreatment?: string;
-    clonePriceGroup?: any | null; // Selected price group for cloning
-  };
+  selectedContext: PriceEditingContext;
   product: any;
   initialPriceInputs?: Record<string, Record<string, Record<string, string>>>; // For state persistence between Step 2 <-> Step 3
   onPriceChange?: (currency: string, seatRange: string, pricingTier: string, newPrice: string | null) => void;

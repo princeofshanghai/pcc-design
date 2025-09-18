@@ -1,0 +1,211 @@
+/* Layout Component Styles - Using Ant Design theme tokens */
+
+/* Modern invisible scrollbar for sidebar */
+.sidebar-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.sidebar-container::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Show subtle scrollbar on hover */
+.sidebar-container:hover::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-container:hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.sidebar-container:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Sidebar content wrapper for proper spacing */
+.sidebar-content-wrapper {
+  height: 100%;
+  padding-right: 8px;
+}
+
+.sidebar-container.ant-layout-sider-collapsed .sidebar-content-wrapper {
+  padding-right: 0;
+}
+
+/* Menu styling using CSS variables */
+.compact-menu {
+  --ant-menu-item-height: 32px;
+  --ant-menu-item-padding-inline: 12px;
+}
+
+.compact-menu .ant-menu-item,
+.compact-menu .ant-menu-submenu-title {
+  height: 32px !important;
+  line-height: 32px !important;
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+/* Consistent spacing for menu levels */
+.compact-menu > .ant-menu-item,
+.compact-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-item,
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu > .ant-menu-item {
+  padding-left: 16px !important;
+  padding-right: 24px !important;
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+}
+
+/* Collapsed menu styling */
+.collapsed-menu .ant-menu-item,
+.collapsed-menu .ant-menu-submenu-title {
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.collapsed-menu .ant-menu-item .ant-menu-title-content,
+.collapsed-menu .ant-menu-submenu-title .ant-menu-title-content {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.collapsed-menu .ant-menu-submenu .ant-menu-item-icon {
+  margin-left: 0 !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Smooth sidebar animations */
+.sidebar-label {
+  display: inline-block;
+  transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity, transform;
+}
+
+.ant-menu-title-content .sidebar-label {
+  transition: opacity 180ms cubic-bezier(0.4,0,0.2,1), transform 180ms cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity, transform;
+}
+
+/* LOB section styling using theme tokens */
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+.compact-menu .ant-menu-submenu .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--ant-color-text-secondary) !important;
+}
+
+/* Ensure child folders use normal styling */
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item,
+.compact-menu .ant-menu-submenu .ant-menu .ant-menu-submenu .ant-menu .ant-menu-item span {
+  font-weight: normal !important;
+  color: inherit !important;
+}
+
+/* Text truncation for menu items */
+.ant-menu-title-content {
+  overflow: hidden !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.ant-menu-item span[style*="display: flex"] {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.ant-menu-item span[style*="display: flex"] > span:last-child,
+.ant-menu-item span[style*="display: flex"] > a {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+/* Logo hover effect */
+.sidebar-logo-link:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Consistent menu backgrounds */
+.sidebar-container .ant-menu,
+.sidebar-container .ant-menu-sub,
+.sidebar-container .ant-menu-submenu .ant-menu {
+  background: transparent !important;
+}
+
+/* Selected menu items using theme primary color */
+.sidebar-container .ant-menu-item-selected span,
+.sidebar-container .ant-menu-item-selected a,
+.sidebar-container .ant-menu-item-selected svg {
+  color: var(--ant-color-primary) !important;
+}
+
+/* Default icon colors using theme tokens */
+.sidebar-container .ant-menu-item:not(.ant-menu-item-selected) svg,
+.sidebar-container .ant-menu-submenu-title:not(.ant-menu-submenu-active):not(.ant-menu-submenu-selected) svg {
+  color: var(--ant-color-text-secondary) !important;
+}
+
+/* Maintain space for icons in collapsed state */
+.sidebar-container.ant-layout-sider-collapsed .ant-menu-item .anticon,
+.sidebar-container.ant-layout-sider-collapsed .ant-menu-submenu-title .anticon {
+  margin-right: 0;
+}
+
+/* Breadcrumb styling using theme tokens */
+.ant-breadcrumb {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.ant-breadcrumb .ant-breadcrumb-link,
+.ant-breadcrumb .ant-breadcrumb-separator,
+.ant-breadcrumb a {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Fix folder icon alignment in breadcrumbs */
+.ant-breadcrumb .ant-breadcrumb-link a .ant-space {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ant-breadcrumb .ant-breadcrumb-link a .ant-space-item:first-child {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Hover effects for menu items using theme colors */
+.sidebar-container .ant-menu-item:hover span,
+.sidebar-container .ant-menu-item:hover a,
+.sidebar-container .ant-menu-item:hover svg,
+.sidebar-container .ant-menu-submenu-title:hover span,
+.sidebar-container .ant-menu-submenu-title:hover svg {
+  color: var(--ant-color-primary) !important;
+}
+
+.sidebar-container .ant-menu-submenu-title:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}

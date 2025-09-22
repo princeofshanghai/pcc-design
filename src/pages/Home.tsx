@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space } from 'antd';
 import { Folder } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
 import { mockProducts } from '../utils/mock-data';
 import { loadProductsWithAccurateCounts } from '../utils/demoDataLoader';
@@ -45,11 +45,23 @@ const urlToFolderName = (urlFolder: string): string => {
 
 const Home: React.FC = () => {
   const { folderName } = useParams<{ folderName?: string }>();
+  const location = useLocation();
   const { setFolderName } = useBreadcrumb();
   const [enhancedProducts, setEnhancedProducts] = useState(mockProducts);
 
   // Convert URL folder name to actual folder name for filtering
   const currentFolder = folderName ? urlToFolderName(folderName) : null;
+  
+  // Extract LOB from URL for LOB-specific pages
+  const currentLob: LOB | null = useMemo(() => {
+    const { pathname } = location;
+    if (pathname === '/lms-products') return 'LMS';
+    if (pathname === '/lss-products') return 'LSS';
+    if (pathname === '/lts-products') return 'LTS';
+    if (pathname === '/premium-products') return 'Premium';
+    if (pathname === '/other-products') return 'Other';
+    return null;
+  }, [location.pathname]);
 
   // Load enhanced data on component mount
   useEffect(() => {
@@ -70,22 +82,22 @@ const Home: React.FC = () => {
     };
   }, [currentFolder, setFolderName]);
 
-  // Update column visibility when folder context changes
+  // Update column visibility when folder/LOB context changes
   useEffect(() => {
     setVisibleColumns(prev => ({
       ...prev,
       customers: true, // Always show customers column
-      folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
+      folder: !currentFolder && !currentLob, // Hide folder column when in a specific folder or LOB (redundant)
       status: true, // Always show status column
     }));
-  }, [currentFolder]);
+  }, [currentFolder, currentLob]);
 
   // Column visibility state for ProductListTable
   const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
     id: true,       // Always visible (required)
     name: true,     // Always visible (required)
     customers: true, // Show customers column by default
-    folder: !currentFolder, // Hide folder column when in a specific folder (redundant)
+    folder: !currentFolder && !currentLob, // Hide folder column when in a specific folder or LOB (redundant)
     channel: true,  // Toggleable
     status: true,   // Show status column by default
   });
@@ -93,12 +105,12 @@ const Home: React.FC = () => {
   // Column order state for ProductListTable
   const [columnOrder, setColumnOrder] = useState<ColumnOrder>(DEFAULT_PRODUCT_COLUMNS);
 
-  // Column configuration for ProductListTable - exclude folder column when in specific folder
+  // Column configuration for ProductListTable - exclude folder column when in specific folder or LOB
   const columnOptions: ColumnConfig[] = [
     { key: 'id', label: 'Product ID', required: true },
     { key: 'name', label: 'Name', required: true },
-    // Only show folder as toggleable when viewing all products
-    ...(currentFolder ? [] : [{ key: 'folder', label: 'Folder', required: false }]),
+    // Only show folder as toggleable when viewing all products (not in folder or LOB view)
+    ...(currentFolder || currentLob ? [] : [{ key: 'folder', label: 'Folder', required: false }]),
     { key: 'channel', label: 'Channel', required: false },
     { key: 'customers', label: 'Customers', required: false },
     { key: 'status', label: 'Status', required: false },
@@ -126,7 +138,7 @@ const Home: React.FC = () => {
     dynamicStatusOptions,
     dynamicLobOptions,
     dynamicChannelOptions,
-  } = useProductFilters(enhancedProducts, null); // No LOB filtering - using folder-based navigation
+  } = useProductFilters(enhancedProducts, currentLob); // Pass current LOB for filtering
 
   // Set folder filter based on URL parameter
   useEffect(() => {
@@ -143,8 +155,12 @@ const Home: React.FC = () => {
       // On folder pages, remove LOB and Folder grouping since we're already in a specific folder
       return PRODUCT_GROUP_BY_OPTIONS.filter(option => option !== 'LOB' && option !== 'Folder');
     }
+    if (currentLob) {
+      // On LOB pages, remove LOB grouping since we're already in a specific LOB, but keep Folder
+      return PRODUCT_GROUP_BY_OPTIONS.filter(option => option !== 'LOB');
+    }
     return PRODUCT_GROUP_BY_OPTIONS;
-  }, [currentFolder]);
+  }, [currentFolder, currentLob]);
 
 
 
@@ -173,7 +189,7 @@ const Home: React.FC = () => {
   };
 
   // Generate page title and subtitle based on current context
-  const pageTitle = currentFolder ? currentFolder : 'All products';
+  const pageTitle = currentFolder ? currentFolder : currentLob ? `${currentLob} products` : 'All products';
   const pageSubtitle = `${productCount} product${productCount !== 1 ? 's' : ''}`;
 
   return (
@@ -183,6 +199,10 @@ const Home: React.FC = () => {
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <PageHeader
             {...(currentFolder && {
+              entityType: "Folder",
+              entityIcon: <Folder size={12} />
+            })}
+            {...(currentLob && {
               entityType: "Folder",
               entityIcon: <Folder size={12} />
             })}
@@ -198,8 +218,8 @@ const Home: React.FC = () => {
             }}
             onClearAll={clearAllProductFilters}
             filters={[
-              // Only show LOB and folder dropdowns when on All Products page
-              ...(!currentFolder ? [
+              // LOB filter: Only show when on All Products page (not in specific LOB or folder)
+              ...(!currentFolder && !currentLob ? [
                 {
                   placeholder: getFilterPlaceholder('lob'),
                   options: dynamicLobOptions,
@@ -207,6 +227,9 @@ const Home: React.FC = () => {
                   onChange: (value: string | null) => setLobFilter((value as LOB) ?? null),
                   disableSearch: true,
                 },
+              ] : []),
+              // Folder filter: Show on All Products and LOB pages, but not on specific folder pages
+              ...(!currentFolder ? [
                 {
                   placeholder: getFilterPlaceholder('folder'),
                   options: folderOptions,

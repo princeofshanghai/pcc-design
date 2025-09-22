@@ -30,6 +30,11 @@ export const useProductFilters = (initialProducts: Product[], initialLobFilter: 
   const [groupBy, setGroupBy] = useState<string>('None');
   const [sortOrder, setSortOrder] = useState<string>('None');
 
+  // Sync lobFilter with initialLobFilter when it changes (e.g., route changes)
+  useEffect(() => {
+    setLobFilter(initialLobFilter);
+  }, [initialLobFilter]);
+
   const folderOptions = useMemo(() => {
     if (lobFilter) {
       return [...new Set(initialProducts.filter(p => p.lob === lobFilter).map(p => p.folder))]

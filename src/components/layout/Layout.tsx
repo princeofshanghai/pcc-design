@@ -1,13 +1,14 @@
 import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
 import { User, PanelLeft, Box, Folder, TicketPercent, Calculator, Workflow, Smartphone, ArrowBigRightDash, TableProperties, Rocket } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
 import { zIndex } from '../../theme';
 import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import { useLayout } from '../../context/LayoutContext';
 import { folderStructure, mockProducts } from '../../utils/mock-data';
 import { formatGroupHeader, toTitleCase } from '../../utils/formatters/text';
+import TruncatedText from '../shared/TruncatedText';
 import './Layout.css';
 
 const { Sider, Header, Content } = Layout;
@@ -18,7 +19,7 @@ const { Sider, Header, Content } = Layout;
 // Component for sidebar menu items with smart tooltips
 
 // Helper function to generate unified menu structure with Ant Design item groups
-const generateMenuStructure = () => {
+const generateMenuStructure = (navigate: (path: string) => void, currentPath: string) => {
   const menuItems = [
     // Catalog Section - using Ant Design item group
     {
@@ -27,40 +28,101 @@ const generateMenuStructure = () => {
       children: [
         {
           key: 'products',
-          label: 'Products',
+          label: (
+            <span 
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent default expand/collapse
+                navigate('/');
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              Products
+            </span>
+          ),
           icon: <Box size={16} />,
+          className: currentPath === '/' ? 'selected-expandable-item' : undefined,
           children: [
-            // All Products - shows all products across all folders
-            {
-              key: 'all-products',
-              label: <Link to="/">All products</Link>
-            },
-            // Sort LOBs with "Other" always last
+            // Sort LOBs with "Other" always last, and create clickable+expandable items
             ...Object.entries(folderStructure)
               .sort(([lobA], [lobB]) => {
                 if (lobA === 'Other') return 1;
                 if (lobB === 'Other') return -1;
                 return lobA.localeCompare(lobB);
               })
-              .map(([lob, folders]) => ({
-                key: lob.toLowerCase(),
-                label: formatGroupHeader(lob),
-                children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
-                  key: `${lob.toLowerCase()}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
-                  label: <Link to={`/folder/${folder.toLowerCase().replace(/\s+/g, '-')}`}>{toTitleCase(folder)}</Link>,
-                  icon: <Folder size={16} />
-                }))
-              }))
+              .map(([lob, folders]) => {
+                // Special cases for LMS and Other - just pages, no children
+                if (lob === 'LMS') {
+                  return {
+                    key: lob.toLowerCase(),
+                    label: 'LMS', // Remove Link wrapper - handled by Menu onClick
+                    icon: <Folder size={16} />
+                  };
+                }
+                
+                if (lob === 'Other') {
+                  return {
+                    key: lob.toLowerCase(),
+                    label: 'Other', // Remove Link wrapper - handled by Menu onClick
+                    icon: <Folder size={16} />
+                  };
+                }
+                
+                // For other LOBs - expandable + clickable
+                const lobKey = lob.toLowerCase();
+                const lobRoute = `/${lobKey}-products`;
+                const isLobSelected = currentPath === lobRoute;
+                
+                return {
+                  key: lobKey,
+                  label: (
+                    <span 
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent default expand/collapse
+                        navigate(lobRoute);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {formatGroupHeader(lob)}
+                    </span>
+                  ),
+                  icon: <Folder size={16} />,
+                  className: isLobSelected ? 'selected-expandable-item' : undefined,
+                  children: folders.slice().sort((a, b) => a.localeCompare(b)).map((folder) => ({
+                    key: `${lobKey}-${folder.toLowerCase().replace(/\s+/g, '-')}`,
+                    label: (
+                      <span 
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent default expand/collapse
+                          const folderPath = folder.toLowerCase().replace(/\s+/g, '-');
+                          navigate(`/folder/${folderPath}`);
+                        }}
+                        style={{ 
+                          cursor: 'pointer',
+                          display: 'block',
+                          width: '100%'
+                        }}
+                      >
+                        <TruncatedText 
+                          text={toTitleCase(folder)}
+                          placement="right"
+                          showTooltip={true}
+                        />
+                      </span>
+                    ),
+                    icon: <Folder size={16} />
+                  }))
+                };
+              })
           ]
         },
         {
           key: 'offers',
-          label: <Link to="/offers">Offers</Link>,
+          label: 'Offers', // Remove Link wrapper - handled by Menu onClick
           icon: <TicketPercent size={16} />
         },
         {
           key: 'offer-groups',
-          label: <Link to="/offer-groups">Offer groups</Link>,
+          label: 'Offer groups', // Remove Link wrapper - handled by Menu onClick
           icon: <TicketPercent size={16} />
         }
       ]
@@ -72,12 +134,12 @@ const generateMenuStructure = () => {
       children: [
         {
           key: 'rulesets',
-          label: <Link to="/rulesets">Rulesets</Link>,
+          label: 'Rulesets', // Remove Link wrapper - handled by Menu onClick
           icon: <Calculator size={16} />
         },
         {
           key: 'calculation-schemes',
-          label: <Link to="/calculation-schemes">Calculation schemes</Link>,
+          label: 'Calculation schemes', // Remove Link wrapper - handled by Menu onClick
           icon: <Workflow size={16} />
         }
       ]
@@ -89,7 +151,7 @@ const generateMenuStructure = () => {
       children: [
         {
           key: 'platform-entity-mapping',
-          label: <Link to="/platform-entity-mapping">Platform entity mapping</Link>,
+          label: 'Platform entity mapping', // Remove Link wrapper - handled by Menu onClick
           icon: <Smartphone size={16} />
         }
       ]
@@ -101,17 +163,17 @@ const generateMenuStructure = () => {
       children: [
         {
           key: 'gtm-motions',
-          label: <Link to="/gtm-motions">GTM motions</Link>,
+          label: 'GTM motions', // Remove Link wrapper - handled by Menu onClick
           icon: <Rocket size={16} />
         },
         {
           key: 'change-requests',
-          label: <Link to="/change-requests">Change requests</Link>,
+          label: 'Change requests', // Remove Link wrapper - handled by Menu onClick
           icon: <ArrowBigRightDash size={16} />
         },
         {
           key: 'picasso-npi',
-          label: <Link to="/picasso-npi">Picasso NPI</Link>,
+          label: 'Picasso NPI', // Remove Link wrapper - handled by Menu onClick
           icon: <TableProperties size={16} />
         }
       ]
@@ -124,9 +186,9 @@ const generateMenuStructure = () => {
 const AppLayout = () => {
   // Simplified state - let Ant Design handle most of the complexity
   const [isScrolled, setIsScrolled] = useState(false);
-  const [openKeys, setOpenKeys] = useState(['products']); // Only keep essential open keys state
 
   const location = useLocation();
+  const navigate = useNavigate();
   const { productName, folderName } = useBreadcrumb();
   const { collapsed, setCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
@@ -150,7 +212,7 @@ const AppLayout = () => {
   // Note: We don't need to update maxWidth here since pages set their own base width
 
   // Generate menu structure from mock data
-  const menuItems = useMemo(() => generateMenuStructure(), []);
+  const menuItems = useMemo(() => generateMenuStructure(navigate, location.pathname), [navigate, location.pathname]);
 
   // Simplified menu key selection using a lookup map
   const getSelectedMenuKey = useMemo(() => {
@@ -158,7 +220,12 @@ const AppLayout = () => {
     
     // Simple route mapping - much cleaner than complex logic
     const routeMap: Record<string, string[]> = {
-      '/': ['all-products'],
+      '/': ['products'], // Products page (expandable + clickable)
+      '/lms-products': ['lms'], // LMS page (just clickable)
+      '/lss-products': ['lss'], // LSS page (expandable + clickable)
+      '/lts-products': ['lts'], // LTS page (expandable + clickable)
+      '/premium-products': ['premium'], // Premium page (expandable + clickable)
+      '/other-products': ['other'], // Other page (just clickable)
       '/offers': ['offers'],
       '/offer-groups': ['offer-groups'],
       '/rulesets': ['rulesets'],
@@ -207,35 +274,35 @@ const AppLayout = () => {
 
   const selectedKeys = getSelectedMenuKey;
 
-  // Simplified auto-expand logic - much cleaner approach
-  const lobKeys = useMemo(() => Object.keys(folderStructure).map(lob => lob.toLowerCase()), []);
-  
-  // Auto-expand parent LOB when navigating to a folder
-  useEffect(() => {
-    const selectedFolder = selectedKeys.find(key => 
-      key && key.includes('-') && key !== 'all-products'
-    );
-    
-    if (selectedFolder) {
-      const lobKey = selectedFolder.split('-')[0];
-      if (lobKeys.includes(lobKey)) {
-        setOpenKeys(prev => {
-          // Only update if not already open to avoid unnecessary re-renders
-          if (!prev.includes(lobKey)) {
-            return ['products', lobKey]; // Keep products open and add LOB
-          }
-          return prev;
-        });
-      }
-    } else {
-      // Reset to default when no specific folder is selected
-      setOpenKeys(['products']);
-    }
-  }, [selectedKeys, lobKeys]);
+  // Handle menu item navigation - only for non-expandable items without custom click handlers
+  const handleMenuClick = ({ key }: { key: string }) => {
+    // Navigation mapping for non-expandable items only
+    // (Expandable items now handle their own navigation via custom click handlers)
+    const navigationMap: Record<string, string> = {
+      // Only non-expandable items that don't have custom handlers
+      'lms': '/lms-products', // Non-expandable LOB item
+      'other': '/other-products', // Non-expandable LOB item
+      'offers': '/offers',
+      'offer-groups': '/offer-groups',
+      
+      // Logic section
+      'rulesets': '/rulesets',
+      'calculation-schemes': '/calculation-schemes',
+      
+      // Integrations section
+      'platform-entity-mapping': '/platform-entity-mapping',
+      
+      // Change Management section
+      'gtm-motions': '/gtm-motions',
+      'change-requests': '/change-requests',
+      'picasso-npi': '/picasso-npi',
+    };
 
-  // Simplified accordion handler - let Ant Design handle most of the behavior
-  const handleOpenChange = (keys: string[]) => {
-    setOpenKeys(keys);
+    // Handle direct navigation for non-expandable items
+    const route = navigationMap[key];
+    if (route) {
+      navigate(route);
+    }
   };
 
   // Find the current menu item based on the path
@@ -327,6 +394,18 @@ const AppLayout = () => {
     // Note: Product page itself doesn't show product name in breadcrumb - only parent navigation
 
 
+  }
+
+  // Handle LOB pages - show "All products" breadcrumb for pages like /lss-products, /premium-products, etc.
+  // Exclude folder pages to avoid duplicate breadcrumbs
+  if (location.pathname.endsWith('-products') && 
+      location.pathname !== '/' && 
+      !location.pathname.startsWith('/folder/')) {
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="home">
+        <Link to="/">All products</Link>
+      </Breadcrumb.Item>
+    );
   }
 
   // Add trailing separator to indicate current page level
@@ -424,22 +503,14 @@ const AppLayout = () => {
           {/* Single unified menu with Ant Design item groups */}
           <Menu 
             mode="inline" 
+            inlineCollapsed={collapsed} // Let Ant Design handle collapsed state natively
             selectedKeys={selectedKeys}
-            openKeys={openKeys}
-            onOpenChange={handleOpenChange}
+            onClick={handleMenuClick}
             items={menuItems}
-            inlineIndent={0}
+            inlineIndent={16} // Reduce from default 24px to 16px for less indentation
             style={{ 
-              border: 'none',
-              padding: '0px',
-              background: token.colorBgLayout,
-              ...(collapsed && {
-                '--ant-menu-item-padding-horizontal': '0px',
-                '--ant-menu-item-height': '32px',
-                '--ant-menu-item-border-radius': '0px'
-              })
-            } as React.CSSProperties}
-            className={collapsed ? 'collapsed-menu' : 'compact-menu'}
+              background: 'transparent', // Keep transparent to match gray sidebar
+            }}
           />
         </div>
         </div>

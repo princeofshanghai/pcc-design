@@ -61,6 +61,7 @@ export { default as VerticalSeparator } from './shared/VerticalSeparator';
 export { default as MetricCard } from './shared/MetricCard';
 export { default as InfoPopover } from './shared/InfoPopover';
 export { default as ModeSelectorButton } from './shared/ModeSelectorButton';
+export { default as TruncatedText } from './shared/TruncatedText';
 
 // Attribute Dictionary components
 export { default as AttributeDictionaryTable } from './attribute-dictionary/AttributeDictionaryTable';

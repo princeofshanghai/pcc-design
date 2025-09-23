@@ -2752,6 +2752,32 @@ if (premiumCompanyPageProduct) {
   ];
 }
 
+// Add SKUs to Recruiter Corporate product (ID: 130200)
+const recruiterCorporateProduct = rawMockProducts.find((p: Product) => p.id === '130200');
+if (recruiterCorporateProduct) {
+  recruiterCorporateProduct.skus = [
+    {
+      id: "8435006", // Unique ID for Recruiter Corporate
+      status: "Active",
+      salesChannel: "Field",
+      billingCycle: "Annual",
+      activeContracts: 850,
+      subscriptions: 8500,
+      priceGroup: {
+        id: "1602004",
+        status: "Active",
+        pricePoints: [] // Will be loaded from JSON
+      },
+      revenueRecognition: "Accrual",
+      switcherLogic: [],
+      refundPolicy: { id: "NO_MANUAL", description: "No refund policy" },
+      origin: "manual",
+      createdBy: "System",
+      createdDate: "2023-07-02T07:00:00Z"
+    }
+  ];
+}
+
 // Add 10 Demo Products for UI scaling testing
 const demoProducts: Product[] = [
   {

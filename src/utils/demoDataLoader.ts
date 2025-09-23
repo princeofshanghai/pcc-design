@@ -137,7 +137,7 @@ export async function loadProductWithPricing(productId: string): Promise<Product
         );
         
         return {
-          id: `sku-${priceGroup.id}`,
+          id: originalSku?.id || `sku-${priceGroup.id}`, // Preserve original SKU ID if exists
           status: priceGroup.status,
           salesChannel: salesChannel,
           billingCycle: priceGroup.billingCycle || 'Monthly',

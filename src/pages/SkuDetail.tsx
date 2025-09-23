@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { Typography, Space, Table, Tabs } from 'antd';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useMemo } from 'react';
+import { Typography, Space, Tabs, theme, Tag } from 'antd';
+import { useParams } from 'react-router-dom';
 import { mockProducts } from '../utils/mock-data';
+import { loadProductWithPricing } from '../utils/demoDataLoader';
 import { useBreadcrumb } from '../context/BreadcrumbContext';
-
-import { usePricePointFilters } from '../hooks/usePricePointFilters';
 import { toSentenceCase } from '../utils/formatters';
-import { PRICE_POINT_SORT_OPTIONS, PRICE_POINT_GROUP_BY_OPTIONS, getFilterPlaceholder } from '../utils/tableConfigurations';
+import type { SalesChannel, BillingCycle } from '../utils/types';
+
 import {
   PageHeader,
   StatusTag,
@@ -15,24 +15,35 @@ import {
   AttributeGroup,
   OverrideIndicator,
   OverrideComparison,
-  FilterBar,
   ChannelTag,
-  BillingCycleTag
+  BillingCycleTag,
+  BillingModelTag,
+  CopyableId,
+  InfoPopover,
 } from '../components';
-import PricePointTable from '../components/pricing/PricePointTable';
-import CopyableId from '../components/shared/CopyableId';
-import { AlertCircle } from 'lucide-react';
+import PriceGroupTable from '../components/pricing/PriceGroupTable';
+import { AlertCircle, Check } from 'lucide-react';
 
 const { Title } = Typography;
 
 const SkuDetail: React.FC = () => {
+  const { token } = theme.useToken();
   const { productId, skuId } = useParams<{ productId: string; skuId: string }>();
   const { setProductName, setSkuId, setFolderName } = useBreadcrumb();
-
-
-
-  const product = mockProducts.find(p => p.id === productId);
+  const [product, setProduct] = React.useState(mockProducts.find(p => p.id === productId));
+  
   const sku = product?.skus.find(s => s.id === skuId);
+  
+  // Load enhanced product data with price groups from JSON files
+  useEffect(() => {
+    if (productId) {
+      loadProductWithPricing(productId).then(enhancedProduct => {
+        if (enhancedProduct) {
+          setProduct(enhancedProduct);
+        }
+      });
+    }
+  }, [productId]);
 
 
 
@@ -71,6 +82,8 @@ const SkuDetail: React.FC = () => {
 
   // Function to detect all SKU overrides for summary
   const getSkuOverrides = () => {
+    if (!sku || !product) return [];
+    
     const overrides = [];
     
     if (isOverridden(sku.taxClass)) {
@@ -89,14 +102,52 @@ const SkuDetail: React.FC = () => {
       overrides.push("Paid-to-Paid Grace Period");
     }
     
-    if (isOverridden(sku.features)) {
-      overrides.push("Features");
-    }
-    
     return overrides;
   };
 
   const skuOverrides = getSkuOverrides();
+  
+  // Helper function to render boolean values with check/x icons
+  const renderValue = (value: any, isBoolean = false) => {
+    if (isBoolean) {
+      return (
+        <Space size="small" align="center">
+          {value ? (
+            <>
+              <Check size={14} style={{ color: token.colorSuccess }} />
+              <span>Yes</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: token.colorError, fontSize: '14px', fontWeight: 'bold' }}>✗</span>
+              <span>No</span>
+            </>
+          )}
+        </Space>
+      );
+    }
+    if (Array.isArray(value)) {
+      return (
+        <Space direction="vertical" size={0}>
+          {value.map(item => <span key={item}>- {item}</span>)}
+        </Space>
+      );
+    }
+    return value;
+  };
+  
+  // Prepare price group data for single-row table
+  const priceGroupData = useMemo(() => {
+    if (!sku?.priceGroup) return [];
+    
+    // Find all SKUs that use the same price group
+    const skusWithSamePriceGroup = product?.skus.filter(s => s.priceGroup.id === sku.priceGroup.id) || [];
+    
+    return [{
+      priceGroup: sku.priceGroup,
+      skus: skusWithSamePriceGroup
+    }];
+  }, [sku, product]);
 
   const tabItems = [
     {
@@ -104,19 +155,54 @@ const SkuDetail: React.FC = () => {
       label: 'Overview',
       children: (
         <Space direction="vertical" style={{ width: '100%' }} size={48}>
-          {/* SKU Overrides Summary */}
-          <PageSection title={toSentenceCase("SKU Overrides")}>
-            {skuOverrides.length > 0 ? (
-              <Space align="center" size="small">
-                <AlertCircle size={16} color="#fa8c16" />
-                <Typography.Text>
-                  This SKU overrides: <Typography.Text strong>{skuOverrides.join(', ')}</Typography.Text>
-                </Typography.Text>
+          {/* Override Summary - MOST PROMINENT */}
+          <PageSection 
+            title={
+              <Space size="small">
+                <span>{toSentenceCase("Override Summary")}</span>
+                {skuOverrides.length > 0 && (
+                  <Tag color="orange" style={{ marginLeft: '8px' }}>
+                    {skuOverrides.length} override{skuOverrides.length !== 1 ? 's' : ''}
+                  </Tag>
+                )}
               </Space>
+            }
+          >
+            {skuOverrides.length > 0 ? (
+              <div style={{ 
+                padding: '16px', 
+                backgroundColor: '#fff7e6', 
+                border: '1px solid #ffd591', 
+                borderRadius: '8px' 
+              }}>
+                <Space align="center" size="small" style={{ marginBottom: '12px' }}>
+                  <AlertCircle size={16} color="#fa8c16" />
+                  <Typography.Text strong style={{ color: '#ad6800' }}>
+                    This SKU overrides the following product defaults:
+                  </Typography.Text>
+                </Space>
+                <div style={{ marginLeft: '24px' }}>
+                  {skuOverrides.map((override, index) => (
+                    <div key={override} style={{ marginBottom: '4px' }}>
+                      <Typography.Text style={{ color: '#ad6800' }}>• {override}</Typography.Text>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
-              <Typography.Text type="secondary">
-                This SKU uses all product defaults with no overrides.
-              </Typography.Text>
+              <div style={{ 
+                padding: '16px', 
+                backgroundColor: '#f6ffed', 
+                border: '1px solid #b7eb8f', 
+                borderRadius: '8px' 
+              }}>
+                <Space align="center" size="small">
+                  <Check size={16} color="#52c41a" />
+                  <Typography.Text style={{ color: '#389e0d' }}>
+                    This SKU uses all product defaults with no overrides.
+                  </Typography.Text>
+                </Space>
+              </div>
             )}
           </PageSection>
 
@@ -124,19 +210,19 @@ const SkuDetail: React.FC = () => {
           <PageSection title={toSentenceCase("SKU Information")}>
             <AttributeGroup>
               <AttributeDisplay label="Product" layout="horizontal">
-                {product.name}
+                {product?.name}
               </AttributeDisplay>
               
               <AttributeDisplay label="LOB" layout="horizontal">
-                {product.lob}
+                {product?.lob}
               </AttributeDisplay>
               
               <AttributeDisplay label="Folder" layout="horizontal">
-                {product.folder}
+                {product?.folder}
               </AttributeDisplay>
               
               <AttributeDisplay label="Status" layout="horizontal">
-                <StatusTag status={sku.status} variant="small" showIcon={false} />
+                <StatusTag status={sku?.status} variant="small" showIcon={false} />
               </AttributeDisplay>
             </AttributeGroup>
           </PageSection>
@@ -145,70 +231,189 @@ const SkuDetail: React.FC = () => {
           <PageSection title={toSentenceCase("Configuration")}>
             <AttributeGroup>
               <AttributeDisplay label="Sales Channel" layout="horizontal">
-                <ChannelTag channel={sku.salesChannel} showIcon={false} />
+                <ChannelTag channel={sku?.salesChannel} showIcon={false} />
               </AttributeDisplay>
               
               <AttributeDisplay label="Billing Cycle" layout="horizontal">
-                <BillingCycleTag billingCycle={sku.billingCycle} showIcon={false} />
+                <BillingCycleTag billingCycle={sku?.billingCycle} showIcon={false} />
               </AttributeDisplay>
               
               <AttributeDisplay label="Revenue Recognition" layout="horizontal">
-                {sku.revenueRecognition}
+                {sku?.revenueRecognition}
               </AttributeDisplay>
             </AttributeGroup>
           </PageSection>
-
-          {/* Overridable Attributes Section */}
-          <PageSection title={toSentenceCase("Attributes")}>
+        </Space>
+      ),
+    },
+    {
+      key: 'attributes',
+      label: 'Attributes',
+      children: (
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* General Section */}
+          <PageSection title={toSentenceCase('General')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Product ID">
+                <CopyableId id={product?.id || ''} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Status">
+                <StatusTag status={sku?.status} variant="small" showIcon={false} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelTag billingModel={product?.billingModel} variant="small" showIcon={false} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Sales Channel">
+                <ChannelTag channel={sku?.salesChannel} variant="small" showIcon={false} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product?.isBundle, true)}</AttributeDisplay>
+              {product?.code && (
+                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
+              )}
+              {product?.family && (
+                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
+              )}
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Business Rules Section */}
+          <PageSection title={toSentenceCase('Business Rules')}>
             <AttributeGroup>
               <AttributeDisplay label="Tax Class" layout="horizontal">
                 <Space size="small">
-                  <span>{sku.taxClass || product.taxClass}</span>
-                  {isOverridden(sku.taxClass) && <OverrideIndicator />}
+                  <span>{sku?.taxClass || product?.taxClass}</span>
+                  {isOverridden(sku?.taxClass) && <OverrideIndicator />}
                 </Space>
-                {isOverridden(sku.taxClass) && (
-                  <OverrideComparison skuValue={sku.taxClass} productValue={product.taxClass} />
+                {isOverridden(sku?.taxClass) && (
+                  <OverrideComparison skuValue={sku?.taxClass} productValue={product?.taxClass} />
                 )}
               </AttributeDisplay>
-
+              
+              <AttributeDisplay label="Grace Period (Free-Paid)" layout="horizontal">
+                <Space size="small">
+                  <span>{(sku?.paymentFailureFreeToPaidGracePeriod ?? product?.paymentFailureFreeToPaidGracePeriod)} days</span>
+                  {isOverridden(sku?.paymentFailureFreeToPaidGracePeriod) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku?.paymentFailureFreeToPaidGracePeriod) && (
+                  <OverrideComparison 
+                    skuValue={`${sku?.paymentFailureFreeToPaidGracePeriod} days`} 
+                    productValue={`${product?.paymentFailureFreeToPaidGracePeriod} days`} 
+                  />
+                )}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Grace Period (Paid-Paid)" layout="horizontal">
+                <Space size="small">
+                  <span>{(sku?.paymentFailurePaidToPaidGracePeriod ?? product?.paymentFailurePaidToPaidGracePeriod)} days</span>
+                  {isOverridden(sku?.paymentFailurePaidToPaidGracePeriod) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku?.paymentFailurePaidToPaidGracePeriod) && (
+                  <OverrideComparison 
+                    skuValue={`${sku?.paymentFailurePaidToPaidGracePeriod} days`} 
+                    productValue={`${product?.paymentFailurePaidToPaidGracePeriod} days`} 
+                  />
+                )}
+              </AttributeDisplay>
+              
+              <AttributeDisplay label="Seat Type" layout="horizontal">
+                <Space size="small">
+                  <span>{sku?.seatType || product?.seatType}</span>
+                  {isOverridden(sku?.seatType) && <OverrideIndicator />}
+                </Space>
+                {isOverridden(sku?.seatType) && (
+                  <OverrideComparison skuValue={sku?.seatType} productValue={product?.seatType} />
+                )}
+              </AttributeDisplay>
+              
               <AttributeDisplay label="Seat Range" layout="horizontal">
                 <Space size="small">
-                  <span>{(sku.seatMin ?? product.seatMin)} - {(sku.seatMax ?? product.seatMax)} seats</span>
-                  {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && <OverrideIndicator />}
+                  <span>{(sku?.seatMin ?? product?.seatMin)} - {(sku?.seatMax ?? product?.seatMax)}</span>
+                  {(isOverridden(sku?.seatMin) || isOverridden(sku?.seatMax)) && <OverrideIndicator />}
                 </Space>
-                {(isOverridden(sku.seatMin) || isOverridden(sku.seatMax)) && (
+                {(isOverridden(sku?.seatMin) || isOverridden(sku?.seatMax)) && (
                   <OverrideComparison 
-                    skuValue={`${(sku.seatMin ?? product.seatMin)} - ${(sku.seatMax ?? product.seatMax)} seats`} 
-                    productValue={`${product.seatMin} - ${product.seatMax} seats`} 
+                    skuValue={`${(sku?.seatMin ?? product?.seatMin)} - ${(sku?.seatMax ?? product?.seatMax)}`} 
+                    productValue={`${product?.seatMin} - ${product?.seatMax}`} 
                   />
                 )}
               </AttributeDisplay>
-
-              <AttributeDisplay label="Free-to-Paid Grace Period" layout="horizontal">
-                <Space size="small">
-                  <span>{(sku.paymentFailureFreeToPaidGracePeriod ?? product.paymentFailureFreeToPaidGracePeriod)} days</span>
-                  {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && <OverrideIndicator />}
-                </Space>
-                {isOverridden(sku.paymentFailureFreeToPaidGracePeriod) && (
-                  <OverrideComparison 
-                    skuValue={`${sku.paymentFailureFreeToPaidGracePeriod} days`} 
-                    productValue={`${product.paymentFailureFreeToPaidGracePeriod} days`} 
-                  />
-                )}
-              </AttributeDisplay>
-
-              <AttributeDisplay label="Paid-to-Paid Grace Period" layout="horizontal">
-                <Space size="small">
-                  <span>{(sku.paymentFailurePaidToPaidGracePeriod ?? product.paymentFailurePaidToPaidGracePeriod)} days</span>
-                  {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && <OverrideIndicator />}
-                </Space>
-                {isOverridden(sku.paymentFailurePaidToPaidGracePeriod) && (
-                  <OverrideComparison 
-                    skuValue={`${sku.paymentFailurePaidToPaidGracePeriod} days`} 
-                    productValue={`${product.paymentFailurePaidToPaidGracePeriod} days`} 
-                  />
-                )}
-              </AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Visibility Controls Section */}
+          <PageSection title={toSentenceCase('Visibility Controls')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product?.isVisibleOnBillingEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product?.isVisibleOnRenewalEmails, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product?.isCancellable, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product?.isEligibleForAmendment, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product?.isEligibleForRoboRefund, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product?.isPrimaryProductForPricing, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product?.isPrimaryForGracePeriod, true)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product?.isPrimaryForContractAggregation, true)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Links & Resources Section */}
+          <PageSection title={toSentenceCase('Links & Resources')}>
+            <AttributeGroup>
+              {product?.postPurchaseLandingUrl && (
+                <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                  <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                    {product.postPurchaseLandingUrl}
+                  </a>
+                </AttributeDisplay>
+              )}
+              {product?.productUrl && (
+                <AttributeDisplay layout="horizontal" label="Product URL">
+                  <a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.termsOfServiceUrl && (
+                <AttributeDisplay layout="horizontal" label="Terms of Service">
+                  <a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.howToCancelUrl && (
+                <AttributeDisplay layout="horizontal" label="How to Cancel">
+                  <a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.refundPolicyUrl && (
+                <AttributeDisplay layout="horizontal" label="Refund Policy">
+                  <a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.helpCenterUrl && (
+                <AttributeDisplay layout="horizontal" label="Help Center">
+                  <a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.contactUsUrl && (
+                <AttributeDisplay layout="horizontal" label="Contact Us">
+                  <a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.accountLink && (
+                <AttributeDisplay layout="horizontal" label="Account Link">
+                  <a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a>
+                </AttributeDisplay>
+              )}
+              {product?.ctaLink && (
+                <AttributeDisplay layout="horizontal" label="CTA Link">
+                  <a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a>
+                </AttributeDisplay>
+              )}
+              {product?.ctaUrl && (
+                <AttributeDisplay layout="horizontal" label="CTA URL">
+                  <a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a>
+                </AttributeDisplay>
+              )}
+              {product?.confirmationCtaUrl && (
+                <AttributeDisplay layout="horizontal" label="Confirmation CTA URL">
+                  <a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a>
+                </AttributeDisplay>
+              )}
             </AttributeGroup>
           </PageSection>
         </Space>
@@ -217,225 +422,52 @@ const SkuDetail: React.FC = () => {
     {
       key: 'pricing',
       label: 'Pricing',
-      children: (() => {
-        const priceGroup = sku.priceGroup;
-        
-        // Count how many SKUs in this product use the same price group
-        const skusWithSamePriceGroup = product.skus.filter(s => s.priceGroup.id === priceGroup.id);
-        const otherSkusCount = skusWithSamePriceGroup.length - 1; // Exclude current SKU
-
-        // Use the same filtering logic as PriceGroupDetail
-        const {
-          setSearchQuery: setPricePointSearchQuery,
-          currencyFilters,
-          setCurrencyFilters,
-          regionFilters,
-          setRegionFilters,
-          statusFilters,
-          setStatusFilters,
-          currencyOptions,
-          statusOptions,
-          regionOptions,
-          sortOrder: pricePointSortOrder,
-          setSortOrder,
-          groupBy: pricePointGroupBy, 
-          setGroupBy: setPricePointGroupBy,
-          filteredPricePoints,
-          groupedPricePoints: groupedPricePointsData,
-        } = usePricePointFilters(priceGroup.pricePoints);
-
-        const clearAllPricePointFilters = () => {
-          setPricePointSearchQuery('');
-          setCurrencyFilters([]);
-          setRegionFilters([]);
-          setStatusFilters([]);
-        };
-
-        return (
-          <Space direction="vertical" style={{ width: '100%' }} size={48}>
-            {/* Price Group Information */}
-            <PageSection 
-              title={toSentenceCase("Price Group")}
-            >
-              <AttributeGroup>
-                <AttributeDisplay label="Price Group Name" layout="horizontal">
-                  {priceGroup.name}
-                </AttributeDisplay>
-
-                <AttributeDisplay label="Price Group ID" layout="horizontal">
-                  <CopyableId id={priceGroup.id || ''} />
-                </AttributeDisplay>
-                
-                {priceGroup.status && (
-                  <AttributeDisplay label="Status" layout="horizontal">
-                    <StatusTag status={priceGroup.status} variant="small" showIcon={false} />
-                  </AttributeDisplay>
-                )}
-                
-
-
-                {otherSkusCount > 0 && (
-                  <AttributeDisplay label="Other SKUs" layout="horizontal">
-                    <Space align="center" size="small">
-                      <Typography.Text>
-                        {otherSkusCount} other SKU{otherSkusCount !== 1 ? 's' : ''} use{otherSkusCount === 1 ? 's' : ''} this price group
-                      </Typography.Text>
-                      <Link to={`/product/${product.id}/price-group/${priceGroup.id}`}>
-                        View all
-                      </Link>
-                    </Space>
-                  </AttributeDisplay>
-                )}
-              </AttributeGroup>
-            </PageSection>
-
-            {/* Price Points */}
-            <PageSection 
-              title={toSentenceCase("Price points")}
-            >
-              <FilterBar
-                useCustomFilters={true}
-                search={{
-                  placeholder: "Search by currency or ID...",
-                  onChange: setPricePointSearchQuery,
-                }}
-                filters={[
-                  {
-                    placeholder: getFilterPlaceholder('currency'),
-                    options: currencyOptions,
-                    multiSelect: true,
-                    multiValue: currencyFilters,
-                    onMultiChange: (values: string[]) => setCurrencyFilters(values),
-                    // Required for TypeScript interface compatibility
-                    value: null,
-                    onChange: () => {},
-                  },
-                  {
-                    placeholder: getFilterPlaceholder('region'),
-                    options: regionOptions,
-                    multiSelect: true,
-                    multiValue: regionFilters,
-                    onMultiChange: (values: any[]) => setRegionFilters(values),
-                    // Required for TypeScript interface compatibility
-                    value: null,
-                    onChange: () => {},
-                  },
-                  {
-                    placeholder: getFilterPlaceholder('status'),
-                    options: statusOptions,
-                    multiSelect: true,
-                    multiValue: statusFilters,
-                    onMultiChange: (values: string[]) => setStatusFilters(values),
-                    // Required for TypeScript interface compatibility
-                    value: null,
-                    onChange: () => {},
-                  },
-                ]}
-                onClearAll={clearAllPricePointFilters}
-                viewOptions={{
-                  sortOrder: {
-                    value: pricePointSortOrder,
-                    setter: setSortOrder,
-                    options: PRICE_POINT_SORT_OPTIONS,
-                  },
-                  groupBy: {
-                    value: pricePointGroupBy,
-                    setter: setPricePointGroupBy,
-                    options: PRICE_POINT_GROUP_BY_OPTIONS,
-                  },
-                }}
-
-              />
-              <PricePointTable 
-                pricePoints={filteredPricePoints} 
-                groupedPricePoints={groupedPricePointsData}
-                showUsdEquivalent={false}
-              />
-            </PageSection>
-          </Space>
-        );
-      })(),
-    },
-    {
-      key: 'features',
-      label: 'Features',
       children: (
         <Space direction="vertical" style={{ width: '100%' }} size={48}>
-          {/* Features Section */}
-          {((sku.features && sku.features.length > 0) || (product.features && product.features.length > 0)) ? (
-            <PageSection 
-              title={
-                <Space size="small">
-                  <span>{toSentenceCase("Features")}</span>
-                  {isOverridden(sku.features) && <OverrideIndicator />}
-                </Space>
-              }
-            >
-              {(sku.features && sku.features.length > 0
-                ? sku.features
-                : product.features || []).length > 0 ? (
-                <div style={{ marginTop: '16px' }}>
-                  <Table
-                    columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                    dataSource={(sku.features && sku.features.length > 0
-                      ? sku.features
-                      : product.features || []).map((feature, idx) => ({ key: idx, feature }))}
-                    pagination={false}
-                    size="small"
-                    rowKey="key"
-                    showHeader={false}
-                  />
-                </div>
-              ) : (
-                <span style={{ color: '#888' }}>No features listed for this SKU.</span>
-              )}
-              {isOverridden(sku.features) && (
-                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
-                  <OverrideComparison 
-                    skuValue={`${sku.features?.length || 0} features`} 
-                    productValue={`${product.features?.length || 0} features`} 
-                  />
-                  <div style={{ marginTop: '12px' }}>
-                    <Typography.Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-                      Product Default Features:
+          <PageSection 
+            title={toSentenceCase("Price Group for this SKU")}
+          >
+            {/* Price Group Relationship Info */}
+            {sku?.priceGroup && product && (() => {
+              const skusWithSamePriceGroup = product.skus.filter(s => s.priceGroup.id === sku.priceGroup.id);
+              const otherSkusCount = skusWithSamePriceGroup.length - 1;
+              
+              return otherSkusCount > 0 ? (
+                <div style={{ marginBottom: '24px' }}>
+                  <InfoPopover 
+                    content={`${otherSkusCount} other SKU${otherSkusCount !== 1 ? 's' : ''} in ${product.name} use${otherSkusCount === 1 ? 's' : ''} the same price group. Click the row below to see all price points and related SKUs.`}
+                  >
+                    <Typography.Text style={{ color: token.colorTextSecondary }}>
+                      ℹ️ {otherSkusCount} other SKU{otherSkusCount !== 1 ? 's' : ''} use{otherSkusCount === 1 ? 's' : ''} this price group
                     </Typography.Text>
-                    <div style={{ marginTop: '8px' }}>
-                      <Table
-                        columns={[{ title: '', dataIndex: 'feature', key: 'feature' }]}
-                        dataSource={(product.features || []).map((feature, idx) => ({ key: idx, feature }))}
-                        pagination={false}
-                        size="small"
-                        rowKey="key"
-                        showHeader={false}
-                      />
-                    </div>
-                  </div>
+                  </InfoPopover>
                 </div>
-              )}
-            </PageSection>
-          ) : (
-            <PageSection title={toSentenceCase("Features")}>
-              <span style={{ color: '#888' }}>No features listed for this SKU.</span>
-            </PageSection>
-          )}
+              ) : null;
+            })()}
+            
+            {/* Single-row Price Group Table */}
+            <PriceGroupTable 
+              priceGroups={priceGroupData}
+              productId={productId || ''}
+              productName={product?.name}
+              product={product}
+              currentTab="pricing"
+            />
+          </PageSection>
         </Space>
       ),
     },
   ];
 
-  // The error is because Ant Design's <Space> component expects the `size` prop to be one of: "small", "middle", "large", or a number.
-  // "medium" is not a valid value. The closest valid value is "middle".
-  // So, we should change size="medium" to size="middle".
-
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <PageHeader
         entityType="SKU"
-        title={sku.id}
-        tagContent={<StatusTag status={sku.status} showIcon={false} />}
-        rightAlignedId={sku.id}
-        channels={[sku.salesChannel]}
-        billingCycles={[sku.billingCycle]}
+        title={sku?.id || ''}
+        tagContent={<StatusTag status={sku?.status} showIcon={false} />}
+        rightAlignedId={sku?.id}
+        channels={sku?.salesChannel ? [sku.salesChannel] : []}
+        billingCycles={sku?.billingCycle ? [sku.billingCycle] : []}
         lastUpdatedBy="Anthony Homan"
         lastUpdatedAt={new Date(Date.now() - 45 * 60 * 1000)} // 45 minutes ago
         onEdit={() => console.log('Edit SKU clicked')}

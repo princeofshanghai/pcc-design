@@ -422,15 +422,15 @@ const sortPricePoints = (points: PricePoint[], sortOrder: string, allPricePoints
 
     case 'Validity (Earliest to latest)':
       return sorted.sort((a, b) => {
-        const aDate = new Date(a.validFrom || '').getTime();
-        const bDate = new Date(b.validFrom || '').getTime();
+        const aDate = new Date(a.validFrom).getTime();
+        const bDate = new Date(b.validFrom).getTime();
         return aDate - bDate;
       });
     
     case 'Validity (Latest to earliest)':
       return sorted.sort((a, b) => {
-        const aDate = new Date(a.validFrom || '').getTime();
-        const bDate = new Date(b.validFrom || '').getTime();
+        const aDate = new Date(a.validFrom).getTime();
+        const bDate = new Date(b.validFrom).getTime();
         return bDate - aDate;
       });
     
@@ -928,7 +928,7 @@ const PricePointTable: React.FC<PricePointTableProps> = React.memo(({
       title: getColumnLabel('validity'),
       key: 'validity',
       render: (_: any, record: PricePoint) => {
-        const validityText = formatValidityRange(record.validFrom, record.validTo);
+        const validityText = formatValidityRange(record.validFrom, record.validUntil);
 
         return (
           <Text style={{ color: token.colorTextSecondary }}>
@@ -1051,7 +1051,7 @@ const PricePointTable: React.FC<PricePointTableProps> = React.memo(({
         size="middle"
         columns={columns}
         dataSource={dataSource}
-        rowKey={record => ('isGroupHeader' in record ? record.key : record.id || `${record.currencyCode}-${record.amount}-${record.validFrom || 'no-date'}`)}
+        rowKey={record => ('isGroupHeader' in record ? record.key : record.id || `${record.currencyCode}-${record.amount}-${record.validFrom}`)}
         pagination={false}
         scroll={{ x: 'max-content' }}
         rowClassName={(record) => {
@@ -1061,20 +1061,17 @@ const PricePointTable: React.FC<PricePointTableProps> = React.memo(({
           const isExpired = record.status === 'Expired' || (() => {
             // Calculate status if not explicitly set
             const now = new Date();
-            const validFrom = record.validFrom ? new Date(record.validFrom) : null;
-            const validTo = record.validTo ? new Date(record.validTo) : null;
-            
-            // If no validFrom date, consider it active
-            if (!validFrom) return false;
+            const validFrom = new Date(record.validFrom);
+            const validUntil = record.validUntil ? new Date(record.validUntil) : null;
             
             // If current time is before validFrom, it's not yet active (treat as expired)
             if (now < validFrom) return true;
             
-            // If no validTo date, it's active indefinitely
-            if (!validTo) return false;
+            // If no validUntil date, it's active indefinitely
+            if (!validUntil) return false;
             
-            // If current time is after validTo, it's expired
-            return now > validTo;
+            // If current time is after validUntil, it's expired
+            return now > validUntil;
           })();
           
           return isExpired ? 'price-point-expired-row' : '';

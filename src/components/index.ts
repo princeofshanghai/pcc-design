@@ -17,7 +17,6 @@ export { default as SkuListTable } from './sku/SkuListTable';
 export { default as GroupedSkuListTable } from './sku/GroupedSkuListTable';
 
 // Pricing components
-export { default as OverrideComparison } from './pricing/OverrideComparison';
 export { default as OverrideIndicator } from './pricing/OverrideIndicator';
 export { default as PriceGroupTable } from './pricing/PriceGroupTable';
 export { default as PricePointTable } from './pricing/PricePointTable';

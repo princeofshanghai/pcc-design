@@ -1,14 +1,11 @@
 
 /**
  * Formats a date range into a user-friendly string.
- * @param start - The valid from date string (e.g., "2024-01-01").
- * @param end - The valid to date string (e.g., "2024-12-31").
+ * @param validFrom - The valid from date string (required, e.g., "2024-01-01").
+ * @param validUntil - The valid until date string (optional, e.g., "2024-12-31").
  * @returns A formatted date range string.
  */
-export const formatValidityRange = (start?: string, end?: string): string => {
-  // If no validFrom date, show as "Present" (always active)
-  if (!start) return 'Present';
-
+export const formatValidityRange = (validFrom: string, validUntil?: string): string => {
   // Helper function to ensure proper capitalization
   const formatDateWithProperCapitalization = (dateString: string): string => {
     const date = new Date(dateString);
@@ -23,14 +20,14 @@ export const formatValidityRange = (start?: string, end?: string): string => {
     return `${capitalizedMonth} ${day}, ${year}`;
   };
 
-  const formattedStart = formatDateWithProperCapitalization(start);
+  const formattedStart = formatDateWithProperCapitalization(validFrom);
 
-  // If no validTo date, it's active from start date to present
-  if (!end) {
+  // If no validUntil date, it's active from start date to present
+  if (!validUntil) {
     return `${formattedStart} - present`;
   }
 
-  const formattedEnd = formatDateWithProperCapitalization(end);
+  const formattedEnd = formatDateWithProperCapitalization(validUntil);
 
   return `${formattedStart} - ${formattedEnd}`;
 };

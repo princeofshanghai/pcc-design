@@ -131,13 +131,13 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
     // Filter price points that are active today (matches "Active today" filter logic)
     const today = new Date();
     const currentPricePoints = pricePoints.filter((pp: any) => {
-      const validFrom = pp.validFrom ? new Date(pp.validFrom) : new Date('1900-01-01');
-      const validTo = pp.validTo ? new Date(pp.validTo) : null;
+      const validFrom = new Date(pp.validFrom);
+      const validUntil = pp.validUntil ? new Date(pp.validUntil) : null;
       
       // Price point is active today if:
       // 1. It started before or on today
       // 2. It hasn't expired yet (no end date) OR it expires after today
-      return validFrom <= today && (validTo === null || validTo >= today);
+      return validFrom <= today && (validUntil === null || validUntil >= today);
     });
 
     // Extract unique currencies

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Select, theme, Input } from 'antd';
+import React, { useMemo } from 'react';
+import { Form, Select, theme, AutoComplete } from 'antd';
 import type { PriceEditingContext } from '../../../utils/types';
 
 const { Option, OptGroup } = Select;
@@ -60,7 +60,46 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     return Array.from(priceGroupMap.values());
   }, [product, creationMethod]);
 
+  // Extract unique LIX keys from all SKUs in the product
+  const uniqueLixKeys = useMemo(() => {
+    if (!product?.skus) return [];
+    
+    const keys = product.skus
+      .map((sku: any) => sku.lix?.key)
+      .filter((key: any) => key && key.trim()) // Remove null/empty values
+      .filter((key: any, index: any, array: any) => array.indexOf(key) === index); // Remove duplicates
+    
+    // Group under "Existing" label if there are any keys
+    if (keys.length === 0) return [];
+    
+    return [
+      {
+        label: 'Existing',
+        options: keys.map((key: string) => ({ value: key }))
+      }
+    ];
+  }, [product]);
 
+  // Extract LIX treatments filtered by selected LIX key (Option B)
+  const filteredLixTreatments = useMemo(() => {
+    if (!product?.skus || !selectedLixKey) return [];
+    
+    const treatments = product.skus
+      .filter((sku: any) => sku.lix?.key === selectedLixKey) // Only SKUs with the selected key
+      .map((sku: any) => sku.lix?.treatment)
+      .filter((treatment: any) => treatment && treatment.trim()) // Remove null/empty values
+      .filter((treatment: any, index: any, array: any) => array.indexOf(treatment) === index); // Remove duplicates
+    
+    // Group under "Existing" label if there are any treatments
+    if (treatments.length === 0) return [];
+    
+    return [
+      {
+        label: 'Existing',
+        options: treatments.map((treatment: string) => ({ value: treatment }))
+      }
+    ];
+  }, [product, selectedLixKey]);
 
   // Categorize channels into existing vs new
   const channelCategories = React.useMemo(() => {
@@ -99,6 +138,31 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
     };
   }, [product, selectedChannel]);
 
+  // Detect existing SKUs based on current selection (Channel + Billing + LIX)
+  const existingSkusForContext = React.useMemo(() => {
+    if (!product?.skus || !selectedChannel || !selectedBillingCycle || creationMethod === 'clone') {
+      return [];
+    }
+
+    // Find SKUs that match the selected context exactly
+    return product.skus.filter((sku: any) => {
+      const channelMatch = sku.salesChannel === selectedChannel;
+      const billingMatch = sku.billingCycle === selectedBillingCycle;
+      
+      // LIX comparison - handle null/undefined values properly
+      const skuLixKey = sku.lix?.key || null;
+      const skuLixTreatment = sku.lix?.treatment || null;
+      const selectedLixKeyNormalized = selectedLixKey || null;
+      const selectedLixTreatmentNormalized = selectedLixTreatment || null;
+      
+      const lixMatch = (skuLixKey === selectedLixKeyNormalized) && 
+                       (skuLixTreatment === selectedLixTreatmentNormalized);
+
+      return channelMatch && billingMatch && lixMatch;
+    });
+  }, [product, selectedChannel, selectedBillingCycle, selectedLixKey, selectedLixTreatment, creationMethod]);
+
+
 
 
 
@@ -111,7 +175,8 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
       lixTreatment: selectedLixTreatment,
       priceGroupAction: selectedPriceGroupAction,
       existingPriceGroup: selectedExistingPriceGroup,
-      clonePriceGroup: selectedClonePriceGroup
+      clonePriceGroup: selectedClonePriceGroup,
+      existingSkusForContext: existingSkusForContext
     } as PriceEditingContext;
     
     if (onContextChange) {
@@ -457,34 +522,39 @@ const ContextSelector: React.FC<ContextSelectorProps> = ({
           {((creationMethod === 'blank' && selectedChannel && selectedBillingCycle) || 
             (creationMethod === 'clone' && selectedClonePriceGroup)) && (
             <>
-              {/* LIX Key - Simple text input */}
+              {/* LIX Key - AutoComplete with existing values */}
               <Form.Item
                 name="lixKey"
                 label="LIX key (optional)"
               >
-                <Input
+                <AutoComplete
                   placeholder="Enter LIX key"
                   size="large"
                   allowClear
-                  onChange={(e) => {
-                    const value = e.target.value;
+                  options={uniqueLixKeys}
+                  onChange={(value) => {
                     setSelectedLixKey(value || null);
+                    // Clear treatment when key changes
+                    if (value !== selectedLixKey) {
+                      setSelectedLixTreatment(null);
+                      form.setFieldValue('lixTreatment', null);
+                    }
                     handleFormChange();
                   }}
                 />
               </Form.Item>
 
-              {/* LIX Treatment - Simple text input */}
+              {/* LIX Treatment - AutoComplete with filtered values */}
               <Form.Item
                 name="lixTreatment"
                 label="LIX treatment (optional)"
               >
-                <Input
+                <AutoComplete
                   placeholder="Enter LIX treatment"
                   size="large"
                   allowClear
-                  onChange={(e) => {
-                    const value = e.target.value;
+                  options={filteredLixTreatments}
+                  onChange={(value) => {
                     setSelectedLixTreatment(value || null);
                     handleFormChange();
                   }}

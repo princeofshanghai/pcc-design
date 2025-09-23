@@ -15,9 +15,9 @@ import {
   AttributeDisplay,
   AttributeGroup,
   AnalyticsChart,
-  ModeSelectorButton,
   ChannelTag,
-  BillingCycleTag
+  BillingCycleTag,
+  BillingModelTag
 } from '../components';
 import ValiditySelector from '../components/shared/ValiditySelector';
 import { getDefaultColumnVisibility, getAvailableGroupByOptions } from '../utils/channelConfigurations';
@@ -54,7 +54,6 @@ const PriceGroupDetail: React.FC = () => {
   
   // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [modalCreationMethod, setModalCreationMethod] = useState<'edit' | 'create' | null>(null);
   
   // View mode toggle state - only for Field products
   const [viewMode, setViewMode] = useState(() => {
@@ -250,31 +249,10 @@ const PriceGroupDetail: React.FC = () => {
     );
   }
 
-  // Options for the mode selector button
-  const modeSelectorOptions = [
-    {
-      key: 'edit',
-      label: 'Edit price points',
-      description: 'Edit price points in this price group'
-    },
-    {
-      key: 'create',
-      label: 'Create price group',
-      description: 'Create new price group for new experiments.'
-    }
-  ];
-
-  // Handler for executing the selected action
-  const handleModeExecute = (selectedKey: string) => {
-    if (selectedKey === 'edit') {
-      console.log('Edit price points clicked');
-      setModalCreationMethod('edit');
-      setEditModalOpen(true);
-    } else {
-      console.log('Create new price group clicked');
-      setModalCreationMethod('create');
-      setEditModalOpen(true);
-    }
+  // Handle edit price points button click
+  const handleEditPricePoints = () => {
+    console.log('Edit price points clicked');
+    setEditModalOpen(true);
   };
 
 
@@ -563,6 +541,7 @@ const PriceGroupDetail: React.FC = () => {
             <AttributeGroup>
               <AttributeDisplay layout="horizontal" label="Configuration">
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <BillingModelTag billingModel={product?.billingModel} variant="small" showIcon={false} />
                   {uniqueChannels.map((channel) => (
                     <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
                   ))}
@@ -678,23 +657,16 @@ const PriceGroupDetail: React.FC = () => {
           </Space>
         }
         rightAlignedId={priceGroup.id || ''}
-        lixKey={lixKey}
+        lixKey={lixKey || "None"}
         lixTreatment={lixTreatment}
         actions={
-          <ModeSelectorButton
-            options={modeSelectorOptions}
-            defaultSelected="edit"
-            onExecute={handleModeExecute}
-            buttonProps={{
-              type: "primary",
-              style: {
-                borderColor: '#1677ff',
-                backgroundColor: 'transparent',
-                color: '#1677ff'
-              }
-            }}
+          <Button
+            type="primary"
+            onClick={handleEditPricePoints}
             size="middle"
-          />
+          >
+            Edit price points
+          </Button>
         }
         compact
       />
@@ -722,21 +694,19 @@ const PriceGroupDetail: React.FC = () => {
         open={editModalOpen}
         onClose={() => {
           setEditModalOpen(false);
-          setModalCreationMethod(null);
         }}
         productName={product.name}
         productId={product.id}
         product={product}
-        directEditMode={modalCreationMethod === 'edit'} // Direct edit for existing price group edits
-        prefilledContext={modalCreationMethod === 'edit' ? {
+        directEditMode={true} // Always edit mode in PriceGroupDetail
+        prefilledContext={{
           channel: uniqueChannels[0], // Use first channel
           billingCycle: uniqueBillingCycles[0], // Use first billing cycle
           priceGroupAction: 'update',
           existingPriceGroup: priceGroup,
           lixKey: lixKey || undefined,
           lixTreatment: lixTreatment || undefined,
-        } : undefined}
-        initialCreationMethod={modalCreationMethod === 'create' ? null : undefined}
+        }}
       />
     </Space>
   );

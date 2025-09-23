@@ -245,14 +245,14 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], _channels
 
     // Apply date-based validity filter
     filtered = filtered.filter(point => {
-      const validFrom = point.validFrom ? new Date(point.validFrom) : new Date('1900-01-01');
-      const validTo = point.validTo ? new Date(point.validTo) : null;
+      const validFrom = new Date(point.validFrom);
+      const validUntil = point.validUntil ? new Date(point.validUntil) : null;
       
       // Price point is active on selected date if:
       // 1. It started before or on the selected date
       // 2. It hasn't expired yet (no end date) OR it expires after the selected date
       return validFrom <= selectedValidityDate && 
-             (validTo === null || validTo >= selectedValidityDate);
+             (validUntil === null || validUntil >= selectedValidityDate);
     });
 
     return filtered;
@@ -354,7 +354,7 @@ export const usePricePointFilters = (initialPricePoints: PricePoint[], _channels
       
       filteredPricePoints.forEach(point => {
         // Use the same formatting as the Validity column
-        const validityKey = formatValidityRange(point.validFrom, point.validTo);
+        const validityKey = formatValidityRange(point.validFrom, point.validUntil);
         
         if (!groups[validityKey]) {
           groups[validityKey] = [];

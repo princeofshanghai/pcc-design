@@ -855,6 +855,10 @@ if (premiumCareerProduct) {
       revenueRecognition: "Accrual",
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
+      // SKU-level overrides to test Override Summary functionality
+      paymentFailureFreeToPaidGracePeriod: 3, // Override: Product default is 0
+      paymentFailurePaidToPaidGracePeriod: 14, // Override: Product default is 7
+      isVisibleOnRenewalEmails: false, // Override: Product default is true
       origin: "manual",
       createdBy: "System",
       createdDate: "2021-03-01T08:00:00Z"

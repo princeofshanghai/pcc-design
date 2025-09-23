@@ -51,7 +51,7 @@ export function convertExcelRowToJson(row: {
     currencyCode: row.CURRENCY,
     amount: row.AMOUNT,
     validFrom: new Date(row.VALID_FROM).toISOString(),
-    validTo: row.VALID_UNTIL ? new Date(row.VALID_UNTIL).toISOString() : undefined,
+    validUntil: row.VALID_UNTIL ? new Date(row.VALID_UNTIL).toISOString() : undefined,
     pricingRule: row.PRICING_RULE,
     priceType: row.PRICE_TYPE,
     isTaxInclusive: row.IS_TAX_INCLUSIVE === 'Y' || row.IS_TAX_INCLUSIVE === 'true',

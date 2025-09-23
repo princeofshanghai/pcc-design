@@ -259,11 +259,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                     </Text>
                   </>
                 )}
-                {lixKey && lixTreatment && (
+                {lixKey && (
                   <>
                     {(channelBillingGroups || channels.length > 0 || validityText) && <VerticalSeparator />}
                     <Text style={{ fontSize: '13px', color: token.colorTextSecondary }}>
-                      LIX: {lixKey} ({lixTreatment})
+                      LIX: {lixKey === "None" ? "None" : `${lixKey}${lixTreatment ? ` (${lixTreatment})` : ""}`}
                     </Text>
                   </>
                 )}

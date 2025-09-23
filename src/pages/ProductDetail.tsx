@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Typography, Space, Table, Button, Tabs, Modal, Dropdown, theme, Tag, Drawer, Select } from 'antd';
+import { Typography, Space, Table, Button, Tabs, Modal, Dropdown, theme, Tag, Drawer } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 // Importing only the needed icons from lucide-react, and making sure there are no duplicate imports elsewhere in the file.
@@ -28,7 +28,6 @@ import {
   GroupHeader,
   MetricCard,
   InfoPopover,
-  ModeSelectorButton,
   ChannelTag,
   BillingCycleTag,
   BillingModelTag,
@@ -422,16 +421,13 @@ const ProductDetail: React.FC = () => {
     
     return allFlattenedPricePoints.filter(item => {
       // Validity filter - check if price point is active on selectedValidityDate
-      const validFrom = item.pricePoint.validFrom ? new Date(item.pricePoint.validFrom) : null;
-      const validTo = item.pricePoint.validTo ? new Date(item.pricePoint.validTo) : null;
-      
-      // If no validity dates, include the price point
-      if (!validFrom && !validTo) return true;
+      const validFrom = new Date(item.pricePoint.validFrom);
+      const validUntil = item.pricePoint.validUntil ? new Date(item.pricePoint.validUntil) : null;
       
       // Check if price point is active on the selected date
       const isActiveOnDate = 
-        (!validFrom || selectedValidityDate >= validFrom) &&
-        (!validTo || selectedValidityDate <= validTo);
+        (selectedValidityDate >= validFrom) &&
+        (!validUntil || selectedValidityDate <= validUntil);
       
       if (!isActiveOnDate) {
         return false;
@@ -707,7 +703,7 @@ const ProductDetail: React.FC = () => {
           groupKey = item.lix?.key || 'No LIX';
           break;
         case 'Validity':
-          groupKey = formatValidityRange(item.pricePoint.validFrom, item.pricePoint.validTo);
+          groupKey = formatValidityRange(item.pricePoint.validFrom, item.pricePoint.validUntil);
           break;
         case 'Status':
           groupKey = item.pricePoint.status || 'No Status';
@@ -927,7 +923,7 @@ const ProductDetail: React.FC = () => {
       key: 'validity',
       render: (_: any, record: FlattenedPricePointTableRow) => {
         if ('isGroupHeader' in record) return null;
-        const validityText = formatValidityRange(record.pricePoint.validFrom, record.pricePoint.validTo);
+        const validityText = formatValidityRange(record.pricePoint.validFrom, record.pricePoint.validUntil);
 
         return (
           <Typography.Text style={{ color: token.colorTextSecondary }}>
@@ -1043,93 +1039,14 @@ const ProductDetail: React.FC = () => {
   // Price Editor Modal state
   const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
   const [priceEditorCreationMethod, setPriceEditorCreationMethod] = useState<'blank' | 'clone' | null>(null);
-  const [selectedPriceGroupForEdit, setSelectedPriceGroupForEdit] = useState<any>(null);
   
-  // Edit Price Group Modal state
-  const [editPriceGroupModalOpen, setEditPriceGroupModalOpen] = useState(false);
-  const [selectedPriceGroupIdForEdit, setSelectedPriceGroupIdForEdit] = useState<string | null>(null);
 
 
-  // Mode selector options for price management
-  const productModeSelectorOptions = [
-    {
-      key: 'create',
-      label: 'Create price group',
-      description: 'Create new price group for new experiments.'
-    },
-    {
-      key: 'edit',
-      label: 'Edit price points in existing price group', 
-      description: 'Choose existing price group to modify.'
-    }
-  ];
-
-  // Handle mode selector execution
-  const handleProductModeExecute = (selectedKey: string) => {
-    if (selectedKey === 'create') {
-      // Open Price Editor Modal directly - let it handle creation method selection in Step 1
-      setPriceEditorCreationMethod(null); // null means show Step 1 for method selection
-      setSelectedPriceGroupForEdit(null); // ensure we're in create mode
-      setPriceEditorModalOpen(true);
-    } else if (selectedKey === 'edit') {
-      // Show price group selection for editing
-      handleSelectPriceGroupForEdit();
-    }
-  };
-
-
-  // Handle price group selection for edit mode
-  const handleSelectPriceGroupForEdit = () => {
-    const availablePriceGroups = [...new Set(product?.skus.map(sku => sku.priceGroup) || [])];
-    
-    if (availablePriceGroups.length === 0) {
-      Modal.info({
-        title: 'No Price Groups Available',
-        content: 'This product has no price groups to edit.',
-        okText: 'Got it',
-      });
-      return;
-    }
-
-    // Reset selection and open modal
-    setSelectedPriceGroupIdForEdit(null);
-    setEditPriceGroupModalOpen(true);
-  };
-
-  // Handle edit price group modal OK
-  const handleEditPriceGroupOk = () => {
-    if (!selectedPriceGroupIdForEdit) return;
-
-    const availablePriceGroups = [...new Set(product?.skus.map(sku => sku.priceGroup) || [])];
-    
-    // Find the selected price group and associated SKUs
-    const selectedPriceGroup = availablePriceGroups.find(pg => String(pg.id) === selectedPriceGroupIdForEdit);
-    const skusWithSelectedPriceGroup = product?.skus.filter(sku => String(sku.priceGroup.id) === selectedPriceGroupIdForEdit) || [];
-    
-    if (selectedPriceGroup && skusWithSelectedPriceGroup.length > 0) {
-      // Extract channels and billing cycles for the selected price group
-      const uniqueChannels = [...new Set(skusWithSelectedPriceGroup.map(sku => sku.salesChannel))];
-      const uniqueBillingCycles = [...new Set(skusWithSelectedPriceGroup.map(sku => sku.billingCycle))];
-      
-      // Get LIX information from first SKU
-      const firstSku = skusWithSelectedPriceGroup[0];
-      const lixKey = firstSku?.lix?.key;
-      const lixTreatment = firstSku?.lix?.treatment;
-      
-      // Set up state for editing selected price group
-      const priceGroupEditData = {
-        priceGroup: selectedPriceGroup,
-        channels: uniqueChannels,
-        billingCycles: uniqueBillingCycles,
-        lixKey: lixKey || undefined,
-        lixTreatment: lixTreatment || undefined,
-      };
-      
-      setSelectedPriceGroupForEdit(priceGroupEditData);
-      setPriceEditorCreationMethod(null); // null indicates direct edit mode
-      setEditPriceGroupModalOpen(false); // Close this modal
-      setPriceEditorModalOpen(true); // Open price editor
-    }
+  // Handle create price group button click
+  const handleCreatePriceGroup = () => {
+    // Open Price Editor Modal directly - let it handle creation method selection in Step 1
+    setPriceEditorCreationMethod(null); // null means show Step 1 for method selection
+    setPriceEditorModalOpen(true);
   };
 
 
@@ -1224,113 +1141,95 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // SKUs tab (moved to be second)
+    // Attributes tab (moved to be second)
     {
-      key: 'skus',
-      label: 'SKUs',
+      key: 'configurations',
+      label: 'Attributes',
       children: (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-
-          <PageSection
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>{toSentenceCase('SKUs')}</span>
-                {priceGroupFilter && (
-                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-                    (filtered by price: {priceGroupFilter})
-                  </Typography.Text>
-                )}
-              </div>
-            }
-        >
-          <FilterBar
-            useCustomFilters={true}
-            search={{
-              placeholder: "Search by SKU ID or Name...",
-              onChange: setSearchQuery,
-            }}
-            onClearAll={clearAllSkuFilters}
-            filters={[
-              {
-                placeholder: "All channels",
-                options: channelOptions,
-                value: channelFilters.length === 1 ? channelFilters[0] : null,
-                onChange: (value) => {
-                  if (value) {
-                    setChannelFilters([value as SalesChannel]);
-                  } else {
-                    setChannelFilters([]);
-                  }
-                },
-                multiSelect: true,
-                multiValue: channelFilters,
-                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
-                disableSearch: true,
-              },
-              {
-                placeholder: getFilterPlaceholder('billingCycle'),
-                options: billingCycleOptions,
-                value: billingCycleFilter,
-                onChange: (value) => setBillingCycleFilter(value as string ?? null),
-                disableSearch: true,
-              },
-              {
-                placeholder: getFilterPlaceholder('lix'),
-                options: lixKeyOptions,
-                value: lixKeyFilter,
-                onChange: (value) => setLixKeyFilter(value as string ?? null),
-              },
-
-              {
-                placeholder: getFilterPlaceholder('status'),
-                options: statusOptions,
-                value: statusFilter,
-                onChange: (value) => setStatusFilter(value as Status ?? null),
-                disableSearch: true,
-              },
-            ]}
-            viewOptions={{
-              sortOrder: {
-                value: sortOrder,
-                setter: setSortOrder,
-                options: SKU_SORT_OPTIONS,
-              },
-              groupBy: {
-                value: groupBy,
-                setter: setGroupBy,
-                options: SKU_GROUP_BY_OPTIONS,
-              },
-              columnOptions: skuColumnOptions,
-              visibleColumns: skuVisibleColumns,
-              setVisibleColumns: setSkuVisibleColumns,
-              columnOrder: skuColumnOrder,
-              setColumnOrder: setSkuColumnOrder,
-              defaultVisibleColumns: skuDefaultVisibility,
-              defaultColumnOrder: DEFAULT_SKU_COLUMNS,
-            }}
-          />
-          {finalGroupedSkus ? (
-            <GroupedSkuListTable 
-              groupedSkus={finalGroupedSkus} 
-              product={product} 
-              visibleColumns={skuVisibleColumns}
-              columnOrder={skuColumnOrder}
-              currentTab={currentTab} 
-            />
-          ) : (
-            <SkuListTable 
-              skus={finalSortedSkus} 
-              product={product} 
-              visibleColumns={skuVisibleColumns}
-              columnOrder={skuColumnOrder}
-              currentTab={currentTab} 
-            />
-          )}
+        <Space direction="vertical" size={48} style={{ width: '100%' }}>
+          {/* General Section */}
+          <PageSection title={toSentenceCase('General')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Product ID">
+                <CopyableId id={product.id} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Status">
+                <StatusTag status={product.status} variant="small" showIcon={false} />
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Billing Model">
+                <BillingModelTag billingModel={product.billingModel} variant="small" showIcon={false} />
+              </AttributeDisplay>
+              <AttributeDisplay 
+                layout="horizontal" 
+                label="Supported sales channels" 
+                tooltip="Product contains SKUs sold in these channels"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                  {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel) => (
+                    <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
+                  ))}
+                </div>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
+              {product.code && (
+                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
+              )}
+              {product.family && (
+                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
+              )}
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Business Rules Section */}
+          <PageSection title={toSentenceCase('Business Rules')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Visibility Controls Section */}
+          <PageSection title={toSentenceCase('Visibility Controls')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true, token)}</AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true, token)}</AttributeDisplay>
+            </AttributeGroup>
+          </PageSection>
+          
+          {/* Links & Resources Section */}
+          <PageSection title={toSentenceCase('Links & Resources')}>
+            <AttributeGroup>
+              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
+                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
+                  {product.postPurchaseLandingUrl}
+                </a>
+              </AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
+              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
+            </AttributeGroup>
           </PageSection>
         </Space>
       ),
     },
-    // Pricing tab
+    // Pricing tab (moved to be third)
     {
       key: 'pricing',
       label: 'Pricing',
@@ -1339,20 +1238,13 @@ const ProductDetail: React.FC = () => {
           <PageSection 
             title={priceViewMode === 'pricePoints' ? 'Price points' : 'Price groups'}
             actions={
-              <ModeSelectorButton
-                options={productModeSelectorOptions}
-                defaultSelected="create"
-                onExecute={handleProductModeExecute}
-                buttonProps={{
-                  type: "primary",
-                  style: {
-                    borderColor: '#1677ff',
-                    backgroundColor: 'transparent',
-                    color: '#1677ff'
-                  }
-                }}
+              <Button
+                type="primary"
+                onClick={handleCreatePriceGroup}
                 size="middle"
-              />
+              >
+                Create price group
+              </Button>
             }
           >
             <FilterBar
@@ -1564,14 +1456,10 @@ const ProductDetail: React.FC = () => {
                       
                       // Calculate expiration based on validity dates
                       const now = new Date();
-                      const validFrom = record.pricePoint.validFrom ? new Date(record.pricePoint.validFrom) : null;
-                      const validTo = record.pricePoint.validTo ? new Date(record.pricePoint.validTo) : null;
+                      const validUntil = record.pricePoint.validUntil ? new Date(record.pricePoint.validUntil) : null;
                       
-                      // If no validity dates, trust the status field
-                      if (!validFrom && !validTo) return false;
-                      
-                      // If validTo exists and current time is after validTo, it's expired
-                      if (validTo && now > validTo) return true;
+                      // If validUntil exists and current time is after validUntil, it's expired
+                      if (validUntil && now > validUntil) return true;
                       
                       // If validFrom exists and current time is before validFrom, it's not yet active (but not expired)
                       // Don't treat future price points as expired
@@ -1623,90 +1511,108 @@ const ProductDetail: React.FC = () => {
         </Space>
       ),
     },
-    // Attributes tab
+    // SKUs tab (moved to be fourth/last)
     {
-      key: 'configurations',
-      label: 'Attributes',
+      key: 'skus',
+      label: 'SKUs',
       children: (
-        <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          {/* General Section */}
-          <PageSection title={toSentenceCase('General')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Product ID">
-                <CopyableId id={product.id} />
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Status">
-                <StatusTag status={product.status} variant="small" showIcon={false} />
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Billing Model">
-                <BillingModelTag billingModel={product.billingModel} variant="small" showIcon={false} />
-              </AttributeDisplay>
-              <AttributeDisplay 
-                layout="horizontal" 
-                label="Supported sales channels" 
-                tooltip="Product contains SKUs sold in these channels"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
-                  {[...new Set(product.skus?.map(sku => sku.salesChannel) || [])].map((channel) => (
-                    <ChannelTag key={channel} channel={channel} variant="small" showIcon={false} />
-                  ))}
-                </div>
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Is Bundle?">{renderValue(product.isBundle, true, token)}</AttributeDisplay>
-              {product.code && (
-                <AttributeDisplay layout="horizontal" label="Code">{product.code}</AttributeDisplay>
-              )}
-              {product.family && (
-                <AttributeDisplay layout="horizontal" label="Family">{product.family}</AttributeDisplay>
-              )}
-            </AttributeGroup>
-          </PageSection>
-          
-          {/* Business Rules Section */}
-          <PageSection title={toSentenceCase('Business Rules')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Tax Class">{product.taxClass}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Free-Paid)">{product.paymentFailureFreeToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Grace Period (Paid-Paid)">{product.paymentFailurePaidToPaidGracePeriod} days</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Type">{product.seatType}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Min">{product.seatMin}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Seat Max">{product.seatMax}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          
-          {/* Visibility Controls Section */}
-          <PageSection title={toSentenceCase('Visibility Controls')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Visible on Billing Emails?">{renderValue(product.isVisibleOnBillingEmails, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Visible on Renewal Emails?">{renderValue(product.isVisibleOnRenewalEmails, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Cancellable?">{renderValue(product.isCancellable, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Amendment?">{renderValue(product.isEligibleForAmendment, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Eligible for Robo-Refund?">{renderValue(product.isEligibleForRoboRefund, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Pricing?">{renderValue(product.isPrimaryProductForPricing, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Grace Period?">{renderValue(product.isPrimaryForGracePeriod, true, token)}</AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Primary for Contract Aggregation?">{renderValue(product.isPrimaryForContractAggregation, true, token)}</AttributeDisplay>
-            </AttributeGroup>
-          </PageSection>
-          
-          {/* Links & Resources Section */}
-          <PageSection title={toSentenceCase('Links & Resources')}>
-            <AttributeGroup>
-              <AttributeDisplay layout="horizontal" label="Post-Purchase URL">
-                <a href={product.postPurchaseLandingUrl} target="_blank" rel="noopener noreferrer">
-                  {product.postPurchaseLandingUrl}
-                </a>
-              </AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Product URL"><a href={product.productUrl} target="_blank" rel="noopener noreferrer">{product.productUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Terms of Service"><a href={product.termsOfServiceUrl} target="_blank" rel="noopener noreferrer">{product.termsOfServiceUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="How to Cancel"><a href={product.howToCancelUrl} target="_blank" rel="noopener noreferrer">{product.howToCancelUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Refund Policy"><a href={product.refundPolicyUrl} target="_blank" rel="noopener noreferrer">{product.refundPolicyUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Help Center"><a href={product.helpCenterUrl} target="_blank" rel="noopener noreferrer">{product.helpCenterUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Contact Us"><a href={product.contactUsUrl} target="_blank" rel="noopener noreferrer">{product.contactUsUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Account Link"><a href={product.accountLink} target="_blank" rel="noopener noreferrer">{product.accountLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA Link"><a href={product.ctaLink} target="_blank" rel="noopener noreferrer">{product.ctaLink}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="CTA URL"><a href={product.ctaUrl} target="_blank" rel="noopener noreferrer">{product.ctaUrl}</a></AttributeDisplay>
-              <AttributeDisplay layout="horizontal" label="Confirmation CTA URL"><a href={product.confirmationCtaUrl} target="_blank" rel="noopener noreferrer">{product.confirmationCtaUrl}</a></AttributeDisplay>
-            </AttributeGroup>
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+
+          <PageSection
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{toSentenceCase('SKUs')}</span>
+                {priceGroupFilter && (
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                    (filtered by price: {priceGroupFilter})
+                  </Typography.Text>
+                )}
+              </div>
+            }
+        >
+          <FilterBar
+            useCustomFilters={true}
+            search={{
+              placeholder: "Search by SKU ID or Name...",
+              onChange: setSearchQuery,
+            }}
+            onClearAll={clearAllSkuFilters}
+            filters={[
+              {
+                placeholder: "All channels",
+                options: channelOptions,
+                value: channelFilters.length === 1 ? channelFilters[0] : null,
+                onChange: (value) => {
+                  if (value) {
+                    setChannelFilters([value as SalesChannel]);
+                  } else {
+                    setChannelFilters([]);
+                  }
+                },
+                multiSelect: true,
+                multiValue: channelFilters,
+                onMultiChange: (values: string[]) => setChannelFilters(values as SalesChannel[]),
+                disableSearch: true,
+              },
+              {
+                placeholder: getFilterPlaceholder('billingCycle'),
+                options: billingCycleOptions,
+                value: billingCycleFilter,
+                onChange: (value) => setBillingCycleFilter(value as string ?? null),
+                disableSearch: true,
+              },
+              {
+                placeholder: getFilterPlaceholder('lix'),
+                options: lixKeyOptions,
+                value: lixKeyFilter,
+                onChange: (value) => setLixKeyFilter(value as string ?? null),
+              },
+
+              {
+                placeholder: getFilterPlaceholder('status'),
+                options: statusOptions,
+                value: statusFilter,
+                onChange: (value) => setStatusFilter(value as Status ?? null),
+                disableSearch: true,
+              },
+            ]}
+            viewOptions={{
+              sortOrder: {
+                value: sortOrder,
+                setter: setSortOrder,
+                options: SKU_SORT_OPTIONS,
+              },
+              groupBy: {
+                value: groupBy,
+                setter: setGroupBy,
+                options: SKU_GROUP_BY_OPTIONS,
+              },
+              columnOptions: skuColumnOptions,
+              visibleColumns: skuVisibleColumns,
+              setVisibleColumns: setSkuVisibleColumns,
+              columnOrder: skuColumnOrder,
+              setColumnOrder: setSkuColumnOrder,
+              defaultVisibleColumns: skuDefaultVisibility,
+              defaultColumnOrder: DEFAULT_SKU_COLUMNS,
+            }}
+          />
+          {finalGroupedSkus ? (
+            <GroupedSkuListTable 
+              groupedSkus={finalGroupedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
+          ) : (
+            <SkuListTable 
+              skus={finalSortedSkus} 
+              product={product} 
+              visibleColumns={skuVisibleColumns}
+              columnOrder={skuColumnOrder}
+              currentTab={currentTab} 
+            />
+          )}
           </PageSection>
         </Space>
       ),
@@ -1927,107 +1833,6 @@ const ProductDetail: React.FC = () => {
         </Space>
       </Drawer>
 
-      {/* Edit Price Group Selection Modal */}
-      <Modal
-        title={`Select price group in ${product.name}`}
-        open={editPriceGroupModalOpen}
-        onCancel={() => {
-          setEditPriceGroupModalOpen(false);
-          setSelectedPriceGroupIdForEdit(null);
-        }}
-        onOk={handleEditPriceGroupOk}
-        okText="Edit price points"
-        okButtonProps={{
-          disabled: !selectedPriceGroupIdForEdit
-        }}
-        width={600}
-        zIndex={2000}
-      >
-        <div style={{ marginTop: '16px' }}>
-          <Select
-            size="large"
-            style={{ width: '100%' }}
-            placeholder="Search price groups..."
-            value={selectedPriceGroupIdForEdit}
-            onChange={setSelectedPriceGroupIdForEdit}
-            showSearch
-            optionLabelProp="label"
-            filterOption={(input, option) => {
-              return option?.label?.toString().toLowerCase().includes(input.toLowerCase()) ?? false;
-            }}
-            optionRender={(option) => {
-              const availablePriceGroups = [...new Set(product?.skus.map(sku => sku.priceGroup) || [])];
-              const priceGroup = availablePriceGroups.find(pg => String(pg.id) === option.value);
-              if (!priceGroup) return null;
-              
-              // Get SKUs associated with this price group for metadata
-              const associatedSkus = product?.skus.filter(sku => String(sku.priceGroup.id) === String(priceGroup.id)) || [];
-              const uniqueChannels = [...new Set(associatedSkus.map(sku => sku.salesChannel))];
-              const uniqueBillingCycles = [...new Set(associatedSkus.map(sku => sku.billingCycle))];
-              const firstSku = associatedSkus[0];
-              
-              return (
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '4px',
-                  padding: '8px 0'
-                }}>
-                  {/* Row 1: Price info (left) and ID (right) */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <span style={{ 
-                      fontSize: token.fontSize, 
-                      color: token.colorText,
-                      fontWeight: '500'
-                    }}>
-                      {(() => {
-                        const usdPricePoint = priceGroup.pricePoints?.find((pp: any) => pp.currency === 'USD' || pp.currencyCode === 'USD');
-                        const totalPricePoints = priceGroup.pricePoints?.length || 0;
-                        
-                        if (usdPricePoint && totalPricePoints > 1) {
-                          return `USD ${usdPricePoint.amount} + ${totalPricePoints - 1} more`;
-                        } else if (usdPricePoint) {
-                          return `USD ${usdPricePoint.amount}`;
-                        } else {
-                          return `${totalPricePoints} non-USD price points`;
-                        }
-                      })()}
-                    </span>
-                    <span style={{ 
-                      fontSize: token.fontSize, 
-                      color: token.colorText,
-                      fontWeight: '500'
-                    }}>
-                      ID: {priceGroup.id}
-                    </span>
-                  </div>
-                  
-                  {/* Row 2: Channel, Cycle, LIX info */}
-                  <div style={{ 
-                    fontSize: token.fontSize, 
-                    color: token.colorTextSecondary 
-                  }}>
-                    {[
-                      uniqueChannels.join(', '),
-                      uniqueBillingCycles.join(', '),
-                      firstSku?.lix && `${firstSku.lix.key} (${firstSku.lix.treatment})`
-                    ].filter(Boolean).join(', ')}
-                  </div>
-                </div>
-              );
-            }}
-          >
-            {(() => {
-              const availablePriceGroups = [...new Set(product?.skus.map(sku => sku.priceGroup) || [])];
-              return availablePriceGroups.map(priceGroup => (
-                <Select.Option key={priceGroup.id} value={priceGroup.id} label={priceGroup.id}>
-                  {priceGroup.id}{priceGroup.name ? ` - ${priceGroup.name}` : ''}
-                </Select.Option>
-              ));
-            })()}
-          </Select>
-        </div>
-      </Modal>
 
       {/* Price Editor Modal */}
       <PriceEditorModal
@@ -2035,24 +1840,15 @@ const ProductDetail: React.FC = () => {
         onClose={() => {
           setPriceEditorModalOpen(false);
           setPriceEditorCreationMethod(null);
-          setSelectedPriceGroupForEdit(null);
         }}
         productName={product.name}
         productId={product.id}
         product={product}
-        directEditMode={selectedPriceGroupForEdit !== null} // Direct edit when editing selected price group
-        prefilledContext={selectedPriceGroupForEdit ? {
-          channel: selectedPriceGroupForEdit.channels[0],
-          billingCycle: selectedPriceGroupForEdit.billingCycles[0],
-          priceGroupAction: 'update',
-          existingPriceGroup: selectedPriceGroupForEdit.priceGroup,
-          lixKey: selectedPriceGroupForEdit.lixKey,
-          lixTreatment: selectedPriceGroupForEdit.lixTreatment,
-        } : undefined}
+        directEditMode={false} // Always create mode in ProductDetail
         initialCreationMethod={priceEditorCreationMethod}
       />
     </Space>
   );
 };
 
-export default ProductDetail; 
+export default ProductDetail;

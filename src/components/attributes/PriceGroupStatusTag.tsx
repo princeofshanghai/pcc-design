@@ -29,26 +29,21 @@ const calculatePriceGroupStatus = (priceGroup: PriceGroup): PriceGroupStatus => 
 
   // Check each price point's status
   const pricePointStatuses = priceGroup.pricePoints.map(pricePoint => {
-    const validFrom = pricePoint.validFrom ? new Date(pricePoint.validFrom) : null;
-    const validTo = pricePoint.validTo ? new Date(pricePoint.validTo) : null;
-
-    // If no validFrom date, consider it active
-    if (!validFrom) {
-      return 'Active';
-    }
+    const validFrom = new Date(pricePoint.validFrom);
+    const validUntil = pricePoint.validUntil ? new Date(pricePoint.validUntil) : null;
 
     // If current time is before validFrom, it's not yet active
     if (now < validFrom) {
       return 'Expired';
     }
 
-    // If no validTo date, it's active indefinitely
-    if (!validTo) {
+    // If no validUntil date, it's active indefinitely
+    if (!validUntil) {
       return 'Active';
     }
 
-    // If current time is after validTo, it's expired
-    if (now > validTo) {
+    // If current time is after validUntil, it's expired
+    if (now > validUntil) {
       return 'Expired';
     }
 

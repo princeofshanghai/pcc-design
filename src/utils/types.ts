@@ -52,6 +52,7 @@ export interface PriceEditingContext {
   lixKey?: string | null;
   lixTreatment?: string | null;
   clonePriceGroup?: any | null; // Selected price group for cloning
+  existingSkusForContext?: any[]; // Existing SKUs matching the current context
 }
 
 // Common table props interface - used across table components
@@ -82,8 +83,8 @@ export type PricePoint = {
   currencyCode: string;
   amount: number;
   exchangeRate?: number; // Rate to convert to USD (1 USD = exchangeRate * currency)
-  validFrom?: string; // Optional validity start date - if missing, shows as "Present"
-  validTo?: string; // Optional validity end date
+  validFrom: string; // Required validity start date
+  validUntil?: string; // Optional validity end date
   status?: 'Active' | 'Expired'; // Status from your data (A/E converted to Active/Expired)
   // Pricing rule fields
   pricingRule: 'NONE' | 'SLAB' | 'RANGE' | 'BLOCK' | 'SPREADSHEET';
@@ -121,7 +122,9 @@ export type Sku = {
   paymentFailurePaidToPaidGracePeriod?: GracePeriod;
   seatMin?: number;
   seatMax?: number;
+  seatType?: string;
   features?: string[];
+  isVisibleOnRenewalEmails?: boolean;
   lix?: {
     key: string;
     treatment: string;
@@ -257,7 +260,7 @@ export type PriceEditContext = {
   billingCycle: BillingCycle | string; // Allow new billing cycles as string
   validityPeriod: {
     validFrom: string; // ISO date string
-    validTo?: string; // ISO date string, optional for ongoing validity
+    validUntil?: string; // ISO date string, optional for ongoing validity
   };
   // Existing selections only
   seatRange: {

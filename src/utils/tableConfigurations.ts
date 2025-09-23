@@ -120,11 +120,12 @@ export const SKU_COLUMNS: ColumnConfig[] = [
   { key: 'customers', label: 'Customers', required: false },
   { key: 'channel', label: 'Channel', required: false },
   { key: 'billingCycle', label: 'Billing cycle', required: false },
+  { key: 'lix', label: 'LIX', required: false },
   { key: 'validity', label: 'Validity', required: false },
   { key: 'status', label: 'Status', required: false },
 ];
 
-export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'customers', 'status'];
+export const DEFAULT_SKU_COLUMNS = ['id', 'priceGroup', 'channel', 'billingCycle', 'lix', 'customers', 'status'];
 
 export const SKU_SORT_OPTIONS = [
   'None',

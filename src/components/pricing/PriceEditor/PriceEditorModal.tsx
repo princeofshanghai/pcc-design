@@ -3,6 +3,7 @@ import { Modal, Button, Space, theme, Typography, Radio } from 'antd';
 import { ArrowLeft, ArrowRight, Save, FileText, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ContextSelector from './ContextSelector';
+import SkuSelector from './SkuSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
 import PriceChangesSummary from './PriceChangesSummary';
@@ -36,13 +37,16 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
 }) => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(directEditMode ? 1 : 0);
+  const [currentStep, setCurrentStep] = useState(directEditMode ? 2 : 0);
   const [selectedContext, setSelectedContext] = useState<any>(directEditMode ? prefilledContext : null);
   const [gtmMotionSelection, setGTMMotionSelection] = useState<GTMMotionSelection | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   
   // New state for creation method - initialize with prop
   const [creationMethod, setCreationMethod] = useState<'blank' | 'clone' | null>(initialCreationMethod);
+  
+  // SKU selection state
+  const [skuSelection, setSkuSelection] = useState<{ action: 'create' | 'update'; selectedSku?: any } | null>(null);
   
   // State to track price changes for the review step
   const [priceChanges, setPriceChanges] = useState<any[]>([]);
@@ -63,7 +67,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   React.useEffect(() => {
     if (open) {
       if (directEditMode) {
-        setCurrentStep(1);
+        setCurrentStep(2); // Start at price editing step
         setSelectedContext(prefilledContext);
       } else {
         setCurrentStep(0);
@@ -81,11 +85,25 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   }, [open, directEditMode, prefilledContext, initialCreationMethod]);
 
   const handleNext = () => {
-    // If moving from step 1 (price editing) to step 2 (review), capture changes
-    if (currentStep === 1) {
-      captureAndDetectChanges();
+    if (directEditMode) {
+      // Direct edit mode: Step 2 (price editing) → Step 3 (review) → Step 4 (GTM)
+      if (currentStep === 2) {
+        // Capture changes before going to review
+        captureAndDetectChanges();
+        setCurrentStep(3); // Go to review step
+      } else if (currentStep === 3) {
+        setCurrentStep(4); // Go to GTM step
+      }
+    } else {
+      // Create mode: Regular step progression
+      if (currentStep === 2) {
+        // If moving from price editing (step 2) to review (step 3), capture changes
+        captureAndDetectChanges();
+      }
+      
+      // Always increment by 1 - consistent 5 steps (0-4)
+      setCurrentStep(prev => Math.min(prev + 1, 4));
     }
-    setCurrentStep(prev => Math.min(prev + 1, 3)); // Max step is 3 (0-indexed) - Step 4 total
   };
 
   const captureAndDetectChanges = () => {
@@ -134,21 +152,31 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   };
 
   const handlePrevious = () => {
-    const newStep = Math.max(currentStep - 1, directEditMode ? 1 : 0);
-    
-    // Clear saved price inputs when going back to Step 0 (context selection)
-    if (newStep === 0) {
-      setSavedSimplePriceInputs({});
-      setSavedFieldPriceInputs({});
+    if (directEditMode) {
+      // Direct edit mode: Step 4 (GTM) → Step 3 (review) → Step 2 (price editing)
+      if (currentStep === 4) {
+        setCurrentStep(3); // Go back to review
+      } else if (currentStep === 3) {
+        setCurrentStep(2); // Go back to price editing
+      }
+    } else {
+      // Create mode: Regular step decrement
+      const newStep = Math.max(currentStep - 1, 0);
+      
+      // Clear saved price inputs when going back to Step 0 (context selection)
+      if (newStep === 0) {
+        setSavedSimplePriceInputs({});
+        setSavedFieldPriceInputs({});
+      }
+      
+      setCurrentStep(newStep);
     }
-    
-    setCurrentStep(newStep);
   };
 
   const handleClose = () => {
     // Reset state based on mode
     if (directEditMode) {
-      setCurrentStep(1);
+      setCurrentStep(2);
       setSelectedContext(prefilledContext);
     } else {
       setCurrentStep(0);
@@ -538,14 +566,76 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
           </div>
         );
       case 1:
+        // SKU Action step - always show meaningful content
+        const existingSkus = selectedContext?.existingSkusForContext || [];
+        
+        if (existingSkus.length > 0) {
+          // Show SKU selector when existing SKUs found
+          return (
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ maxWidth: '640px', margin: '0 auto', marginBottom: '24px' }}>
+                <Title level={3} style={{ marginBottom: '16px' }}>
+                  Choose Action for Existing SKUs
+                </Title>
+                <SkuSelector
+                  existingSkus={existingSkus}
+                  product={product}
+                  onSelectionChange={setSkuSelection}
+                />
+              </div>
+            </div>
+          );
+        } else {
+          // Show confirmation when creating new SKU
+          return (
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
+                <Title level={3} style={{ marginBottom: '16px' }}>
+                  Ready to Create New SKU
+                </Title>
+                <div style={{ 
+                  padding: '24px',
+                  backgroundColor: token.colorSuccessBg,
+                  border: `1px solid ${token.colorSuccessBorder}`,
+                  borderRadius: token.borderRadius,
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+                    Creating new SKU and price group for:
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '8px',
+                    fontSize: '14px'
+                  }}>
+                    <ChannelTag channel={selectedContext?.channel} variant="small" showIcon={false} />
+                    <span>•</span>
+                    <BillingCycleTag billingCycle={selectedContext?.billingCycle} variant="small" showIcon={false} />
+                    {selectedContext?.lixKey && (
+                      <>
+                        <span>•</span>
+                        <span>{selectedContext.lixKey} ({selectedContext.lixTreatment})</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        break;
+      case 2:
+        // Price editing step
         if (!selectedContext) {
           return (
             <div style={{ padding: '32px 0', textAlign: 'center' }}>
               <Title level={4} style={{ color: token.colorTextSecondary }}>
-                Step 2: Price Editing
+                Step 3: Price Editing
               </Title>
               <p style={{ color: token.colorTextDescription }}>
-                Please complete Step 1 to continue.
+                Please complete previous steps to continue.
               </p>
             </div>
           );
@@ -582,7 +672,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             )}
           </div>
         );
-      case 2:
+      case 3:
         // Review changes step
         return (
           <div style={{ padding: '16px 0' }}>
@@ -594,7 +684,8 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             />
           </div>
         );
-      case 3:
+      case 4:
+        // GTM Selection step
         return (
           <div style={{ padding: '16px 0' }}>
             <GTMMotionSelector 
@@ -697,8 +788,12 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             color: token.colorTextSecondary 
           }}>
             {directEditMode ? 
-              (currentStep === 1 ? 'Step 1 of 2' : 'Step 2 of 2') :
-              `Step ${currentStep + 1} of 4`
+              (() => {
+                // Direct edit mode: Steps 2, 3, 4 displayed as "Step 1 of 3", "Step 2 of 3", "Step 3 of 3"
+                const displayStep = currentStep - 1; // Convert step 2→1, step 3→2, step 4→3
+                return `Step ${displayStep} of 3`;
+              })() :
+              `Step ${currentStep + 1} of 5`
             }
           </div>
           
@@ -711,7 +806,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             </Button>
             
             {/* Previous button - show when not on first step */}
-            {(directEditMode && currentStep > 1) || (!directEditMode && currentStep > 0) ? (
+            {(directEditMode && currentStep > 2) || (!directEditMode && currentStep > 0) ? (
               <Button 
                 onClick={handlePrevious}
                 icon={<ArrowLeft size={14} />}
@@ -723,16 +818,28 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             ) : null}
             
             {/* Continue/Save button logic */}
-            {currentStep < 3 ? (
+            {(directEditMode && currentStep < 4) || (!directEditMode && currentStep < 4) ? (
               <Button 
                 type="primary"
                 onClick={handleNext}
                 icon={<ArrowRight size={14} />}
                 size="middle"
                 disabled={
-                  currentStep === 0 ? !isCreationMethodValid() :
-                  currentStep === 1 ? !hasRealTimeChanges :
-                  currentStep === 2 ? !hasChanges : false
+                  directEditMode ? (
+                    // Direct edit mode validation
+                    currentStep === 2 ? !hasRealTimeChanges :  // Price editing step
+                    currentStep === 3 ? !hasChanges : false    // Review step
+                  ) : (
+                    // Create mode validation
+                    currentStep === 0 ? !isCreationMethodValid() :
+                    currentStep === 1 ? (() => {
+                      const existingSkus = selectedContext?.existingSkusForContext || [];
+                      // Step 1 (SKU Action): either no SKUs (auto-create) or user made selection
+                      return existingSkus.length > 0 ? !skuSelection : false;
+                    })() :
+                    currentStep === 2 ? !hasRealTimeChanges :  // Price editing step
+                    currentStep === 3 ? !hasChanges : false    // Review step
+                  )
                 }
               >
                 Continue

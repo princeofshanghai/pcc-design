@@ -108,7 +108,48 @@ export async function loadPriceGroupPoints(priceGroupId: string): Promise<PriceP
 }
 
 /**
- * Enhanced product loading with smart lazy loading
+ * Scans all existing SKUs across all mock products to find the highest numeric ID
+ * This prevents ID conflicts between manual and auto-generated SKUs
+ * 
+ * HOW IT WORKS:
+ * 1. Scans ALL products and their manually-defined SKUs
+ * 2. Extracts numeric parts from SKU IDs matching pattern "8435XXX" 
+ * 3. Returns the highest found ID
+ * 4. New SKU generation starts from this number + 1
+ * 
+ * EXAMPLE:
+ * - Manual SKUs exist: 8435005, 8435008
+ * - Function returns: 8435008
+ * - New SKUs generated: 8435009, 8435010, 8435011...
+ * - Future manual SKU 8435015 → next generated: 8435016+
+ */
+function findHighestSkuId(mockProducts: any[]): number {
+  let highestId = 0;
+  
+  // Scan all products and their SKUs
+  mockProducts.forEach(product => {
+    if (product.skus && Array.isArray(product.skus)) {
+      product.skus.forEach((sku: any) => {
+        if (sku.id && typeof sku.id === 'string') {
+          // Extract numeric part from SKU IDs that match pattern like "8435XXX"
+          const match = sku.id.match(/^8435(\d+)$/);
+          if (match) {
+            const numericPart = parseInt(match[1], 10);
+            const fullId = 8435000 + numericPart;
+            if (fullId > highestId) {
+              highestId = fullId;
+            }
+          }
+        }
+      });
+    }
+  });
+  
+  return highestId;
+}
+
+/**
+ * Enhanced product loading with smart lazy loading and conflict-free SKU ID generation
  * Combines basic product info with price groups only when needed
  */
 export async function loadProductWithPricing(productId: string): Promise<Product | null> {
@@ -125,6 +166,11 @@ export async function loadProductWithPricing(productId: string): Promise<Product
         return null;
       }
 
+      // Find the highest existing SKU ID to prevent conflicts
+      const highestExistingId = findHighestSkuId(mockProducts);
+      let nextAvailableId = Math.max(highestExistingId + 1, 8435020); // Ensure minimum starting point
+      
+
       // Create SKUs from price groups (one SKU per price group for demo purposes)
       const enhancedSkus = priceGroups.map((priceGroup: any, index: number) => {
         const salesChannel = priceGroup.channel || 'Desktop';
@@ -137,16 +183,14 @@ export async function loadProductWithPricing(productId: string): Promise<Product
         
         // Generate proper sequential SKU IDs if no original SKU exists
         const generateSkuId = () => {
-          if (originalSku?.id) return originalSku.id;
-          
-          // For known products, generate better IDs
-          if (productId === '5095285') {
-            return `8435${String(7 + index).padStart(3, '0')}`; // 8435007, 8435008, etc.
-          } else if (productId === '130200') {
-            return `8435${String(100 + index).padStart(3, '0')}`; // 8435100, 8435101, etc.
-          } else {
-            return `sku-${priceGroup.id}`;
+          if (originalSku?.id) {
+            return originalSku.id;
           }
+          
+          // Generate conflict-free ID by using next available ID
+          const newId = `8435${String(nextAvailableId - 8435000).padStart(3, '0')}`;
+          nextAvailableId++; // Increment for next SKU
+          return newId;
         };
         
         return {
@@ -157,25 +201,34 @@ export async function loadProductWithPricing(productId: string): Promise<Product
           // Preserve customer data from original SKUs
           activeContracts: originalSku?.activeContracts,
           subscriptions: originalSku?.subscriptions,
-          // Add LIX data to SKU if available
-          lix: priceGroup.lixKey ? {
+          // Preserve all override attributes from original SKU (CRITICAL FOR OVERRIDES)
+          taxClass: originalSku?.taxClass,
+          seatMin: originalSku?.seatMin,
+          seatMax: originalSku?.seatMax,
+          seatType: originalSku?.seatType,
+          paymentFailureFreeToPaidGracePeriod: originalSku?.paymentFailureFreeToPaidGracePeriod,
+          paymentFailurePaidToPaidGracePeriod: originalSku?.paymentFailurePaidToPaidGracePeriod,
+          isVisibleOnRenewalEmails: originalSku?.isVisibleOnRenewalEmails,
+          // Preserve any other original SKU properties
+          revenueRecognition: originalSku?.revenueRecognition || "Accrual" as RevenueRecognition,
+          switcherLogic: originalSku?.switcherLogic || [],
+          refundPolicy: originalSku?.refundPolicy || { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
+          origin: originalSku?.origin || "manual" as const,
+          createdBy: originalSku?.createdBy || "Demo System",
+          createdDate: originalSku?.createdDate || new Date().toISOString(),
+          // Add LIX data to SKU if available (prioritize original SKU LIX, fallback to price group)
+          lix: originalSku?.lix || (priceGroup.lixKey ? {
             key: priceGroup.lixKey,
             treatment: priceGroup.lixTreatment
-          } : undefined,
+          } : undefined),
           priceGroup: {
             id: priceGroup.id,
             name: priceGroup.name || null, // Don't generate fake names
             status: priceGroup.status,
             validFrom: priceGroup.validFrom,
-            validTo: priceGroup.validTo,
+            validUntil: priceGroup.validUntil,
             pricePoints: processPricePointStatuses(priceGroup.pricePoints || [])
-          },
-          revenueRecognition: "Accrual" as RevenueRecognition,
-          switcherLogic: [],
-          refundPolicy: { id: "YES_MANUAL" as RefundPolicyId, description: "Manual refund" },
-                origin: "manual" as const,
-          createdBy: "Demo System",
-          createdDate: new Date().toISOString()
+          }
         };
       });
 

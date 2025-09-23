@@ -183,7 +183,7 @@ export const getSkuTableColumns = (
     } : null,
     lix: visibleColumns.lix === true ? {
       title: getColumnLabel('lix'),
-      key: 'experimental',
+      key: 'lix',
       // Hide on screens smaller than 1024px (desktop)
       responsive: ['lg' as Breakpoint],
       render: (_: any, sku: Sku) => {
@@ -193,27 +193,14 @@ export const getSkuTableColumns = (
         
         const lixKey = sku.lix.key;
         
-        const tooltipTitle = `LIX Key: ${sku.lix.key}\nTreatment: ${sku.lix.treatment}`;
-        
         return (
-          <InfoPopover content={tooltipTitle} placement="top">
-            <div style={{ cursor: 'pointer' }}>
-              <Text>{lixKey}</Text>
-              <Text style={{ color: token.colorTextSecondary }}> | </Text>
-              <Text style={{ color: token.colorTextSecondary }}>{sku.lix.treatment}</Text>
-            </div>
-          </InfoPopover>
+          <div>
+            <Text>{lixKey}</Text>
+            <Text style={{ color: token.colorTextSecondary }}> ({sku.lix.treatment})</Text>
+          </div>
         );
       },
     } : null,
-    status: visibleColumns.status === true ? {
-      title: getColumnLabel('status'),
-      dataIndex: 'status',
-      key: 'status',
-      // Status is important, keep visible on all screens
-      render: (status: Status) => <StatusTag status={status} variant="small" showIcon={false} />, 
-    } : null,
-
     customers: visibleColumns.customers === true ? {
       title: getColumnLabel('customers'),
       key: 'customers',
@@ -264,6 +251,13 @@ export const getSkuTableColumns = (
           </InfoPopover>
         );
       },
+    } : null,
+    status: visibleColumns.status === true ? {
+      title: getColumnLabel('status'),
+      dataIndex: 'status',
+      key: 'status',
+      // Status is important, keep visible on all screens
+      render: (status: Status) => <StatusTag status={status} variant="small" showIcon={false} />, 
     } : null,
   };
 

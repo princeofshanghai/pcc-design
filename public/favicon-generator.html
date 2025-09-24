@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="32" height="32" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadPNG()">Download PNG Favicon</button>
+    <button onclick="downloadICO()">Download ICO Favicon</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Draw blue background
+        ctx.fillStyle = '#007EBB';
+        ctx.fillRect(0, 0, 32, 32);
+        
+        // Draw rounded corners
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 32, 32, 4);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+        
+        // Draw white "PCC" text
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('PCC', 16, 16);
+        
+        function downloadPNG() {
+            const link = document.createElement('a');
+            link.download = 'favicon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadICO() {
+            // For ICO, we'll just download the PNG for now
+            // You can convert PNG to ICO using online tools
+            downloadPNG();
+        }
+    </script>
+</body>
+</html>

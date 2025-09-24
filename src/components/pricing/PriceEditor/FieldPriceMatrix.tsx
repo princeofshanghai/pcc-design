@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Input, Typography, theme, Tabs, Space, Tag, DatePicker, Popover } from 'antd';
+import { Table, Input, Typography, theme, Tabs, Space, Tag, Popover } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
@@ -94,9 +94,9 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
   const [activeTabKey, setActiveTabKey] = useState<string>('');
   const [undoState, setUndoState] = useState<Record<string, Record<string, Record<string, string>>> | null>(null);
   
-  // Validity date state
-  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs().add(7, 'day'));
-  const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
+  // Validity date state (for display purposes only - actual management is in parent)
+  const validityStartDate: dayjs.Dayjs | null = dayjs().add(7, 'day');
+  const validityEndDate: dayjs.Dayjs | null = null;
 
   // Extract real data from product for Field channel
   const { currencies, seatRanges, pricingTiers, priceData } = useMemo(() => {
@@ -663,21 +663,26 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
             render: (_: any, record: MatrixCellData) => {
               const currentPrice = record.currentPrices[tier];
               
-              return (
-                <Input
-                  size="small"
-                  value={currentPrice !== null ? formatCurrencyAmount(currentPrice, currency) : ''}
-                  disabled={true}
-                  placeholder={currentPrice === null ? 'New' : ''}
-                  style={{
+              if (currentPrice === null) {
+                return (
+                  <Text style={{ 
                     fontSize: token.fontSizeSM,
-                    fontVariantNumeric: 'tabular-nums',
-                    color: currentPrice !== null ? token.colorTextSecondary : token.colorTextTertiary,
-                    backgroundColor: token.colorBgContainer,
-                    width: '90px',
-                    cursor: 'not-allowed'
-                  }}
-                />
+                    color: token.colorTextTertiary,
+                    fontStyle: 'italic'
+                  }}>
+                    New
+                  </Text>
+                );
+              }
+              
+              return (
+                <Text style={{ 
+                  fontSize: token.fontSizeSM,
+                  fontVariantNumeric: 'tabular-nums',
+                  color: token.colorTextSecondary
+                }}>
+                  {formatCurrencyAmount(currentPrice, currency)}
+                </Text>
               );
             }
           }]),
@@ -689,7 +694,7 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
                 display: 'flex',
                 justifyContent: 'center'
               }}>
-                New
+                {selectedContext.priceGroupAction === 'create' ? 'Amount' : 'New'}
               </span>
             ),
             key: `${tier}-new`,
@@ -796,14 +801,16 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       children: (
       <div>
         {/* Explanatory text for Current column */}
-        <Text style={{ 
-          fontSize: token.fontSize,
-          color: token.colorTextSecondary,
-          display: 'block',
-          marginBottom: '12px'
-        }}>
-          Current column shows prices active today - these are what you're changing from.
-        </Text>
+        {selectedContext.priceGroupAction === 'update' && (
+          <Text style={{ 
+            fontSize: token.fontSize,
+            color: token.colorTextSecondary,
+            display: 'block',
+            marginBottom: '12px'
+          }}>
+            Current column shows prices active today - these are what you're changing from.
+          </Text>
+        )}
         
         <Table
           size="small"
@@ -824,41 +831,6 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
   return (
     <div style={{ marginTop: '8px' }}>
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
-        {/* Validity controls */}
-        <div style={{ marginBottom: '16px' }}>
-          <Text style={{ 
-            fontSize: token.fontSizeHeading3, 
-            color: token.colorText, 
-            fontWeight: 500,
-            display: 'block',
-            marginBottom: '8px'
-          }}>
-            New prices valid from:
-          </Text>
-          <Space align="center" wrap>
-            <DatePicker
-              value={validityStartDate}
-              onChange={setValidityStartDate}
-              size="middle"
-              format="MMM D, YYYY"
-            />
-            <Text style={{ fontSize: '13px', color: token.colorText }}>to:</Text>
-            <DatePicker
-              value={validityEndDate}
-              onChange={setValidityEndDate}
-              placeholder="Present"
-              size="middle"
-              format="MMM D, YYYY"
-            />
-          </Space>
-        </div>
-
-        {/* Divider */}
-        <div style={{ 
-          height: '1px', 
-          backgroundColor: token.colorBorder, 
-          margin: '16px 0' 
-        }} />
 
         <Tabs 
           items={tabItems}

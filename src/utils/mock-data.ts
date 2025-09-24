@@ -856,7 +856,7 @@ if (premiumCareerProduct) {
       switcherLogic: [],
       refundPolicy: { id: "YES_MANUAL", description: "Manual refund" },
       // SKU-level overrides to test Override Summary functionality
-      paymentFailureFreeToPaidGracePeriod: 3, // Override: Product default is 0
+      paymentFailureFreeToPaidGracePeriod: 7, // Override: Product default is 0
       paymentFailurePaidToPaidGracePeriod: 14, // Override: Product default is 7
       isVisibleOnRenewalEmails: false, // Override: Product default is true
       origin: "manual",
@@ -2774,7 +2774,7 @@ if (recruiterCorporateProduct) {
       },
       revenueRecognition: "Accrual",
       switcherLogic: [],
-      refundPolicy: { id: "NO_MANUAL", description: "No refund policy" },
+      refundPolicy: { id: "NO_CREDIT", description: "No refund policy" },
       origin: "manual",
       createdBy: "System",
       createdDate: "2023-07-02T07:00:00Z"

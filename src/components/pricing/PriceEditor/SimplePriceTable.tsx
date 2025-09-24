@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Table, Input, Typography, theme, Space, DatePicker, Select, Button, Tooltip, Popover } from 'antd';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import { X, Pencil, TriangleAlert } from 'lucide-react';
+import { X, Pencil, TriangleAlert, ChevronUp, ChevronDown } from 'lucide-react';
 import InfoPopover from '../../shared/InfoPopover';
 import type { PriceEditingContext } from '../../../utils/types';
 
@@ -12,7 +12,11 @@ interface SimplePriceTableProps {
   selectedContext: PriceEditingContext;
   product: any;
   initialPriceInputs?: Record<string, string>; // For state persistence between Step 2 <-> Step 3
+  initialSelectedCurrencies?: string[]; // For state persistence
+  initialCurrencyOrder?: string[]; // For state persistence
   onPriceChange?: (currency: string, newPrice: string | null) => void;
+  onCurrencySelectionChange?: (currencies: string[]) => void; // Currency selection changes
+  onOrderChange?: (order: string[]) => void; // Currency order changes
   onHasChanges?: (hasChanges: boolean) => void; // Real-time change detection
   onGetCurrentState?: React.Ref<{
     getCurrentState: () => {
@@ -150,13 +154,20 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   selectedContext,
   product,
   initialPriceInputs,
+  initialSelectedCurrencies,
+  initialCurrencyOrder,
   onPriceChange,
+  onCurrencySelectionChange,
+  onOrderChange,
   onHasChanges,
   onGetCurrentState
 }) => {
   const { token } = theme.useToken();
   const [priceInputs, setPriceInputs] = useState<Record<string, string>>(initialPriceInputs || {});
   const [undoState, setUndoState] = useState<Record<string, string> | null>(null);
+  
+  // Custom currency ordering state - use props for persistence
+  const [currencyOrder, setCurrencyOrder] = useState<string[]>(initialCurrencyOrder || []);
   
   // All available currencies for the multiselect dropdown
   const allAvailableCurrencies = [
@@ -168,12 +179,12 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
     'COP', 'UYU', 'PYG', 'BOB', 'ARS', 'MYR', 'IDR', 'PHP', 'VND', 'TWD'
   ];
   
-  // Currency selection state
-  const [selectedCurrencies, setSelectedCurrencies] = useState<string[]>(['USD']); // USD by default
+  // Currency selection state - use props for persistence  
+  const [selectedCurrencies, setSelectedCurrencies] = useState<string[]>(initialSelectedCurrencies || ['USD']); // USD by default
   
-  // Validity date state
-  const [validityStartDate, setValidityStartDate] = useState<dayjs.Dayjs | null>(dayjs().add(7, 'day'));
-  const [validityEndDate, setValidityEndDate] = useState<dayjs.Dayjs | null>(null);
+  // Validity date state (for display purposes only - actual management is in parent)
+  const validityStartDate: dayjs.Dayjs | null = dayjs().add(7, 'day');
+  const validityEndDate: dayjs.Dayjs | null = null;
   
   // Individual currency validity overrides
   const [currencyValidityOverrides, setCurrencyValidityOverrides] = useState<Record<string, {
@@ -291,7 +302,10 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
   // Extract table data with real pricing information
   const tableData = useMemo((): PriceTableData[] => {
-    return currencies.map(currency => {
+    // Use custom order if available, otherwise use standard sorting
+    const displayOrder = currencyOrder.length > 0 ? currencyOrder : currencies;
+    
+    return displayOrder.map(currency => {
       const currentPrice = selectedContext.priceGroupAction !== 'update' ? null : (priceData[currency] || null);
       const newPriceInput = priceInputs[currency] || '';
       const newPriceValue = parseUserInput(newPriceInput);
@@ -315,7 +329,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         calculatedChange
       };
     });
-  }, [selectedContext, priceInputs, currencies, priceData]);
+  }, [selectedContext, priceInputs, currencies, priceData, currencyOrder]);
 
   // Real-time change detection
   React.useEffect(() => {
@@ -334,16 +348,22 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         hasAnyChanges = true;
       }
       
-      // For update mode, check if values differ significantly
+      // For update mode, check if values differ significantly for existing currencies
       if (selectedContext.priceGroupAction === 'update' && 
           currentPrice !== null && newPriceValue !== null && 
           Math.abs(newPriceValue - currentPrice) >= 0.01) {
         hasAnyChanges = true;
       }
+      
+      // For update mode, also check for new currencies with amounts (this was the bug!)
+      if (selectedContext.priceGroupAction === 'update' && 
+          !existingCurrencies.includes(currency) && newPriceValue !== null) {
+        hasAnyChanges = true;
+      }
     });
 
     onHasChanges(hasAnyChanges);
-  }, [priceInputs, currencies, priceData, selectedContext.priceGroupAction, onHasChanges]);
+  }, [priceInputs, currencies, priceData, selectedContext.priceGroupAction, existingCurrencies, onHasChanges]);
 
   // Initialize selectedCurrencies for edit mode
   React.useEffect(() => {
@@ -390,13 +410,58 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   }, [tableData]);
 
 
+  // Currency reordering functions
+  const moveCurrencyUp = (currency: string) => {
+    const currentOrder = currencyOrder.length > 0 ? currencyOrder : currencies;
+    const currentIndex = currentOrder.indexOf(currency);
+    
+    if (currentIndex > 0) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex], newOrder[currentIndex - 1]] = [newOrder[currentIndex - 1], newOrder[currentIndex]];
+      setCurrencyOrder(newOrder);
+      onOrderChange?.(newOrder); // Notify parent
+    }
+  };
+
+  const moveCurrencyDown = (currency: string) => {
+    const currentOrder = currencyOrder.length > 0 ? currencyOrder : currencies;
+    const currentIndex = currentOrder.indexOf(currency);
+    
+    if (currentIndex < currentOrder.length - 1) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
+      setCurrencyOrder(newOrder);
+      onOrderChange?.(newOrder); // Notify parent
+    }
+  };
+
   // Currency selection handlers
   const handleCurrencySelect = (selectedValues: string[]) => {
     setSelectedCurrencies(selectedValues);
+    onCurrencySelectionChange?.(selectedValues); // Notify parent
+    
+    // When new currencies are added, insert them at the top of the custom order
+    if (currencyOrder.length > 0) {
+      const newCurrencies = selectedValues.filter(currency => !currencyOrder.includes(currency));
+      if (newCurrencies.length > 0) {
+        const newOrder = [...newCurrencies, ...currencyOrder];
+        setCurrencyOrder(newOrder);
+        onOrderChange?.(newOrder); // Notify parent
+      }
+    }
   };
 
   const handleCurrencyRemove = (currencyToRemove: string) => {
-    setSelectedCurrencies(prev => prev.filter(currency => currency !== currencyToRemove));
+    const newSelectedCurrencies = selectedCurrencies.filter(currency => currency !== currencyToRemove);
+    const newCurrencyOrder = currencyOrder.filter(currency => currency !== currencyToRemove);
+    
+    setSelectedCurrencies(newSelectedCurrencies);
+    setCurrencyOrder(newCurrencyOrder);
+    
+    // Notify parent
+    onCurrencySelectionChange?.(newSelectedCurrencies);
+    onOrderChange?.(newCurrencyOrder);
+    
     // Also remove any price inputs and validity overrides for this currency
     setPriceInputs(prev => {
       const newInputs = { ...prev };
@@ -655,13 +720,64 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   };
 
   const columns: ColumnsType<PriceTableData> = [
+    // Reorder column - leftmost, minimal styling
+    {
+      title: '',
+      key: 'reorder',
+      width: 24,
+      fixed: 'left',
+      className: 'reorder-column',
+      render: (_: any, record: PriceTableData, index: number) => {
+        const displayOrder = currencyOrder.length > 0 ? currencyOrder : currencies;
+        const isFirst = index === 0;
+        const isLast = index === displayOrder.length - 1;
+        
+        return (
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            gap: '2px'
+          }}>
+            <Button
+              type="text"
+              size="small"
+              icon={<ChevronUp size={14} />}
+              onClick={() => moveCurrencyUp(record.currency)}
+              disabled={isFirst}
+              style={{
+                width: '20px',
+                height: '16px',
+                padding: 0,
+                minWidth: '20px',
+                color: isFirst ? token.colorTextQuaternary : token.colorTextSecondary
+              }}
+            />
+            <Button
+              type="text"
+              size="small"
+              icon={<ChevronDown size={14} />}
+              onClick={() => moveCurrencyDown(record.currency)}
+              disabled={isLast}
+              style={{
+                width: '20px',
+                height: '16px',
+                padding: 0,
+                minWidth: '20px',
+                color: isLast ? token.colorTextQuaternary : token.colorTextSecondary
+              }}
+            />
+          </div>
+        );
+      },
+    },
     {
       title: 'Currency',
       dataIndex: 'currency',
       key: 'currency',
       width: 70,
       fixed: 'left',
-      className: 'table-col-first',
+      className: 'table-col-currency',
       render: (currency: string, record: PriceTableData) => (
         <InfoPopover content={record.currencyName} placement="right">
           <Text style={{ 
@@ -704,7 +820,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       },
     }]),
     {
-      title: 'New',
+      title: selectedContext.priceGroupAction === 'create' ? 'Amount' : 'New',
       dataIndex: 'newPrice',
       key: 'newPrice',
       width: 100,
@@ -850,7 +966,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         } else if (isDefaults) {
           // Show actual default dates with pencil icon (for new currencies and existing currencies with changes)
           const startText = validityStartDate?.format('MMM D, YYYY') || 'Not set';
-          const endText = validityEndDate?.format('MMM D, YYYY') || 'present';
+          const endText = 'present'; // validityEndDate is always null for defaults
           
           return (
             <div
@@ -980,66 +1096,11 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
   return (
     <div style={{ marginTop: '8px' }}>
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
-        {/* Validity controls */}
-        <div style={{ marginBottom: '16px' }}>
-          <Text style={{ 
-            fontSize: token.fontSizeHeading3, 
-            color: token.colorText, 
-            fontWeight: 500,
-            display: 'block',
-            marginBottom: '8px'
-          }}>
-            New prices valid from:
-          </Text>
-          <Text style={{ 
-            fontSize: token.fontSize, 
-            color: token.colorTextSecondary,
-            display: 'block',
-            marginBottom: '8px'
-          }}>
-            Only applies to currencies where you enter new amounts
-          </Text>
-          <Space align="center" wrap>
-            <DatePicker
-              value={validityStartDate}
-              onChange={setValidityStartDate}
-              size="middle"
-              format="MMM D, YYYY"
-              status={validateDateRange(validityStartDate, validityEndDate) ? "error" : undefined}
-            />
-            <Text style={{ fontSize: '13px', color: token.colorText }}>to:</Text>
-            <DatePicker
-              value={validityEndDate}
-              onChange={setValidityEndDate}
-              placeholder="Present"
-              size="middle"
-              format="MMM D, YYYY"
-              status={validateDateRange(validityStartDate, validityEndDate) ? "error" : undefined}
-            />
-          </Space>
-          {validateDateRange(validityStartDate, validityEndDate) && (
-            <Text style={{ 
-              color: token.colorError, 
-              fontSize: token.fontSizeSM,
-              display: 'block',
-              marginTop: '4px'
-            }}>
-              {validateDateRange(validityStartDate, validityEndDate)}
-            </Text>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div style={{ 
-          height: '1px', 
-          backgroundColor: token.colorBorder, 
-          margin: '16px 0' 
-        }} />
 
         {/* Currency selection dropdown */}
         <div style={{ marginBottom: '16px' }}>
           <Text style={{ fontSize: token.fontSizeHeading3, color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
-            {selectedContext.priceGroupAction === 'create' ? 'Select currencies:' : 'Add currencies:'}
+            Add currencies:
           </Text>
           <Select
             mode="multiple"
@@ -1089,14 +1150,16 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         </div>
 
         {/* Explanatory text for Current column */}
-        <Text style={{ 
-          fontSize: token.fontSize,
-          color: token.colorTextSecondary,
-          display: 'block',
-          marginBottom: '12px'
-        }}>
-          Current column shows prices active today - these are what you're changing from.
-        </Text>
+        {selectedContext.priceGroupAction === 'update' && (
+          <Text style={{ 
+            fontSize: token.fontSize,
+            color: token.colorTextSecondary,
+            display: 'block',
+            marginBottom: '12px'
+          }}>
+            Current column shows prices active today - these are what you're changing from.
+          </Text>
+        )}
         
         <Table
           size="small"
@@ -1111,9 +1174,28 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       </Space>
 
       <style>{`
-        .simple-price-table .table-col-first {
+        /* Reorder column styling - minimal, no divider */
+        .simple-price-table .reorder-column {
           background-color: ${token.colorFillAlter} !important;
+          border-right: none !important;
+          padding: 4px 2px !important;
+          text-align: center;
         }
+        .simple-price-table .ant-table-thead > tr > th.reorder-column {
+          border-right: none !important;
+        }
+        
+        .simple-price-table .table-col-currency {
+          background-color: ${token.colorFillAlter} !important;
+          border-left: none !important;
+        }
+        .simple-price-table .ant-table-thead > tr > th.table-col-currency {
+          border-left: none !important;
+        }
+        .simple-price-table .ant-table-tbody > tr > td.table-col-currency {
+          border-left: none !important;
+        }
+        
         .simple-price-table .ant-input {
           border: 1px solid ${token.colorBorder};
           border-radius: 4px;

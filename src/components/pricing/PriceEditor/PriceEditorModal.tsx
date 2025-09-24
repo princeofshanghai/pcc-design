@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Modal, Button, Space, theme, Typography, Radio } from 'antd';
-import { ArrowLeft, ArrowRight, Save, FileText, Copy } from 'lucide-react';
+import { Drawer, Button, Space, theme, Typography, Radio, Steps, Collapse, DatePicker, AutoComplete, Switch, Select, Alert } from 'antd';
+import { ArrowLeft, ArrowRight, Save, File, Copy, X, Check, Plus, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import ContextSelector from './ContextSelector';
-import SkuSelector from './SkuSelector';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
 import PriceChangesSummary from './PriceChangesSummary';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
-import { ChannelTag, BillingCycleTag } from '../../index';
 import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
 import { showSuccessMessage, showErrorMessage } from '../../../utils/messageUtils';
+import type { SalesChannel, BillingCycle } from '../../../utils/types';
+import { getChannelIcon } from '../../../utils/channelIcons';
+import dayjs from 'dayjs';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 interface PriceEditorModalProps {
   open: boolean;
@@ -37,16 +37,149 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
 }) => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(directEditMode ? 2 : 0);
+  const [currentStep, setCurrentStep] = useState(0); // Both modes start at Configure step
   const [selectedContext, setSelectedContext] = useState<any>(directEditMode ? prefilledContext : null);
   const [gtmMotionSelection, setGTMMotionSelection] = useState<GTMMotionSelection | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   
-  // New state for creation method - initialize with prop
-  const [creationMethod, setCreationMethod] = useState<'blank' | 'clone' | null>(initialCreationMethod);
+  // Note: creationMethod is now handled within configData.method
   
-  // SKU selection state
-  const [skuSelection, setSkuSelection] = useState<{ action: 'create' | 'update'; selectedSku?: any } | null>(null);
+  
+  // SKU detection alert state
+  const [skuAlert, setSkuAlert] = useState<{
+    show: boolean;
+    type: 'warning' | 'info';
+    message: string;
+    actionButton?: {
+      text: string;
+      action: () => void;
+    };
+  }>({
+    show: false,
+    type: 'info',
+    message: '',
+    actionButton: undefined
+  });
+  
+  // Configuration collapse state
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [activeCollapseKeys, setActiveCollapseKeys] = useState<string[]>(['method']);
+  const [showValidUntil, setShowValidUntil] = useState(false);
+  const [isExperiment, setIsExperiment] = useState(false);
+  const [configData, setConfigData] = useState({
+    method: null as 'blank' | 'clone' | null,
+    channel: null as string | null,
+    billingCycle: null as string | null,
+    lixKey: null as string | null,
+    lixTreatment: null as string | null,
+    clonePriceGroup: null as any,
+    validityStartDate: dayjs().add(7, 'day'), // Default to a week from today
+    validityEndDate: null as any
+  });
+
+  // All possible options from types
+  const ALL_CHANNELS: SalesChannel[] = ['Desktop', 'Field', 'iOS', 'GPB'];
+  const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
+
+  // Extract data from product for form options
+  const formOptions = React.useMemo(() => {
+    if (!product?.skus) {
+      return {
+        channels: ALL_CHANNELS,
+        billingCycles: ALL_BILLING_CYCLES,
+        lixKeys: [],
+        lixTreatments: [],
+        availableClonePriceGroups: []
+      };
+    }
+
+    // Available price groups for cloning (only from current product)
+    const priceGroupMap = new Map();
+    product.skus.forEach((sku: any) => {
+      const pg = sku.priceGroup;
+      if (pg && !priceGroupMap.has(pg.id)) {
+        priceGroupMap.set(pg.id, {
+          ...pg,
+          channel: sku.salesChannel,
+          billingCycle: sku.billingCycle,
+          lix: sku.lix || null
+        });
+      }
+    });
+    
+    // Helper function to format price display (extracted from PriceGroupTable.tsx logic)
+    const formatPriceDisplay = (priceGroup: any): string => {
+      if (!priceGroup?.pricePoints || priceGroup.pricePoints.length === 0) {
+        return 'No price points';
+      }
+
+      // Filter for active price points only
+      const activePricePoints = priceGroup.pricePoints.filter((p: any) => p.status === 'Active');
+      
+      if (activePricePoints.length === 0) {
+        return 'No active price points';
+      }
+      
+      // Look for USD first
+      const usdPrice = activePricePoints.find((p: any) => p.currencyCode === 'USD');
+      
+      if (usdPrice) {
+        // If USD exists, show USD price with additional count
+        const additionalActivePricePoints = activePricePoints.length - 1;
+        const zeroDecimalCurrencies = new Set([
+          'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
+          'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
+        ]);
+        
+        const amount = zeroDecimalCurrencies.has(usdPrice.currencyCode) 
+          ? Math.round(usdPrice.amount) 
+          : usdPrice.amount.toFixed(2);
+          
+        const priceText = `USD ${amount}`;
+        
+        if (additionalActivePricePoints > 0) {
+          return `${priceText} +${additionalActivePricePoints} more`;
+        } else {
+          return priceText;
+        }
+      } else {
+        // If no USD, just show count of non-USD price points
+        const count = activePricePoints.length;
+        return `${count} non-USD price point${count === 1 ? '' : 's'}`;
+      }
+    };
+
+    const availableClonePriceGroups = Array.from(priceGroupMap.values()).map((pg: any) => ({
+      label: `ID ${pg.id || 'Unknown ID'} - ${pg.channel || 'Unknown Channel'} • ${pg.billingCycle || 'Unknown Billing'} • ${formatPriceDisplay(pg)}`,
+      value: pg.id,
+      priceGroup: pg
+    }));
+
+    // Extract LIX keys
+    const existingLixKeys = [...new Set(
+      product.skus
+        .filter((sku: any) => sku.lix?.key)
+        .map((sku: any) => sku.lix.key)
+    )];
+
+    // Extract LIX treatments for selected key
+    const existingLixTreatments = configData.lixKey 
+      ? [...new Set(
+          product.skus
+            .filter((sku: any) => sku.lix?.key === configData.lixKey && sku.lix?.treatment)
+            .map((sku: any) => sku.lix.treatment)
+        )]
+      : [];
+
+    return {
+      channels: ALL_CHANNELS,
+      billingCycles: ALL_BILLING_CYCLES,
+      lixKeys: existingLixKeys,
+      lixTreatments: existingLixTreatments,
+      availableClonePriceGroups
+    };
+  }, [product, configData.lixKey]);
+  
   
   // State to track price changes for the review step
   const [priceChanges, setPriceChanges] = useState<any[]>([]);
@@ -58,21 +191,81 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   // State persistence for Step 2 <-> Step 3 navigation
   const [savedSimplePriceInputs, setSavedSimplePriceInputs] = useState<Record<string, string>>({});
   const [savedFieldPriceInputs, setSavedFieldPriceInputs] = useState<Record<string, Record<string, Record<string, string>>>>({});
+  const [savedSelectedCurrencies, setSavedSelectedCurrencies] = useState<string[]>([]);
+  const [savedCurrencyOrder, setSavedCurrencyOrder] = useState<string[]>([]);
   
   // Refs to access current state from child components
   const fieldPriceRef = React.useRef<any>(null);
   const simplePriceRef = React.useRef<any>(null);
 
+  // Build selectedContext when all configuration sections are complete
+  React.useEffect(() => {
+    if (!directEditMode) {
+      const allSectionsComplete = ['method', 'channel', 'billing', 'validity', 'lix'].every(
+        section => completedSections.has(section)
+      );
+      
+      if (allSectionsComplete && configData.method && configData.channel && configData.billingCycle) {
+        // Build the context from configData
+        const context = {
+          channel: configData.channel,
+          billingCycle: configData.billingCycle,
+          lixKey: configData.lixKey || null,
+          lixTreatment: configData.lixTreatment || null,
+          clonePriceGroup: configData.clonePriceGroup || null,
+          priceGroupAction: 'create', // Always create for the configure flow
+          // Check for existing SKUs for context conflict detection
+          existingSkusForContext: [] // This will be populated by conflict detection logic
+        };
+        
+        setSelectedContext(context);
+      } else if (!allSectionsComplete) {
+        // Reset context if sections are incomplete
+        setSelectedContext(null);
+      }
+    }
+  }, [completedSections, configData, directEditMode]);
+
   // Reset state when modal opens or initialCreationMethod changes
   React.useEffect(() => {
     if (open) {
       if (directEditMode) {
-        setCurrentStep(2); // Start at price editing step
+        setCurrentStep(0); // Start at configure step to allow validity editing
         setSelectedContext(prefilledContext);
+        // Pre-populate configData with inherited values from prefilledContext
+        setConfigData({
+          method: null, // Not applicable for direct edit
+          channel: prefilledContext?.channel || null,
+          billingCycle: prefilledContext?.billingCycle || null,
+          lixKey: prefilledContext?.lixKey || null,
+          lixTreatment: prefilledContext?.lixTreatment || null,
+          clonePriceGroup: null, // Not applicable for direct edit
+          validityStartDate: dayjs().add(7, 'day'), // Default to a week from today (editable)
+          validityEndDate: null // Default to null (editable)
+        });
+        // Mark inherited sections as complete, only validity needs user input
+        setCompletedSections(new Set(['channel', 'billing', 'lix']));
+        setActiveCollapseKeys(['validity']); // Start with validity section open
+        setShowValidUntil(false); // Reset valid until visibility
+        setIsExperiment(!!(prefilledContext?.lixKey)); // Set based on inherited LIX
       } else {
         setCurrentStep(0);
         setSelectedContext(null);
-        setCreationMethod(initialCreationMethod);
+        // Reset configuration data
+        setConfigData({
+          method: null,
+          channel: null,
+          billingCycle: null,
+          lixKey: null,
+          lixTreatment: null,
+          clonePriceGroup: null,
+          validityStartDate: dayjs().add(7, 'day'), // Reset to default week from today
+          validityEndDate: null
+        });
+        setCompletedSections(new Set());
+        setActiveCollapseKeys(['method']);
+        setShowValidUntil(false); // Reset valid until visibility
+        setIsExperiment(false); // Reset experiment switch
       }
       setGTMMotionSelection(null);
       setIsSaving(false);
@@ -81,28 +274,23 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       setHasRealTimeChanges(false);
       setSavedSimplePriceInputs({}); // Clear saved price inputs on modal open
       setSavedFieldPriceInputs({});
+      setSavedSelectedCurrencies(directEditMode ? [] : ['USD']); // USD default for create flow, empty for direct edit
+      setSavedCurrencyOrder([]); // Clear saved currency order on modal open
     }
   }, [open, directEditMode, prefilledContext, initialCreationMethod]);
 
+
   const handleNext = () => {
-    if (directEditMode) {
-      // Direct edit mode: Step 2 (price editing) → Step 3 (review) → Step 4 (GTM)
-      if (currentStep === 2) {
-        // Capture changes before going to review
-        captureAndDetectChanges();
-        setCurrentStep(3); // Go to review step
-      } else if (currentStep === 3) {
-        setCurrentStep(4); // Go to GTM step
-      }
-    } else {
-      // Create mode: Regular step progression
-      if (currentStep === 2) {
-        // If moving from price editing (step 2) to review (step 3), capture changes
-        captureAndDetectChanges();
-      }
-      
-      // Always increment by 1 - consistent 5 steps (0-4)
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+    if (currentStep === 0) {
+      // Step 0 (Configure) → Step 1 (Price editing)
+      setCurrentStep(1);
+    } else if (currentStep === 1) {
+      // Step 1 (Price editing) → Step 2 (Review)
+      captureAndDetectChanges();
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      // Step 2 (Review) → Step 3 (GTM)
+      setCurrentStep(3);
     }
   };
 
@@ -151,37 +339,1194 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     }
   };
 
-  const handlePrevious = () => {
-    if (directEditMode) {
-      // Direct edit mode: Step 4 (GTM) → Step 3 (review) → Step 2 (price editing)
-      if (currentStep === 4) {
-        setCurrentStep(3); // Go back to review
-      } else if (currentStep === 3) {
-        setCurrentStep(2); // Go back to price editing
+  // Custom header component for the drawer
+  const renderCustomHeader = () => (
+    <div style={{
+      padding: '16px 24px',
+      borderBottom: `1px solid ${token.colorBorder}`,
+      backgroundColor: token.colorBgContainer,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: '16px'
+    }}>
+      {/* Left side - Title */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
+          {directEditMode 
+            ? `Edit price points for ${productName}`
+            : `Create price group for ${productName}`
+          }
+        </Title>
+      </div>
+      
+      {/* Right side - Close button only */}
+      <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+        <Button 
+          type="text"
+          size="small"
+          icon={<X size={16} />}
+          onClick={handleClose}
+          style={{
+            color: token.colorTextSecondary,
+            padding: '4px',
+            height: '24px',
+            width: '24px',
+            minWidth: '24px'
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  // Vertical Steps navigation component
+  const renderStepsNavigation = () => {
+    const createStepItems = () => {
+      if (directEditMode) {
+        // Direct edit flow: 4 steps (same as create flow)
+        return [
+          {
+            title: 'Configure'
+          },
+          {
+            title: 'Set price points'
+          },
+          {
+            title: 'Review'
+          },
+          {
+            title: 'Add to GTM motion'
+          }
+        ];
+      } else {
+        // Create flow: 4 steps  
+        return [
+          {
+            title: 'Configure'
+          },
+          {
+            title: 'Set price points'
+          },
+          {
+            title: 'Review'
+          },
+          {
+            title: 'Add to GTM motion'
+          }
+        ];
       }
+    };
+
+    const getCurrentStepIndex = () => {
+      // Both modes now use steps 0,1,2,3 → display as 0,1,2,3
+      return currentStep;
+    };
+
+    return (
+      <div style={{
+        width: '220px',
+        padding: '32px 24px',
+        borderRight: `1px solid ${token.colorBorder}`,
+        backgroundColor: token.colorBgContainer,
+        flexShrink: 0
+      }}>
+        <div className="price-editor-steps">
+          <Steps
+            size="small"
+            direction="vertical"
+            current={getCurrentStepIndex()}
+            items={createStepItems()}
+          />
+        </div>
+        
+        {/* Custom styling for step font weight */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .price-editor-steps .ant-steps-item-title {
+              font-weight: ${token.fontWeightStrong} !important;
+            }
+          `
+        }} />
+      </div>
+    );
+  };
+
+  // Get dynamic content container styles based on current step
+  const getContentContainerStyle = () => {
+    const isPriceEditingStep = (
+      (directEditMode && currentStep === 1) || // Direct edit: step 1 is price editing
+      (!directEditMode && currentStep === 1)   // Create: step 1 is price editing  
+    );
+
+    if (isPriceEditingStep) {
+      // Price editing step: use full width with minimal padding
+      return {
+        padding: '32px 24px', // Reduced horizontal padding
+        display: 'flex',
+        flexDirection: 'column' as const,
+        width: '100%',        // No width constraints
+        flex: 1
+      };
     } else {
-      // Create mode: Regular step decrement
-      const newStep = Math.max(currentStep - 1, 0);
-      
-      // Clear saved price inputs when going back to Step 0 (context selection)
-      if (newStep === 0) {
-        setSavedSimplePriceInputs({});
-        setSavedFieldPriceInputs({});
-      }
-      
-      setCurrentStep(newStep);
+      // Other steps: centered with max width
+      return {
+        padding: '32px 40px',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        maxWidth: '1200px', // Increased from 1000px for better collapse panel display
+        margin: '0 auto',
+        width: '100%',
+        flex: 1
+      };
     }
+  };
+
+  // Helper function to format context for display
+  const formatContextDisplay = (channel: string, billingCycle: string, lixKey: string | null, lixTreatment: string | null) => {
+    const lixPart = (lixKey && lixTreatment) 
+      ? `${lixKey} (${lixTreatment})`
+      : 'No experiment';
+    
+    return `${channel} • ${billingCycle} • ${lixPart}`;
+  };
+
+  // SKU uniqueness detection logic
+  const detectExistingSkus = (channel: string, billingCycle: string, lixKey: string | null, lixTreatment: string | null) => {
+    if (!product?.skus) {
+      return [];
+    }
+
+    // Find SKUs that match the selected context exactly
+    return product.skus.filter((sku: any) => {
+      const channelMatch = sku.salesChannel === channel;
+      const billingMatch = sku.billingCycle === billingCycle;
+      
+      // LIX comparison - handle null/undefined values properly
+      const skuLixKey = sku.lix?.key || null;
+      const skuLixTreatment = sku.lix?.treatment || null;
+      const selectedLixKeyNormalized = lixKey || null;
+      const selectedLixTreatmentNormalized = lixTreatment || null;
+      
+      const lixMatch = (skuLixKey === selectedLixKeyNormalized) && 
+                       (skuLixTreatment === selectedLixTreatmentNormalized);
+
+      return channelMatch && billingMatch && lixMatch;
+    });
+  };
+
+  // Configuration collapse helpers
+  const markSectionComplete = (section: string) => {
+    setCompletedSections(prev => new Set([...prev, section]));
+    
+    // Auto-open next section
+    const sectionOrder = directEditMode 
+      ? ['channel', 'billing', 'validity', 'lix'] // Skip method in direct edit mode
+      : ['method', 'channel', 'billing', 'validity', 'lix'];
+    
+    let currentIndex = sectionOrder.indexOf(section);
+    
+    // Find next available (non-locked and non-completed) section
+    let nextSection = null;
+    for (let i = currentIndex + 1; i < sectionOrder.length; i++) {
+      const candidateSection = sectionOrder[i];
+      
+      // Skip if section is locked (when cloning and it's channel or billing)
+      const isLocked = configData.clonePriceGroup && 
+                      (candidateSection === 'channel' || candidateSection === 'billing');
+      
+      // Skip if section is already completed
+      const isCompleted = completedSections.has(candidateSection);
+      
+      if (!isLocked && !isCompleted) {
+        nextSection = candidateSection;
+        break;
+      }
+    }
+    
+    if (nextSection) {
+      setActiveCollapseKeys([nextSection]);
+    } else {
+      // No more sections to open, collapse all
+      setActiveCollapseKeys([]);
+    }
+  };
+
+  const updateConfigData = (field: string, value: any) => {
+    setConfigData(prev => ({ ...prev, [field]: value }));
+    // Note: Completion is now handled by Continue buttons, not automatic
+  };
+
+  const handleClonePriceGroupSelection = (priceGroupId: string | null) => {
+    if (!priceGroupId) {
+      // Clear selection
+      setConfigData(prev => ({
+        ...prev,
+        clonePriceGroup: null,
+        channel: null,
+        billingCycle: null,
+        lixKey: null,
+        lixTreatment: null
+      }));
+      // Reset completed sections
+      setCompletedSections(prev => {
+        const newSet = new Set(prev);
+        newSet.delete('channel');
+        newSet.delete('billing');
+        newSet.delete('lix');
+        return newSet;
+      });
+      return;
+    }
+
+    // Find the selected price group
+    const selectedOption = formOptions.availableClonePriceGroups.find(
+      option => option.value === priceGroupId
+    );
+
+    if (selectedOption?.priceGroup) {
+      const priceGroup = selectedOption.priceGroup;
+      
+      // Update config data with clone selection and auto-fill channel/billing
+      setConfigData(prev => ({
+        ...prev,
+        clonePriceGroup: priceGroup,
+        channel: priceGroup.channel,
+        billingCycle: priceGroup.billingCycle,
+        // Reset LIX - user sets independently 
+        lixKey: null,
+        lixTreatment: null
+      }));
+
+      // Auto-complete channel and billing sections
+      setCompletedSections(prev => new Set([...prev, 'channel', 'billing']));
+    }
+  };
+
+  const handleSectionContinue = (section: string) => {
+    // Special handling for LIX section - trigger SKU detection
+    if (section === 'lix' && !directEditMode) {
+      const existingSkus = detectExistingSkus(
+        configData.channel!,
+        configData.billingCycle!,
+        configData.lixKey,
+        configData.lixTreatment
+      );
+
+      if (existingSkus.length > 0) {
+        // Conflict detected
+        const existingSku = existingSkus[0];
+        const contextDisplay = formatContextDisplay(
+          configData.channel!,
+          configData.billingCycle!,
+          configData.lixKey,
+          configData.lixTreatment
+        );
+        
+        setSkuAlert({
+          show: true,
+          type: 'warning',
+          message: `Price group ${existingSku.priceGroup.id} already exists for ${contextDisplay}. Edit existing price group or modify your selections above.`,
+          actionButton: {
+            text: 'Edit existing price group',
+            action: () => {
+              onClose(); // Close the drawer
+              navigate(`/products/${productId}/price-groups/${existingSku.priceGroup.id}`);
+            }
+          }
+        });
+      } else {
+        // No conflict - success case
+        setSkuAlert({
+          show: true,
+          type: 'info',
+          message: 'New price group and SKU will be created. Ready to proceed with price configuration.',
+          actionButton: undefined
+        });
+      }
+    }
+
+    // Mark section as complete - this will also handle opening the next available section
+    markSectionComplete(section);
+  };
+
+  const canContinueSection = (section: string): boolean => {
+    switch (section) {
+      case 'method':
+        // For blank method, just need method selection
+        if (configData.method === 'blank') return true;
+        // For clone method, need both method AND price group selection
+        if (configData.method === 'clone') return !!configData.clonePriceGroup;
+        // No method selected yet
+        return false;
+      case 'channel':
+        return !!configData.channel;
+      case 'billing':
+        return !!configData.billingCycle;
+      case 'lix':
+        // If experiment switch is off, section is complete
+        if (!isExperiment) return true;
+        // If experiment switch is on, both key and treatment are required
+        return !!(configData.lixKey && configData.lixTreatment);
+      case 'validity':
+        return !!configData.validityStartDate;
+      default:
+        return false;
+    }
+  };
+
+  const canExpandSection = (section: string): boolean => {
+    // If clone price group is selected, disable channel and billing sections
+    if (configData.clonePriceGroup && (section === 'channel' || section === 'billing')) {
+      return false;
+    }
+    
+    // If direct edit mode, disable channel, billing, and lix sections (only allow validity)
+    if (directEditMode && (section === 'channel' || section === 'billing' || section === 'lix')) {
+      return false;
+    }
+
+    const sectionOrder = directEditMode 
+      ? ['channel', 'billing', 'validity', 'lix'] // Skip method in direct edit mode
+      : ['method', 'channel', 'billing', 'validity', 'lix'];
+    const currentIndex = sectionOrder.indexOf(section);
+    
+    // Can always expand if already completed
+    if (completedSections.has(section)) return true;
+    
+    // Can expand if it's the first section
+    if (currentIndex === 0) return true;
+    
+    // Can expand if previous section is completed
+    const previousSection = sectionOrder[currentIndex - 1];
+    return completedSections.has(previousSection);
+  };
+
+  const renderConfigureStep = () => {
+    const items = [
+      {
+        key: 'method',
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedSections.has('method') && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: token.colorSuccess,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Check size={12} style={{ color: 'white' }} />
+                </div>
+              )}
+              <span style={{ fontWeight: token.fontWeightStrong, color: token.colorText }}>
+               Create or clone
+              </span>
+            </div>
+            {configData.method && (
+              <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+                {configData.method === 'blank' 
+                  ? 'Create from blank' 
+                  : configData.clonePriceGroup 
+                    ? `Clone from price group ${configData.clonePriceGroup.id}`
+                    : 'Clone from existing'
+                }
+              </span>
+            )}
+          </div>
+        ),
+        children: (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              marginBottom: '16px', 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize 
+            }}>
+              Choose how to create your price group
+            </div>
+            
+            <Radio.Group
+              value={configData.method}
+              onChange={(e) => updateConfigData('method', e.target.value)}
+              style={{ width: '100%' }}
+            >
+              <div style={{ display: 'flex', gap: '16px', width: '100%', marginBottom: '24px' }}>
+                <div
+                  onClick={() => updateConfigData('method', 'blank')}
+                  style={{
+                    flex: 1,
+                    padding: '24px 16px',
+                    border: `1px solid ${configData.method === 'blank' ? token.colorPrimary : token.colorBorder}`,
+                    borderRadius: token.borderRadius,
+                    backgroundColor: configData.method === 'blank' ? token.colorPrimaryBg : token.colorBgContainer,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                >
+                  <File size={20} style={{ color: token.colorTextSecondary }} />
+                  <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
+                    Create from blank
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => updateConfigData('method', 'clone')}
+                  style={{
+                    flex: 1,
+                    padding: '24px 16px',
+                    border: `1px solid ${configData.method === 'clone' ? token.colorPrimary : token.colorBorder}`,
+                    borderRadius: token.borderRadius,
+                    backgroundColor: configData.method === 'clone' ? token.colorPrimaryBg : token.colorBgContainer,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                >
+                  <Copy size={20} style={{ color: token.colorTextSecondary }} />
+                  <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
+                    Clone from existing
+                  </div>
+                </div>
+              </div>
+            </Radio.Group>
+            
+            {/* Price Group Selector - Only show when Clone is selected */}
+            {configData.method === 'clone' && (
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  marginBottom: '8px', 
+                  fontSize: token.fontSize, 
+                  fontWeight: token.fontWeightStrong,
+                  color: token.colorText 
+                }}>
+                  Select price group to clone
+                </div>
+                <Select
+                  showSearch
+                  placeholder="Select price group..."
+                  size="large"
+                  style={{ width: '100%' }}
+                  value={configData.clonePriceGroup?.id || null}
+                  onChange={(value) => handleClonePriceGroupSelection(value)}
+                  options={formOptions.availableClonePriceGroups}
+                  allowClear
+                  optionFilterProp="label"
+                />
+                <div style={{ 
+                  marginTop: '8px', 
+                  color: token.colorTextSecondary, 
+                  fontSize: token.fontSizeSM 
+                }}>
+                  Copies billing channel, billing cycle, and currencies from selected price group. You can modify amounts for each currency later.
+                </div>
+              </div>
+            )}
+            
+            {/* Continue Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                disabled={!canContinueSection('method')}
+                onClick={() => handleSectionContinue('method')}
+                icon={<ArrowRight size={16} />}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        ),
+        collapsible: canExpandSection('method') ? undefined : 'disabled' as const
+      },
+      
+      {
+        key: 'channel',
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedSections.has('channel') && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: token.colorSuccess,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Check size={12} style={{ color: 'white' }} />
+                </div>
+              )}
+              <span style={{ 
+                fontWeight: token.fontWeightStrong, 
+                color: canExpandSection('channel') ? token.colorText : token.colorTextTertiary,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                Channel
+                {(configData.clonePriceGroup || directEditMode) && (
+                  <>
+                    <Lock size={14} style={{ color: token.colorTextSecondary }} />
+                    <span style={{ 
+                      fontWeight: 'normal', 
+                      color: token.colorTextSecondary,
+                      fontSize: token.fontSize
+                    }}>
+                      {configData.clonePriceGroup 
+                        ? 'Inherited from selected price group'
+                        : 'Inherited from existing price group'
+                      }
+                    </span>
+                  </>
+                )}
+              </span>
+            </div>
+            {configData.channel && (
+              <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+                {configData.channel}
+              </span>
+            )}
+          </div>
+        ),
+        children: (configData.clonePriceGroup || directEditMode) ? (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize,
+              textAlign: 'center',
+              padding: '24px 0'
+            }}>
+              {configData.clonePriceGroup 
+                ? 'This section is locked because you selected a price group to clone from.'
+                : 'This section is locked because you are editing an existing price group.'
+              }
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              marginBottom: '16px', 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize 
+            }}>
+              Choose the channel this price group is for
+            </div>
+            
+            {/* Channel Selection Cards */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+              {formOptions.channels.map((channel) => {
+                const icon = getChannelIcon(channel);
+                const isSelected = configData.channel === channel;
+                
+                return (
+                  <div
+                    key={channel}
+                    onClick={() => updateConfigData('channel', channel)}
+                    style={{
+                      flex: '1',
+                      minWidth: '140px',
+                      padding: '20px 16px',
+                      border: `1px solid ${isSelected ? token.colorPrimary : token.colorBorder}`,
+                      borderRadius: token.borderRadius,
+                      backgroundColor: isSelected ? token.colorPrimaryBg : token.colorBgContainer,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <div style={{ 
+                      color: token.colorText, 
+                      fontSize: '20px' 
+                    }}>
+                      {icon}
+                    </div>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      fontWeight: token.fontWeightStrong, 
+                      color: token.colorText 
+                    }}>
+                      {channel}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Continue Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                disabled={!canContinueSection('channel')}
+                onClick={() => handleSectionContinue('channel')}
+                icon={<ArrowRight size={16} />}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        ),
+        collapsible: canExpandSection('channel') ? undefined : 'disabled' as const
+      },
+      
+      {
+        key: 'billing',
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedSections.has('billing') && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: token.colorSuccess,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Check size={12} style={{ color: 'white' }} />
+                </div>
+              )}
+              <span style={{ 
+                fontWeight: token.fontWeightStrong, 
+                color: canExpandSection('billing') ? token.colorText : token.colorTextTertiary,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                Billing cycle
+                {(configData.clonePriceGroup || directEditMode) && (
+                  <>
+                    <Lock size={14} style={{ color: token.colorTextSecondary }} />
+                    <span style={{ 
+                      fontWeight: 'normal', 
+                      color: token.colorTextSecondary,
+                      fontSize: token.fontSize
+                    }}>
+                      {configData.clonePriceGroup 
+                        ? 'Inherited from selected price group'
+                        : 'Inherited from existing price group'
+                      }
+                    </span>
+                  </>
+                )}
+              </span>
+            </div>
+            {configData.billingCycle && (
+              <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+                {configData.billingCycle}
+              </span>
+            )}
+          </div>
+        ),
+        children: (configData.clonePriceGroup || directEditMode) ? (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize,
+              textAlign: 'center',
+              padding: '24px 0'
+            }}>
+              {configData.clonePriceGroup 
+                ? 'This section is locked because you selected a price group to clone from.'
+                : 'This section is locked because you are editing an existing price group.'
+              }
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              marginBottom: '16px', 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize 
+            }}>
+              Choose the billing cycle this price group is for
+            </div>
+            
+            {/* Billing Frequency Cards */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+              {formOptions.billingCycles.map((cycle) => {
+                const isSelected = configData.billingCycle === cycle;
+                
+                return (
+                  <div
+                    key={cycle}
+                    onClick={() => updateConfigData('billingCycle', cycle)}
+                    style={{
+                      flex: '1',
+                      minWidth: '140px',
+                      padding: '20px 16px',
+                      border: `1px solid ${isSelected ? token.colorPrimary : token.colorBorder}`,
+                      borderRadius: token.borderRadius,
+                      backgroundColor: isSelected ? token.colorPrimaryBg : token.colorBgContainer,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <div style={{ 
+                      fontSize: '14px', 
+                      fontWeight: token.fontWeightStrong, 
+                      color: token.colorText 
+                    }}>
+                      {cycle}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Continue Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                disabled={!canContinueSection('billing')}
+                onClick={() => handleSectionContinue('billing')}
+                icon={<ArrowRight size={16} />}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        ),
+        collapsible: canExpandSection('billing') ? undefined : 'disabled' as const
+      },
+      
+      {
+        key: 'validity',
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedSections.has('validity') && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: token.colorSuccess,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Check size={12} style={{ color: 'white' }} />
+                </div>
+              )}
+              <span style={{ 
+                fontWeight: token.fontWeightStrong, 
+                color: canExpandSection('validity') ? token.colorText : token.colorTextTertiary 
+              }}>
+                Validity
+              </span>
+            </div>
+            {configData.validityStartDate && (
+              <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+                {configData.validityStartDate?.format('MMM D, YYYY')}
+                {configData.validityEndDate 
+                  ? ` - ${configData.validityEndDate.format('MMM D, YYYY')}`
+                  : ' - Present'
+                }
+              </span>
+            )}
+          </div>
+        ),
+        children: (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              marginBottom: '16px', 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize 
+            }}>
+              Set when price points will be active. You can modify validity for individual price points later.
+            </div>
+            {/* Validity Date Pickers */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {/* Valid From DatePicker */}
+                <div>
+                  <div style={{ 
+                    marginBottom: '8px', 
+                    fontSize: token.fontSize, 
+                    fontWeight: token.fontWeightStrong,
+                    color: token.colorText 
+                  }}>
+                    Valid from <span style={{ color: token.colorError }}>*</span>
+                  </div>
+                  <DatePicker
+                    placeholder="Select start date"
+                    size="large"
+                    style={{ width: '100%' }}
+                    value={configData.validityStartDate}
+                    onChange={(date) => updateConfigData('validityStartDate', date)}
+                    format="MMM D, YYYY"
+                    disabledDate={(current) => {
+                      // Disable past dates
+                      return current && current.isBefore(dayjs(), 'day');
+                    }}
+                  />
+                </div>
+
+                {/* Valid Until Section */}
+                <div>
+                  {!showValidUntil && !configData.validityEndDate ? (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-end', 
+                      height: '100%', 
+                      paddingBottom: '8px' // Align with DatePicker baseline
+                    }}>
+                      <Button
+                        type="text"
+                        style={{ 
+                          color: token.colorPrimary,
+                          padding: '4px 0',
+                          height: 'auto',
+                          fontSize: token.fontSize
+                        }}
+                        icon={<Plus size={16} />}
+                        onClick={() => setShowValidUntil(true)}
+                      >
+                        Add valid until date
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ 
+                        marginBottom: '8px', 
+                        fontSize: token.fontSize, 
+                        fontWeight: token.fontWeightStrong,
+                        color: token.colorText 
+                      }}>
+                        Valid until (optional)
+                      </div>
+                      <DatePicker
+                        placeholder="Present"
+                        size="large"
+                        style={{ width: '100%' }}
+                        value={configData.validityEndDate}
+                        onChange={(date) => {
+                          updateConfigData('validityEndDate', date);
+                          // If user clears the date, hide the input again
+                          if (!date) {
+                            setShowValidUntil(false);
+                          }
+                        }}
+                        format="MMM D, YYYY"
+                        allowClear
+                        disabledDate={(current) => {
+                          if (!configData.validityStartDate) return false;
+                          // Disable dates before valid from date
+                          return current && current.isBefore(configData.validityStartDate, 'day');
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Continue Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                disabled={!canContinueSection('validity')}
+                onClick={() => handleSectionContinue('validity')}
+                icon={<ArrowRight size={16} />}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        ),
+        collapsible: canExpandSection('validity') ? undefined : 'disabled' as const
+      },
+      
+      {
+        key: 'lix',
+        label: (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedSections.has('lix') && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: token.colorSuccess,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Check size={12} style={{ color: 'white' }} />
+                </div>
+              )}
+              <span style={{ 
+                fontWeight: token.fontWeightStrong, 
+                color: canExpandSection('lix') ? token.colorText : token.colorTextTertiary,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                LIX experiment
+                {directEditMode && (
+                  <>
+                    <Lock size={14} style={{ color: token.colorTextSecondary }} />
+                    <span style={{ 
+                      fontWeight: 'normal', 
+                      color: token.colorTextSecondary,
+                      fontSize: token.fontSize
+                    }}>
+                      Inherited from existing price group
+                    </span>
+                  </>
+                )}
+              </span>
+            </div>
+            <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+              {isExperiment 
+                ? ((configData.lixKey && configData.lixTreatment) 
+                    ? `${configData.lixKey} (${configData.lixTreatment})`
+                    : 'Experiment enabled'
+                  )
+                : 'No experiment'
+              }
+            </span>
+          </div>
+        ),
+        children: directEditMode ? (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize,
+              textAlign: 'center',
+              padding: '24px 0'
+            }}>
+              This section is locked because you are editing an existing price group.
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ 
+              marginBottom: '16px', 
+              color: token.colorTextSecondary, 
+              fontSize: token.fontSize 
+            }}>
+        
+            </div>
+            {/* LIX Experiment Switch */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px', 
+                marginBottom: isExperiment ? '24px' : '0' 
+              }}>
+                <Switch 
+                  checked={isExperiment}
+                  onChange={(checked) => {
+                    setIsExperiment(checked);
+                    // Clear LIX data when turning off experiment
+                    if (!checked) {
+                      updateConfigData('lixKey', null);
+                      updateConfigData('lixTreatment', null);
+                    }
+                  }}
+                />
+                <span style={{ 
+                  fontSize: token.fontSize,
+                  color: token.colorText,
+                  fontWeight: token.fontWeightStrong
+                }}>
+                  This price group is part of an experiment
+                </span>
+              </div>
+
+              {/* LIX Configuration Inputs - only show when experiment is enabled */}
+              {isExperiment && (
+                <div style={{ maxWidth: '400px' }}>
+                  {/* LIX Key AutoComplete */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ 
+                      marginBottom: '8px', 
+                      fontSize: token.fontSize, 
+                      fontWeight: token.fontWeightStrong,
+                      color: token.colorText 
+                    }}>
+                      LIX key
+                    </div>
+                    <AutoComplete
+                      placeholder="Enter LIX key"
+                      size="large"
+                      allowClear
+                      value={configData.lixKey}
+                      options={formOptions.lixKeys.length > 0 ? [{
+                        label: 'Existing',
+                        options: formOptions.lixKeys.map(key => ({ value: key }))
+                      }] : []}
+                      onChange={(value) => {
+                        updateConfigData('lixKey', value || null);
+                        // Clear treatment when key changes
+                        if (value !== configData.lixKey) {
+                          updateConfigData('lixTreatment', null);
+                        }
+                      }}
+                      filterOption={(inputValue, option: any) => {
+                        if (!option?.value || typeof option.value !== 'string') return false;
+                        return option.value.toLowerCase().includes(inputValue.toLowerCase());
+                      }}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  {/* LIX Treatment AutoComplete */}
+                  <div>
+                    <div style={{ 
+                      marginBottom: '8px', 
+                      fontSize: token.fontSize, 
+                      fontWeight: token.fontWeightStrong,
+                      color: token.colorText 
+                    }}>
+                      LIX treatment
+                    </div>
+                    <AutoComplete
+                      placeholder="Enter LIX treatment"
+                      size="large"
+                      allowClear
+                      value={configData.lixTreatment}
+                      options={formOptions.lixTreatments.length > 0 ? [{
+                        label: 'Existing',
+                        options: formOptions.lixTreatments.map(treatment => ({ value: treatment }))
+                      }] : []}
+                      onChange={(value) => updateConfigData('lixTreatment', value || null)}
+                      filterOption={(inputValue, option: any) => {
+                        if (!option?.value || typeof option.value !== 'string') return false;
+                        return option.value.toLowerCase().includes(inputValue.toLowerCase());
+                      }}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Continue Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                disabled={!canContinueSection('lix')}
+                onClick={() => handleSectionContinue('lix')}
+                icon={<ArrowRight size={16} />}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        ),
+        collapsible: canExpandSection('lix') ? undefined : 'disabled' as const
+      }
+    ];
+
+    // Filter items based on mode
+    const filteredItems = directEditMode 
+      ? items.filter(item => item.key !== 'method') // Skip method section in direct edit mode
+      : items;
+
+    return (
+      <div style={{ width: '100%', padding: '16px 0' }}>
+        <Collapse
+          activeKey={activeCollapseKeys}
+          onChange={(keys) => {
+            const validKeys = (keys as string[]).filter(key => canExpandSection(key));
+            setActiveCollapseKeys(validKeys);
+          }}
+          items={filteredItems}
+          size="large"
+        />
+        
+        {/* SKU Detection Alert */}
+        {skuAlert.show && (
+          <div style={{ marginTop: '24px' }}>
+            <Alert
+              type={skuAlert.type}
+              message={
+                <div style={{ 
+                  lineHeight: '1.5',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {skuAlert.message}
+                </div>
+              }
+              action={skuAlert.actionButton ? (
+                <Button
+                  type="text"
+                  style={{ 
+                    color: token.colorPrimary,
+                    fontWeight: token.fontWeightStrong
+                  }}
+                  onClick={skuAlert.actionButton.action}
+                >
+                  {skuAlert.actionButton.text}
+                </Button>
+              ) : undefined}
+              showIcon
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const handlePrevious = () => {
+    // Both modes now follow: Step 0 (Configure) → Step 1 (Price editing) → Step 2 (Review) → Step 3 (GTM)
+    const newStep = Math.max(currentStep - 1, 0);
+    
+    // Clear saved price inputs when going back to Step 0 (configure)
+    if (newStep === 0) {
+      setSavedSimplePriceInputs({});
+      setSavedFieldPriceInputs({});
+      setSkuAlert({ show: false, type: 'info', message: '', actionButton: undefined }); // Clear SKU alert
+    }
+    
+    setCurrentStep(newStep);
   };
 
   const handleClose = () => {
     // Reset state based on mode
     if (directEditMode) {
-      setCurrentStep(2);
+      setCurrentStep(0); // Both modes start at configure step
       setSelectedContext(prefilledContext);
     } else {
       setCurrentStep(0);
       setSelectedContext(null);
-      setCreationMethod(initialCreationMethod); // Reset to initial creation method
+      // Reset configuration data
+      setConfigData({
+        method: null,
+        channel: null,
+        billingCycle: null,
+        lixKey: null,
+        lixTreatment: null,
+        clonePriceGroup: null,
+        validityStartDate: dayjs().add(7, 'day'), // Reset to default week from today
+        validityEndDate: null
+      });
+      setCompletedSections(new Set());
+      setActiveCollapseKeys(['method']);
+      setShowValidUntil(false); // Reset valid until visibility
+      setIsExperiment(false); // Reset experiment switch
     }
     setGTMMotionSelection(null);
     setIsSaving(false);
@@ -190,6 +1535,9 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     setHasRealTimeChanges(false);
     setSavedSimplePriceInputs({}); // Clear saved price inputs
     setSavedFieldPriceInputs({});
+    setSavedSelectedCurrencies([]); // Clear saved currency selection
+    setSavedCurrencyOrder([]); // Clear saved currency order
+    setSkuAlert({ show: false, type: 'info', message: '', actionButton: undefined }); // Clear SKU alert
     onClose();
   };
 
@@ -298,103 +1646,6 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     return `${startText} - ${endText}`;
   };
 
-  // Helper function to get dynamic title based on current flow
-  const getDynamicTitle = (): string => {
-    if (directEditMode) {
-      return `Edit price points in price group for ${productName}`;
-    } else {
-      return `Create new price group in ${productName}`;
-    }
-  };
-
-  // Helper function to get title content with inline tags
-  const getTitleWithTags = (): React.ReactNode => {
-    const title = getDynamicTitle();
-    
-    // Get context for tags - show live updates in all steps when we have context
-    let context = null;
-    if (directEditMode && selectedContext) {
-      context = selectedContext;
-    } else if (!directEditMode && selectedContext) {
-      // Show tags in all steps (including Step 1) when we have any context
-      context = selectedContext;
-    }
-
-    // Build tags array based on what's available (partial selections allowed)
-    const tags = [];
-    if (context?.channel) {
-      tags.push(
-        <ChannelTag 
-          key="channel"
-          channel={context.channel} 
-          variant="small" 
-          showIcon={false} 
-        />
-      );
-    }
-    if (context?.billingCycle) {
-      tags.push(
-        <BillingCycleTag 
-          key="billingCycle"
-          billingCycle={context.billingCycle} 
-          variant="small" 
-          showIcon={false} 
-        />
-      );
-    }
-
-    // If no tags to show, show just the title
-    if (tags.length === 0) {
-      return (
-        <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
-          {title}
-        </Title>
-      );
-    }
-
-    // Show title with available tags
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
-          {title}
-        </Title>
-        <Space size={8}>
-          {tags}
-        </Space>
-      </div>
-    );
-  };
-
-  // Helper function to get dynamic subtitle based on current state  
-  const getDynamicSubtitle = (): React.ReactNode => {
-    // For edit mode: always show subtitle if we have context
-    if (directEditMode && selectedContext) {
-      return formatSubtitle(selectedContext);
-    }
-    
-    // For create mode: show subtitle in all steps when we have context (including Step 1)
-    if (!directEditMode && selectedContext) {
-      return formatSubtitle(selectedContext);
-    }
-    
-    return null;
-  };
-
-  // Helper function to format subtitle consistently - now only handles LIX
-  const formatSubtitle = (context: any): React.ReactNode => {
-    const { lixKey, lixTreatment } = context;
-    
-    // Only show LIX info if both key and treatment exist
-    if (!lixKey || !lixTreatment) {
-      return null;
-    }
-
-    return (
-      <Text style={{ fontSize: '14px', color: token.colorTextSecondary, marginTop: '4px', display: 'block', fontWeight: 400 }}>
-        LIX: {lixKey} ({lixTreatment})
-      </Text>
-    );
-  };
 
   const handleSave = async () => {
     if (!gtmMotionSelection) return;
@@ -462,171 +1713,14 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     }
   };
 
-  const handleContextChange = (context: any) => {
-    setSelectedContext(context);
-  };
 
-  const isContextValid = () => {
-    if (!selectedContext) return false;
-    
-    // Check required fields (validity is now handled in Step 2)
-    return !!(
-      selectedContext.channel &&
-      selectedContext.billingCycle &&
-      selectedContext.priceGroupAction // Price group selection is required
-    );
-  };
 
-  const isCreationMethodValid = () => {
-    if (directEditMode) return true; // Skip validation for direct edit
-    
-    // Must select creation method
-    if (!creationMethod) return false;
-    
-    // Must have valid context
-    return isContextValid();
-  };
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <div style={{ padding: '16px 0' }}>
-            {/* Creation Method Selection */}
-            <div style={{ marginBottom: '32px', maxWidth: '640px', margin: '0 auto' }}>
-              <Radio.Group
-                value={creationMethod}
-                onChange={(e) => setCreationMethod(e.target.value)}
-                style={{ width: '100%' }}
-              >
-                <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
-                  {/* Create from blank card */}
-                 <div
-                   onClick={() => setCreationMethod('blank')}
-                   style={{
-                     flex: 1,
-                     padding: '24px 16px',
-                     border: `1px solid ${creationMethod === 'blank' ? token.colorPrimary : token.colorBorder}`,
-                     borderRadius: token.borderRadius,
-                     backgroundColor: creationMethod === 'blank' ? token.colorPrimaryBg : token.colorBgContainer,
-                     cursor: 'pointer',
-                     transition: 'all 0.2s ease',
-                     display: 'flex',
-                     flexDirection: 'column',
-                     alignItems: 'center',
-                     gap: '12px'
-                   }}
-                 >
-                   <FileText size={20} style={{ color: token.colorText }} />
-                   <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
-                     Create from blank
-                   </div>
-                 </div>
-
-                  {/* Clone from existing card */}
-                  <div
-                    onClick={() => setCreationMethod('clone')}
-                    style={{
-                      flex: 1,
-                      padding: '24px 16px',
-                      border: `1px solid ${creationMethod === 'clone' ? token.colorPrimary : token.colorBorder}`,
-                      borderRadius: token.borderRadius,
-                      backgroundColor: creationMethod === 'clone' ? token.colorPrimaryBg : token.colorBgContainer,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '12px'
-                    }}
-                  >
-                    <Copy size={20} style={{ color: token.colorText }} />
-                    <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
-                      Clone from existing
-                    </div>
-                  </div>
-                </div>
-              </Radio.Group>
-            </div>
-
-            {/* Context Selection - show when creation method selected */}
-            {creationMethod && (
-              <div style={{ maxWidth: '640px', margin: '0 auto', marginTop: '32px' }}>
-                <Title level={3} style={{ marginBottom: '16px' }}>
-                  {creationMethod === 'blank' ? 'Configure new price group' : 'Choose price group to clone'}
-                </Title>
-                <ContextSelector 
-                  product={product} 
-                  onContextChange={handleContextChange} 
-                  creationMethod={creationMethod}
-                  prefilledContext={!directEditMode ? prefilledContext : null}
-                />
-              </div>
-            )}
-          </div>
-        );
+        return renderConfigureStep();
       case 1:
-        // SKU Action step - always show meaningful content
-        const existingSkus = selectedContext?.existingSkusForContext || [];
-        
-        if (existingSkus.length > 0) {
-          // Show SKU selector when existing SKUs found
-          return (
-            <div style={{ padding: '16px 0' }}>
-              <div style={{ maxWidth: '640px', margin: '0 auto', marginBottom: '24px' }}>
-                <Title level={3} style={{ marginBottom: '16px' }}>
-                  Choose Action for Existing SKUs
-                </Title>
-                <SkuSelector
-                  existingSkus={existingSkus}
-                  product={product}
-                  onSelectionChange={setSkuSelection}
-                />
-              </div>
-            </div>
-          );
-        } else {
-          // Show confirmation when creating new SKU
-          return (
-            <div style={{ padding: '16px 0' }}>
-              <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-                <Title level={3} style={{ marginBottom: '16px' }}>
-                  Ready to Create New SKU
-                </Title>
-                <div style={{ 
-                  padding: '24px',
-                  backgroundColor: token.colorSuccessBg,
-                  border: `1px solid ${token.colorSuccessBorder}`,
-                  borderRadius: token.borderRadius,
-                  marginBottom: '16px'
-                }}>
-                  <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                    Creating new SKU and price group for:
-                  </div>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: '8px',
-                    fontSize: '14px'
-                  }}>
-                    <ChannelTag channel={selectedContext?.channel} variant="small" showIcon={false} />
-                    <span>•</span>
-                    <BillingCycleTag billingCycle={selectedContext?.billingCycle} variant="small" showIcon={false} />
-                    {selectedContext?.lixKey && (
-                      <>
-                        <span>•</span>
-                        <span>{selectedContext.lixKey} ({selectedContext.lixTreatment})</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-        break;
-      case 2:
         // Price editing step
         if (!selectedContext) {
           return (
@@ -662,17 +1756,21 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 selectedContext={selectedContext}
                 product={product}
                 initialPriceInputs={savedSimplePriceInputs}
+                initialSelectedCurrencies={savedSelectedCurrencies}
+                initialCurrencyOrder={savedCurrencyOrder}
                 onPriceChange={(currency, newPrice) => {
                   // Handle price changes for Desktop/iOS/GPB channels
                   console.log('Simple price change:', { currency, newPrice });
                 }}
+                onCurrencySelectionChange={setSavedSelectedCurrencies}
+                onOrderChange={setSavedCurrencyOrder}
                 onHasChanges={setHasRealTimeChanges}
                 onGetCurrentState={simplePriceRef}
               />
             )}
           </div>
         );
-      case 3:
+      case 2:
         // Review changes step
         return (
           <div style={{ padding: '16px 0' }}>
@@ -684,7 +1782,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             />
           </div>
         );
-      case 4:
+      case 3:
         // GTM Selection step
         return (
           <div style={{ padding: '16px 0' }}>
@@ -700,103 +1798,45 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   };
 
   return (
-    <Modal
-      title={
-          <div style={{ position: 'relative' }}>
-            {getTitleWithTags()}
-            {getDynamicSubtitle()}
-          {/* Full-width divider */}
-          <div 
-            style={{
-              position: 'absolute',
-              bottom: '-16px',
-              left: '-24px',
-              right: '-24px',
-              height: '1px',
-              backgroundColor: token.colorBorder,
-            }}
-          />
-        </div>
-      }
+    <Drawer
+      placement="bottom"
+      height="100vh"
+      width="100vw"
+      mask={false}
+      closable={false}
       open={open}
-      onCancel={handleClose}
-      width="95vw"
-      style={{ 
-        top: 20,
-        maxWidth: '1400px',
-      }}
-      bodyStyle={{
-        height: '90vh',
-        maxHeight: '1000px',
-        padding: 0,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
+      onClose={handleClose}
+      zIndex={1020} // Using theme.ts zIndex.drawer
       styles={{
-        header: {
-          paddingBottom: '16px',
-          position: 'relative',
-          flexShrink: 0,
-        },
         body: {
-          padding: '0',
-          overflow: 'hidden',
-          flex: 1,
+          padding: 0,
+          backgroundColor: token.colorBgLayout,
           display: 'flex',
           flexDirection: 'column',
-        },
-        footer: {
-          padding: '0',
-          position: 'relative',
-          flexShrink: 0,
-        },
-        wrapper: {
-          paddingBottom: '0',
+          height: '100vh',
+          overflow: 'hidden' // Prevent body scroll
         },
         content: {
-          paddingBottom: '0',
-          height: '90vh',
-          maxHeight: '1000px',
+          backgroundColor: token.colorBgContainer,
           display: 'flex',
           flexDirection: 'column',
-        },
+          height: '100vh',
+          overflow: 'hidden' // Let inner content handle scrolling
+        }
       }}
-      zIndex={1100}
       footer={
-        <div style={{ position: 'relative' }}>
-          {/* Full-width divider */}
-          <div 
-            style={{
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              right: '0',
-              height: '1px',
-              backgroundColor: token.colorBorder,
-            }}
-          />
-          <div style={{ 
-            padding: '16px 24px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-          {/* Show step indicator */}
-          <div style={{ 
-            fontSize: '13px', 
-            color: token.colorTextSecondary 
-          }}>
-            {directEditMode ? 
-              (() => {
-                // Direct edit mode: Steps 2, 3, 4 displayed as "Step 1 of 3", "Step 2 of 3", "Step 3 of 3"
-                const displayStep = currentStep - 1; // Convert step 2→1, step 3→2, step 4→3
-                return `Step ${displayStep} of 3`;
-              })() :
-              `Step ${currentStep + 1} of 5`
-            }
-          </div>
+        <div style={{ 
+          borderTop: `1px solid ${token.colorBorder}`,
+          backgroundColor: token.colorBgContainer,
+          padding: '16px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          {/* Left side - empty space for balance */}
+          <div></div>
           
+          {/* Right side - Action buttons */}
           <Space>
             <Button 
               onClick={handleClose}
@@ -806,7 +1846,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             </Button>
             
             {/* Previous button - show when not on first step */}
-            {(directEditMode && currentStep > 2) || (!directEditMode && currentStep > 0) ? (
+            {currentStep > 0 ? (
               <Button 
                 onClick={handlePrevious}
                 icon={<ArrowLeft size={14} />}
@@ -818,7 +1858,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             ) : null}
             
             {/* Continue/Save button logic */}
-            {(directEditMode && currentStep < 4) || (!directEditMode && currentStep < 4) ? (
+            {(directEditMode && currentStep < 3) || (!directEditMode && currentStep < 3) ? (
               <Button 
                 type="primary"
                 onClick={handleNext}
@@ -827,18 +1867,22 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 disabled={
                   directEditMode ? (
                     // Direct edit mode validation
-                    currentStep === 2 ? !hasRealTimeChanges :  // Price editing step
-                    currentStep === 3 ? !hasChanges : false    // Review step
+                    currentStep === 1 ? !hasRealTimeChanges :  // Price editing step
+                    currentStep === 2 ? !hasChanges : false    // Review step
                   ) : (
-                    // Create mode validation
-                    currentStep === 0 ? !isCreationMethodValid() :
-                    currentStep === 1 ? (() => {
-                      const existingSkus = selectedContext?.existingSkusForContext || [];
-                      // Step 1 (SKU Action): either no SKUs (auto-create) or user made selection
-                      return existingSkus.length > 0 ? !skuSelection : false;
-                    })() :
-                    currentStep === 2 ? !hasRealTimeChanges :  // Price editing step
-                    currentStep === 3 ? !hasChanges : false    // Review step
+                    // Create mode validation (4 steps: 0-3)
+                    currentStep === 0 ? (() => {
+                      // Step 0: All collapse sections must be completed
+                      const requiredSections = directEditMode 
+                        ? ['channel', 'billing', 'validity', 'lix'] // Skip method in direct edit mode
+                        : ['method', 'channel', 'billing', 'validity', 'lix'];
+                      const allSectionsComplete = requiredSections.every(
+                        section => completedSections.has(section)
+                      );
+                      return !allSectionsComplete || (!directEditMode && skuAlert.show && skuAlert.type === 'warning');
+                    })() : 
+                    currentStep === 1 ? !hasRealTimeChanges :  // Price editing step
+                    currentStep === 2 ? !hasChanges : false    // Review step
                   )
                 }
               >
@@ -857,21 +1901,36 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               </Button>
             )}
           </Space>
-          </div>
         </div>
       }
       destroyOnClose
     >
+      {/* Custom Header */}
+      {renderCustomHeader()}
+      
+      {/* Main Layout - Two columns */}
       <div style={{ 
         flex: 1, 
-        overflow: 'auto', 
-        padding: '24px',
         display: 'flex',
-        flexDirection: 'column'
+        overflow: 'hidden',
+        minHeight: 0 // Ensure flex child can shrink
       }}>
-        {renderStepContent()}
+        {/* Left: Steps Navigation */}
+        {renderStepsNavigation()}
+        
+        {/* Right: Main Content */}
+        <div style={{ 
+          flex: 1,
+          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={getContentContainerStyle()}>
+            {renderStepContent()}
+          </div>
+        </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 };
 

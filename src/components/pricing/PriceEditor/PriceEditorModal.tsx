@@ -354,7 +354,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       <div style={{ flex: 1, minWidth: 0 }}>
         <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
           {directEditMode 
-            ? `Edit price points for ${productName}`
+            ? `Edit price group for ${productName}`
             : `Create price group for ${productName}`
           }
         </Title>

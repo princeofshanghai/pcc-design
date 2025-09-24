@@ -665,7 +665,7 @@ const PriceGroupDetail: React.FC = () => {
             onClick={handleEditPricePoints}
             size="middle"
           >
-            Edit price points
+            Edit price group
           </Button>
         }
         compact

@@ -11,7 +11,7 @@ export const hasMultiSelectValues = (values: string[] | undefined): boolean => {
  * Helper to check if a single-select filter has an active selection
  */
 export const hasSingleSelectValue = (value: string | null | undefined): boolean => {
-  return value != null;
+  return value != null && value !== '';
 };
 
 /**
@@ -55,11 +55,11 @@ export const matchesMultiSelectFilter = <T>(
  * Helper to check if a value matches the single-select filter
  */
 export const matchesSingleSelectFilter = <T>(
-  items: T[], 
-  filterValue: string | null, 
+  items: T[],
+  filterValue: string | null,
   getValue: (item: T) => string
 ): T[] => {
-  if (filterValue == null) return items;
+  if (filterValue == null || filterValue === '') return items;
   return items.filter(item => getValue(item) === filterValue);
 };
 

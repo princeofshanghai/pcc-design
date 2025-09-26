@@ -10,6 +10,7 @@ import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../util
 import { showSuccessMessage, showErrorMessage } from '../../../utils/messageUtils';
 import type { SalesChannel, BillingCycle } from '../../../utils/types';
 import { getChannelIcon } from '../../../utils/channelIcons';
+import CopyableId from '../../shared/CopyableId';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -48,7 +49,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   // SKU detection alert state
   const [skuAlert, setSkuAlert] = useState<{
     show: boolean;
-    type: 'warning' | 'info';
+    type: 'error' | 'success';
     message: string;
     actionButton?: {
       text: string;
@@ -56,7 +57,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     };
   }>({
     show: false,
-    type: 'info',
+    type: 'success',
     message: '',
     actionButton: undefined
   });
@@ -65,7 +66,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [activeCollapseKeys, setActiveCollapseKeys] = useState<string[]>(['method']);
   const [showValidUntil, setShowValidUntil] = useState(false);
-  const [isExperiment, setIsExperiment] = useState(false);
+  const [isExperiment, setIsExperiment] = useState<boolean | null>(null); // null = no choice made yet
   const [configData, setConfigData] = useState({
     method: null as 'blank' | 'clone' | null,
     channel: null as string | null,
@@ -73,13 +74,70 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     lixKey: null as string | null,
     lixTreatment: null as string | null,
     clonePriceGroup: null as any,
-    validityStartDate: dayjs().add(7, 'day'), // Default to a week from today
+    validityStartDate: null as any, // Empty by default - user must choose
     validityEndDate: null as any
   });
 
   // All possible options from types
   const ALL_CHANNELS: SalesChannel[] = ['Desktop', 'Field', 'iOS', 'GPB'];
   const ALL_BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual'];
+
+  // Helper function to format price display (extracted from PriceGroupTable.tsx logic)
+  const formatPriceDisplay = (priceGroup: any): string => {
+    if (!priceGroup?.pricePoints || priceGroup.pricePoints.length === 0) {
+      return 'No price points';
+    }
+
+    // Filter for active price points only
+    const activePricePoints = priceGroup.pricePoints.filter((p: any) => p.status === 'Active');
+    
+    if (activePricePoints.length === 0) {
+      return 'No active price points';
+    }
+    
+    // Look for USD first
+    const usdPrice = activePricePoints.find((p: any) => p.currencyCode === 'USD');
+    
+    if (usdPrice) {
+      // If USD exists, show USD price with additional count
+      const additionalActivePricePoints = activePricePoints.length - 1;
+      const zeroDecimalCurrencies = new Set([
+        'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
+        'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
+      ]);
+      
+      const amount = zeroDecimalCurrencies.has(usdPrice.currencyCode) 
+        ? Math.round(usdPrice.amount) 
+        : usdPrice.amount.toFixed(2);
+        
+      const priceText = `USD ${amount}`;
+      
+      if (additionalActivePricePoints > 0) {
+        return `${priceText} +${additionalActivePricePoints} more`;
+      } else {
+        return priceText;
+      }
+    } else {
+      // If no USD, just show count of non-USD price points
+      const count = activePricePoints.length;
+      return `${count} non-USD price point${count === 1 ? '' : 's'}`;
+    }
+  };
+
+  // Helper function to render price group option label with styled ID
+  const renderPriceGroupLabel = (pg: any) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <CopyableId 
+        id={pg.id || 'Unknown ID'} 
+        readOnly 
+        size="small" 
+        withBackground 
+      />
+      <span>
+        {pg.channel || 'Unknown Channel'} • {pg.billingCycle || 'Unknown Billing'} • {formatPriceDisplay(pg)}
+      </span>
+    </div>
+  );
 
   // Extract data from product for form options
   const formOptions = React.useMemo(() => {
@@ -106,52 +164,11 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         });
       }
     });
-    
-    // Helper function to format price display (extracted from PriceGroupTable.tsx logic)
-    const formatPriceDisplay = (priceGroup: any): string => {
-      if (!priceGroup?.pricePoints || priceGroup.pricePoints.length === 0) {
-        return 'No price points';
-      }
-
-      // Filter for active price points only
-      const activePricePoints = priceGroup.pricePoints.filter((p: any) => p.status === 'Active');
-      
-      if (activePricePoints.length === 0) {
-        return 'No active price points';
-      }
-      
-      // Look for USD first
-      const usdPrice = activePricePoints.find((p: any) => p.currencyCode === 'USD');
-      
-      if (usdPrice) {
-        // If USD exists, show USD price with additional count
-        const additionalActivePricePoints = activePricePoints.length - 1;
-        const zeroDecimalCurrencies = new Set([
-          'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
-          'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
-        ]);
-        
-        const amount = zeroDecimalCurrencies.has(usdPrice.currencyCode) 
-          ? Math.round(usdPrice.amount) 
-          : usdPrice.amount.toFixed(2);
-          
-        const priceText = `USD ${amount}`;
-        
-        if (additionalActivePricePoints > 0) {
-          return `${priceText} +${additionalActivePricePoints} more`;
-        } else {
-          return priceText;
-        }
-      } else {
-        // If no USD, just show count of non-USD price points
-        const count = activePricePoints.length;
-        return `${count} non-USD price point${count === 1 ? '' : 's'}`;
-      }
-    };
 
     const availableClonePriceGroups = Array.from(priceGroupMap.values()).map((pg: any) => ({
-      label: `ID ${pg.id || 'Unknown ID'} - ${pg.channel || 'Unknown Channel'} • ${pg.billingCycle || 'Unknown Billing'} • ${formatPriceDisplay(pg)}`,
+      label: renderPriceGroupLabel(pg),
       value: pg.id,
+      searchLabel: `ID ${pg.id || 'Unknown ID'} - ${pg.channel || 'Unknown Channel'} • ${pg.billingCycle || 'Unknown Billing'} • ${formatPriceDisplay(pg)}`, // Plain text for searching
       priceGroup: pg
     }));
 
@@ -240,7 +257,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
           lixKey: prefilledContext?.lixKey || null,
           lixTreatment: prefilledContext?.lixTreatment || null,
           clonePriceGroup: null, // Not applicable for direct edit
-          validityStartDate: dayjs().add(7, 'day'), // Default to a week from today (editable)
+          validityStartDate: null as any, // Empty by default - user must choose (editable)
           validityEndDate: null // Default to null (editable)
         });
         // Mark inherited sections as complete, only validity needs user input
@@ -259,13 +276,13 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
           lixKey: null,
           lixTreatment: null,
           clonePriceGroup: null,
-          validityStartDate: dayjs().add(7, 'day'), // Reset to default week from today
+          validityStartDate: null as any, // Reset to empty - user must choose
           validityEndDate: null
         });
         setCompletedSections(new Set());
         setActiveCollapseKeys(['method']);
         setShowValidUntil(false); // Reset valid until visibility
-        setIsExperiment(false); // Reset experiment switch
+        setIsExperiment(null); // Reset experiment choice - no choice made yet
       }
       setGTMMotionSelection(null);
       setIsSaving(false);
@@ -354,7 +371,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       <div style={{ flex: 1, minWidth: 0 }}>
         <Title level={3} style={{ margin: 0, fontSize: token.fontSizeHeading2 }}>
           {directEditMode 
-            ? `Edit price group for ${productName}`
+            ? `Edit price points for ${productName}`
             : `Create price group for ${productName}`
           }
         </Title>
@@ -624,10 +641,10 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         
         setSkuAlert({
           show: true,
-          type: 'warning',
-          message: `Price group ${existingSku.priceGroup.id} already exists for ${contextDisplay}. Edit existing price group or modify your selections above.`,
+          type: 'error',
+          message: `A SKU (${contextDisplay}) already exists and is associated with price group ${existingSku.priceGroup.id}. Edit the price points for the price group or change your selections above.`,
           actionButton: {
-            text: 'Edit existing price group',
+            text: 'Edit price points',
             action: () => {
               onClose(); // Close the drawer
               navigate(`/products/${productId}/price-groups/${existingSku.priceGroup.id}`);
@@ -636,10 +653,17 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         });
       } else {
         // No conflict - success case
+        const contextDisplay = formatContextDisplay(
+          configData.channel!,
+          configData.billingCycle!,
+          configData.lixKey,
+          configData.lixTreatment
+        );
+        
         setSkuAlert({
           show: true,
-          type: 'info',
-          message: 'New price group and SKU will be created. Ready to proceed with price configuration.',
+          type: 'success',
+          message: `A new SKU (${contextDisplay}) will be created and associated with this price group.`,
           actionButton: undefined
         });
       }
@@ -663,8 +687,10 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       case 'billing':
         return !!configData.billingCycle;
       case 'lix':
+        // User must make explicit choice first
+        if (isExperiment === null) return false; // No choice made yet
         // If experiment switch is off, section is complete
-        if (!isExperiment) return true;
+        if (isExperiment === false) return true;
         // If experiment switch is on, both key and treatment are required
         return !!(configData.lixKey && configData.lixTreatment);
       case 'validity':
@@ -722,7 +748,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 </div>
               )}
               <span style={{ fontWeight: token.fontWeightStrong, color: token.colorText }}>
-               Create or clone
+               Create or copy
               </span>
             </div>
             {configData.method && (
@@ -730,7 +756,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 {configData.method === 'blank' 
                   ? 'Create from blank' 
                   : configData.clonePriceGroup 
-                    ? `Clone from price group ${configData.clonePriceGroup.id}`
+                    ? `Copy from price group ${configData.clonePriceGroup.id}`
                     : 'Clone from existing'
                 }
               </span>
@@ -744,7 +770,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               color: token.colorTextSecondary, 
               fontSize: token.fontSize 
             }}>
-              Choose how to create your price group
+              Choose how to start
             </div>
             
             <Radio.Group
@@ -773,6 +799,14 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                   <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
                     Create from blank
                   </div>
+                  <div style={{ 
+                    fontSize: token.fontSizeSM, 
+                    color: token.colorTextSecondary, 
+                    textAlign: 'center',
+                    lineHeight: '1.4'
+                  }}>
+                    Configure new price group from scratch
+                  </div>
                 </div>
 
                 <div
@@ -793,7 +827,15 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 >
                   <Copy size={20} style={{ color: token.colorTextSecondary }} />
                   <div style={{ fontSize: '14px', fontWeight: '500', textAlign: 'center' }}>
-                    Clone from existing
+                    Copy from existing
+                  </div>
+                  <div style={{ 
+                    fontSize: token.fontSizeSM, 
+                    color: token.colorTextSecondary, 
+                    textAlign: 'center',
+                    lineHeight: '1.4'
+                  }}>
+                    Copy structure and currencies from another price group
                   </div>
                 </div>
               </div>
@@ -808,7 +850,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                   fontWeight: token.fontWeightStrong,
                   color: token.colorText 
                 }}>
-                  Select price group to clone
+                  Select price group to copy
                 </div>
                 <Select
                   showSearch
@@ -819,14 +861,24 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                   onChange={(value) => handleClonePriceGroupSelection(value)}
                   options={formOptions.availableClonePriceGroups}
                   allowClear
-                  optionFilterProp="label"
+                  optionFilterProp="searchLabel"
+                  optionRender={(option) => option.label} // Use rich ReactNode for dropdown display
+                  labelRender={(option) => {
+                    // Custom render for selected value display
+                    const selectedOption = formOptions.availableClonePriceGroups.find(
+                      opt => opt.value === option?.value
+                    );
+                    if (selectedOption?.priceGroup) {
+                      return renderPriceGroupLabel(selectedOption.priceGroup);
+                    }
+                    return option?.label;
+                  }}
                 />
                 <div style={{ 
                   marginTop: '8px', 
                   color: token.colorTextSecondary, 
                   fontSize: token.fontSizeSM 
                 }}>
-                  Copies billing channel, billing cycle, and currencies from selected price group. You can modify amounts for each currency later.
                 </div>
               </div>
             )}
@@ -882,8 +934,8 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                       fontSize: token.fontSize
                     }}>
                       {configData.clonePriceGroup 
-                        ? 'Inherited from selected price group'
-                        : 'Inherited from existing price group'
+                        ? 'Copied from price group'
+                        : 'Copied from price group'
                       }
                     </span>
                   </>
@@ -918,7 +970,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               color: token.colorTextSecondary, 
               fontSize: token.fontSize 
             }}>
-              Choose the channel this price group is for
+              Which channel is this price group for?
             </div>
             
             {/* Channel Selection Cards */}
@@ -1016,7 +1068,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                       fontSize: token.fontSize
                     }}>
                       {configData.clonePriceGroup 
-                        ? 'Inherited from selected price group'
+                        ? 'Copied from price group'
                         : 'Inherited from existing price group'
                       }
                     </span>
@@ -1052,7 +1104,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               color: token.colorTextSecondary, 
               fontSize: token.fontSize 
             }}>
-              Choose the billing cycle this price group is for
+              How frequently is this billed?
             </div>
             
             {/* Billing Frequency Cards */}
@@ -1151,7 +1203,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               color: token.colorTextSecondary, 
               fontSize: token.fontSize 
             }}>
-              Set when price points will be active. You can modify validity for individual price points later.
+              Set when price points will be active. You can modify it for individual price points later.
             </div>
             {/* Validity Date Pickers */}
             <div style={{ marginBottom: '24px' }}>
@@ -1200,7 +1252,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                         icon={<Plus size={16} />}
                         onClick={() => setShowValidUntil(true)}
                       >
-                        Add valid until date
+                        Add valid until
                       </Button>
                     </div>
                   ) : (
@@ -1296,12 +1348,14 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               </span>
             </div>
             <span style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
-              {isExperiment 
-                ? ((configData.lixKey && configData.lixTreatment) 
-                    ? `${configData.lixKey} (${configData.lixTreatment})`
-                    : 'Experiment enabled'
-                  )
-                : 'No experiment'
+              {isExperiment === null
+                ? '' // Empty until user makes a choice
+                : isExperiment 
+                  ? ((configData.lixKey && configData.lixTreatment) 
+                      ? `${configData.lixKey} (${configData.lixTreatment})`
+                      : 'Experiment enabled'
+                    )
+                  : 'No experiment'
               }
             </span>
           </div>
@@ -1332,10 +1386,10 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '12px', 
-                marginBottom: isExperiment ? '24px' : '0' 
+                marginBottom: isExperiment === true ? '24px' : '0' 
               }}>
                 <Switch 
-                  checked={isExperiment}
+                  checked={isExperiment === true} // Handle null state
                   onChange={(checked) => {
                     setIsExperiment(checked);
                     // Clear LIX data when turning off experiment
@@ -1355,7 +1409,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               </div>
 
               {/* LIX Configuration Inputs - only show when experiment is enabled */}
-              {isExperiment && (
+              {isExperiment === true && (
                 <div style={{ maxWidth: '400px' }}>
                   {/* LIX Key AutoComplete */}
                   <div style={{ marginBottom: '16px' }}>
@@ -1498,7 +1552,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     if (newStep === 0) {
       setSavedSimplePriceInputs({});
       setSavedFieldPriceInputs({});
-      setSkuAlert({ show: false, type: 'info', message: '', actionButton: undefined }); // Clear SKU alert
+      setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined }); // Clear SKU alert
     }
     
     setCurrentStep(newStep);
@@ -1520,13 +1574,13 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         lixKey: null,
         lixTreatment: null,
         clonePriceGroup: null,
-        validityStartDate: dayjs().add(7, 'day'), // Reset to default week from today
+        validityStartDate: null as any, // Reset to empty - user must choose
         validityEndDate: null
       });
       setCompletedSections(new Set());
       setActiveCollapseKeys(['method']);
       setShowValidUntil(false); // Reset valid until visibility
-      setIsExperiment(false); // Reset experiment switch
+      setIsExperiment(null); // Reset experiment choice - no choice made yet
     }
     setGTMMotionSelection(null);
     setIsSaving(false);
@@ -1537,7 +1591,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     setSavedFieldPriceInputs({});
     setSavedSelectedCurrencies([]); // Clear saved currency selection
     setSavedCurrencyOrder([]); // Clear saved currency order
-    setSkuAlert({ show: false, type: 'info', message: '', actionButton: undefined }); // Clear SKU alert
+    setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined }); // Clear SKU alert
     onClose();
   };
 
@@ -1879,7 +1933,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                       const allSectionsComplete = requiredSections.every(
                         section => completedSections.has(section)
                       );
-                      return !allSectionsComplete || (!directEditMode && skuAlert.show && skuAlert.type === 'warning');
+                      return !allSectionsComplete || (!directEditMode && skuAlert.show && skuAlert.type === 'error');
                     })() : 
                     currentStep === 1 ? !hasRealTimeChanges :  // Price editing step
                     currentStep === 2 ? !hasChanges : false    // Review step

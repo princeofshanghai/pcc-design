@@ -62,7 +62,7 @@ export const getProductListTableColumns = (
       fixed: 'left',
       render: (_: any, record: Product) => (
         <div onClick={(e) => e.stopPropagation()}>
-          <CopyableId id={record.id} variant="table" />
+          <CopyableId id={record.id} variant="table" withBackground size="small" />
         </div>
       ),
       className: 'table-col-first',

@@ -9,9 +9,11 @@ interface CopyableIdProps {
   variant?: 'default' | 'prominent' | 'table';
   muted?: boolean;
   withBackground?: boolean; // New prop for PageHeader background styling
+  readOnly?: boolean; // New prop to disable copy functionality and remove icon
+  size?: 'default' | 'small'; // New prop for smaller size in dropdowns
 }
 
-const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted = false, withBackground = false }) => {
+const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted = false, withBackground = false, readOnly = false, size = 'default' }) => {
   const { token } = theme.useToken();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -49,66 +51,79 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
     );
   };
 
-  // Different styles based on variant and muted state
+  // Different styles based on variant, muted state, and size
   const getTextStyles = () => {
     // Use even lighter gray when muted
     const mutedColor = '#c1c1c1'; // Lighter than token.colorTextTertiary
     
+    // Base font size - adjust for small size (make it even smaller for select inputs)
+    const baseFontSize = size === 'small' ? 12 : token.fontSize; // 12px for compact select display
+    
+    const baseStyles = {
+      fontFamily: token.fontFamily, // Use main font family instead of code font
+      fontSize: baseFontSize,
+      fontVariantNumeric: 'tabular-nums' as const,
+      lineHeight: size === 'small' ? '1.2' : '1.5715', // Tighter line height for small
+    };
+    
     if (variant === 'prominent') {
       return {
-        fontFamily: token.fontFamily, // Use main font family instead of code font
-        fontSize: token.fontSize,
+        ...baseStyles,
         color: muted ? mutedColor : token.colorText,
         fontWeight: 500,
-        fontVariantNumeric: 'tabular-nums',
       };
     }
     
     if (variant === 'table') {
       return {
-        fontFamily: token.fontFamily, // Use main font family instead of code font
-        fontSize: token.fontSizeSM, // 13px for tables
+        ...baseStyles,
+        fontSize: token.fontSizeSM, // Always use small for tables
         color: muted ? mutedColor : token.colorTextSecondary,
-        fontVariantNumeric: 'tabular-nums',
       };
     }
     
     // Default variant
     return {
-      fontFamily: token.fontFamily, // Use main font family instead of code font
-      fontSize: token.fontSize,
+      ...baseStyles,
       color: muted ? mutedColor : token.colorTextSecondary,
-      fontVariantNumeric: 'tabular-nums',
     };
   };
 
-  return (
-    <InfoPopover content="Click to copy" placement="top">
-      <span
-        className="copyable-id-container"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          cursor: 'pointer',
-          transition: 'opacity 0.2s ease',
-          ...(withBackground && {
-            backgroundColor: token.colorBgLayout,
-            padding: '4px 6px',
-            borderRadius: token.borderRadiusSM,
-            border: `1px solid ${token.colorBorder}`,
-          }),
-          ...getTextStyles(),
-        }}
-        onClick={handleCopy}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.opacity = '0.8';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '1';
-        }}
-      >
-        <span className="copyable-id-text">{id}</span>
+  // Adjust padding for small size when withBackground is true
+  const getPadding = () => {
+    if (!withBackground) return undefined;
+    if (size === 'small') return '1px 3px'; // Very compact padding for select inputs
+    return '4px 6px'; // Default padding
+  };
+
+  const content = (
+    <span
+      className="copyable-id-container"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: readOnly ? '0px' : '4px', // No gap when read-only (no icon)
+        cursor: readOnly ? 'default' : 'pointer',
+        transition: readOnly ? 'none' : 'opacity 0.2s ease',
+        verticalAlign: size === 'small' ? 'middle' : 'baseline', // Better alignment in select inputs
+        ...(withBackground && {
+          backgroundColor: token.colorBgLayout,
+          padding: getPadding(),
+          borderRadius: size === 'small' ? '3px' : token.borderRadiusSM, // Smaller radius for compact display
+          border: `1px solid ${token.colorBorder}`,
+        }),
+        ...getTextStyles(),
+      }}
+      onClick={readOnly ? undefined : handleCopy}
+      onMouseEnter={readOnly ? undefined : (e) => {
+        e.currentTarget.style.opacity = '0.8';
+      }}
+      onMouseLeave={readOnly ? undefined : (e) => {
+        e.currentTarget.style.opacity = '1';
+      }}
+    >
+      <span className="copyable-id-text">{id}</span>
+      {!readOnly && (
         <Copy 
           size={12} 
           strokeWidth={3}
@@ -116,7 +131,13 @@ const CopyableId: React.FC<CopyableIdProps> = ({ id, variant = 'default', muted 
             opacity: 0.6,
           }}
         />
-      </span>
+      )}
+    </span>
+  );
+
+  return readOnly ? content : (
+    <InfoPopover content="Click to copy" placement="top">
+      {content}
     </InfoPopover>
   );
 };

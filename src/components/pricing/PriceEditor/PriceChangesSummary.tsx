@@ -1,7 +1,6 @@
 import React from 'react';
-import { Typography, Space, Table, theme, Popover, Collapse } from 'antd';
+import { Typography, Space, theme, Popover, Collapse } from 'antd';
 import { TriangleAlert } from 'lucide-react';
-import type { ColumnsType } from 'antd/es/table';
 
 const { Title, Text } = Typography;
 
@@ -358,7 +357,7 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
               gap: '12px 24px',
               alignItems: 'center'
             }}>
-              {nonFieldChanges.map((change, index) => (
+              {nonFieldChanges.map((change, _) => (
                 <div key={change.currency} style={{
                   display: 'flex',
                   alignItems: 'center',

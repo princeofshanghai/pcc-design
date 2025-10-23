@@ -4305,13 +4305,24 @@ export const updateGTMItemPrices = (
       const changeAmount = newAmount - currentAmount;
       const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
       
-      return {
+      const baseChange = {
         currencyCode: change.currency,
         currentAmount: currentAmount,
         newAmount: newAmount,
         changeAmount: changeAmount,
         changePercentage: changePercentage
       };
+      
+      // Add field-specific data if available
+      if (change.seatRange && change.tier) {
+        return {
+          ...baseChange,
+          seatRange: change.seatRange,
+          tier: change.tier
+        };
+      }
+      
+      return baseChange;
     });
 
     // Update the existing price change object
@@ -4338,14 +4349,14 @@ export const updateGTMItemPrices = (
 // Create and add new GTM Motion to the list
 export const createAndAddGTMMotion = (
   name: string, 
-  description: string, 
+  description: string | undefined, 
   activationDate: string, 
   productId: string, 
   productName: string,
   priceChanges: any[], 
   selectedContext: any
 ): GTMMotion => {
-  const newMotion = createNewGTMMotion(name, description, activationDate);
+  const newMotion = createNewGTMMotion(name, description || '', activationDate);
   
   // Create priceChange object from the actual changes
   const currencyChanges = priceChanges.map(change => {

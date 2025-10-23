@@ -251,10 +251,8 @@ const GTMMotionSelector: React.FC<GTMMotionSelectorProps> = ({
 
                     <Form.Item
                       name="description"
-                      label="Description"
+                      label="Description (optional)"
                       rules={[
-                        { required: true, message: 'Please enter a description' },
-                        { min: 10, message: 'Description must be at least 10 characters' },
                         { max: 500, message: 'Description must be less than 500 characters' }
                       ]}
                     >

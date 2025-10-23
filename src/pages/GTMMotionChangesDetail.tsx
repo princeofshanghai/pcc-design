@@ -17,12 +17,13 @@ const GTMMotionChangesDetail: React.FC = () => {
   const [priceEditorOpen, setPriceEditorOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const motion = mockGTMMotions.find(m => m.id === motionId);
-  // Find the specific GTM item (refresh when refreshTrigger changes)
-  const item = useMemo(() => {
+  // Find motion and item (refresh when refreshTrigger changes)
+  const { motion, item } = useMemo(() => {
     // Include refreshTrigger in dependency to force re-computation
-    return motion?.items.find(item => item.id === itemId);
-  }, [motion, itemId, refreshTrigger]);
+    const foundMotion = mockGTMMotions.find(m => m.id === motionId);
+    const foundItem = foundMotion?.items.find(item => item.id === itemId);
+    return { motion: foundMotion, item: foundItem };
+  }, [motionId, itemId, refreshTrigger]);
 
   // Set up breadcrumb context for GTM motion changes detail
   React.useEffect(() => {

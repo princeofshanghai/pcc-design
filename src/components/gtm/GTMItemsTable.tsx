@@ -38,11 +38,6 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
     }
   };
 
-  // Modal handlers (backup - for emergency fallback button)
-  const handleShowChanges = (item: GTMItem) => {
-    setSelectedGTMItem(item);
-    setChangesModalOpen(true);
-  };
 
   const handleCloseModal = () => {
     setChangesModalOpen(false);
@@ -159,15 +154,10 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
           to={`/product/${record.productId}`} 
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '4px',
-            fontWeight: 500, 
-            fontSize: '13px'
+            fontWeight: 500
           }}
         >
           {productName}
-          <ChevronRight size={12} style={{ color: token.colorTextSecondary }} />
         </Link>
       ),
     },

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Space, Card, Switch, Typography, Divider, Button } from 'antd';
+import { Space, Card, Switch, Typography, Divider } from 'antd';
 import PriceChangesTable from '../components/pricing/PriceEditor/PriceChangesTable';
 import { PageHeader } from '../components';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 // Sample data for non-field product (like 5095285 - Desktop)
 const sampleSimpleChanges = [

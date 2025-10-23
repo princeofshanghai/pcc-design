@@ -160,7 +160,6 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
       title: 'Currency',
       dataIndex: 'currency',
       key: 'currency',
-      width: 100,
       fixed: 'left',
       onHeaderCell: () => ({
         style: {
@@ -190,7 +189,6 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
       title: 'Current price',
       dataIndex: 'currentPrice',
       key: 'currentPrice',
-      width: 120,
       render: (price: number | null, record: UnifiedChange) => {
         if (price === null) {
           return (
@@ -216,7 +214,6 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
       title: 'New price',
       dataIndex: 'newPrice',
       key: 'newPrice',
-      width: 120,
       render: (price: number, record: UnifiedChange) => (
         <Text style={{ 
           fontVariantNumeric: 'tabular-nums'
@@ -230,7 +227,6 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
       title: 'Change',
       dataIndex: 'change',
       key: 'change',
-      width: 100,
       render: (change: { amount: number; percentage: number }, record: UnifiedChange) => {
         if (record.currentPrice === null) {
           return <Text style={{ color: token.colorTextTertiary }}>—</Text>;
@@ -242,7 +238,6 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
       title: 'Validity',
       dataIndex: 'validity',
       key: 'validity',
-      width: 150,
       render: (validity: string) => (
         <Text style={{ 
           color: token.colorTextSecondary 
@@ -283,7 +278,7 @@ const PriceChangesTable: React.FC<PriceChangesTableProps> = ({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Text>
+                      <Text style={{ fontWeight: 500 }}>
                         {group.currency}
                       </Text>
                     </div>

@@ -32,6 +32,8 @@ interface PriceEditorModalProps {
       newAmount: number;
       changeAmount: number;
       changePercentage: number;
+      seatRange?: string; // For Field products
+      tier?: string; // For Field products
     }>;
   }; // For editing existing GTM items
   gtmItemId?: string; // GTM item ID for updates
@@ -312,16 +314,34 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       if (existingPriceData?.currencyChanges) {
         // Pre-populate with existing GTM item data
         const simplePrices: Record<string, string> = {};
+        const fieldPrices: Record<string, Record<string, Record<string, string>>> = {};
         const currencies: string[] = [];
         
         existingPriceData.currencyChanges.forEach(change => {
-          simplePrices[change.currencyCode] = change.newAmount.toString();
           currencies.push(change.currencyCode);
+          
+          // Check if this has field-specific data (seatRange/tier)
+          if ((change as any).seatRange && (change as any).tier) {
+            // Field product format: currency -> seatRange -> tier -> price
+            const seatRange = (change as any).seatRange;
+            const tier = (change as any).tier;
+            
+            if (!fieldPrices[change.currencyCode]) {
+              fieldPrices[change.currencyCode] = {};
+            }
+            if (!fieldPrices[change.currencyCode][seatRange]) {
+              fieldPrices[change.currencyCode][seatRange] = {};
+            }
+            fieldPrices[change.currencyCode][seatRange][tier] = change.newAmount.toString();
+          } else {
+            // Simple product format: currency -> price
+            simplePrices[change.currencyCode] = change.newAmount.toString();
+          }
         });
         
         setSavedSimplePriceInputs(simplePrices);
+        setSavedFieldPriceInputs(fieldPrices);
         setSavedSelectedCurrencies(currencies);
-        setSavedFieldPriceInputs({}); // Clear field inputs when using simple inputs
       } else {
         // Clear/reset for new price creation
         setSavedSimplePriceInputs({});
@@ -1918,7 +1938,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         // Create new GTM Motion
         const newMotion = createAndAddGTMMotion(
           gtmMotionSelection.newMotion.name,
-          gtmMotionSelection.newMotion.description,
+          gtmMotionSelection.newMotion.description || undefined,
           gtmMotionSelection.newMotion.activationDate,
           productId,
           productName,

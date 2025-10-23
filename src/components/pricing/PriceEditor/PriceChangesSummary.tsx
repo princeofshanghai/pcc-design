@@ -297,110 +297,15 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
       </Space>
     );
   } else {
-    // Non-field channels: Clean table approach
+    // Non-field channels: Clean price grid approach  
     const nonFieldChanges = changes as PriceChange[];
+
+    // Get SKU context for display  
+    const skuContext = productName || 'Unknown Product';
+    const skuStatus = priceGroupAction === 'create' ? '🆕 Creating new SKU' : '✏️ Updating SKU';
     
-    const columns: ColumnsType<PriceChange> = [
-      {
-        title: 'Currency',
-        dataIndex: 'currency',
-        key: 'currency',
-        width: 90,
-        render: (currency: string) => (
-          <Text style={{ fontWeight: 500, fontSize: token.fontSize }}>
-            {currency}
-          </Text>
-        ),
-      },
-      // Only include Current column for update mode
-      ...(priceGroupAction === 'update' ? [{
-        title: 'Current',
-        dataIndex: 'currentPrice',
-        key: 'currentPrice',
-        width: 100,
-        render: (price: number | null, record: PriceChange) => {
-          if (price === null) {
-            return (
-            <Text style={{ 
-              color: token.colorTextTertiary,
-              fontSize: token.fontSize,
-              fontStyle: 'italic',
-              fontWeight: 400
-            }}>
-              New
-            </Text>
-            );
-          }
-          
-          return (
-            <Text style={{ 
-              color: token.colorTextTertiary,
-              fontSize: token.fontSize,
-              textDecoration: 'line-through',
-              fontVariantNumeric: 'tabular-nums',
-              fontWeight: 400
-            }}>
-              {formatCurrencyAmount(price, record.currency)}
-            </Text>
-          );
-        },
-      }] : []),
-      {
-        title: 'New',
-        dataIndex: 'newPrice',
-        key: 'newPrice',
-        width: 100,
-        render: (price: number, record: PriceChange) => (
-          <Text style={{ 
-            fontWeight: 400,
-            fontSize: token.fontSize,
-            fontVariantNumeric: 'tabular-nums'
-          }}>
-            {formatCurrencyAmount(price, record.currency)}
-          </Text>
-        ),
-      },
-      // Only include Change column for update mode
-      ...(priceGroupAction === 'update' ? [{
-        title: 'Change',
-        dataIndex: 'change',
-        key: 'change',
-        width: 100,
-        render: (change: { amount: number; percentage: number }) => {
-          const isLargeChange = Math.abs(change.percentage) > 10;
-          
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {isLargeChange && (
-                <Popover 
-                  content="New price is more than 10% of current"
-                  placement="top"
-                >
-                  <TriangleAlert size={12} color={token.colorWarning} />
-                </Popover>
-              )}
-              <Text style={{ 
-                color: change.amount > 0 ? token.colorSuccess : token.colorError,
-                fontSize: token.fontSize,
-                fontWeight: 400
-              }}>
-                {change.amount > 0 ? '+' : ''}{change.percentage.toFixed(1)}%
-              </Text>
-            </div>
-          );
-        },
-      }] : []),
-      {
-        title: 'Validity',
-        dataIndex: 'validity',
-        key: 'validity',
-        render: (validity: string) => (
-          <Text style={{ fontSize: token.fontSize, color: token.colorTextSecondary, fontWeight: 400 }}>
-            {validity}
-          </Text>
-        ),
-      },
-    ];
+    // Get validity info - use the first change's validity since they're all the same
+    const validityInfo = nonFieldChanges.length > 0 ? nonFieldChanges[0].validity : '';
 
     return (
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -416,57 +321,114 @@ const PriceChangesSummary: React.FC<PriceChangesSummaryProps> = ({
           </div>
         )}
 
-        {/* Summary section */}
+        {/* SKU Status */}
         <div>
-          <Title level={5} style={{ marginBottom: '12px', color: token.colorText }}>
-            Summary
-          </Title>
           <Text style={{ 
-            color: token.colorTextSecondary, 
-            fontSize: token.fontSize,
+            fontSize: token.fontSizeLG,
+            fontWeight: 500,
             display: 'block',
-            marginBottom: '24px'
+            marginBottom: '8px'
           }}>
-            {summaryText}
+            {skuStatus}: {skuContext}
           </Text>
         </div>
 
-        {/* Price changes section */}
+        {/* Price verification section */}
         <div>
-          <Title level={5} style={{ marginBottom: '16px', color: token.colorText }}>
-            Price changes
-          </Title>
-          <Text style={{ color: token.colorTextSecondary, display: 'block', marginBottom: '16px' }}>
-            {nonFieldChanges.length} price change{nonFieldChanges.length === 1 ? '' : 's'} for {productName}
+          <Text style={{ 
+            fontSize: token.fontSize,
+            fontWeight: 500,
+            display: 'block',
+            marginBottom: '12px'
+          }}>
+            Double-check your prices:
           </Text>
-
-          <Table
-          columns={columns}
-          dataSource={nonFieldChanges}
-          rowKey="currency"
-          pagination={false}
-          size="small"
-          bordered
-          className="price-changes-summary-table"
-          style={{
+          
+          {/* Price Grid */}
+          <div style={{
+            border: `1px solid ${token.colorBorder}`,
+            borderRadius: token.borderRadiusLG,
+            padding: '16px',
             backgroundColor: token.colorBgContainer,
-          }}
-        />
+            marginBottom: '16px'
+          }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gap: '12px 24px',
+              alignItems: 'center'
+            }}>
+              {nonFieldChanges.map((change, index) => (
+                <div key={change.currency} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Text style={{ 
+                    fontWeight: 500,
+                    color: token.colorText,
+                    minWidth: '32px'
+                  }}>
+                    {change.currency}
+                  </Text>
+                  <Text style={{ 
+                    fontVariantNumeric: 'tabular-nums',
+                    fontWeight: 400,
+                    color: token.colorText
+                  }}>
+                    {formatCurrencyAmount(change.newPrice, change.currency)}
+                  </Text>
+                  {/* Show change indicator if updating */}
+                  {priceGroupAction === 'update' && change.currentPrice !== null && (
+                    <>
+                      {Math.abs(change.change.percentage) > 10 && (
+                        <Popover 
+                          content="Price change is more than 10%"
+                          placement="top"
+                        >
+                          <TriangleAlert size={12} color={token.colorWarning} />
+                        </Popover>
+                      )}
+                      <Text style={{ 
+                        fontSize: token.fontSizeSM,
+                        color: change.change.amount > 0 ? token.colorSuccess : token.colorError,
+                        fontWeight: 400
+                      }}>
+                        {change.change.amount > 0 ? '+' : ''}{change.change.percentage.toFixed(1)}%
+                      </Text>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <style>{`
-          .price-changes-summary-table .ant-table-thead > tr > th {
-            background-color: ${token.colorFillAlter};
-            color: ${token.colorText};
-            font-weight: 500;
-            font-size: ${token.fontSizeSM}px;
-          }
-          .price-changes-summary-table .ant-table-tbody > tr > td {
-            border-bottom: 1px solid ${token.colorBorderSecondary};
-          }
-          .price-changes-summary-table .ant-table-tbody > tr:last-child > td {
-            border-bottom: 1px solid ${token.colorBorder} !important;
-          }
-        `}</style>
+          {/* Validity info */}
+          {validityInfo && (
+            <Text style={{ 
+              color: token.colorTextSecondary,
+              display: 'block',
+              marginBottom: '16px',
+              fontSize: token.fontSize
+            }}>
+              📅 Valid from: {validityInfo}
+            </Text>
+          )}
+
+          {/* Edit link */}
+          <Text style={{ color: token.colorTextSecondary, fontSize: token.fontSize }}>
+            ✏️ Need to change something?{' '}
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                // This would trigger going back to edit step - you can implement this functionality
+              }}
+              style={{ color: token.colorPrimary }}
+            >
+              Go back to edit prices
+            </a>
+          </Text>
         </div>
       </Space>
     );

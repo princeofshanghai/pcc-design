@@ -800,17 +800,6 @@ const FieldPriceMatrix: React.FC<FieldPriceMatrixProps> = ({
       ),
       children: (
       <div>
-        {/* Explanatory text for Current column */}
-        {selectedContext.priceGroupAction === 'update' && (
-          <Text style={{ 
-            fontSize: token.fontSize,
-            color: token.colorTextSecondary,
-            display: 'block',
-            marginBottom: '12px'
-          }}>
-            Current column shows prices active today - these are what you're changing from.
-          </Text>
-        )}
         
         <Table
           size="small"

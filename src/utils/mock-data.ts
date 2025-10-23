@@ -3654,21 +3654,54 @@ export const mockGTMMotions: GTMMotion[] = [
               currentAmount: 59.99,
               newAmount: 64.99,
               changeAmount: 5.00,
-              changePercentage: 8.33
+              changePercentage: 8.33,
+              seatRange: "1-100",
+              tier: "Premium"
+            },
+            {
+              currencyCode: "USD",
+              currentAmount: 49.99,
+              newAmount: 54.99,
+              changeAmount: 5.00,
+              changePercentage: 10.00,
+              seatRange: "1-100",
+              tier: "Standard"
+            },
+            {
+              currencyCode: "USD",
+              currentAmount: 54.99,
+              newAmount: 59.99,
+              changeAmount: 5.00,
+              changePercentage: 9.09,
+              seatRange: "101-500",
+              tier: "Premium"
             },
             {
               currencyCode: "EUR", 
               currentAmount: 54.99,
               newAmount: 59.99,
               changeAmount: 5.00,
-              changePercentage: 9.09
+              changePercentage: 9.09,
+              seatRange: "1-100",
+              tier: "Premium"
+            },
+            {
+              currencyCode: "EUR", 
+              currentAmount: 44.99,
+              newAmount: 49.99,
+              changeAmount: 5.00,
+              changePercentage: 11.11,
+              seatRange: "1-100", 
+              tier: "Standard"
             },
             {
               currencyCode: "GBP",
               currentAmount: 49.99,
               newAmount: 54.99,
               changeAmount: 5.00,
-              changePercentage: 10.00
+              changePercentage: 10.00,
+              seatRange: "1-100",
+              tier: "Premium"
             }
           ],
           impactType: "UPDATE_EXISTING_SKU",
@@ -4175,13 +4208,24 @@ export const addPriceChangesToGTMMotion = (
     const changeAmount = newAmount - currentAmount;
     const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
     
-    return {
+    const baseChange = {
       currencyCode: change.currency,
       currentAmount: currentAmount,
       newAmount: newAmount,
       changeAmount: changeAmount,
       changePercentage: changePercentage
     };
+
+    // Include Field-specific data if available
+    if (change.seatRange && change.tier) {
+      return {
+        ...baseChange,
+        seatRange: change.seatRange,
+        tier: change.tier
+      };
+    }
+
+    return baseChange;
   });
 
   // Add new price change item
@@ -4237,6 +4281,60 @@ export const addPriceChangesToGTMMotion = (
   return true;
 };
 
+// Update existing GTM item with new price changes
+export const updateGTMItemPrices = (
+  motionId: string,
+  itemId: string,
+  priceChanges: any[],
+  selectedContext: any
+): boolean => {
+  const motionIndex = mockGTMMotions.findIndex(motion => motion.id === motionId);
+  if (motionIndex === -1) return false;
+
+  const motion = mockGTMMotions[motionIndex];
+  const itemIndex = motion.items.findIndex(item => item.id === itemId);
+  if (itemIndex === -1) return false;
+
+  const item = motion.items[itemIndex];
+  
+  // Update the price change data
+  if (item.priceChange) {
+    const currencyChanges = priceChanges.map(change => {
+      const currentAmount = change.currentPrice || 0;
+      const newAmount = change.newPrice;
+      const changeAmount = newAmount - currentAmount;
+      const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
+      
+      return {
+        currencyCode: change.currency,
+        currentAmount: currentAmount,
+        newAmount: newAmount,
+        changeAmount: changeAmount,
+        changePercentage: changePercentage
+      };
+    });
+
+    // Update the existing price change object
+    item.priceChange = {
+      ...item.priceChange,
+      currencyChanges: currencyChanges,
+      context: {
+        ...item.priceChange.context,
+        ...selectedContext,
+        validityPeriod: {
+          validFrom: selectedContext.validityStartDate?.toISOString() || item.priceChange.context.validityPeriod?.validFrom,
+          validUntil: selectedContext.validityEndDate?.toISOString() || item.priceChange.context.validityPeriod?.validUntil
+        }
+      }
+    };
+
+    // Update motion's updated date
+    motion.updatedDate = new Date().toISOString();
+  }
+
+  return true;
+};
+
 // Create and add new GTM Motion to the list
 export const createAndAddGTMMotion = (
   name: string, 
@@ -4256,13 +4354,24 @@ export const createAndAddGTMMotion = (
     const changeAmount = newAmount - currentAmount;
     const changePercentage = currentAmount === 0 ? (newAmount > 0 ? 100 : 0) : (changeAmount / currentAmount) * 100;
     
-    return {
+    const baseChange = {
       currencyCode: change.currency,
       currentAmount: currentAmount,
       newAmount: newAmount,
       changeAmount: changeAmount,
       changePercentage: changePercentage
     };
+
+    // Include Field-specific data if available
+    if (change.seatRange && change.tier) {
+      return {
+        ...baseChange,
+        seatRange: change.seatRange,
+        tier: change.tier
+      };
+    }
+
+    return baseChange;
   });
   
   // Replace the default item with actual product item

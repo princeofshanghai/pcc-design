@@ -22,6 +22,8 @@ const PlatformEntityMappingPlaceholder = React.lazy(() => import('./pages/Platfo
 const AttributeDictionary = React.lazy(() => import('./pages/AttributeDictionary'));
 const GTMMotionList = React.lazy(() => import('./pages/GTMMotionList'));
 const GTMMotionDetail = React.lazy(() => import('./pages/GTMMotionDetail'));
+const GTMMotionChangesDetail = React.lazy(() => import('./pages/GTMMotionChangesDetail'));
+const TestPriceChangesTable = React.lazy(() => import('./pages/TestPriceChangesTable'));
 
 // Loading component for lazy-loaded pages
 const PageLoadingSpinner = () => (
@@ -62,10 +64,12 @@ function App() {
                   <Route path="/calculation-schemes" element={<CalculationSchemesPlaceholder />} />
                   <Route path="/gtm-motions" element={<GTMMotionList />} />
                   <Route path="/gtm-motions/:motionId" element={<GTMMotionDetail />} />
+                  <Route path="/gtm-motions/:motionId/items/:itemId/changes" element={<GTMMotionChangesDetail />} />
                   <Route path="/change-requests" element={<ChangeRequestsList />} />
                   <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
                   <Route path="/platform-entity-mapping" element={<PlatformEntityMappingPlaceholder />} />
                   <Route path="/attribute-dictionary" element={<AttributeDictionary />} />
+                  <Route path="/test-price-changes-table" element={<TestPriceChangesTable />} />
                 </Route>
               </Routes>
             </Suspense>

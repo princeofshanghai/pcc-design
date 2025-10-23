@@ -189,7 +189,7 @@ const AppLayout = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { productName, folderName } = useBreadcrumb();
+  const { productName, folderName, gtmMotionName } = useBreadcrumb();
   const { collapsed, setCollapsed, getContentWidth } = useLayout();
   const { token } = theme.useToken();
   const { useBreakpoint } = Grid;
@@ -322,8 +322,9 @@ const AppLayout = () => {
   }
 
   // Handle GTM Motion detail pages (not the root list page)
+  // Only if gtmMotionName is not set (to avoid duplicate with the more specific logic below)
   const motionMatch = location.pathname.match(/^\/gtm-motions\/(.+)$/);
-  if (motionMatch) {
+  if (motionMatch && !gtmMotionName) {
     // Add GTM Motions root breadcrumb for child pages only
     breadcrumbItems.push(
       <Breadcrumb.Item key="gtm-motions">
@@ -394,6 +395,34 @@ const AppLayout = () => {
     // Note: Product page itself doesn't show product name in breadcrumb - only parent navigation
 
 
+  }
+
+  // Handle GTM Motion pages - GTM Motions > Motion Name > GTM Item
+  if (location.pathname.startsWith('/gtm-motions/') && gtmMotionName) {
+    // Add GTM Motions list breadcrumb
+    breadcrumbItems.push(
+      <Breadcrumb.Item key="gtm-motions">
+        <Link to="/gtm-motions">GTM Motions</Link>
+      </Breadcrumb.Item>
+    );
+
+    const isGtmItemPage = location.pathname.includes('/items/');
+    
+    // Only show motion breadcrumb for child pages (GTM Item), not for the motion page itself
+    if (isGtmItemPage) {
+      // Extract motion ID from URL to link back
+      const motionIdMatch = location.pathname.match(/\/gtm-motions\/([^\/]+)/);
+      if (motionIdMatch) {
+        const motionId = motionIdMatch[1];
+        breadcrumbItems.push(
+          <Breadcrumb.Item key="gtm-motion">
+            <Link to={`/gtm-motions/${motionId}`}>
+              {gtmMotionName}
+            </Link>
+          </Breadcrumb.Item>
+        );
+      }
+    }
   }
 
   // Handle LOB pages - show "All products" breadcrumb for pages like /lss-products, /premium-products, etc.

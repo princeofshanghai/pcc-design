@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Typography, theme, Button } from 'antd';
+import { Table, Typography, theme } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import type { GTMItem, ApprovalRequirement, GTMItemType, ExtendedApprovalStatus } from '../../utils/types';
 import { formatShortDate } from '../../utils/formatters';
@@ -16,10 +16,12 @@ interface GTMItemsTableProps {
   items: GTMItem[];
   renderMode?: 'approvals' | 'table' | 'both'; // New prop to control what to render
   motionStatus?: string; // GTM motion status to determine approval display
+  motionId?: string; // Motion ID for navigation to changes page
 }
 
-const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both', motionStatus }) => {
+const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both', motionStatus, motionId }) => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
   
   // Modal state
   const [changesModalOpen, setChangesModalOpen] = useState(false);
@@ -29,7 +31,14 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
   const [priceEditorModalOpen, setPriceEditorModalOpen] = useState(false);
   const [editingGTMItem, setEditingGTMItem] = useState<GTMItem | null>(null);
 
-  // Modal handlers
+  // Navigation to item-specific changes page
+  const handleViewItemChanges = (item: GTMItem) => {
+    if (motionId) {
+      navigate(`/gtm-motions/${motionId}/items/${item.id}/changes`);
+    }
+  };
+
+  // Modal handlers (backup - for emergency fallback button)
   const handleShowChanges = (item: GTMItem) => {
     setSelectedGTMItem(item);
     setChangesModalOpen(true);
@@ -166,25 +175,21 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
       title: '',
       key: 'actions',
       fixed: 'right' as const,
-      width: 120,
+      width: 48,
       className: 'table-action-column',
-      render: (_: string, record: GTMItem) => (
+      render: (_: string, _record: GTMItem) => (
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
         }}>
-          <Button
-            type="default" 
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleShowChanges(record);
-            }}
-          >
-            View changes
-          </Button>
+          <ChevronRight 
+            size={16} 
+            style={{ 
+              color: token.colorTextTertiary,
+            }} 
+          />
         </div>
       ),
     },
@@ -227,7 +232,6 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        width: 120,
         render: (status: ExtendedApprovalStatus) => (
           <ApprovalStatusTag status={status} variant="small" />
         ),
@@ -236,7 +240,6 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
         title: 'Approved by',
         dataIndex: 'approvalInfo',
         key: 'approvedBy',
-        width: 100,
         render: (req: ApprovalRequirement) => {
           if (req.status !== 'Approved' || !req.approvedBy) {
             return (
@@ -269,7 +272,6 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
         title: 'Approval date',
         dataIndex: 'approvalInfo',
         key: 'approvalDate',
-        width: 120,
         render: (req: ApprovalRequirement) => {
           if (req.status !== 'Approved' || !req.approvedDate) {
             return (
@@ -292,7 +294,6 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
 
     return (
       <Table
-        size="small"
         columns={approvalsColumns}
         dataSource={approvalsTableData}
         pagination={false}
@@ -314,8 +315,9 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
           pagination={false}
           scroll={{ x: 'max-content' }}
           showHeader={true}
-          onRow={() => ({
-            style: { cursor: 'default' },
+          onRow={(record) => ({
+            onClick: () => handleViewItemChanges(record),
+            style: { cursor: 'pointer' },
           })}
           rowClassName="gtm-items-table-row"
         />
@@ -408,8 +410,9 @@ const GTMItemsTable: React.FC<GTMItemsTableProps> = ({ items, renderMode = 'both
           pagination={false}
           scroll={{ x: 'max-content' }}
           showHeader={true}
-          onRow={() => ({
-            style: { cursor: 'default' },
+          onRow={(record) => ({
+            onClick: () => handleViewItemChanges(record),
+            style: { cursor: 'pointer' },
           })}
           rowClassName="gtm-items-table-row"
         />

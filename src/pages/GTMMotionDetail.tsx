@@ -57,16 +57,20 @@ const getStatusDescription = (status: GTMMotionStatus): string => {
 const GTMMotionDetail: React.FC = () => {
   const { token } = theme.useToken();
   const { motionId } = useParams<{ motionId: string }>();
-  const { setFolderName } = useBreadcrumb();
+  const { setFolderName, setGtmMotionName } = useBreadcrumb();
   const [activeTab, setActiveTab] = useState<string>('overview');
 
-  // Clear folder name for GTM motion detail
+  const motion = mockGTMMotions.find(m => m.id === motionId);
+
+  // Set up breadcrumb context for GTM motion detail
   React.useEffect(() => {
     setFolderName(null);
-    return () => setFolderName(null);
-  }, [setFolderName]);
-
-  const motion = mockGTMMotions.find(m => m.id === motionId);
+    // Don't set gtmMotionName since this IS the motion page (current page shouldn't appear in breadcrumbs)
+    return () => {
+      setFolderName(null);
+      setGtmMotionName(null);
+    };
+  }, [setFolderName, setGtmMotionName]);
 
   if (!motion) {
     return <Title level={2}>GTM Motion not found</Title>;
@@ -81,14 +85,11 @@ const GTMMotionDetail: React.FC = () => {
     switch (motion.status) {
       case 'Draft':
         actions.push(
-          <Button key="edit" type="default">{toSentenceCase('Edit Motion')}</Button>,
           <Button key="submit" type="primary">{toSentenceCase('Submit GTM Motion')}</Button>
         );
         break;
       case 'Submitted':
-        actions.push(
-          <Button key="edit" type="default">{toSentenceCase('Edit Details')}</Button>
-        );
+        // No actions for Submitted status in header
         break;
       case 'Activating in EI':
         // No actions during EI deployment
@@ -135,73 +136,177 @@ const GTMMotionDetail: React.FC = () => {
       label: 'Overview',
       children: (
         <Space direction="vertical" size={48} style={{ width: '100%' }}>
-          <PageSection 
-            title="Approvals"
-            inlineContent={
-              // Progress bar and count - calculate approval progress
-              (() => {
-                const allApprovers = motion.items.reduce((acc, item) => {
-                  const approverMap = new Map(acc.map(req => [req.team, req]));
-                  
-                  item.approvalRequirements.forEach(req => {
-                    const existing = approverMap.get(req.team);
-                    if (!existing || 
-                        (req.status === 'Approved' && existing.status !== 'Approved') ||
-                        (req.status === 'Pending' && existing.status === 'Rejected')) {
-                      approverMap.set(req.team, req);
-                    }
-                  });
-                  
-                  return Array.from(approverMap.values());
-                }, [] as any[]).sort((a: any, b: any) => a.team.localeCompare(b.team));
-
-                const approvedCount = allApprovers.filter((req: any) => req.status === 'Approved').length;
-                const totalCount = allApprovers.length;
-
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {/* Progress Bar */}
-                    <div style={{ 
-                      width: '200px', 
-                      height: '12px', 
-                      backgroundColor: token.colorBgContainer,
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: `1px solid ${token.colorBorder}`
-                    }}>
-                      <div 
-                        style={{ 
-                          width: `${totalCount > 0 ? (approvedCount / totalCount) * 100 : 0}%`,
-                          height: '100%',
-                          backgroundColor: token.colorSuccess,
-                          borderRadius: '7px',
-                          transition: 'width 0.3s ease'
-                        }} 
-                      />
-                    </div>
-                    
-                    <Typography.Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary, whiteSpace: 'nowrap' }}>
-                      {approvedCount}/{totalCount} teams approved
-                    </Typography.Text>
-                  </div>
-                );
-              })()
-            }
-          >
-            <GTMItemsTable items={motion.items} renderMode="approvals" motionStatus={motion.status} />
+          <PageSection title="GTM items">
+            <GTMItemsTable items={motion.items} renderMode="table" motionStatus={motion.status} motionId={motion.id} />
           </PageSection>
 
-          <PageSection title="GTM items">
-            <GTMItemsTable items={motion.items} renderMode="table" motionStatus={motion.status} />
+          <PageSection title="GTM motion status">
+            <div style={{ maxWidth: 600 }}>
+              <div
+                className="vertical-timeline"
+                style={{
+                  '--timeline-spacing': '32px'
+                } as React.CSSProperties}
+              >
+                <style>
+                  {`
+                    .vertical-timeline .ant-steps-vertical .ant-steps-item {
+                      padding-bottom: var(--timeline-spacing) !important;
+                    }
+                    .vertical-timeline .ant-steps-vertical .ant-steps-item:last-child {
+                      padding-bottom: 0 !important;
+                    }
+                    .vertical-timeline .ant-steps-item-icon {
+                      width: 24px !important;
+                      height: 24px !important;
+                      line-height: 24px !important;
+                      margin-top: 2px !important;
+                    }
+                    .vertical-timeline .ant-steps-item-icon .ant-steps-icon {
+                      font-size: 12px !important;
+                    }
+                    .vertical-timeline .ant-steps-item-content {
+                      margin-top: -2px !important;
+                    }
+                  `}
+                </style>
+                <Steps
+                  direction="vertical"
+                  current={currentStep}
+                  status={motion.status === 'Cancelled' ? 'error' : 'process'}
+                  items={STATUS_PROGRESSION.map((status, index) => {
+                    const isCurrent = index === currentStep;
+                    const isCompleted = index < currentStep;
+                    const isCancelled = motion.status === 'Cancelled';
+                    
+                    return {
+                      title: (
+                        <div style={{ 
+                          fontSize: 14, // 14px as requested
+                          fontWeight: 500,
+                          marginBottom: 4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8
+                        }}>
+                          {status}
+                          {isCurrent && !isCancelled && (
+                            <Tag 
+                              color="blue"
+                              style={{ 
+                                fontSize: token.fontSizeSM,
+                                lineHeight: 1.2,
+                                padding: '1px 6px'
+                              }}
+                            >
+                              Current
+                            </Tag>
+                          )}
+                        </div>
+                      ),
+                      description: (
+                        <div style={{ 
+                          color: token.colorTextSecondary, 
+                          fontSize: token.fontSize, // 13px from theme
+                          fontWeight: 400, // Regular weight
+                          lineHeight: 1.4
+                        }}>
+                          {getStatusDescription(status)}
+                        </div>
+                      ),
+                      status: isCancelled ? 'error' : 
+                              isCompleted ? 'finish' :
+                              isCurrent ? 'process' : 'wait'
+                    };
+                  })}
+                />
+              </div>
+            </div>
           </PageSection>
         </Space>
+      ),
+    },
+    {
+      key: 'approvals',
+      label: 'Approvals',
+      children: (
+        <PageSection 
+          title="Approvals"
+          inlineContent={
+            // Progress bar and count - calculate approval progress
+            (() => {
+              const allApprovers = motion.items.reduce((acc, item) => {
+                const approverMap = new Map(acc.map(req => [req.team, req]));
+                
+                item.approvalRequirements.forEach(req => {
+                  const existing = approverMap.get(req.team);
+                  if (!existing || 
+                      (req.status === 'Approved' && existing.status !== 'Approved') ||
+                      (req.status === 'Pending' && existing.status === 'Rejected')) {
+                    approverMap.set(req.team, req);
+                  }
+                });
+                
+                return Array.from(approverMap.values());
+              }, [] as any[]).sort((a: any, b: any) => a.team.localeCompare(b.team));
+
+              const approvedCount = allApprovers.filter((req: any) => req.status === 'Approved').length;
+              const totalCount = allApprovers.length;
+
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {/* Progress Bar */}
+                  <div style={{ 
+                    width: '200px', 
+                    height: '12px', 
+                    backgroundColor: token.colorBgContainer,
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: `1px solid ${token.colorBorder}`
+                  }}>
+                    <div 
+                      style={{ 
+                        width: `${totalCount > 0 ? (approvedCount / totalCount) * 100 : 0}%`,
+                        height: '100%',
+                        backgroundColor: token.colorSuccess,
+                        borderRadius: '7px',
+                        transition: 'width 0.3s ease'
+                      }} 
+                    />
+                  </div>
+                  
+                  <Typography.Text style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary, whiteSpace: 'nowrap' }}>
+                    {approvedCount}/{totalCount} teams approved
+                  </Typography.Text>
+                </div>
+              );
+            })()
+          }
+        >
+          <GTMItemsTable items={motion.items} renderMode="approvals" motionStatus={motion.status} motionId={motion.id} />
+        </PageSection>
       ),
     },
     {
       key: 'details',
       label: 'Details',
       children: (
-        <PageSection title="General">
+        <PageSection 
+          title="General"
+          actions={(() => {
+            // Show edit button for Draft and Submitted statuses
+            if (motion.status === 'Draft') {
+              return [
+                <Button key="edit" type="default">{toSentenceCase('Edit Motion')}</Button>
+              ];
+            } else if (motion.status === 'Submitted') {
+              return [
+                <Button key="edit" type="default">{toSentenceCase('Edit Details')}</Button>
+              ];
+            }
+            return [];
+          })()}
+        >
           <AttributeGroup>
             <AttributeDisplay layout="horizontal" label="Motion ID">
               <CopyableId id={motion.id} />
@@ -224,83 +329,6 @@ const GTMMotionDetail: React.FC = () => {
               </AttributeDisplay>
             )}
           </AttributeGroup>
-        </PageSection>
-      ),
-    },
-    {
-      key: 'activation-progress',
-      label: toSentenceCase('Activation Progress'),
-      children: (
-        <PageSection title="">
-          <div style={{ maxWidth: 600 }}>
-            <div
-              className="vertical-timeline"
-              style={{
-                '--timeline-spacing': '32px'
-              } as React.CSSProperties}
-            >
-              <style>
-                {`
-                  .vertical-timeline .ant-steps-vertical .ant-steps-item {
-                    padding-bottom: var(--timeline-spacing) !important;
-                  }
-                  .vertical-timeline .ant-steps-vertical .ant-steps-item:last-child {
-                    padding-bottom: 0 !important;
-                  }
-                `}
-              </style>
-              <Steps
-                direction="vertical"
-                current={currentStep}
-                status={motion.status === 'Cancelled' ? 'error' : 'process'}
-                items={STATUS_PROGRESSION.map((status, index) => {
-                  const isCurrent = index === currentStep;
-                  const isCompleted = index < currentStep;
-                  const isCancelled = motion.status === 'Cancelled';
-                  
-                  return {
-                    title: (
-                      <div style={{ 
-                        fontSize: 14, // 14px as requested
-                        fontWeight: 500,
-                        marginBottom: 4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8
-                      }}>
-                        {status}
-                        {isCurrent && !isCancelled && (
-                          <Tag 
-                            color="blue"
-                            style={{ 
-                              fontSize: token.fontSizeSM,
-                              lineHeight: 1.2,
-                              padding: '1px 6px'
-                            }}
-                          >
-                            Current
-                          </Tag>
-                        )}
-                      </div>
-                    ),
-                    description: (
-                      <div style={{ 
-                        color: token.colorTextSecondary, 
-                        fontSize: token.fontSize, // 13px from theme
-                        fontWeight: 400, // Regular weight
-                        lineHeight: 1.4
-                      }}>
-                        {getStatusDescription(status)}
-                      </div>
-                    ),
-                    status: isCancelled ? 'error' : 
-                            isCompleted ? 'finish' :
-                            isCurrent ? 'process' : 'wait'
-                  };
-                })}
-              />
-            </div>
-          </div>
         </PageSection>
       ),
     },

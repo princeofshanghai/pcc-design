@@ -4,9 +4,9 @@ import { ArrowLeft, ArrowRight, Save, File, Copy, X, Check, Plus, Lock } from 'l
 import { useNavigate } from 'react-router-dom';
 import FieldPriceMatrix from './FieldPriceMatrix';
 import SimplePriceTable from './SimplePriceTable';
-import PriceChangesSummary from './PriceChangesSummary';
+import PriceChangesTable from './PriceChangesTable';
 import GTMMotionSelector, { type GTMMotionSelection } from './GTMMotionSelector';
-import { addPriceChangesToGTMMotion, createAndAddGTMMotion } from '../../../utils/mock-data';
+import { addPriceChangesToGTMMotion, createAndAddGTMMotion, updateGTMItemPrices } from '../../../utils/mock-data';
 import { showSuccessMessage, showErrorMessage } from '../../../utils/messageUtils';
 import type { SalesChannel, BillingCycle } from '../../../utils/types';
 import { getChannelIcon } from '../../../utils/channelIcons';
@@ -23,7 +23,20 @@ interface PriceEditorModalProps {
   product: any; // Full product data for context selection
   directEditMode?: boolean; // Skip Step 1 and go directly to Step 2
   prefilledContext?: any; // Pre-filled context for direct edit mode
+  initialStep?: number; // Starting step (0=Configure, 1=Price editing, 2=Review)
   initialCreationMethod?: 'blank' | 'clone' | null; // Pre-select creation method
+  existingPriceData?: {
+    currencyChanges: Array<{
+      currencyCode: string;
+      currentAmount: number;
+      newAmount: number;
+      changeAmount: number;
+      changePercentage: number;
+    }>;
+  }; // For editing existing GTM items
+  gtmItemId?: string; // GTM item ID for updates
+  gtmMotionId?: string; // GTM motion ID for updates
+  onSaveToGTM?: (updated: boolean) => void; // Callback after save
 }
 
 const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
@@ -34,11 +47,16 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   product,
   directEditMode = false,
   prefilledContext = null,
+  initialStep = 0,
   initialCreationMethod = null,
+  existingPriceData = null,
+  gtmItemId = null,
+  gtmMotionId = null,
+  onSaveToGTM = null,
 }) => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0); // Both modes start at Configure step
+  const [currentStep, setCurrentStep] = useState(initialStep); // Start at specified step
   const [selectedContext, setSelectedContext] = useState<any>(directEditMode ? prefilledContext : null);
   const [gtmMotionSelection, setGTMMotionSelection] = useState<GTMMotionSelection | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -247,7 +265,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   React.useEffect(() => {
     if (open) {
       if (directEditMode) {
-        setCurrentStep(0); // Start at configure step to allow validity editing
+        setCurrentStep(initialStep); // Start at specified step
         setSelectedContext(prefilledContext);
         // Pre-populate configData with inherited values from prefilledContext
         setConfigData({
@@ -266,7 +284,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
         setShowValidUntil(false); // Reset valid until visibility
         setIsExperiment(!!(prefilledContext?.lixKey)); // Set based on inherited LIX
       } else {
-        setCurrentStep(0);
+        setCurrentStep(initialStep);
         setSelectedContext(null);
         // Reset configuration data
         setConfigData({
@@ -289,17 +307,39 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       setPriceChanges([]);
       setHasChanges(false);
       setHasRealTimeChanges(false);
-      setSavedSimplePriceInputs({}); // Clear saved price inputs on modal open
-      setSavedFieldPriceInputs({});
-      setSavedSelectedCurrencies(directEditMode ? [] : ['USD']); // USD default for create flow, empty for direct edit
+      
+      // Handle price data initialization
+      if (existingPriceData?.currencyChanges) {
+        // Pre-populate with existing GTM item data
+        const simplePrices: Record<string, string> = {};
+        const currencies: string[] = [];
+        
+        existingPriceData.currencyChanges.forEach(change => {
+          simplePrices[change.currencyCode] = change.newAmount.toString();
+          currencies.push(change.currencyCode);
+        });
+        
+        setSavedSimplePriceInputs(simplePrices);
+        setSavedSelectedCurrencies(currencies);
+        setSavedFieldPriceInputs({}); // Clear field inputs when using simple inputs
+      } else {
+        // Clear/reset for new price creation
+        setSavedSimplePriceInputs({});
+        setSavedFieldPriceInputs({});
+        setSavedSelectedCurrencies(directEditMode ? [] : ['USD']); // USD default for create flow, empty for direct edit
+      }
       setSavedCurrencyOrder([]); // Clear saved currency order on modal open
     }
-  }, [open, directEditMode, prefilledContext, initialCreationMethod]);
+  }, [open, directEditMode, prefilledContext, initialCreationMethod, initialStep, existingPriceData]);
 
 
   const handleNext = () => {
     if (currentStep === 0) {
       // Step 0 (Configure) → Step 1 (Price editing)
+      // Trigger SKU conflict checking when transitioning to pricing step
+      if (!directEditMode) {
+        checkSkuConflicts();
+      }
       setCurrentStep(1);
     } else if (currentStep === 1) {
       // Step 1 (Price editing) → Step 2 (Review)
@@ -569,7 +609,37 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
   };
 
   const updateConfigData = (field: string, value: any) => {
-    setConfigData(prev => ({ ...prev, [field]: value }));
+    // Special handling when switching to 'blank' method - clear all copied data
+    if (field === 'method' && value === 'blank') {
+      setConfigData(prev => ({
+        ...prev,
+        [field]: value,
+        // Clear all copied/inherited data for fresh start
+        clonePriceGroup: null,
+        channel: null,
+        billingCycle: null,
+        lixKey: null,
+        lixTreatment: null
+      }));
+      // Reset completed sections that were auto-filled from copying
+      setCompletedSections(prev => {
+        const newSet = new Set(prev);
+        newSet.delete('channel');
+        newSet.delete('billing');
+        newSet.delete('lix');
+        return newSet;
+      });
+      // Clear any existing alerts
+      setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined });
+    } else {
+      // Normal update for other fields
+      setConfigData(prev => ({ ...prev, [field]: value }));
+      
+      // Clear any existing alerts when user modifies SKU-defining fields during configuration
+      if (['channel', 'billingCycle', 'lixKey', 'lixTreatment'].includes(field)) {
+        setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined });
+      }
+    }
     // Note: Completion is now handled by Continue buttons, not automatic
   };
 
@@ -619,58 +689,71 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     }
   };
 
-  const handleSectionContinue = (section: string) => {
-    // Special handling for LIX section - trigger SKU detection
-    if (section === 'lix' && !directEditMode) {
-      const existingSkus = detectExistingSkus(
-        configData.channel!,
-        configData.billingCycle!,
-        configData.lixKey,
-        configData.lixTreatment
-      );
+  // Function to check SKU conflicts and update alerts
+  const checkSkuConflicts = () => {
+    // Only run in create mode and when all required fields are present
+    if (directEditMode || !configData.channel || !configData.billingCycle) {
+      setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined });
+      return;
+    }
 
-      if (existingSkus.length > 0) {
-        // Conflict detected
-        const existingSku = existingSkus[0];
-        const contextDisplay = formatContextDisplay(
-          configData.channel!,
-          configData.billingCycle!,
-          configData.lixKey,
-          configData.lixTreatment
-        );
-        
-        setSkuAlert({
-          show: true,
-          type: 'error',
-          message: `A SKU (${contextDisplay}) already exists and is associated with price group ${existingSku.priceGroup.id}. Edit the price points for the price group or change your selections above.`,
-          actionButton: {
-            text: 'Edit price points',
-            action: () => {
-              onClose(); // Close the drawer
-              navigate(`/products/${productId}/price-groups/${existingSku.priceGroup.id}`);
-            }
+    // Handle the case where isExperiment is null (no choice made yet) or false (no experiment)
+    const effectiveLixKey = (isExperiment === null || isExperiment === false) ? null : configData.lixKey;
+    const effectiveLixTreatment = (isExperiment === null || isExperiment === false) ? null : configData.lixTreatment;
+
+    const existingSkus = detectExistingSkus(
+      configData.channel,
+      configData.billingCycle,
+      effectiveLixKey,
+      effectiveLixTreatment
+    );
+
+    const contextDisplay = formatContextDisplay(
+      configData.channel,
+      configData.billingCycle,
+      effectiveLixKey,
+      effectiveLixTreatment
+    );
+
+    if (existingSkus.length > 0) {
+      // Conflict detected
+      const existingSku = existingSkus[0];
+      setSkuAlert({
+        show: true,
+        type: 'error',
+        message: `A SKU (${contextDisplay}) already exists and is associated with price group ${existingSku.priceGroup.id}. Edit the price points for the price group or change your selections above.`,
+        actionButton: {
+          text: 'Edit price points',
+          action: () => {
+            onClose(); // Close the drawer
+            navigate(`/products/${productId}/price-groups/${existingSku.priceGroup.id}`);
           }
-        });
-      } else {
-        // No conflict - success case
-        const contextDisplay = formatContextDisplay(
-          configData.channel!,
-          configData.billingCycle!,
-          configData.lixKey,
-          configData.lixTreatment
-        );
-        
-        setSkuAlert({
-          show: true,
-          type: 'success',
-          message: `A new SKU (${contextDisplay}) will be created and associated with this price group.`,
-          actionButton: undefined
-        });
+        }
+      });
+    } else {
+      // No conflict - success case
+      setSkuAlert({
+        show: true,
+        type: 'success',
+        message: `A new SKU (${contextDisplay}) will be created and associated with this price group.`,
+        actionButton: undefined
+      });
+    }
+  };
+
+  const handleSectionContinue = (section: string) => {
+    // Special handling for LIX section
+    if (section === 'lix') {
+      // If user hasn't made explicit choice, clicking Continue means "No experiment"
+      if (isExperiment === null) {
+        setIsExperiment(false);
       }
     }
 
     // Mark section as complete - this will also handle opening the next available section
     markSectionComplete(section);
+    
+    // Note: SKU conflict checking now happens only on final "Continue to pricing" button
   };
 
   const canContinueSection = (section: string): boolean => {
@@ -687,8 +770,8 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
       case 'billing':
         return !!configData.billingCycle;
       case 'lix':
-        // User must make explicit choice first
-        if (isExperiment === null) return false; // No choice made yet
+        // Continue enabled by default - suggests "No experiment" is simple path
+        if (isExperiment === null) return true; // Default to enabled (no experiment)
         // If experiment switch is off, section is complete
         if (isExperiment === false) return true;
         // If experiment switch is on, both key and treatment are required
@@ -1291,17 +1374,19 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
               </div>
             </div>
             
-            {/* Continue Button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                type="primary"
-                disabled={!canContinueSection('validity')}
-                onClick={() => handleSectionContinue('validity')}
-                icon={<ArrowRight size={16} />}
-              >
-                Continue
-              </Button>
-            </div>
+            {/* Continue Button - only show in create mode, edit mode uses footer button */}
+            {!directEditMode && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  type="primary"
+                  disabled={!canContinueSection('validity')}
+                  onClick={() => handleSectionContinue('validity')}
+                  icon={<ArrowRight size={16} />}
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
           </div>
         ),
         collapsible: canExpandSection('validity') ? undefined : 'disabled' as const
@@ -1397,6 +1482,8 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                       updateConfigData('lixKey', null);
                       updateConfigData('lixTreatment', null);
                     }
+                    // Clear any existing alerts when user modifies experiment settings during configuration
+                    setSkuAlert({ show: false, type: 'success', message: '', actionButton: undefined });
                   }}
                 />
                 <span style={{ 
@@ -1495,7 +1582,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
 
     // Filter items based on mode
     const filteredItems = directEditMode 
-      ? items.filter(item => item.key !== 'method') // Skip method section in direct edit mode
+      ? items.filter(item => item.key === 'validity') // In edit mode, only show editable validity section
       : items;
 
     return (
@@ -1700,8 +1787,99 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
     return `${startText} - ${endText}`;
   };
 
+  // Helper function to convert existing priceChanges to unified format for new table
+  const convertToUnifiedChanges = (changes: any[], isFieldChannel: boolean) => {
+    return changes.map((change, index) => {
+      const baseChange = {
+        id: `change-${index}`,
+        currency: change.currency,
+        currencyName: change.currencyName || change.currency,
+        currentPrice: change.currentPrice,
+        newPrice: change.newPrice,
+        change: change.change,
+        validity: change.validity || 'Using defaults',
+        status: (change.currentPrice === null ? 'new' : 'updated') as 'new' | 'updated'
+      };
+
+      if (isFieldChannel) {
+        // Field channel: include seat range and tier info
+        return {
+          ...baseChange,
+          type: 'field' as const,
+          context: change.seatRange && change.tier 
+            ? `${change.seatRange} seats, ${change.tier}`
+            : `${change.seatRange || 'Unknown'} seats`,
+          seatRange: change.seatRange || 'Unknown',
+          tier: change.tier || 'Base'
+        };
+      } else {
+        // Simple channel: just base price
+        return {
+          ...baseChange,
+          type: 'simple' as const,
+          context: 'Base price' as const
+        };
+      }
+    });
+  };
+
+
+  // Handle updating existing GTM item
+  const handleUpdateExistingGTMItem = async () => {
+    setIsSaving(true);
+    
+    try {
+      console.log('Updating existing GTM item...', {
+        gtmItemId,
+        gtmMotionId,
+        context: selectedContext,
+        priceChanges
+      });
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update the existing GTM item
+      const success = updateGTMItemPrices(
+        gtmMotionId!,
+        gtmItemId!,
+        priceChanges,
+        selectedContext
+      );
+      
+      if (!success) {
+        throw new Error('Failed to update GTM item');
+      }
+      
+      console.log(`✅ Updated GTM item: ${gtmItemId}`);
+      
+      // Show success message
+      showSuccessMessage(`Price changes have been updated successfully.`);
+      
+      // Call success callback
+      if (onSaveToGTM) {
+        onSaveToGTM(true);
+      }
+      
+      // Close modal
+      onClose();
+      
+    } catch (error) {
+      console.error('❌ Error updating GTM item:', error);
+      showErrorMessage('Failed to update price changes. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSave = async () => {
+    // Handle GTM item update vs creation
+    if (gtmItemId && gtmMotionId) {
+      // Update existing GTM item
+      await handleUpdateExistingGTMItem();
+      return;
+    }
+    
     if (!gtmMotionSelection) return;
 
     setIsSaving(true);
@@ -1824,18 +2002,31 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
             )}
           </div>
         );
-      case 2:
-        // Review changes step
+      case 2: {
+        // Review changes step - using block scope to avoid variable conflicts
+        const reviewIsFieldChannel = selectedContext?.channel?.toLowerCase() === 'field';
+        const unifiedChanges = convertToUnifiedChanges(priceChanges, reviewIsFieldChannel);
+        
         return (
           <div style={{ padding: '16px 0' }}>
-            <PriceChangesSummary
-              productName={productName}
-              isFieldChannel={selectedContext?.channel?.toLowerCase() === 'field'}
-              changes={priceChanges}
-              priceGroupAction={selectedContext?.priceGroupAction || 'create'}
+            {/* Price Changes Review Table */}
+            <PriceChangesTable
+              changes={unifiedChanges}
+              title="Review price changes"
+              mode="review"
+              showSummary={true}
+              showFiltering={true}
+              skuContext={{
+                action: selectedContext?.priceGroupAction === 'create' ? 'create' : 'update',
+                productName: productName,
+                channel: selectedContext?.channel || '',
+                billingCycle: selectedContext?.billingCycle || '',
+                skuIds: selectedContext?.existingPriceGroup?.id ? [selectedContext.existingPriceGroup.id] : undefined
+              }}
             />
           </div>
         );
+      }
       case 3:
         // GTM Selection step
         return (
@@ -1928,7 +2119,7 @@ const PriceEditorModal: React.FC<PriceEditorModalProps> = ({
                     currentStep === 0 ? (() => {
                       // Step 0: All collapse sections must be completed
                       const requiredSections = directEditMode 
-                        ? ['channel', 'billing', 'validity', 'lix'] // Skip method in direct edit mode
+                        ? ['validity'] // In edit mode, only validity section is shown and required
                         : ['method', 'channel', 'billing', 'validity', 'lix'];
                       const allSectionsComplete = requiredSections.every(
                         section => completedSections.has(section)

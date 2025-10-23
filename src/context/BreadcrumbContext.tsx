@@ -11,6 +11,9 @@ interface BreadcrumbContextType {
   setPriceGroupName: (name: string | null) => void;
   folderName: string | null;
   setFolderName: (name: string | null) => void;
+  // GTM Motion breadcrumb support
+  gtmMotionName: string | null;
+  setGtmMotionName: (name: string | null) => void;
 }
 
 const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children
   const [priceGroupId, setPriceGroupId] = useState<string | null>(null);
   const [priceGroupName, setPriceGroupName] = useState<string | null>(null);
   const [folderName, setFolderName] = useState<string | null>(null);
+  const [gtmMotionName, setGtmMotionName] = useState<string | null>(null);
 
   return (
     <BreadcrumbContext.Provider value={{ 
@@ -28,7 +32,8 @@ export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children
       skuId, setSkuId,
       priceGroupId, setPriceGroupId,
       priceGroupName, setPriceGroupName,
-      folderName, setFolderName
+      folderName, setFolderName,
+      gtmMotionName, setGtmMotionName
     }}>
       {children}
     </BreadcrumbContext.Provider>

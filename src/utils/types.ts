@@ -301,4 +301,7 @@ export type CurrencyPriceChange = {
   newAmount: number;
   changeAmount: number; // newAmount - currentAmount
   changePercentage: number; // (changeAmount / currentAmount) * 100
+  // Field product specific data
+  seatRange?: string; // e.g., "1-100"
+  tier?: string; // e.g., "Premium", "Standard"
 }; 

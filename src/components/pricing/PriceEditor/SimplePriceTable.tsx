@@ -742,28 +742,34 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             <Button
               type="text"
               size="small"
-              icon={<ChevronUp size={14} />}
+              icon={<ChevronUp size={12} />}
               onClick={() => moveCurrencyUp(record.currency)}
               disabled={isFirst}
               style={{
                 width: '20px',
-                height: '16px',
+                height: '20px',
                 padding: 0,
                 minWidth: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 color: isFirst ? token.colorTextQuaternary : token.colorTextSecondary
               }}
             />
             <Button
               type="text"
               size="small"
-              icon={<ChevronDown size={14} />}
+              icon={<ChevronDown size={12} />}
               onClick={() => moveCurrencyDown(record.currency)}
               disabled={isLast}
               style={{
                 width: '20px',
-                height: '16px',
+                height: '20px',
                 padding: 0,
                 minWidth: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 color: isLast ? token.colorTextQuaternary : token.colorTextSecondary
               }}
             />
@@ -781,8 +787,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
       render: (currency: string, record: PriceTableData) => (
         <InfoPopover content={record.currencyName} placement="right">
           <Text style={{ 
-            fontWeight: 500,
-            fontSize: '13px'
+            fontWeight: 500
           }}>
             {currency}
           </Text>
@@ -800,7 +805,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           return (
             <Text style={{ 
               color: token.colorTextTertiary,
-              fontSize: '13px',
               fontStyle: 'italic'
             }}>
               New
@@ -811,7 +815,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         return (
           <Text style={{ 
             fontVariantNumeric: 'tabular-nums',
-            fontSize: '13px',
             color: token.colorTextSecondary
           }}>
             {formatCurrencyAmount(price, record.currency)}
@@ -839,7 +842,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             onPaste={(e) => handlePaste(e, record.currency)}
             placeholder="" // Clean empty placeholder for minimal look
             style={{
-              fontSize: '13px',
               fontVariantNumeric: 'tabular-nums',
               borderColor: isDifferent ? token.colorWarning : undefined // Warning border for changes
             }}
@@ -857,8 +859,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         if (!change || Math.abs(change.amount) < 0.01) {
           return (
             <Text style={{ 
-              color: token.colorTextTertiary,
-              fontSize: '13px'
+              color: token.colorTextTertiary
             }}>
               —
             </Text>
@@ -888,7 +889,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             )}
             <Text style={{ 
               color,
-              fontSize: '13px',
               fontVariantNumeric: 'tabular-nums',
               fontWeight: 500,
               textAlign: 'left' // Left align change indicators
@@ -926,7 +926,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
                   placeholder="Start"
                   status={hasError ? "error" : undefined}
                 />
-                <Text style={{ fontSize: '11px', color: token.colorTextTertiary }}>to</Text>
+                <Text style={{ color: token.colorTextTertiary }}>to</Text>
                 <DatePicker
                   value={override.endDate}
                   onChange={(date) => updateCurrencyValidityDate(currency, 'endDate', date)}
@@ -943,10 +943,13 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
                   onClick={() => handleValidityPeriodCancel(currency)}
                   style={{
                     color: token.colorTextTertiary,
-                    padding: '2px',
+                    padding: 0,
                     height: '20px',
                     width: '20px',
-                    minWidth: '20px'
+                    minWidth: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                   title="Cancel and use default dates"
                 />
@@ -954,7 +957,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
               {hasError && (
                 <Text style={{ 
                   color: token.colorError, 
-                  fontSize: token.fontSizeSM,
                   display: 'block',
                   marginTop: '2px'
                 }}>
@@ -980,7 +982,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
               }}
             >
               <Text style={{
-                fontSize: token.fontSize,
                 color: token.colorTextTertiary
               }}>
                 {startText} - {endText}
@@ -1008,7 +1009,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
                 size="small"
                 onClick={() => handleValidityPeriodEdit(currency)}
                 style={{
-                  fontSize: token.fontSize,
                   color: token.colorText,
                   padding: 0,
                   height: 'auto',
@@ -1022,7 +1022,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
             // Currency unchanged - show grayed out, non-editable dates
             return (
               <Text style={{
-                fontSize: token.fontSize,
                 color: token.colorTextTertiary
               }}>
                 {startText} - {endText}
@@ -1032,7 +1031,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         } else {
           // Fallback - should not happen
           return (
-            <Text style={{ fontSize: token.fontSize, color: token.colorTextTertiary }}>
+            <Text style={{ color: token.colorTextTertiary }}>
               No dates
             </Text>
           );
@@ -1050,45 +1049,45 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         const isExistingCurrency = selectedContext.priceGroupAction === 'update' && 
                                   existingCurrencies.includes(record.currency);
         
-        if (isExistingCurrency) {
-          // Disabled button with tooltip for existing currencies
-          return (
-            <Tooltip title="Can't remove existing price points" placement="left">
-              <Button
-                type="text"
-                size="small"
-                icon={<X size={14} />}
-                disabled
-                style={{
-                  color: token.colorTextQuaternary,
-                  border: 'none',
-                  padding: '4px',
-                  height: '24px',
-                  width: '24px',
-                  cursor: 'not-allowed'
-                }}
-              />
-            </Tooltip>
-          );
-        }
-        
-        // Enabled button for new currencies (or all currencies in create mode)
-        return (
+        const buttonStyle = {
+          color: isExistingCurrency ? token.colorTextQuaternary : token.colorError,
+          border: 'none',
+          padding: 0,
+          height: '24px',
+          width: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: isExistingCurrency ? 'not-allowed' : 'pointer'
+        };
+
+        const button = (
           <Button
             type="text"
             size="small"
             icon={<X size={14} />}
-            onClick={() => handleCurrencyRemove(record.currency)}
+            disabled={isExistingCurrency}
+            onClick={isExistingCurrency ? undefined : () => handleCurrencyRemove(record.currency)}
             className="remove-currency-btn"
-            style={{
-              color: token.colorError, // Use danger/error color
-              border: 'none',
-              padding: '4px',
-              height: '24px',
-              width: '24px'
-            }}
+            style={buttonStyle}
           />
         );
+
+        const centeredButton = (
+          <div>
+            {button}
+          </div>
+        );
+
+        if (isExistingCurrency) {
+          return (
+            <Tooltip title="Can't remove existing price points" placement="left">
+              {centeredButton}
+            </Tooltip>
+          );
+        }
+        
+        return centeredButton;
       },
     }
   ];
@@ -1099,7 +1098,7 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
 
         {/* Currency selection dropdown */}
         <div style={{ marginBottom: '16px' }}>
-          <Text style={{ fontSize: token.fontSizeHeading3, color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
+          <Text style={{ color: token.colorText, fontWeight: 500, marginBottom: '8px', display: 'block' }}>
             Add currencies:
           </Text>
           <Select
@@ -1127,7 +1126,6 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
                 {selectedContext.priceGroupAction === 'update' && (
                   <div style={{
                     padding: '8px 12px',
-                    fontSize: token.fontSize,
                     color: token.colorTextSecondary,
                     borderBottom: `1px solid ${token.colorBorder}`,
                     marginBottom: '4px'
@@ -1149,20 +1147,9 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
           />
         </div>
 
-        {/* Explanatory text for Current column */}
-        {selectedContext.priceGroupAction === 'update' && (
-          <Text style={{ 
-            fontSize: token.fontSize,
-            color: token.colorTextSecondary,
-            display: 'block',
-            marginBottom: '12px'
-          }}>
-            Current column shows prices active today - these are what you're changing from.
-          </Text>
-        )}
         
         <Table
-          size="small"
+          size="middle"
           columns={columns}
           dataSource={tableData}
           rowKey="key"
@@ -1213,9 +1200,23 @@ const SimplePriceTable: React.FC<SimplePriceTableProps> = ({
         
         /* Style the remove action cells */
         .simple-price-table .ant-table-tbody > tr > td.remove-action-column {
-          padding: 8px 2px !important;
+          padding: 0 !important;
           text-align: center;
           border-left: none !important;
+          vertical-align: middle;
+          position: relative;
+        }
+        
+        /* Ensure the cell content fills the full height and centers properly */
+        .simple-price-table .ant-table-tbody > tr > td.remove-action-column > div {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         
         /* Remove the right border from the column before the remove action column */

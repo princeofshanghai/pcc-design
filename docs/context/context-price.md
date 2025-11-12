@@ -1,0 +1,40 @@
+## 1. Price & Price Point Logic
+
+Each **SKU** can have multiple **Price** versions (e.g., for time-based changes or experiments). Each Price contains one or more **Price Points**—one per currency.
+
+- **Price** = versioned container with effective dates (start/end).
+- **Price Point** = currency + amount (e.g., USD 999.00, EUR 899.00).
+
+Prices can be drafted, scheduled, or live. Price Points inherit their parent’s dates by default, but can override them for new currencies.
+
+---
+
+## 2. Currency Model
+
+- **USD-first:** All pricing is set in USD and converted to other currencies via FX.
+- **FX override:** Business users can override FX-calculated prices per market.
+- **Currency formatting:**
+  - No symbols, only codes (e.g., `USD 49.99`, `JPY 5000`)
+  - 2 decimals for most currencies, 0 for JPY, KRW, VND, etc.
+  - No commas or localization; always show in machine-readable format.
+
+### Currency Groupings
+
+- **Core currencies:** USD, EUR, GBP, CAD, AUD, JPY, etc.
+- **Longtail currencies:** Managed less actively.
+- **Field sales currencies (only 10):** USD, EUR, CAD, GBP, AUD, SGD, JPY, CNY, INR, HKD.
+
+---
+
+## 3. Tax Logic
+
+### Desktop (LinkedIn.com)
+- **Tax-Exclusive:** Users enter base price; tax is added at checkout.
+
+### Mobile (iOS, Google Play)
+- **Tax-Inclusive:** Users enter final price; system back-calculates pre-tax amount.
+- Required by app stores.
+
+### UI Implication
+- UI must clearly indicate tax mode.
+- Export must reflect tax logic.

@@ -20,6 +20,7 @@ const CalculationSchemesPlaceholder = React.lazy(() => import('./pages/Calculati
 const PicassoNPIPlaceholder = React.lazy(() => import('./pages/PicassoNPIPlaceholder'));
 const PlatformEntityMappingPlaceholder = React.lazy(() => import('./pages/PlatformEntityMappingPlaceholder'));
 const AttributeDictionary = React.lazy(() => import('./pages/AttributeDictionary'));
+const Components = React.lazy(() => import('./pages/Components'));
 const GTMMotionList = React.lazy(() => import('./pages/GTMMotionList'));
 const GTMMotionDetail = React.lazy(() => import('./pages/GTMMotionDetail'));
 const GTMMotionChangesDetail = React.lazy(() => import('./pages/GTMMotionChangesDetail'));
@@ -69,6 +70,7 @@ function App() {
                   <Route path="/picasso-npi" element={<PicassoNPIPlaceholder />} />
                   <Route path="/platform-entity-mapping" element={<PlatformEntityMappingPlaceholder />} />
                   <Route path="/attribute-dictionary" element={<AttributeDictionary />} />
+                  <Route path="/components" element={<Components />} />
                   <Route path="/test-price-changes-table" element={<TestPriceChangesTable />} />
                 </Route>
               </Routes>

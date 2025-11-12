@@ -1,0 +1,58 @@
+## 1. Catalog Organization
+
+### 1.1 Line of Business (LOB)
+LinkedIn groups all products into one of four LOBs:
+- **LTS** – Talent Solutions
+- **LMS** – Marketing Solutions
+- **LSS** – Sales Solutions
+- **Premium** – Subscriptions for individuals & small businesses
+
+Each product belongs to one LOB. LOB is used in navigation, filtering, reporting, and access control.
+
+### 1.2 Product Category
+Categories are sub-groupings within a LOB. Each product has one category. Examples:
+
+- **LTS:** Career Pages, Glint, Learning, SMB Solution
+- **LSS:** Sales Navigator
+- **LMS:** Ads
+- **Premium:** Multiseat, Small Business, Company Page
+
+### 1.3 Product ID
+A permanent, unique ID (e.g., `5095295`) used for lookup and reference across LinkedIn systems.
+
+---
+
+## 2. Core Entity Hierarchy
+
+Product
+└── SKU (e.g., Standard Version: Annual, NAMER, Desktop)
+    └── Price (Standard Price, effective all year)
+        ├── Price Point (USD 240.00)
+        └── Price Point (CAD 320.00)
+
+### 2.1 Product
+Conceptual offering users recognize, e.g., “Sales Navigator Core”. Acts as a container for all SKUs.
+
+### 2.2 SKU (Sellable Configuration)
+A unique combo of attributes like Channel, Region, and Billing Cycle. SKUs are **immutable** and the unit of experimentation.
+
+- To test new configs (e.g., pricing), create a new SKU and gate with a LIX key.
+- Example: Annual / NAMER / Desktop SKU.
+
+### 2.3 Price
+Tied to a specific SKU, defines when certain prices are valid. Includes:
+- **Effective Dates** (Start, End)
+- **Drafts & Publishing workflow**
+
+Used for scheduled pricing (e.g., Q4 promotion).
+
+### 2.4 Price Point
+The actual currency value (e.g., USD 999.99). Multiple price points live under a single Price object, one per currency.
+
+---
+
+## Notes
+- A single Product may have many SKUs.
+- Each SKU has one or more Price versions.
+- Each Price holds multiple currency-specific Price Points.
+- SKUs are never edited—new versions are created to support safe experimentation.

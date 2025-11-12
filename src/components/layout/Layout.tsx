@@ -1,5 +1,5 @@
-import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid } from 'antd';
-import { User, PanelLeft, Box, Folder, TicketPercent, Calculator, Workflow, Smartphone, ArrowBigRightDash, TableProperties, Rocket } from 'lucide-react';
+import { Layout, Menu, Avatar, Breadcrumb, Button, theme, Space, Grid, Tag } from 'antd';
+import { User, PanelLeft, Box, Folder, TicketPercent, Calculator, Workflow, Smartphone, ArrowBigRightDash, TableProperties, Rocket, Component } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import LinkedInLogo from '../../assets/linkedin-logo.svg';
@@ -177,6 +177,23 @@ const generateMenuStructure = (navigate: (path: string) => void, currentPath: st
           icon: <TableProperties size={16} />
         }
       ]
+    },
+    // Development Section - using Ant Design item group
+    {
+      type: 'group' as const,
+      label: 'Development',
+      children: [
+        {
+          key: 'components',
+          label: (
+            <Space>
+              Components
+              <Tag color="orange">Internal</Tag>
+            </Space>
+          ),
+          icon: <Component size={16} />
+        }
+      ]
     }
   ];
 
@@ -233,7 +250,8 @@ const AppLayout = () => {
       '/platform-entity-mapping': ['platform-entity-mapping'],
       '/change-requests': ['change-requests'],
       '/picasso-npi': ['picasso-npi'],
-      '/attribute-dictionary': []
+      '/attribute-dictionary': [],
+      '/components': ['components']
     };
 
     // Direct route match
@@ -296,6 +314,9 @@ const AppLayout = () => {
       'gtm-motions': '/gtm-motions',
       'change-requests': '/change-requests',
       'picasso-npi': '/picasso-npi',
+      
+      // Development section
+      'components': '/components',
     };
 
     // Handle direct navigation for non-expandable items

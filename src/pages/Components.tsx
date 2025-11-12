@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Typography, Space, Divider, Card, Row, Col, Button, Tag } from 'antd';
-import { Heart, Star, Table, List, ChevronDown } from 'lucide-react';
+import { Heart, Star, Table, List } from 'lucide-react';
 
 // Import components to showcase
 import BaseChip from '../components/shared/BaseChip';
@@ -71,7 +71,7 @@ const ComponentShowcase: React.FC<ComponentShowcaseProps> = ({ title, component,
 
 const Components: React.FC = () => {
   // State for interactive examples
-  const [searchValue, setSearchValue] = useState('');
+  const [_searchValue, setSearchValue] = useState('');
   const [filterValue, setFilterValue] = useState<string | null>(null);
   const [multiFilterValue, setMultiFilterValue] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState('table');

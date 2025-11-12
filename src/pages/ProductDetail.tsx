@@ -1514,7 +1514,12 @@ const ProductDetail: React.FC = () => {
     // SKUs tab (moved to be fourth/last)
     {
       key: 'skus',
-      label: 'SKUs',
+      label: (
+        <Space size="small" align="center">
+          <span>SKUs</span>
+          <Tag color="warning" style={{ margin: 0 }}>WIP</Tag>
+        </Space>
+      ),
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
 

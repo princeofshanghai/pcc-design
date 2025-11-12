@@ -186,10 +186,10 @@ const generateMenuStructure = (navigate: (path: string) => void, currentPath: st
         {
           key: 'components',
           label: (
-            <Space>
-              Components
-              <Tag color="orange">Internal</Tag>
-            </Space>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>Components</span>
+              <Tag color="orange" style={{ margin: 0, lineHeight: '1' }}>Internal</Tag>
+            </div>
           ),
           icon: <Component size={16} />
         }
